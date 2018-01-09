@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="wiki">
+	<select id="wikiList" resultType="wiki.WikiVO">
+		SELECT *
+		FROM WIKI_CATE WC LEFT JOIN WIKI WK ON WC.WIKI_CATE_ID = WK.WIKI_CATE_ID
+		ORDER BY WC.WIKI_CATE_VAL, WK.WIKI_TITLE
+	</select>
+	
+	<select id="wikiCateList" resultType="wiki.WikiVO">
+		SELECT *
+		FROM WIKI_CATE
+		ORDER BY WIKI_CATE_VAL
+	</select>
+	
+	<select id="wikiContent" parameterType="String" resultType="wiki.WikiVO">
+		SELECT *
+		FROM WIKI
+		WHERE
+		<choose>
+			<when test="value != null and !value.equals('')">
+				WIKI_ID = #{wiki_id}
+			</when>
+			<otherwise>
+				WIKI_ID = (SELECT MIN(WIKI_ID) AS WIKI_ID FROM WIKI)
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="wikiInsert" parameterType="wiki.WikiVO">
+		INSERT INTO WIKI(WIKI_ID, 
+						WIKI_TITLE, 
+						WIKI_CONTENT, 
+						WIKI_CATE_ID)
+		VALUES(WIKI_SEQ.NEXTVAL, #{wiki_title}, #{wiki_content}, #{wiki_cate_id})
+	</insert>
+	
+	<update id="wikiUpdate" parameterType="wiki.WikiVO">
+		UPDATE WIKI SET WIKI_TITLE 		= #{wiki_title},
+						WIKI_CONTENT 	= #{wiki_content}
+		WHERE WIKI_ID = #{wiki_id}
+	</update>
+	
+	<delete id="wikiDelete" parameterType="String">
+		DELETE FROM WIKI
+		WHERE WIKI_ID = #{wiki_id}
+	</delete>
+	
+	<select id="wikiCateContent" parameterType="String" resultType="wiki.WikiVO">
+		SELECT *
+		FROM WIKI_CATE
+		WHERE
+		WIKI_CATE_ID = #{wiki_cate_id}
+	</select>
+
+	<insert id="wikiCateInsert" parameterType="wiki.WikiVO">
+		INSERT INTO WIKI_CATE(	WIKI_CATE_ID, 
+								WIKI_CATE_VAL)
+		VALUES(WIKI_CATE_ID_SEQ.NEXTVAL, #{wiki_cate_val})
+	</insert>
+	
+	<update id="wikiCateUpdate" parameterType="wiki.WikiVO">
+		UPDATE WIKI_CATE SET WIKI_CATE_VAL	= #{wiki_cate_val},
+		WHERE WIKI_CATE_ID = #{wiki_cate_id}
+	</update>
+	
+	<delete id="wikiCateDelete" parameterType="String">
+		DELETE FROM WIKI_CATE
+		WHERE WIKI_CATE_ID = #{wiki_cate_id}
+	</delete>
+	<delete id="wikiCateDelete2" parameterType="String">
+		DELETE FROM WIKI
+		WHERE WIKI_CATE_ID = #{wiki_cate_id}
+	</delete>
+	
+</mapper>
