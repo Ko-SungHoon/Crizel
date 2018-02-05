@@ -1,0 +1,421 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCBoardSkinManage">
+	<cacheModel type="${Globals.ibatis.default.cache}" id="RFCBoardSkinManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="boardDAO.insertBoardSkin"/>
+		<flushOnExecute statement="boardDAO.updateBoardSkin"/>
+		<flushOnExecute statement="boardDAO.updateBoardSkinPublic"/>
+		<flushOnExecute statement="boardDAO.updateBoardSkinList"/>
+		<flushOnExecute statement="boardDAO.updateBoardSkinWrite"/>
+		<flushOnExecute statement="boardDAO.updateBoardSkinView"/>
+		<flushOnExecute statement="boardDAO.updateBoardSkinArea"/>
+		<flushOnExecute statement="boardDAO.insertBoardSkinEtc"/>
+		<flushOnExecute statement="boardDAO.updateBoardSkinEtc"/>
+		<flushOnExecute statement="boardDAO.deleteSkinEtc"/>
+		<flushOnExecute statement="boardDAO.deleteSkin"/>
+     </cacheModel>
+	
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="boardSkinVO"	 type = "egovframework.rfc3.board.vo.BoardSkinVO"/>
+    <typeAlias  alias="boardSkinEtcVO"	 type = "egovframework.rfc3.board.vo.BoardSkinEtcVO"/>
+     
+     <select id="boardDAO.selectBoardSkinListTotal"  parameterClass="boardSkinVO" resultClass="int" cacheModel="RFCBoardSkinManageCache">
+						SELECT
+							  count(*) totcnt
+						FROM
+						 	  RFC_COMTNBBSSKIN
+						WHERE  1=1
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>		
+			           <isNotEmpty prepend="AND" property="sgroupId" >
+			          		     SGROUP_ID  = #sgroupId#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="domainId" >
+			          		     DOMAIN_ID  = #domainId#
+			            </isNotEmpty>	          
+			            <isNotEmpty prepend="AND" property="skinType" >
+			          		     SKIN_TYPE  = #skinType#
+			            </isNotEmpty>
+	</select>
+	
+	<select id="boardDAO.selectBoardSkinList" parameterClass="boardSkinVO"  resultClass="boardSkinVO" cacheModel="RFCBoardSkinManageCache">
+   SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(
+		
+			       	SELECT
+			       			A.BBS_SKIN_ID bbsSkinId,
+			       			A.SKIN_ID skinId,
+			       			A.SGROUP_ID sgroupId,
+			       			A.DOMAIN_ID domainId,
+			       			A.BOARD_ID boardId,
+			       			A.SKIN_NAME skinName,
+			       			A.ENG_NAME engName	,
+			       			A.SKIN_TYPE skinType,
+			       			A.SKIN_DEMO_IMG skinDemoImg,
+			       			A.MODIFY_DATE modify_dt
+						FROM
+						    RFC_COMTNBBSSKIN A
+						WHERE  1=1
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="domainId" >
+			          		     A.DOMAIN_ID  = #domainId#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		     A.SGROUP_ID  = #sgroupId#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="skinType" >
+			          		     A.SKIN_TYPE  = #skinType#
+			            </isNotEmpty>
+			            <isNotEmpty  property="orderField" >
+			            	  ORDER BY  $orderField$   $orderSort$
+			            </isNotEmpty>
+			            <isEmpty  property="orderField" >
+			             	ORDER BY BBS_SKIN_ID  DESC
+			             </isEmpty>
+			           ) ALL_LIST
+	      )
+  WHERE  RNUM  &gt; #firstIndex#
+  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>
+	
+	<select id="boardDAO.getBoardSkin" parameterClass="boardSkinVO"  resultClass="boardSkinVO" cacheModel="RFCBoardSkinManageCache">
+			       	SELECT
+			       			A.BBS_SKIN_ID bbsSkinId,
+							A.SKIN_ID skinId,
+							A.SGROUP_ID sgroupId,
+							A.DOMAIN_ID domainId,
+							A.BOARD_ID boardId,
+							A.SKIN_NAME skinName,
+							A.ENG_NAME engName	,
+							A.SKIN_DESC skinDesc,
+							A.SKIN_TYPE skinType,
+							A.SKIN_DEMO_IMG skinDemoImg,
+							A.MODIFY_DATE modify_dt,
+							A.REGISTER_DATE register_dt			       			
+						FROM
+						    RFC_COMTNBBSSKIN A
+						WHERE A.BBS_SKIN_ID = #bbsSkinId#
+	</select>
+	<select id="boardDAO.getBoardSkinId" parameterClass="boardSkinVO"  resultClass="boardSkinVO" cacheModel="RFCBoardSkinManageCache">
+			       	SELECT
+			       			A.BBS_SKIN_ID bbsSkinId,
+							A.SKIN_ID skinId,
+							A.SGROUP_ID sgroupId,
+							A.DOMAIN_ID domainId,
+							A.BOARD_ID boardId,
+							A.SKIN_NAME skinName,
+							A.ENG_NAME engName	,
+							A.SKIN_DESC skinDesc,
+							A.SKIN_TYPE skinType,
+							A.SKIN_DEMO_IMG skinDemoImg,
+							A.SKIN_LIST skinList,
+							A.SKIN_WRITE skinWrite,
+							A.SKIN_VIEW skinView,
+							A.SKIN_HEAD skinHead,
+							A.SKIN_FOOTER skinFooter,
+							A.MODIFY_DATE modify_dt,
+							A.REGISTER_DATE register_dt			       			
+						FROM
+						    RFC_COMTNBBSSKIN A
+						WHERE A.SKIN_ID = #skinId#
+	</select>
+	
+	<select id="boardDAO.selectBoardSkinIdCount"  parameterClass="boardSkinVO" resultClass="int" cacheModel="RFCBoardSkinManageCache">
+						SELECT
+							  count(*) totcnt
+						FROM
+						 	  RFC_COMTNBBSSKIN
+						WHERE SKIN_ID = #skinId#         
+	</select>	
+	<insert id="boardDAO.insertBoardSkin" parameterClass="boardSkinVO" >
+			       	INSERT INTO 	RFC_COMTNBBSSKIN
+			       	(
+			       		BBS_SKIN_ID,
+						SKIN_ID,
+						SGROUP_ID,
+						DOMAIN_ID,
+						BOARD_ID,
+						SKIN_NAME,
+						ENG_NAME,
+						SKIN_DESC,
+						SKIN_TYPE,
+						SKIN_LIST,
+						SKIN_WRITE,
+						SKIN_VIEW,
+						SKIN_DEMO_IMG,
+						SKIN_HEAD,
+						SKIN_FOOTER,
+						MODIFY_DATE,
+						REGISTER_DATE
+			       	)
+			       	VALUES
+			       	(
+			       		#bbsSkinId#,
+						#skinId#,
+						#sgroupId#,
+						#domainId#,
+						#boardId#,
+						#skinName#,
+						#engName#,
+						#skinDesc#,
+						#skinType#,
+						#skinList#,
+						#skinWrite#,
+						#skinView#,
+						#skinDemoImg#,
+						#skinHead#,
+						#skinFooter#,
+						#modify_dt#,
+						#register_dt#
+			       	)
+	</insert>
+	<update id="boardDAO.updateBoardSkin" parameterClass="boardSkinVO" >
+			       	UPDATE 	RFC_COMTNBBSSKIN
+			       	SET
+						SGROUP_ID=#sgroupId#,
+						DOMAIN_ID=#domainId#,
+						BOARD_ID=#boardId#,
+						SKIN_NAME=#skinName#,
+						ENG_NAME=#engName#,
+						SKIN_DESC=#skinDesc#,
+						SKIN_TYPE=#skinType#,
+						SKIN_DEMO_IMG=#skinDemoImg#,
+						MODIFY_DATE=#modify_dt#
+					WHERE 		
+						BBS_SKIN_ID = #bbsSkinId#	       
+	</update>
+	<select id="boardDAO.selectBoardSkinArea" parameterClass="boardSkinVO" resultClass="boardSkinVO" cacheModel="RFCBoardSkinManageCache">
+			       	SELECT
+			       		BBS_SKIN_ID bbsSkinId,
+						SKIN_ID skinId,
+						SKIN_NAME skinName,
+						ENG_NAME engName,
+						SKIN_DESC skinDesc,
+						SKIN_TYPE skinType,
+						SKIN_LIST skinList,
+						SKIN_WRITE skinWrite,
+						SKIN_VIEW skinView,
+						SKIN_HEAD skinHead,
+						SKIN_FOOTER skinFooter
+					FROM
+						RFC_COMTNBBSSKIN
+					WHERE 		
+						BBS_SKIN_ID = #bbsSkinId#	       
+	</select>
+	
+	<update id="boardDAO.updateBoardSkinPublic" parameterClass="boardSkinVO" >
+			       	UPDATE 	RFC_COMTNBBSSKIN
+			       	SET
+						SKIN_HEAD=#skinHead#,
+						SKIN_FOOTER=#skinFooter#,
+						MODIFY_DATE=#modify_dt#
+					WHERE 		
+						BBS_SKIN_ID = #bbsSkinId#	       
+	</update>
+	<update id="boardDAO.updateBoardSkinList" parameterClass="boardSkinVO" >
+			       	UPDATE 	RFC_COMTNBBSSKIN
+			       	SET
+						SKIN_LIST=#skinList#,
+						MODIFY_DATE=#modify_dt#
+					WHERE 		
+						BBS_SKIN_ID = #bbsSkinId#	       
+	</update>
+	<update id="boardDAO.updateBoardSkinWrite" parameterClass="boardSkinVO" >
+			       	UPDATE 	RFC_COMTNBBSSKIN
+			       	SET
+						SKIN_WRITE=#skinWrite#,
+						MODIFY_DATE=#modify_dt#
+					WHERE 		
+						BBS_SKIN_ID = #bbsSkinId#	       
+	</update>
+	<update id="boardDAO.updateBoardSkinView" parameterClass="boardSkinVO" >
+			       	UPDATE 	RFC_COMTNBBSSKIN
+			       	SET
+						SKIN_VIEW=#skinView#,
+						MODIFY_DATE=#modify_dt#
+					WHERE 		
+						BBS_SKIN_ID = #bbsSkinId#	       
+	</update>
+	
+	<update id="boardDAO.updateBoardSkinArea" parameterClass="boardSkinVO" >
+			       	UPDATE 	RFC_COMTNBBSSKIN
+			       	SET
+						SKIN_LIST=#skinList#,
+						SKIN_WRITE=#skinWrite#,
+						SKIN_VIEW=#skinView#,
+						SKIN_HEAD=#skinHead#,
+						SKIN_FOOTER=#skinFooter#,
+						MODIFY_DATE=#modify_dt#
+					WHERE 		
+						BBS_SKIN_ID = #bbsSkinId#	       
+	</update>	
+	
+	<insert id="boardDAO.insertBoardSkinEtc" parameterClass="boardSkinEtcVO" >
+			       	INSERT INTO 	RFC_COMTNBBSSKINETC
+			       	(
+			       		SKIN_ID,
+						BTN_LIST,
+						BTN_WRITE,
+						BTN_REPLY,
+						BTN_MODIFY,
+						BTN_DELETE,
+						BTN_CONFIRM,
+						BTN_CANCEL,
+						ICON_PREV_BLOCK,
+						ICON_NEXT_BLOCK,
+						ICON_PREV,
+						ICON_NEXT,
+						ICON_FILE,
+						ICON_NEW,
+						ICON_REPLY,
+						CONVERT_ICON,
+						HTML_VIEWER,
+						MOBILE_VIEWER,
+						EMPTY_MESSAGE,
+						PAGE_CSS,
+						PAGE_TAG,
+						PAGE_NOW_CSS,
+						PASSWORD_URL,
+						PASSWORD_TARGET,
+						PASSWORD_WIDTH,
+						PASSWORD_HEIGHT
+			       	)
+			       	VALUES
+			       	(
+			       		#skinId#,
+						#btnList#,
+						#btnWrite#,
+						#btnReply#,
+						#btnModify#,
+						#btnDelete#,
+						#btnConfirm#,
+						#btnCancel#,
+						#iconPrevBlock#,
+						#iconNextBlock#,
+						#iconPrev#,
+						#iconNext#,
+						#iconFile#,
+						#iconNew#,
+						#iconReply#,
+						#convertIcon#,
+						#htmlViewer#,
+						#mobileViewer#,
+						#emptyMessage#,
+						#pageCss#,
+						#pageTag#,
+						#pageNowCss#,
+						#passwordUrl#,
+						#passwordTarget#,
+						#passwordWidth#,
+						#passwordHeight#
+						
+			       	)
+	</insert>
+	<update id="boardDAO.updateBoardSkinEtc" parameterClass="boardSkinEtcVO" >
+			       	UPDATE 	RFC_COMTNBBSSKINETC
+			       	SET
+						BTN_LIST=#btnList#,
+						BTN_WRITE=#btnWrite#,
+						BTN_REPLY=#btnReply#,
+						BTN_MODIFY=#btnModify#,
+						BTN_DELETE=#btnDelete#,
+						BTN_CONFIRM=#btnConfirm#,
+						BTN_CANCEL=#btnCancel#,
+						ICON_PREV_BLOCK=#iconPrevBlock#,
+						ICON_NEXT_BLOCK=#iconNextBlock#,
+						ICON_PREV=#iconPrev#,
+						ICON_NEXT=#iconNext#,
+						ICON_FILE=#iconFile#,
+						ICON_NEW=#iconNew#,
+						ICON_REPLY=#iconReply#,
+						CONVERT_ICON=#convertIcon#,
+						HTML_VIEWER=#htmlViewer#,
+						MOBILE_VIEWER=#mobileViewer#,
+						EMPTY_MESSAGE=#emptyMessage#,
+						PAGE_CSS=#pageCss#,
+						PAGE_TAG=#pageTag#,
+						PAGE_NOW_CSS=#pageNowCss#,
+						PASSWORD_URL=#passwordUrl#,
+						PASSWORD_TARGET=#passwordTarget#,
+						PASSWORD_WIDTH=#passwordWidth#,
+						PASSWORD_HEIGHT=#passwordHeight#
+					WHERE 		
+						SKIN_ID = #skinId#	       
+	</update>
+	<select id="boardDAO.selectBoardSkinEtcCount"  parameterClass="boardSkinEtcVO" resultClass="int" cacheModel="RFCBoardSkinManageCache">
+						SELECT
+							  count(*) totcnt
+						FROM
+						 	  RFC_COMTNBBSSKINETC
+						WHERE SKIN_ID = #skinId#         
+	</select>		
+	<select id="boardDAO.getBoardSkinEtc"  parameterClass="boardSkinEtcVO" resultClass="boardSkinEtcVO" cacheModel="RFCBoardSkinManageCache">
+						SELECT
+							SKIN_ID skinId,
+							BTN_LIST btnList,
+							BTN_WRITE btnWrite,
+							BTN_REPLY btnReply,
+							BTN_MODIFY btnModify,
+							BTN_DELETE btnDelete,
+							BTN_CONFIRM btnConfirm,
+							BTN_CANCEL btnCancel,
+							ICON_PREV_BLOCK iconPrevBlock,
+							ICON_NEXT_BLOCK iconNextBlock,
+							ICON_PREV iconPrev,
+							ICON_NEXT iconNext,
+							ICON_FILE iconFile,
+							ICON_NEW iconNew,
+							ICON_REPLY iconReply,
+							CONVERT_ICON convertIcon,
+							HTML_VIEWER htmlViewer,
+							MOBILE_VIEWER mobileViewer,
+							EMPTY_MESSAGE emptyMessage,
+							PAGE_CSS pageCss,
+							PAGE_TAG pageTag,
+							PAGE_NOW_CSS pageNowCss,
+							PASSWORD_URL passwordUrl,
+							PASSWORD_TARGET passwordTarget,							
+							PASSWORD_WIDTH  passwordWidth,
+							PASSWORD_HEIGHT passwordHeight
+						FROM
+						 	  RFC_COMTNBBSSKINETC
+						WHERE 
+							SKIN_ID = #skinId#         
+	</select>
+	<delete id="boardDAO.deleteSkinEtc" parameterClass="boardSkinVO"  >
+					 	DELETE FROM RFC_COMTNBBSSKINETC WHERE SKIN_ID = #skinId#
+	</delete>
+	<delete id="boardDAO.deleteSkin" parameterClass="boardSkinVO"  >
+					 	DELETE FROM RFC_COMTNBBSSKIN WHERE SKIN_ID = #skinId#
+	</delete>
+	
+	<select id="boardDAO.selectBoardSkinAllList" parameterClass="boardSkinVO"  resultClass="boardSkinVO" cacheModel="RFCBoardSkinManageCache">
+			       	SELECT
+			       			BBS_SKIN_ID bbsSkinId,
+							SKIN_ID skinId,
+							SKIN_NAME skinName,
+							ENG_NAME engName 		
+						FROM
+						    RFC_COMTNBBSSKIN
+						WHERE  1=0
+						<isNotEmpty prepend="OR" property="sgroupId" >
+			          		     (SGROUP_ID  = #sgroupId# AND DOMAIN_ID = '')
+			            </isNotEmpty>
+						<isNotEmpty prepend="OR" property="domainId" >
+			          		     DOMAIN_ID  = #domainId#
+			            </isNotEmpty>			            
+			            <isNotEmpty  property="orderField" >
+			            	  ORDER BY  $orderField$   $orderSort$
+			            </isNotEmpty>
+			            <isEmpty  property="orderField" >
+			             	ORDER BY BBS_SKIN_ID  DESC
+			             </isEmpty>
+	</select>
+</sqlMap>

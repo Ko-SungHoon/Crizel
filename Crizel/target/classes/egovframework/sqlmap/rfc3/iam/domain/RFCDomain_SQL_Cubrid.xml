@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCDomain">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="domainVO" type = "egovframework.rfc3.iam.vo.DomainVO"/>
+     <typeAlias  alias="searchVO" type = "egovframework.rfc3.search.vo.SearchVO"/>
+     
+     <resultMap id="domain" class="egovframework.rfc3.iam.vo.DomainVO">
+     	<result property="domainId" column="domainId" />
+        <result property="sgroupId" column="sgroupId" />
+        <result property="sgroupNm" column="sgroupNm" />
+        <result property="domain" column="domain" />
+        <result property="domainNm" column="domainNm" />
+        <result property="port" column="port" />
+        <result property="isUse" column="isUse" />
+        <result property="isSsoLogin" column="isSsoLogin" />
+        <result property="isSearch" column="isSearch" />
+        <result property="isSecure" column="isSecure" />
+        <result property="securePort" column="securePort" />
+        <result property="contextPath" column="contextPath" />
+    </resultMap>
+    
+    <cacheModel type="${Globals.ibatis.default.cache}" id="RFCDomainCache" readOnly="true" serialize="false">
+     	<flushInterval hours="24" />
+     	<flushOnExecute statement="domainDAO.insertDomain"/>
+     	<flushOnExecute statement="domainDAO.updateDomain"/>
+     	<flushOnExecute statement="domainDAO.deleteDomain"/>
+     	<flushOnExecute statement="domainDAO.deleteDomainForSiteGroup"/>
+     </cacheModel>
+    
+	<select id="domainDAO.selectDomainListTotCnt"  parameterClass="domainVO" resultClass="int"   cacheModel="RFCDomainCache">
+						SELECT
+							  count(*) totcnt
+						FROM
+						 	  RFC_COMTNDOMAIN  A   INNER JOIN RFC_COMTNSITEGROUP C ON A.SGROUP_ID = C.SGROUP_ID
+						WHERE  1=1    and C.IS_USE='1'
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		   A.SGROUP_ID   LIKE  #sgroupId#
+			            </isNotEmpty>
+	</select>
+	<select id="domainDAO.selectDomainList" parameterClass="domainVO"  resultMap="domain"  cacheModel="RFCDomainCache">
+			       	SELECT
+			       			   A.DOMAIN_ID  domainId,
+							   A.SGROUP_ID  sgroupId,
+							   (select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SGROUP_ID )  sgroupNm,
+							   A.[DOMAIN] [domain],
+							   A.PORT port,
+							   A.DOMAIN_NM domainNm,
+							   A.IS_USE  isUse,
+							   A.IS_SSO_LOGIN  isSsoLogin,
+							   A.IS_SEARCH isSearch,
+							   A.IS_SECURE isSecure,
+							   A.IS_LOGIN_HTTPS isLoginHttps,
+							   A.SECURE_PORT securePort,
+							   A.CONTEXT_PATH contextPath
+							   
+						FROM
+						    RFC_COMTNDOMAIN A INNER JOIN RFC_COMTNSITEGROUP C ON A.SGROUP_ID = C.SGROUP_ID
+						WHERE  1=1   and C.IS_USE='1'
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		   A.SGROUP_ID   LIKE  #sgroupId#
+			            </isNotEmpty>
+			            <isNotEmpty  property="orderField" >
+			            	  ORDER BY  $orderField$   $orderSort$
+			            </isNotEmpty>
+			            <isEmpty  property="orderField" >
+			             	ORDER BY A.CREATE_DATE  DESC
+			             </isEmpty>
+			              LIMIT #recordCountPerPage# OFFSET #firstIndex#
+	</select>
+	
+	<select id="domainDAO.selectDomainCopyList" parameterClass="domainVO"  resultMap="domain"  cacheModel="RFCDomainCache">
+			       	SELECT
+			       			   A.DOMAIN_ID  domainId,
+							   A.SGROUP_ID  sgroupId,
+							   (select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SGROUP_ID )  sgroupNm,
+							   A.[DOMAIN] [domain],
+							   A.PORT port,
+							   A.DOMAIN_NM domainNm,
+							   A.IS_USE  isUse,
+							   A.IS_SSO_LOGIN  isSsoLogin,
+							   A.IS_SEARCH isSearch,
+							   A.IS_SECURE isSecure,
+							   A.IS_LOGIN_HTTPS isLoginHttps,
+							   A.SECURE_PORT securePort,
+							   A.CONTEXT_PATH contextPath
+							   
+						FROM
+						    RFC_COMTNDOMAIN A INNER JOIN RFC_COMTNSITEGROUP C ON A.SGROUP_ID = C.SGROUP_ID
+						WHERE  1=1   and C.IS_USE='1' and  A.DOMAIN_ID !=#domainId#
+	</select>
+	
+	<!-- dwr call use -->
+	<select id="domainDAO.selectDomainListForSgroupId"  parameterClass="java.lang.String"   resultMap="domain"  cacheModel="RFCDomainCache">
+							SELECT
+							   A.DOMAIN_ID  domainId,
+							   A.SGROUP_ID  sgroupId,
+							   (select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SGROUP_ID )  sgroupNm,
+							   [DOMAIN] [domain],
+							   PORT port,
+							   DOMAIN_NM domainNm,
+							   IS_USE  isUse,
+							   IS_SSO_LOGIN  isSsoLogin,
+							   IS_SEARCH  isSearch,
+							   IS_SECURE isSecure,
+							   IS_LOGIN_HTTPS isLoginHttps,
+							   SECURE_PORT securePort,
+							   CONTEXT_PATH contextPath
+						FROM
+						      RFC_COMTNDOMAIN A
+						WHERE  1=1 and  IS_USE='1'
+			            AND SGROUP_ID like #sgroupId#
+						ORDER BY CREATE_DATE  DESC
+	</select>
+	<select id="domainDAO.selectDomainInfoForDomainId"  parameterClass="java.lang.String"  resultClass="domainVO"  cacheModel="RFCDomainCache">
+					SELECT
+							   A.DOMAIN_ID  domainId,
+							   A.SGROUP_ID  sgroupId,
+							   (select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SGROUP_ID )  sgroupNm,
+							   [DOMAIN] [domain],
+							   PORT port,
+							   DOMAIN_NM domainNm,
+							   IS_USE  isUse,
+							   IS_AUTO_CT  isAutoCt,
+							   IS_SSO_LOGIN  isSsoLogin,
+							   IMAGE_PATH  imagePath,
+							   IS_SEARCH isSearch,
+							   END_TAG_USE endTagUse,
+							   BOARD_FILER_GROUP_IDX boardFilerGroupIdx,
+							   DOC_SERVICE_ID	docServiceId,
+							   DOC_SERVICE_USE	docServiceUse,
+							   WSS_RATIO  wssRatio,
+							   IS_SECURE isSecure,
+							   IS_LOGIN_HTTPS isLoginHttps,
+							   SECURE_PORT securePort,
+							   CONTEXT_PATH contextPath
+						FROM
+						      RFC_COMTNDOMAIN A
+						WHERE  
+						      DOMAIN_ID = #domainId#
+	</select>
+	<select id="domainDAO.selectDomanIdCnt"  parameterClass="domainVO"  resultClass="int"  cacheModel="RFCDomainCache">
+					SELECT
+							   count(*) totcnt 
+						FROM
+						      RFC_COMTNDOMAIN A
+						WHERE  
+						      DOMAIN_ID like #domainId# 
+	</select>
+	<select id="domainDAO.selectIsDomainCnt"  parameterClass="domainVO"  resultClass="int"  cacheModel="RFCDomainCache"> 
+					SELECT
+							   count(*) totcnt 
+						FROM
+						      RFC_COMTNDOMAIN A
+						WHERE  
+						      [DOMAIN] like #domain#
+	</select>
+
+	<select id="domainDAO.selectDomainSgroupId"  parameterClass="domainVO"  resultClass="domainVO"  >
+					SELECT
+							   A.DOMAIN_ID  domainId,
+							   A.SGROUP_ID  sgroupId,
+							   (select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SGROUP_ID )  sgroupNm,
+							   [DOMAIN] [domain],
+							   PORT port,
+							   DOMAIN_NM domainNm,
+							   IS_USE  isUse,
+							   IS_AUTO_CT  isAutoCt,
+							   IS_SSO_LOGIN  isSsoLogin,
+							   IMAGE_PATH  imagePath,
+							   IS_SEARCH isSearch,
+							   END_TAG_USE endTagUse,
+							   BOARD_FILER_GROUP_IDX boardFilerGroupIdx,
+							   DOC_SERVICE_ID	docServiceId,
+							   DOC_SERVICE_USE	docServiceUse,
+							   WSS_RATIO  wssRatio,
+							   IS_SECURE isSecure,
+							   IS_LOGIN_HTTPS isLoginHttps,
+							   SECURE_PORT securePort,
+							   CONTEXT_PATH contextPath
+						FROM
+						      RFC_COMTNDOMAIN A
+						WHERE  
+						      ([DOMAIN] like #domain# and  PORT like #port# )
+						      or
+						      ([DOMAIN] like #domain# and  IS_SECURE='true' and  SECURE_PORT like #port# )  
+		
+						      
+	</select>
+	<select id="domainDAO.selectIsNotDomainCnt"  parameterClass="domainVO"  resultClass="int"  cacheModel="RFCDomainCache">
+					SELECT
+							    count(*) totcnt 
+						FROM
+						      RFC_COMTNDOMAIN A
+						WHERE  
+						    DOMAIN_ID  != #domainId#  and  [DOMAIN] like #domain# 
+	</select>
+	<select id="domainDAO.totalDomainCnt"   resultClass="int"  cacheModel="RFCDomainCache"> 
+					SELECT
+							   count(*) totcnt 
+						FROM
+						      RFC_COMTNDOMAIN A
+	</select>
+	
+	<insert id="domainDAO.insertDomain"  parameterClass="domainVO">
+					INSERT INTO RFC_COMTNDOMAIN
+						 ( 
+						   DOMAIN_ID,
+						   SGROUP_ID ,
+						   DOMAIN ,
+						   DOMAIN_NM,
+						   PORT,
+						   IS_USE  ,
+						   IS_AUTO_CT,
+						   IS_SSO_LOGIN,
+						   IMAGE_PATH,
+						   IS_SEARCH,
+						   END_TAG_USE,
+						   BOARD_FILER_GROUP_IDX,
+						   DOC_SERVICE_ID,
+						   DOC_SERVICE_USE,
+						   WSS_RATIO,
+						   CREATE_DATE ,
+						   MODIFY_DATE,
+						   IS_SECURE,
+						   IS_LOGIN_HTTPS,
+						   SECURE_PORT,
+						   CONTEXT_PATH,
+						   SUB_CONTEXT_PATH,
+						   DOMAIN_BACK,
+						   SUB_CONTEXT_PATH_IS)
+		           VALUES (
+		                #domainId#,
+		                #sgroupId# ,
+		                #domain# ,
+		                #domainNm# ,
+		                #port# ,
+		                #isUse#, 
+		                #isAutoCt#,
+		                #isSsoLogin#,
+		                #imagePath#,
+		                #isSearch#,
+		                #endTagUse#,
+		                #boardFilerGroupIdx#,
+		                #docServiceId#,
+						#docServiceUse#,
+		                #wssRatio#,
+		                #createDate# ,
+		                #modifyDate# ,
+		                #isSecure#,
+		                #isLoginHttps#,
+		                #securePort#,
+		                #contextPath#,
+		                #subContextPath#,
+						#domainBack#,
+		                #subContextPathIs#)
+	</insert>
+	<update  id="domainDAO.updateDomain"  parameterClass="domainVO" >
+					UPDATE
+							  RFC_COMTNDOMAIN
+					  SET 	
+					            SGROUP_ID=#sgroupId#,
+					            DOMAIN =#domain#,
+					  		    PORT=#port#, 
+					            DOMAIN_NM=#domainNm#, 
+								IS_USE =#isUse#,
+								IS_AUTO_CT =#isAutoCt#,
+								IS_SSO_LOGIN=#isSsoLogin#,
+						   		IMAGE_PATH=#imagePath#,
+						   		IS_SEARCH=#isSearch#,
+						   		END_TAG_USE=#endTagUse#,
+						   		BOARD_FILER_GROUP_IDX=#boardFilerGroupIdx#,
+						   		DOC_SERVICE_ID = #docServiceId#,
+							  	DOC_SERVICE_USE = #docServiceUse#,
+						   		WSS_RATIO=#wssRatio#,
+				  				MODIFY_DATE=#modifyDate#,
+				  				IS_SECURE=#isSecure#,
+				  				IS_LOGIN_HTTPS=#isLoginHttps#,
+				  				SECURE_PORT=#securePort#,
+				  				CONTEXT_PATH=#contextPath#,
+				  				SUB_CONTEXT_PATH=#subContextPath#,
+				  				DOMAIN_BACK=#domainBack#,
+				  				SUB_CONTEXT_PATH_IS=#subContextPathIs#
+				  	  WHERE 
+				  				DOMAIN_ID = #domainId#
+	</update>
+	<delete id="domainDAO.deleteDomain" parameterClass="java.lang.String">
+					DELETE  FROM  
+					  RFC_COMTNDOMAIN
+					  WHERE  DOMAIN_ID=#domainId#
+	</delete>
+	<delete id="domainDAO.deleteDomainForSiteGroup" parameterClass="java.lang.String">
+					DELETE  FROM  
+					  RFC_COMTNDOMAIN
+					  WHERE  SGROUP_ID=#sgroupId#
+	</delete>
+	
+	<select id="domainDAO.selectSearchDomainList" parameterClass="domainVO"  resultMap="domain"  cacheModel="RFCDomainCache">
+							SELECT
+							   A.DOMAIN_ID  domainId,
+							   A.SGROUP_ID  sgroupId,
+							   (select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SGROUP_ID )  sgroupNm,
+							   [DOMAIN] [domain],
+							   PORT port,
+							   DOMAIN_NM domainNm,
+							   IS_USE  isUse,
+							   IS_SSO_LOGIN  isSsoLogin,
+							   IS_SEARCH  isSearch,
+							   IS_SECURE isSecure,
+							   IS_LOGIN_HTTPS isLoginHttps,
+							   SECURE_PORT securePort,
+							   CONTEXT_PATH contextPath
+						FROM
+						      RFC_COMTNDOMAIN A
+						WHERE IS_USE='1' AND IS_SEARCH='true'
+			            AND SGROUP_ID like #sgroupId#
+						ORDER BY CREATE_DATE  DESC
+	</select>	
+	
+	<select id="domainDAO.selectIsSearchDomainList" parameterClass="searchVO"  resultMap="domain"   cacheModel="RFCDomainCache">
+						SELECT
+							   A.DOMAIN_ID  domainId,
+							   A.SGROUP_ID  sgroupId,
+							   (select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SGROUP_ID )  sgroupNm,
+							   [DOMAIN] [domain],
+							   PORT port,
+							   DOMAIN_NM domainNm,
+							   IS_USE  isUse,
+							   IS_SSO_LOGIN  isSsoLogin,
+							   IS_SEARCH  isSearch,
+							   IS_SECURE isSecure,
+							   IS_LOGIN_HTTPS isLoginHttps,
+							   SECURE_PORT securePort,
+							   CONTEXT_PATH contextPath
+						FROM
+						      RFC_COMTNDOMAIN A
+						WHERE IS_USE='1' AND IS_SEARCH='true'
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		   A.SGROUP_ID   LIKE  #sgroupId#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="domainId" >
+			          		   A.DOMAIN_ID   LIKE  #domainId#
+			            </isNotEmpty>
+			            <isEmpty  property="domainId" >
+		                   	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+		                     	   A.DOMAIN_ID in ( $myDomainList$ )
+		          			</isEqual>
+		               </isEmpty>
+						ORDER BY CREATE_DATE  DESC
+	</select>
+</sqlMap>

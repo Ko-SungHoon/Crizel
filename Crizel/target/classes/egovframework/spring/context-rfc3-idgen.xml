@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+	<!-- RFC USER(manger,member) SEQ  -->
+	<bean name="RFCUserIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="strategy" ref="RFCUserStrategy" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="UNIQ_ID"/>
+	</bean>
+	<bean name="RFCUserStrategy"
+		class="egovframework.rte.fdl.idgnr.impl.strategy.EgovIdGnrStrategyImpl">
+		<property name="prefix" value="USR_" />
+		<property name="cipers" value="11" />
+		<property name="fillChar" value="0" />
+	</bean>
+	
+	<bean name="RFCSgroupIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="strategy" ref="RFCSgroupIdStrategy" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="SGROUP_ID"/>
+	</bean>
+	<bean name="RFCSgroupIdStrategy"
+		class="egovframework.rte.fdl.idgnr.impl.strategy.EgovIdGnrStrategyImpl">
+		<property name="prefix" value="SGRP_" />
+		<property name="cipers" value="5" />
+		<property name="fillChar" value="0" />
+	</bean>		
+	
+	<bean name="RFCRoleGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="strategy" ref="RFCRoleIdStrategy" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="ROLE_ID"/>
+	</bean>
+	<bean name="RFCRoleIdStrategy"
+		class="egovframework.rte.fdl.idgnr.impl.strategy.EgovIdGnrStrategyImpl">
+		<property name="prefix" value="ROLE_" />
+		<property name="cipers" value="6" />
+		<property name="fillChar" value="0" />
+	</bean>						
+	
+	<bean name="RFCGroupIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="strategy" ref="RFCGroupIdStrategy" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="GROUP_ID"/>
+	</bean>
+	<bean name="RFCGroupIdStrategy"
+		class="egovframework.rte.fdl.idgnr.impl.strategy.EgovIdGnrStrategyImpl">
+		<property name="prefix" value="GRP_" />
+		<property name="cipers" value="6" />
+		<property name="fillChar" value="0" />
+	</bean>	
+	
+	<bean name="RFCResourceIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="strategy" ref="RFCResourceIdStrategy" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="RESOURCE_ID"/>
+	</bean>
+	<bean name="RFCResourceIdStrategy"
+		class="egovframework.rte.fdl.idgnr.impl.strategy.EgovIdGnrStrategyImpl">
+		<property name="prefix" value="WEB_" />
+		<property name="cipers" value="7" />
+		<property name="fillChar" value="0" />
+	</bean>				
+	
+	<bean name="RFCDomainIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="strategy" ref="RFCDomainIdStrategy" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="DOMAIN_ID"/>
+	</bean>
+	<bean name="RFCDomainIdStrategy"
+		class="egovframework.rte.fdl.idgnr.impl.strategy.EgovIdGnrStrategyImpl">
+		<property name="prefix" value="DOM_" />
+		<property name="cipers" value="7" />
+		<property name="fillChar" value="0" />
+	</bean>		
+	
+	<bean name="RFCLoginHistoryIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="strategy" ref="RFCLoginHistoryIdStrategy" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="HIST_ID"/>
+	</bean>
+	<bean name="RFCLoginHistoryIdStrategy"
+		class="egovframework.rte.fdl.idgnr.impl.strategy.EgovIdGnrStrategyImpl">
+		<property name="prefix" value="HIST_" />
+		<property name="cipers" value="7" />
+		<property name="fillChar" value="0" />
+	</bean>	
+	
+	<bean name="RFCViewResourceGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="strategy" ref="RFCViewResourceIdStrategy" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="VIEW_RESOURCE_ID"/>
+	</bean>
+	<bean name="RFCViewResourceIdStrategy"
+		class="egovframework.rte.fdl.idgnr.impl.strategy.EgovIdGnrStrategyImpl">
+		<property name="prefix" value="VIEW_" />
+		<property name="cipers" value="7" />
+		<property name="fillChar" value="0" />
+	</bean>		
+	
+	<bean name="RFCOfficePtSidGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="OFFICE_PT_SID"/>
+	</bean>			
+	
+	<bean name="RFCOpenApiAuthKeyIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="OPEN_AUTH_ID"/>
+	</bean>
+	<bean name="RFCOpenApiQosIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="OPEN_QOS_ID"/>
+	</bean>
+
+	<bean name="RFCAdminMenuIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="strategy" ref="RFCAdminMenuIdStrategy" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="ADMINMENU_ID"/>
+	</bean>
+	<bean name="RFCAdminMenuIdStrategy"
+		class="egovframework.rte.fdl.idgnr.impl.strategy.EgovIdGnrStrategyImpl">
+		<property name="prefix" value="ADM_" />
+		<property name="cipers" value="7" />
+		<property name="fillChar" value="0" />
+	</bean>	
+	
+	<bean name="RFCAccessIpGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="ACCESSIP_ID"/>
+	</bean>	
+	
+		<!-- Trsmrcv Log... END-->		
+		<bean name="RFCCategoryCommonGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="CATE_SID"/>
+	</bean>	
+
+	<bean name="RFCCategoryCommon1GnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="CATE1_SID"/>
+	</bean>	
+	
+	<bean name="RFCCategoryCommon2GnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="CATE2_SID"/>
+	</bean>		
+	
+	<bean name="RFCCategoryCommon3GnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="CATE3_SID"/>
+	</bean>	
+		
+	<bean name="RFCOpenApiStaticsGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="API_RFC_STATIC_SID"/>
+	</bean>
+
+	
+	
+	<bean name="RFCSwitchingLogIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="SLOG_SID"/>
+	</bean>
+	
+	<bean name="ViewRoleHistoryLogIdGnrService"
+		class="egovframework.rte.fdl.idgnr.impl.EgovTableIdGnrService"
+		destroy-method="destroy">
+		<property name="dataSource" ref="dataSource" />
+		<property name="blockSize" 	value="1"/>
+		<property name="table"	   	value="RFC_COMTECOPSEQ"/>
+		<property name="tableName"	value="HISTORY_ID"/>
+	</bean>
+	
+	
+	
+	
+</beans>

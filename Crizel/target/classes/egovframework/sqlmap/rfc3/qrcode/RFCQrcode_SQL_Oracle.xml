@@ -1,0 +1,1238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCQrcode">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="qrcodeVO" type = "egovframework.rfc3.qrcode.vo.QrcodeVO"/>
+     <typeAlias  alias="qrcodeFileVO" type = "egovframework.rfc3.qrcode.vo.QrcodeFileVO"/>
+     <typeAlias  alias="qrcodeSkinVO" type = "egovframework.rfc3.qrcode.vo.QrcodeSkinVO"/>
+     
+     <cacheModel type="${Globals.ibatis.default.cache}" id="RFCQrcodeCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      <flushOnExecute statement="qrcodeDAO.updateQrcodeSkinCommon"/>
+      <flushOnExecute statement="qrcodeDAO.deleteQrcodeSkinCommon"/>
+      <flushOnExecute statement="qrcodeDAO.updateQrcodeCommon"/>
+      <flushOnExecute statement="qrcodeDAO.deleteQrcodeCommon"/>
+      <flushOnExecute statement="qrcodeDAO.insertQrcodeCommon"/>
+      <flushOnExecute statement="qrcodeDAO.updateQrcode"/>
+      <flushOnExecute statement="qrcodeDAO.updateTopSkin"/>
+      <flushOnExecute statement="qrcodeDAO.deleteQrcodeFileCommon"/>
+      <flushOnExecute statement="qrcodeDAO.deleteAllQrcodeFileCommon"/>
+      <flushOnExecute statement="qrcodeDAO.insertQrcodeFileCommon"/>
+      <flushOnExecute statement="qrcodeDAO.updateFileNoQrcodeFileCommon"/>
+     </cacheModel>
+	 
+	 
+	 <typeAlias  alias="QrcodeHistoryVO"	 type = "egovframework.rfc3.qrcode.vo.QrcodeHistoryVO"/>
+	 
+	 
+     <resultMap id="qrcode" class="egovframework.rfc3.qrcode.vo.QrcodeVO">
+        <result property="qrCdSid" column="qrCdSid" />
+        <result property="sgroupId" column="sgroupId" />
+         <result property="domainId" column="domainId" />
+         <result property="qrCdTitle" column="qrCdTitle" />
+         <result property="qrCdContent" column="qrCdContent" />
+         <result property="qrCdInfo" column="qrCdInfo" />
+         <result property="qrCdType" column="qrCdType" />
+         <result property="qrCdSkinSid" column="qrCdSkinSid" />
+         <result property="skinType" column="skinType" />
+         <result property="qrCdCreateUrl" column="qrCdCreateUrl" />
+         <result property="qrCdLandIngUrl" column="qrCdLandIngUrl" />	       
+		<result property="userId" column="userId" />
+		<result property="userphoto" column="userphoto" />			 
+		<result property="qrCdImg150" column="qrCdImg150" />			 
+		<result property="qrCdImg400" column="qrCdImg400" />			 
+		<result property="qrCdImg630" column="qrCdImg630" />			 
+         <result property="userNm" column="userNm" />
+         <result property="userOfficeNm" column="userOfficeNm" />
+         <result property="userOfficePs" column="userOfficePs" />
+         <result property="userHp1" column="userHp1" />
+         <result property="userHp2" column="userHp2" />
+         <result property="userHp3" column="userHp3" />
+         <result property="userTel1" column="userTel1" />
+         <result property="userTel2" column="userTel2" />
+         <result property="userTel3" column="userTel3" />
+         <result property="userFax1" column="userFax1" />
+         <result property="userFax2" column="userFax2" />
+         <result property="userFax3" column="userFax3" />
+         <result property="userMail" column="userMail" />
+         <result property="userZip" column="userZip" />
+         <result property="userAdd1" column="userAdd1" />
+         <result property="userAdd2" column="userAdd2" />
+         <result property="homeLink1" column="homeLink1" />
+         <result property="homeLink2" column="homeLink2" />
+         <result property="homeLink3" column="homeLink3" />
+         <result property="homeLink4" column="homeLink4" />
+         <result property="homeLink5" column="homeLink5" />
+         <result property="movieUrl1" column="movieUrl1" />
+         <result property="movieUrl2" column="movieUrl2" />
+         <result property="movieUrl3" column="movieUrl3" />
+         <result property="movieUrl4" column="movieUrl4" />
+         <result property="movieUrl5" column="movieUrl5" />
+         <result property="registerDt" column="registerDt" />
+         <result property="modifyDt" column="modifyDt" />
+         <result property="scanCnt" column="scanCnt" />
+         <result property="topSkin" column="topSkin" />
+         <result property="qrSkin" column="qrSkin" />
+         <result property="officeCd" column="officeCd" />
+    </resultMap>
+    	
+     <resultMap id="qrcodefile" class="egovframework.rfc3.qrcode.vo.QrcodeFileVO">
+        <result property="qrfileSid" column="qrfileSid" />
+        <result property="dataSid" column="dataSid" />
+        <result property="fileNm" column="fileNm" />
+        <result property="fileMask" column="fileMask" />
+        <result property="fileSize" column="fileSize" />
+        <result property="fileType" column="fileType" />
+        <result property="registerDt" column="registerDt" />
+        <result property="modifyDt" column="modifyDt" /> 
+        <result property="thumbnail" column="thumbnail" /> 
+        <result property="userId" column="userId" /> 
+        <result property="domainId" column="domainId" /> 
+        <result property="fileNo" column="fileNo" /> 
+    </resultMap>
+
+    <resultMap id="qrcodeskin" class="egovframework.rfc3.qrcode.vo.QrcodeSkinVO">
+        <result property="qrskinSid" column="qrskinSid" />
+        <result property="sgroupId" column="sgroupId" />
+        <result property="domainId" column="domainId" />
+        <result property="qrskinSize" column="qrskinSize" />
+        <result property="qrskinLogPosition" column="qrskinLogPosition" />
+        <result property="qrskinNm" column="qrskinNm" />
+        <result property="qrskinImg150" column="qrskinImg150" />
+        <result property="qrskinImg400" column="qrskinImg400" />
+        <result property="qrskinImg630" column="qrskinImg630" />
+        <result property="qrskinImgMask150" column="qrskinImgMask150" />
+        <result property="qrskinImgMask400" column="qrskinImgMask400" />
+        <result property="qrskinImgMask630" column="qrskinImgMask630" />
+        <result property="qrskinTopLogImg150" column="qrskinTopLogImg150" />
+        <result property="qrskinTopLogImg400" column="qrskinTopLogImg400" />
+        <result property="qrskinTopLogImg630" column="qrskinTopLogImg630" />
+        <result property="qrskinTopLogImgMask150" column="qrskinTopLogImgMask150" />
+        <result property="qrskinTopLogImgMask400" column="qrskinTopLogImgMask400" />
+        <result property="qrskinTopLogImgMask630" column="qrskinTopLogImgMask630" />
+        <result property="qrskinBottomLogImg150" column="qrskinBottomLogImg150" />
+        <result property="qrskinBottomLogImg400" column="qrskinBottomLogImg400" />
+        <result property="qrskinBottomLogImg630" column="qrskinBottomLogImg630" />
+        <result property="qrskinBottomLogImgMask150" column="qrskinBottomLogImgMask150" />
+        <result property="qrskinBottomLogImgMask400" column="qrskinBottomLogImgMask400" />
+        <result property="qrskinBottomLogImgMask630" column="qrskinBottomLogImgMask630" />
+    </resultMap>
+    
+    
+  <!-- 스킨 리스트 카운트  -->
+	<select id="qrcodeDAO.selectQrcodeSkinTotCnt"  parameterClass="QrcodeSkinVO" resultClass="int" cacheModel="RFCQrcodeCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNQRCODESKIN
+						
+						<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>	
+				         </dynamic>
+				       
+	</select>
+	
+	<!-- 스킨리스트  -->
+	<select id="qrcodeDAO.selectQrcodeSkinCommonList" parameterClass="QrcodeSkinVO"  resultMap="qrcodeskin"  cacheModel="RFCQrcodeCache">
+	SELECT  * 
+  FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(
+	
+			          SELECT 
+						   QRSKIN_SID												qrskinSid,
+					       SGROUP_ID												sgroupId,
+					       DOMAIN_Id													domainId,
+					       QRSKIN_SIZE												qrskinSize,
+					       QRSKIN_LOG_POSITION							qrskinLogPosition,
+					       QRSKIN_NM												qrskinNm,
+					       QRSKIN_IMG150											qrskinImg150,
+					       QRSKIN_IMG400											qrskinImg400,
+					       QRSKIN_IMG630											qrskinImg630,
+					       QRSKIN_IMGMASK150								qrskinImgMask150,
+					       QRSKIN_IMGMASK400								qrskinImgMask400,
+					       QRSKIN_IMGMASK630								qrskinImgMask630,
+					       QRSKIN_TOPLOG_IMG150						qrskinTopLogImg150,
+					       QRSKIN_TOPLOG_IMG400						qrskinTopLogImg400,
+					       QRSKIN_TOPLOG_IMG630						qrskinTopLogImg630,
+					       QRSKIN_TOPLOG_IMGMASK150				qrskinTopLogImgMask150,
+					       QRSKIN_TOPLOG_IMGMASK400				qrskinTopLogImgMask400,
+					       QRSKIN_TOPLOG_IMGMASK630				qrskinTopLogImgMask630,
+					       QRSKIN_BOOTTOMLOG_IMG150				qrskinBottomLogImg150,
+					       QRSKIN_BOOTTOMLOG_IMG400				qrskinBottomLogImg400,
+					       QRSKIN_BOOTTOMLOG_IMG630				qrskinBottomLogImg630,
+					       QRSKIN_BOOTTOMLOG_IMGMASK150	qrskinBottomLogImgMask150,
+					       QRSKIN_BOOTTOMLOG_IMGMASK400	qrskinBottomLogImgMask400,
+					       QRSKIN_BOOTTOMLOG_IMGMASK630	qrskinBottomLogImgMask630					
+					FROM  RFC_COMTNQRCODESKIN
+					<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	
+				         </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+		        ) ALL_LIST
+	      )
+  WHERE  RNUM  &gt; #firstIndex#
+  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>	
+	
+	<!-- 스킨리스트  -->
+	<select id="qrcodeDAO.selectQrcodeSkinCommonVOList" parameterClass="QrcodeSkinVO"  resultMap="qrcodeskin"  >
+			          SELECT 
+						   QRSKIN_SID												qrskinSid,
+					       SGROUP_ID												sgroupId,
+					       DOMAIN_Id													domainId,
+					       QRSKIN_SIZE												qrskinSize,
+					       QRSKIN_LOG_POSITION							qrskinLogPosition,
+					       QRSKIN_NM												qrskinNm,
+					       QRSKIN_IMG150											qrskinImg150,
+					       QRSKIN_IMG400											qrskinImg400,
+					       QRSKIN_IMG630											qrskinImg630,
+					       QRSKIN_IMGMASK150								qrskinImgMask150,
+					       QRSKIN_IMGMASK400								qrskinImgMask400,
+					       QRSKIN_IMGMASK630								qrskinImgMask630,
+					       QRSKIN_TOPLOG_IMG150						qrskinTopLogImg150,
+					       QRSKIN_TOPLOG_IMG400						qrskinTopLogImg400,
+					       QRSKIN_TOPLOG_IMG630						qrskinTopLogImg630,
+					       QRSKIN_TOPLOG_IMGMASK150				qrskinTopLogImgMask150,
+					       QRSKIN_TOPLOG_IMGMASK400				qrskinTopLogImgMask400,
+					       QRSKIN_TOPLOG_IMGMASK630				qrskinTopLogImgMask630,
+					       QRSKIN_BOOTTOMLOG_IMG150				qrskinBottomLogImg150,
+					       QRSKIN_BOOTTOMLOG_IMG400				qrskinBottomLogImg400,
+					       QRSKIN_BOOTTOMLOG_IMG630				qrskinBottomLogImg630,
+					       QRSKIN_BOOTTOMLOG_IMGMASK150	qrskinBottomLogImgMask150,
+					       QRSKIN_BOOTTOMLOG_IMGMASK400	qrskinBottomLogImgMask400,
+					       QRSKIN_BOOTTOMLOG_IMGMASK630	qrskinBottomLogImgMask630					
+					FROM  RFC_COMTNQRCODESKIN
+					<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	
+			            	<isNotEqual prepend="AND"    property="qrskinSid" compareValue="0">
+				          		    			 QRSKIN_SID  = #qrskinSid#
+			            	</isNotEqual>	
+				         </dynamic>
+				         ORDER BY  QRSKIN_SID   DESC
+	</select>	
+	
+	<!-- 스킨 등록  -->
+	<insert id="qrcodeDAO.insertQrcodeSkinCommon" parameterClass="QrcodeSkinVO" >
+			          INSERT INTO   RFC_COMTNQRCODESKIN (
+						   QRSKIN_SID,					
+							SGROUP_ID,					
+							DOMAIN_ID,					
+							QRSKIN_SIZE,					
+							QRSKIN_LOG_POSITION,			
+							QRSKIN_NM,					
+							QRSKIN_IMG150,				
+							QRSKIN_IMG400,				
+							QRSKIN_IMG630,				
+							QRSKIN_IMGMASK150,			
+							QRSKIN_IMGMASK400,			
+							QRSKIN_IMGMASK630,			
+							QRSKIN_TOPLOG_IMG150,			
+							QRSKIN_TOPLOG_IMG400,			
+							QRSKIN_TOPLOG_IMG630,			
+							QRSKIN_TOPLOG_IMGMASK150,		
+							QRSKIN_TOPLOG_IMGMASK400,		
+							QRSKIN_TOPLOG_IMGMASK630,		
+							QRSKIN_BOOTTOMLOG_IMG150,		
+							QRSKIN_BOOTTOMLOG_IMG400,		
+							QRSKIN_BOOTTOMLOG_IMG630,		
+							QRSKIN_BOOTTOMLOG_IMGMASK150,
+							QRSKIN_BOOTTOMLOG_IMGMASK400,
+							QRSKIN_BOOTTOMLOG_IMGMASK630
+					)VALUES(
+							#qrskinSid#,
+							#sgroupId#,
+							#domainId#,
+							#qrskinSize#,
+							#qrskinLogPosition#,
+							#qrskinNm#,
+							#qrskinImg150#,
+							#qrskinImg400#,
+							#qrskinImg630#,
+							#qrskinImgMask150#,
+							#qrskinImgMask400#,
+							#qrskinImgMask630#,
+							#qrskinTopLogImg150#,
+							#qrskinTopLogImg400#,
+							#qrskinTopLogImg630#,
+							#qrskinTopLogImgMask150#,
+							#qrskinTopLogImgMask400#,
+							#qrskinTopLogImgMask630#,
+							#qrskinBottomLogImg150#,
+							#qrskinBottomLogImg400#,
+							#qrskinBottomLogImg630#,
+							#qrskinBottomLogImgMask150#,
+							#qrskinBottomLogImgMask400#,
+							#qrskinBottomLogImgMask630#				
+							
+					)
+	</insert>	
+    <!-- 스킨 수정  -->
+	<update id="qrcodeDAO.updateQrcodeSkinCommon" parameterClass="QrcodeSkinVO">
+			          UPDATE
+			          			RFC_COMTNQRCODESKIN
+			          SET 
+					       SGROUP_ID												=	#sgroupId#,
+					       DOMAIN_Id													=	#domainId#,
+					       QRSKIN_SIZE												=	#qrskinSize#,
+					       QRSKIN_LOG_POSITION							=	#qrskinLogPosition#,
+					       QRSKIN_NM												=	#qrskinNm#,
+					       QRSKIN_IMG150											=	#qrskinImg150#,
+					       QRSKIN_IMG400											=	#qrskinImg400#,
+					       QRSKIN_IMG630											=	#qrskinImg630#,
+					       QRSKIN_IMGMASK150								=	#qrskinImgMask150#,
+					       QRSKIN_IMGMASK400								=	#qrskinImgMask400#,
+					       QRSKIN_IMGMASK630								=	#qrskinImgMask630#,
+					       QRSKIN_TOPLOG_IMG150						=	#qrskinTopLogImg150#,
+					       QRSKIN_TOPLOG_IMG400						=	#qrskinTopLogImg400#,
+					       QRSKIN_TOPLOG_IMG630						=	#qrskinTopLogImg630#,
+					       QRSKIN_TOPLOG_IMGMASK150				=	#qrskinTopLogImgMask150#,
+					       QRSKIN_TOPLOG_IMGMASK400				=	#qrskinTopLogImgMask400#,
+					       QRSKIN_TOPLOG_IMGMASK630				=	#qrskinTopLogImgMask630#,
+					       QRSKIN_BOOTTOMLOG_IMG150				=	#qrskinBottomLogImg150#,
+					       QRSKIN_BOOTTOMLOG_IMG400				=	#qrskinBottomLogImg400#,
+					       QRSKIN_BOOTTOMLOG_IMG630				=	#qrskinBottomLogImg630#,
+					       QRSKIN_BOOTTOMLOG_IMGMASK150	=	#qrskinBottomLogImgMask150#,
+					       QRSKIN_BOOTTOMLOG_IMGMASK400	=	#qrskinBottomLogImgMask400#,
+					       QRSKIN_BOOTTOMLOG_IMGMASK630	=	#qrskinBottomLogImgMask630#					
+				WHERE
+							QRSKIN_SID = #qrskinSid#
+	</update>	
+	<!-- 삭제 -->
+	<delete id="qrcodeDAO.deleteQrcodeSkinCommon" parameterClass="QrcodeSkinVO" >
+		DELETE  FROM RFC_COMTNQRCODESKIN
+		WHERE  
+			QRSKIN_SID=#qrskinSid#
+	</delete>
+	
+	
+	
+	
+	<!-- ========================================================================  RFC_COMTNQRCODE  =================================================================================================== -->
+	
+	
+	
+	
+	
+	
+	 <!-- QR코드 리스트 카운트  -->
+	<select id="qrcodeDAO.selectQrcodeTotCnt"  parameterClass="QrcodeVO" resultClass="int"  >
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNQRCODE
+						
+						<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>						
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>	
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	
+			            	<isNotEmpty prepend="AND"  property="userId" >
+			          		    	USER_ID				=			#userId#
+			           		</isNotEmpty>	
+			            	
+				         </dynamic>
+				       
+	</select>
+	
+	<!-- QR코드 리스트  -->
+	<select id="qrcodeDAO.selectQrcodeCommonList" parameterClass="QrcodeVO"  resultMap="qrcode"  >
+	SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(
+			          SELECT 
+						   QRCD_SID						qrCdSid,
+					       SGROUP_ID					sgroupId,
+					       DOMAIN_Id						domainId,
+					       QRCD_TITLE					qrCdTitle,
+					       QRCD_CONTENT			qrCdContent,
+					       QRCD_INFO					qrCdInfo,
+					       QRCD_TYPE					qrCdType,
+					       QRCD_SKIN_SID			qrCdSkinSid,
+					       SKIN_TYPE						skinType,
+					       QRCD_CREATEURL		qrCdCreateUrl,
+					       QRCD_LANDINGURL		qrCdLandIngUrl,
+					       USERPHOTO					userphoto,
+					       QRCD_IMG150				qrCdImg150,
+					       QRCD_IMG400				qrCdImg400,
+					       QRCD_IMG630				qrCdImg630,
+					       USER_ID							userId,
+					       USER_NM						userNm,
+					       USER_OFFICENM			userOfficeNm,
+					       USER_OFFICEPS			userOfficePs,
+					       USER_HP1						userHp1,
+					       USER_HP2						userHp2,
+					       USER_HP3						userHp3,
+					       USER_TEL1					userTel1,
+					       USER_TEL2					userTel2,
+					       USER_TEL3					userTel3,
+					       USER_FAX1					userFax1,
+					       USER_FAX2					userFax2,
+					       USER_FAX3					userFax3,
+					       USER_EMAIL					userMail,
+					       USER_ZIP						userZip,
+					       USER_ADD1					userAdd1,
+					       USER_ADD2					userAdd2,
+					       HOME_LINK1					homeLink1,
+					       HOME_LINK2					homeLink2,
+					       HOME_LINK3					homeLink3,
+					       HOME_LINK4					homeLink4,
+					       HOME_LINK5					homeLink5,
+					       MOVIE_URL1					movieUrl1,
+					       MOVIE_URL2					movieUrl2,
+					       MOVIE_URL3					movieUrl3,
+					       MOVIE_URL4					movieUrl4,
+					       MOVIE_URL5					movieUrl5,
+					       REGISTER_DT				registerDt,
+					       MODIFY_DT						modifyDt,
+					       SCANCNT						scanCnt,
+					       TOPSKIN							topSkin,
+					       QRSKIN							qrSkin,
+					       OFFICE_CD					officeCd
+					FROM  RFC_COMTNQRCODE
+					<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	
+			            	<isNotEmpty prepend="AND"  property="userId" >
+			          		    	USER_ID				=			#userId#
+			           		</isNotEmpty>	
+				         </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+		             ) ALL_LIST
+	      )
+  WHERE  RNUM  &gt; #firstIndex#
+  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>	
+	
+	<!-- QR코드 리스트  -->
+	<select id="qrcodeDAO.selectQrcodeCommonVOList" parameterClass="QrcodeVO"  resultMap="qrcode"  cacheModel="RFCQrcodeCache">
+			          SELECT 
+						   QRCD_SID						qrCdSid,
+					       SGROUP_ID					sgroupId,
+					       DOMAIN_Id						domainId,
+					       QRCD_TITLE					qrCdTitle,
+					       QRCD_CONTENT			qrCdContent,
+					       QRCD_INFO					qrCdInfo,
+					       QRCD_TYPE					qrCdType,
+					       QRCD_SKIN_SID			qrCdSkinSid,
+					       SKIN_TYPE						skinType,
+					       QRCD_CREATEURL		qrCdCreateUrl,
+					       QRCD_LANDINGURL		qrCdLandIngUrl,
+					       USERPHOTO					userphoto,
+					       QRCD_IMG150				qrCdImg150,
+					       QRCD_IMG400				qrCdImg400,
+					       QRCD_IMG630				qrCdImg630,
+					       USER_ID							userId,
+					       USER_NM						userNm,
+					       USER_OFFICENM			userOfficeNm,
+					       USER_OFFICEPS			userOfficePs,
+					       USER_HP1						userHp1,
+					       USER_HP2						userHp2,
+					       USER_HP3						userHp3,
+					       USER_TEL1					userTel1,
+					       USER_TEL2					userTel2,
+					       USER_TEL3					userTel3,
+					       USER_FAX1					userFax1,
+					       USER_FAX2					userFax2,
+					       USER_FAX3					userFax3,
+					       USER_EMAIL					userMail,
+					       USER_ZIP						userZip,
+					       USER_ADD1					userAdd1,
+					       USER_ADD2					userAdd2,
+					       HOME_LINK1					homeLink1,
+					       HOME_LINK2					homeLink2,
+					       HOME_LINK3					homeLink3,
+					       HOME_LINK4					homeLink4,
+					       HOME_LINK5					homeLink5,
+					       MOVIE_URL1					movieUrl1,
+					       MOVIE_URL2					movieUrl2,
+					       MOVIE_URL3					movieUrl3,
+					       MOVIE_URL4					movieUrl4,
+					       MOVIE_URL5					movieUrl5,
+					       REGISTER_DT				registerDt,
+					       MODIFY_DT						modifyDt,
+					       SCANCNT						scanCnt,
+					       TOPSKIN							topSkin,
+					       QRSKIN							qrSkin,
+					       OFFICE_CD					officeCd
+					FROM  RFC_COMTNQRCODE
+					<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>
+			            	<isNotEmpty prepend="AND" property="qrCdSid" >
+			          		    			 QRCD_SID  = #qrCdSid#
+			            	</isNotEmpty>
+				         </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+	</select>	
+	
+	<!-- QR코드 리스트  -->
+	<update  id="qrcodeDAO.updateQrcodeCommon"  parameterClass="QrcodeVO" >
+			         UPDATE
+							  RFC_COMTNQRCODE
+					  SET 	
+					       SCANCNT=$scanCnt$+1
+				
+					WHERE
+					      QRCD_SID  = #qrCdSid#
+	</update>
+	
+	<!-- My 코드 리스트 삭제 -->
+	<delete id="qrcodeDAO.deleteQrcodeCommon" parameterClass="QrcodeVO" >
+		DELETE  FROM RFC_COMTNQRCODE
+		WHERE  
+			QRCD_SID=#qrCdSid#
+	</delete>
+	
+	<!-- qr 정보 등록  -->
+	<insert id="qrcodeDAO.insertQrcodeCommon" parameterClass="QrcodeVO" >
+			          INSERT INTO   RFC_COMTNQRCODE (
+						QRCD_SID,		
+						SGROUP_ID,		
+						DOMAIN_Id,		
+						QRCD_TITLE,		
+						QRCD_CONTENT,	
+						QRCD_INFO,
+						QRCD_TYPE,		
+						QRCD_SKIN_SID,
+						SKIN_TYPE	,	
+						QRCD_CREATEURL,	
+						QRCD_LANDINGURL,	
+						USERPHOTO,
+						QRCD_IMG150,				
+					    QRCD_IMG400,				
+					    QRCD_IMG630,				
+						USER_ID,			
+						USER_NM,			
+						USER_OFFICENM,	
+						USER_OFFICEPS,	
+						USER_HP1,		
+						USER_HP2,		
+						USER_HP3,		
+						USER_TEL1,		
+						USER_TEL2,		
+						USER_TEL3,		
+						USER_FAX1,		
+						USER_FAX2,		
+						USER_FAX3,		
+						USER_EMAIL,		
+						USER_ZIP,		
+						USER_ADD1,		
+						USER_ADD2,		
+						HOME_LINK1,		
+						HOME_LINK2,		
+						HOME_LINK3,		
+						HOME_LINK4,		
+						HOME_LINK5,		
+						MOVIE_URL1,		
+						MOVIE_URL2,		
+						MOVIE_URL3,		
+						MOVIE_URL4,		
+						MOVIE_URL5,		
+						REGISTER_DT,		
+						MODIFY_DT,
+						QRSKIN,
+						OFFICE_CD
+					)VALUES(
+						#qrCdSid#,             
+						#sgroupId#,            
+						#domainId#,        
+						#qrCdTitle#,           
+						#qrCdContent#,             
+						#qrCdInfo#,            
+						#qrCdType#,            
+						#qrskinSid#,      
+						#skinType#,    
+						#qrCdCreateUrl#,               
+						#qrCdLandIngUrl#,              
+						#userphoto#,   
+						#qrCdImg150#,
+						#qrCdImg400#,
+						#qrCdImg630#,		        
+						#userId#,          
+						#userNm#,              
+						#userOfficeNm#,            
+						#userOfficePs#,            
+						#userHp1#,         
+						#userHp2#,         
+						#userHp3#,         
+						#userTel1#,            
+						#userTel2#,            
+						#userTel3#,            
+						#userFax1#,            
+						#userFax2#,            
+						#userFax3#,            
+						#userMail#,            
+						#userZip#,         
+						#userAdd1#,            
+						#userAdd2#,            
+						#homeLink1#,           
+						#homeLink2#,           
+						#homeLink3#,           
+						#homeLink4#,           
+						#homeLink5#,           
+						#movieUrl1#,           
+						#movieUrl2#,           
+						#movieUrl3#,           
+						#movieUrl4#,           
+						#movieUrl5#,           
+						#registerDt#,   
+						#modifyDt#,
+						#qrSkin#,
+						#officeCd#
+					)
+	</insert>	
+	
+	<update  id="qrcodeDAO.updateQrcode"  parameterClass="QrcodeVO" >
+					UPDATE
+							  RFC_COMTNQRCODE
+					  SET 	
+					  		   QRCD_TITLE				= 		#qrCdTitle#,
+						       QRCD_CONTENT		=		#qrCdContent#,
+						       QRCD_INFO				=		#qrCdInfo#,
+						       QRCD_TYPE				=		#qrCdType#,
+						       QRCD_SKIN_SID		=		#qrCdSkinSid#,
+						       SKIN_TYPE					=		#skinType#,
+						       QRCD_LANDINGURL	=		#qrCdLandIngUrl#,
+						       USERPHOTO				=		#userphoto#,
+						       USER_NM					=		#userNm#,
+						       USER_OFFICENM		=		#userOfficeNm#,
+						       USER_OFFICEPS		=		#userOfficePs#,
+						       USER_HP1					=		#userHp1#,
+						       USER_HP2					=		#userHp2#,
+						       USER_HP3					=		#userHp3#,
+						       USER_TEL1				=		#userTel1#,
+						       USER_TEL2				=		#userTel2#,
+						       USER_TEL3				=		#userTel3#,
+						       USER_FAX1				=		#userFax1#,
+						       USER_FAX2				=		#userFax2#,
+						       USER_FAX3				=		#userFax3#,
+						       USER_EMAIL				=		#userMail#,
+						       USER_ZIP					=		#userZip#,
+						       USER_ADD1				=		#userAdd1#,
+						       USER_ADD2				=		#userAdd2#,
+						       HOME_LINK1				=		#homeLink1#,
+						       HOME_LINK2				=		#homeLink2#,
+						       HOME_LINK3				=		#homeLink3#,
+						       HOME_LINK4				=		#homeLink4#,
+						       HOME_LINK5				=		#homeLink5#,
+						       MOVIE_URL1				=		#movieUrl1#,
+						       MOVIE_URL2				=		#movieUrl2#,
+						       MOVIE_URL3				=		#movieUrl3#,
+						       MOVIE_URL4				=		#movieUrl4#,
+						       MOVIE_URL5				=		#movieUrl5#,
+						       MODIFY_DT				=		#modifyDt#,
+						       QRSKIN						=		#qrSkin#,
+						       OFFICE_CD				=		#officeCd#
+				  	  WHERE 
+				  				QRCD_SID = #qrCdSid#
+	</update>
+	
+	<update  id="qrcodeDAO.updateTopSkin"  parameterClass="QrcodeVO" >
+				UPDATE
+						  RFC_COMTNQRCODE
+				  SET 	
+					     TOPSKIN	=	#topSkin#
+			  	  WHERE 
+			  				QRCD_SID = #qrCdSid#
+	</update>
+	
+	
+	
+	
+	
+	<!-- =======================================================================  RFC_COMTNQRCODE ============================================================================================== -->
+	
+	
+	
+	
+	
+	<!-- =======================================================================  RFC_COMTNQRCODE_HISTORY ============================================================================================== START -->
+	<!-- QR코드 리스트 카운트  -->
+	<select id="qrcodeDAO.selectQrcodeTotCntHistory"  parameterClass="QrcodeHistoryVO" resultClass="int"  >
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNQRCODE_HISTORY
+						
+						<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>						
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>	
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	
+			            	<isNotEmpty prepend="AND"  property="userId" >
+			          		    	USER_ID				=			#userId#
+			           		</isNotEmpty>	
+			            	
+				         </dynamic>
+				       
+	</select>
+	
+	<!-- QR코드 리스트  -->
+	<select id="qrcodeDAO.selectQrcodeCommonListHistory" parameterClass="QrcodeHistoryVO"  resultClass="QrcodeHistoryVO"  >
+	SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(
+			          SELECT 
+						   QRCD_HISTORY_SID						qrCdHistorySid,
+					       SGROUP_ID					sgroupId,
+					       DOMAIN_Id						domainId,
+					       QRCD_TITLE					qrCdTitle,
+					       QRCD_CONTENT			qrCdContent,
+					       QRCD_INFO					qrCdInfo,
+					       QRCD_TYPE					qrCdType,
+					       QRCD_SKIN_SID			qrCdSkinSid,
+					       SKIN_TYPE						skinType,
+					       QRCD_CREATEURL		qrCdCreateUrl,
+					       QRCD_LANDINGURL		qrCdLandIngUrl,
+					       USERPHOTO					userphoto,
+					       QRCD_IMG150				qrCdImg150,
+					       QRCD_IMG400				qrCdImg400,
+					       QRCD_IMG630				qrCdImg630,
+					       USER_ID							userId,
+					       USER_NM						userNm,
+					       USER_OFFICENM			userOfficeNm,
+					       USER_OFFICEPS			userOfficePs,
+					       USER_HP1						userHp1,
+					       USER_HP2						userHp2,
+					       USER_HP3						userHp3,
+					       USER_TEL1					userTel1,
+					       USER_TEL2					userTel2,
+					       USER_TEL3					userTel3,
+					       USER_FAX1					userFax1,
+					       USER_FAX2					userFax2,
+					       USER_FAX3					userFax3,
+					       USER_EMAIL					userMail,
+					       USER_ZIP						userZip,
+					       USER_ADD1					userAdd1,
+					       USER_ADD2					userAdd2,
+					       HOME_LINK1					homeLink1,
+					       HOME_LINK2					homeLink2,
+					       HOME_LINK3					homeLink3,
+					       HOME_LINK4					homeLink4,
+					       HOME_LINK5					homeLink5,
+					       MOVIE_URL1					movieUrl1,
+					       MOVIE_URL2					movieUrl2,
+					       MOVIE_URL3					movieUrl3,
+					       MOVIE_URL4					movieUrl4,
+					       MOVIE_URL5					movieUrl5,
+					       REGISTER_DT				registerDt,
+					       MODIFY_DT						modifyDt,
+					       SCANCNT						scanCnt,
+					       TOPSKIN							topSkin,
+					       QRSKIN							qrSkin,
+					       OFFICE_CD					officeCd,
+					       GUBUN						gubun,
+					       COLORRGB						colorRGB
+					FROM  RFC_COMTNQRCODE_HISTORY
+					<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	
+			            	<isNotEmpty prepend="AND"  property="userId" >
+			          		    	USER_ID				=			#userId#
+			           		</isNotEmpty>	
+				         </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+		             ) ALL_LIST
+	      )
+  WHERE  RNUM  &gt; #firstIndex#
+  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>	
+	
+	<!-- QR코드 리스트  -->
+	<select id="qrcodeDAO.selectQrcodeCommonVOListHistory" parameterClass="QrcodeHistoryVO"  resultClass="QrcodeHistoryVO"  >
+			          SELECT 
+						   QRCD_HISTORY_SID						qrCdHistorySid,
+					       SGROUP_ID					sgroupId,
+					       DOMAIN_Id						domainId,
+					       QRCD_TITLE					qrCdTitle,
+					       QRCD_CONTENT			qrCdContent,
+					       QRCD_INFO					qrCdInfo,
+					       QRCD_TYPE					qrCdType,
+					       QRCD_SKIN_SID			qrCdSkinSid,
+					       SKIN_TYPE						skinType,
+					       QRCD_CREATEURL		qrCdCreateUrl,
+					       QRCD_LANDINGURL		qrCdLandIngUrl,
+					       USERPHOTO					userphoto,
+					       QRCD_IMG150				qrCdImg150,
+					       QRCD_IMG400				qrCdImg400,
+					       QRCD_IMG630				qrCdImg630,
+					       USER_ID							userId,
+					       USER_NM						userNm,
+					       USER_OFFICENM			userOfficeNm,
+					       USER_OFFICEPS			userOfficePs,
+					       USER_HP1						userHp1,
+					       USER_HP2						userHp2,
+					       USER_HP3						userHp3,
+					       USER_TEL1					userTel1,
+					       USER_TEL2					userTel2,
+					       USER_TEL3					userTel3,
+					       USER_FAX1					userFax1,
+					       USER_FAX2					userFax2,
+					       USER_FAX3					userFax3,
+					       USER_EMAIL					userMail,
+					       USER_ZIP						userZip,
+					       USER_ADD1					userAdd1,
+					       USER_ADD2					userAdd2,
+					       HOME_LINK1					homeLink1,
+					       HOME_LINK2					homeLink2,
+					       HOME_LINK3					homeLink3,
+					       HOME_LINK4					homeLink4,
+					       HOME_LINK5					homeLink5,
+					       MOVIE_URL1					movieUrl1,
+					       MOVIE_URL2					movieUrl2,
+					       MOVIE_URL3					movieUrl3,
+					       MOVIE_URL4					movieUrl4,
+					       MOVIE_URL5					movieUrl5,
+					       REGISTER_DT				registerDt,
+					       MODIFY_DT						modifyDt,
+					       SCANCNT						scanCnt,
+					       TOPSKIN							topSkin,
+					       QRSKIN							qrSkin,
+					       OFFICE_CD					officeCd,
+					       GUBUN						gubun,
+					       COLORRGB						colorRGB
+					FROM  RFC_COMTNQRCODE_HISTORY
+					<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>
+			            	<isNotEmpty prepend="AND" property="qrCdHistorySid" >
+			          		    			 QRCD_HISTORY_SID  = #qrCdHistorySid#
+			            	</isNotEmpty>
+				         </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+	</select>	
+	<!-- QR코드 리스트  -->
+	
+	
+	<!-- My 코드 리스트 삭제 -->
+	<delete id="qrcodeDAO.deleteQrcodeCommonHistory" parameterClass="QrcodeHistoryVO" >
+		DELETE  FROM RFC_COMTNQRCODE_HISTORY
+		WHERE  
+			QRCD_HISTORY_SID=#qrCdHistorySid#
+	</delete>
+	
+	<!-- qr 정보 등록  -->
+	<insert id="qrcodeDAO.insertQrcodeCommonHistory" parameterClass="QrcodeHistoryVO" >
+			          INSERT INTO   RFC_COMTNQRCODE_HISTORY (
+						QRCD_HISTORY_SID,		
+						SGROUP_ID,		
+						DOMAIN_Id,		
+						QRCD_TITLE,		
+						QRCD_CONTENT,	
+						QRCD_INFO,
+						QRCD_TYPE,		
+						QRCD_SKIN_SID,
+						SKIN_TYPE	,	
+						QRCD_CREATEURL,	
+						QRCD_LANDINGURL,	
+						USERPHOTO,
+						QRCD_IMG150,				
+					    QRCD_IMG400,				
+					    QRCD_IMG630,				
+						USER_ID,			
+						USER_NM,			
+						USER_OFFICENM,	
+						USER_OFFICEPS,	
+						USER_HP1,		
+						USER_HP2,		
+						USER_HP3,		
+						USER_TEL1,		
+						USER_TEL2,		
+						USER_TEL3,		
+						USER_FAX1,		
+						USER_FAX2,		
+						USER_FAX3,		
+						USER_EMAIL,		
+						USER_ZIP,		
+						USER_ADD1,		
+						USER_ADD2,		
+						HOME_LINK1,		
+						HOME_LINK2,		
+						HOME_LINK3,		
+						HOME_LINK4,		
+						HOME_LINK5,		
+						MOVIE_URL1,		
+						MOVIE_URL2,		
+						MOVIE_URL3,		
+						MOVIE_URL4,		
+						MOVIE_URL5,		
+						REGISTER_DT,		
+						MODIFY_DT,
+						QRSKIN,
+						OFFICE_CD,
+						GUBUN,
+						COLORRGB
+					)VALUES(
+						#qrCdHistorySid#,             
+						#sgroupId#,            
+						#domainId#,        
+						#qrCdTitle#,           
+						#qrCdContent#,             
+						#qrCdInfo#,            
+						#qrCdType#,            
+						#qrskinSid#,      
+						#skinType#,    
+						#qrCdCreateUrl#,               
+						#qrCdLandIngUrl#,              
+						#userphoto#,   
+						#qrCdImg150#,
+						#qrCdImg400#,
+						#qrCdImg630#,		        
+						#userId#,          
+						#userNm#,              
+						#userOfficeNm#,            
+						#userOfficePs#,            
+						#userHp1#,         
+						#userHp2#,         
+						#userHp3#,         
+						#userTel1#,            
+						#userTel2#,            
+						#userTel3#,            
+						#userFax1#,            
+						#userFax2#,            
+						#userFax3#,            
+						#userMail#,            
+						#userZip#,         
+						#userAdd1#,            
+						#userAdd2#,            
+						#homeLink1#,           
+						#homeLink2#,           
+						#homeLink3#,           
+						#homeLink4#,           
+						#homeLink5#,           
+						#movieUrl1#,           
+						#movieUrl2#,           
+						#movieUrl3#,           
+						#movieUrl4#,           
+						#movieUrl5#,           
+						#registerDt#,   
+						#modifyDt#,
+						#qrSkin#,
+						#officeCd#,
+						#gubun#,
+						#colorRGB#
+					)
+	</insert>	
+	
+	<update  id="qrcodeDAO.updateQrcodeHistory"  parameterClass="QrcodeHistoryVO" >
+					UPDATE
+							  RFC_COMTNQRCODE_HISTORY
+					  SET 	
+						       QRCD_CONTENT		=		#qrCdContent#,
+						       QRCD_TYPE				=		#qrCdType#,
+						       QRCD_LANDINGURL	=		#qrCdLandIngUrl#,
+						       USERPHOTO				=		#userphoto#,
+						       USER_NM					=		#userNm#,
+						       USER_OFFICENM		=		#userOfficeNm#,
+						       USER_OFFICEPS		=		#userOfficePs#,
+						       USER_HP1					=		#userHp1#,
+						       USER_HP2					=		#userHp2#,
+						       USER_HP3					=		#userHp3#,
+						       USER_TEL1				=		#userTel1#,
+						       USER_TEL2				=		#userTel2#,
+						       USER_TEL3				=		#userTel3#,
+						       USER_FAX1				=		#userFax1#,
+						       USER_FAX2				=		#userFax2#,
+						       USER_FAX3				=		#userFax3#,
+						       USER_EMAIL				=		#userMail#,
+						       USER_ZIP					=		#userZip#,
+						       USER_ADD1				=		#userAdd1#,
+						       USER_ADD2				=		#userAdd2#,
+						       HOME_LINK1				=		#homeLink1#,
+						       HOME_LINK2				=		#homeLink2#,
+						       HOME_LINK3				=		#homeLink3#,
+						       HOME_LINK4				=		#homeLink4#,
+						       HOME_LINK5				=		#homeLink5#,
+						       MOVIE_URL1				=		#movieUrl1#,
+						       MOVIE_URL2				=		#movieUrl2#,
+						       MOVIE_URL3				=		#movieUrl3#,
+						       MOVIE_URL4				=		#movieUrl4#,
+						       MOVIE_URL5				=		#movieUrl5#,
+						       MODIFY_DT				=		#modifyDt#,						       
+						       QRSKIN						=		#qrSkin#,
+						       OFFICE_CD				=		#officeCd#,
+						       GUBUN					=		#gubun#						       
+				  	  WHERE 
+				  				QRCD_HISTORY_SID = #qrCdHistorySid#
+	</update>
+	
+	<!-- =======================================================================  RFC_COMTNQRCODE_HISTORY ============================================================================================== END-->
+	
+	
+	
+	
+	
+	
+	<!-- QR코드 파일  -->
+	<select id="qrcodeDAO.selectQrcodeFileCommonList" parameterClass="QrcodeFileVO"  resultMap="qrcodefile"  cacheModel="RFCQrcodeCache">
+			        SELECT 
+						   QRFILE_SID		qrfileSid,
+					       DATA_SID			dataSid,
+					       FILE_NM				fileNm,
+					       FILE_MASK			fileMask,
+					       FILE_SIZE			fileSize,
+					       FILE_TYPE			fileType,
+					       REGISTER_DT	registerDt,
+					       MODIFY_DT			modifyDt,
+					       THUMBNAIL 		thumbnail,
+					       (SELECT USER_ID FROM RFC_COMTNQRCODE WHERE QRCD_SID = A.DATA_SID)							userId,
+					       (SELECT DOMAIN_Id FROM RFC_COMTNQRCODE WHERE QRCD_SID = A.DATA_SID)							domainId,
+					       FILE_NO				fileNo
+					FROM  RFC_COMTNQRCODEFILE A
+					
+					WHERE
+							DATA_SID = #dataSid#
+					ORDER BY  FILE_NO ASC
+	</select>	
+	
+	<!-- QR코드 파일  -->
+	<select id="qrcodeDAO.selectQrcodeFileCommonVO" parameterClass="QrcodeFileVO"  resultMap="qrcodefile"  cacheModel="RFCQrcodeCache">
+			        SELECT 
+						   QRFILE_SID		qrfileSid,
+					       DATA_SID			dataSid,
+					       FILE_NM				fileNm,
+					       FILE_MASK			fileMask,
+					       FILE_SIZE			fileSize,
+					       FILE_TYPE			fileType,
+					       REGISTER_DT	registerDt,
+					       MODIFY_DT			modifyDt,
+					       THUMBNAIL 		thumbnail,
+					       (SELECT USER_ID FROM RFC_COMTNQRCODE WHERE QRCD_SID = A.DATA_SID)							userId,
+					       (SELECT DOMAIN_Id FROM RFC_COMTNQRCODE WHERE QRCD_SID = A.DATA_SID)							domainId,
+					       FILE_NO				fileNo
+					FROM  RFC_COMTNQRCODEFILE A
+					WHERE
+							QRFILE_SID = #qrfileSid#
+					ORDER BY  FILE_NO ASC
+	</select>	
+	
+	<delete id="qrcodeDAO.deleteQrcodeFileCommon" parameterClass="QrcodeFileVO" >
+		DELETE  FROM RFC_COMTNQRCODEFILE
+		WHERE  
+			QRFILE_SID=#qrfileSid#
+	</delete>
+	
+		<delete id="qrcodeDAO.deleteAllQrcodeFileCommon" parameterClass="QrcodeFileVO" >
+		DELETE  FROM RFC_COMTNQRCODEFILE
+		WHERE  
+			DATA_SID=#dataSid#
+	</delete>
+	
+		<!-- qr 파일 등록  -->
+	<insert id="qrcodeDAO.insertQrcodeFileCommon" parameterClass="QrcodeFileVO" >
+			          INSERT INTO   RFC_COMTNQRCODEFILE (
+						QRFILE_SID		,
+				      	DATA_SID			,
+				      	FILE_NM				,
+				      	FILE_MASK			,
+				      	FILE_SIZE			,
+				      	FILE_TYPE			,
+				      	REGISTER_DT	,
+				      	MODIFY_DT		,
+				      	THUMBNAIL		,
+				      	FILE_NO
+					)VALUES(
+						#qrfileSid#,
+			       		#dataSid#,
+			       		#fileNm#,
+			       		#fileMask#,
+			       		#fileSize#,
+			       		#fileType#,
+			       		#registerDt#,
+			       		#modifyDt#,
+			       		#thumbnail#,
+			       		#fileNo#
+					)
+	</insert>	
+	
+	<!-- QR코드 파일 출력순서 변경  -->
+
+	<update  id="qrcodeDAO.updateFileNoQrcodeFileCommon"  parameterClass="QrcodeFileVO" >
+			      UPDATE
+							  RFC_COMTNQRCODEFILE
+					  SET 	
+					       FILE_NO	=	#fileNo#
+					WHERE
+							QRFILE_SID = #qrfileSid#
+	</update>
+	
+	
+	<!-- 인기 QR코드 리스트  -->
+	<select id="qrcodeDAO.selectBestQrcodeList" parameterClass="QrcodeVO"  resultMap="qrcode"  cacheModel="RFCQrcodeCache">
+	SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(
+	
+			          SELECT 
+						   QRCD_SID						qrCdSid,
+					       SGROUP_ID					sgroupId,
+					       DOMAIN_Id						domainId,
+					       QRCD_TITLE					qrCdTitle,
+					       QRCD_CONTENT			qrCdContent,
+					       QRCD_INFO					qrCdInfo,
+					       QRCD_TYPE					qrCdType,
+					       QRCD_SKIN_SID			qrCdSkinSid,
+					       SKIN_TYPE						skinType,
+					       QRCD_CREATEURL		qrCdCreateUrl,
+					       QRCD_LANDINGURL		qrCdLandIngUrl,
+					       USERPHOTO					userphoto,
+					       QRCD_IMG150				qrCdImg150,
+					       QRCD_IMG400				qrCdImg400,
+					       QRCD_IMG630				qrCdImg630,
+					       USER_ID							userId,
+					       USER_NM						userNm,
+					       USER_OFFICENM			userOfficeNm,
+					       USER_OFFICEPS			userOfficePs,
+					       USER_HP1						userHp1,
+					       USER_HP2						userHp2,
+					       USER_HP3						userHp3,
+					       USER_TEL1					userTel1,
+					       USER_TEL2					userTel2,
+					       USER_TEL3					userTel3,
+					       USER_FAX1					userFax1,
+					       USER_FAX2					userFax2,
+					       USER_FAX3					userFax3,
+					       USER_EMAIL					userMail,
+					       USER_ZIP						userZip,
+					       USER_ADD1					userAdd1,
+					       USER_ADD2					userAdd2,
+					       HOME_LINK1					homeLink1,
+					       HOME_LINK2					homeLink2,
+					       HOME_LINK3					homeLink3,
+					       HOME_LINK4					homeLink4,
+					       HOME_LINK5					homeLink5,
+					       MOVIE_URL1					movieUrl1,
+					       MOVIE_URL2					movieUrl2,
+					       MOVIE_URL3					movieUrl3,
+					       MOVIE_URL4					movieUrl4,
+					       MOVIE_URL5					movieUrl5,
+					       REGISTER_DT				registerDt,
+					       MODIFY_DT						modifyDt,
+					       SCANCNT						scanCnt,
+					       TOPSKIN							topSkin,
+					       QRSKIN							qrSkin,
+					       OFFICE_CD					officeCd 
+					FROM  RFC_COMTNQRCODE
+					<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>
+				         </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+		            
+		           ) ALL_LIST
+	      )
+  WHERE  RNUM  &gt; #firstIndex#
+  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>	
+	
+
+</sqlMap>

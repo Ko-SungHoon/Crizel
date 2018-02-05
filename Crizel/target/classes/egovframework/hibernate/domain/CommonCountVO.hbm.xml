@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+
+
+<hibernate-mapping package="egovframework.rfc3.common.vo">
+
+
+	<class name="CommonCountVO"  table="RFC_COMTNCOMMON">
+		<cache usage="read-write"/>
+		<comment>공통카운트(추가모듈) 테이블</comment>
+		<id name="count_id" type="long">
+				<column name="COUNT_ID">
+            		<comment>공통카운트 식별코드</comment>
+            	</column>
+		</id>
+			
+		<property name="count_type" type="string" >
+			<column name="COUNT_TYPE" length="512">
+				<comment>카운트 구분코드</comment>
+			</column>
+		</property>
+		
+		<property name="count_title" type="string" >
+			<column name="COUNT_TITLE" length="512">
+				<comment>카운트 제목</comment>
+			</column>
+		</property>
+		
+		<property name="count_write" type="string" >
+			<column name="COUNT_WRITE" length="512">
+				<comment>카운트 등록제목</comment>
+			</column>
+		</property>
+		
+		<property name="count_date" type="timestamp" >
+			<column name="COUNT_DATE">
+				<comment>등록일</comment>
+			</column>
+		</property>
+		
+		<property name="count_field1" type="string" >
+			<column name="COUNT_FIELD1" length="512">
+				<comment>카운트 내용</comment>
+			</column>
+		</property>
+		
+		<property name="count_field2" type="string" >
+			<column name="COUNT_FIELD2" length="512">
+				<comment>카운트 내용</comment>
+			</column>
+		</property>
+		
+		<property name="count_field3" type="string" >
+			<column name="COUNT_FIELD3" length="512">
+				<comment>카운트 내용</comment>
+			</column>
+		</property>
+		
+		<property name="count_field4" type="string" >
+			<column name="COUNT_FIELD4" length="512">
+				<comment>카운트 내용</comment>
+			</column>
+		</property>
+		
+		<property name="count_field5" type="string" >
+			<column name="COUNT_FIELD5" length="512">
+				<comment>카운트 내용</comment>
+			</column>
+		</property>
+		
+	</class>
+</hibernate-mapping>

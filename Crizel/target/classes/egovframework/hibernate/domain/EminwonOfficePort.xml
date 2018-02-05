@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.office.vo">
+	<class name="EminwonOfficePortVO"	table="RFC_COMTNEMINWONPART">
+	
+	<cache usage="read-write"/>
+	<comment>행정포탈 사용자  테이블</comment>
+		
+		<id name="eminwonPartIds"  type="long">
+			<column name="EMINWONPART_IDS">
+				<comment>행정포탈 고유번호</comment>
+            </column>
+		</id>
+		
+		<property name="eminwonPartUserID" type="string" >
+			<column name="EMINWONPART_USERID" length="128"  >
+				<comment>사용자 아이디</comment>
+			</column>
+		</property>
+		<property name="eminwonPartDeptid" type="string" >
+			<column name="EMINWONPART_DEPTID" length="128"  >
+				<comment>부서코드</comment>
+			</column>
+		</property>
+		<property name="eminwonPartName" type="string" >
+			<column name="EMINWONPART_NAME" length="128"  >
+				<comment>부서명</comment>
+			</column>
+		</property>
+		<property name="eminwonPartStatus" type="string" >
+			<column name="EMINWONPART_STATUS" length="128"  >
+				<comment>사용여부</comment>
+			</column>
+		</property>
+		<property name="eminwonPartSeq" type="string" >
+			<column name="EMINWONPART_SEQ" length="128"  >
+				<comment>순서</comment>
+			</column>
+		</property>
+		<property name="eminwonPartPhone" type="string" >
+			<column name="EMINWONPART_PHONE" length="128"  >
+				<comment>전화번호</comment>
+			</column>
+		</property>
+		<property name="eminwonPartFax" type="string" >
+			<column name="EMINWONPART_FAX" length="128"  >
+				<comment>팩스번호</comment>
+			</column>
+		</property>
+		<property name="eminwonPartEmail" type="string" >
+			<column name="EMINWONPART_EMAIL" length="128"  >
+				<comment>이메일</comment>
+			</column>
+		</property>
+		<property name="eminwonPartBusiness" type="string" >
+			<column name="EMINWONPART_BUSINESS" length="512" >
+				<comment>직위</comment>
+			</column>
+		</property>
+		<property name="eminwonPartDutyName" type="string" >
+			<column name="EMINWONPART_DUTYNAME" length="128"  >
+				<comment>직책</comment>
+			</column>
+		</property>
+		
+		<property name="eminwonPartWorkCode" type="string" >
+			<column name="EMINWONPART_WORKCODE" length="128"  >
+				<comment>재직코드</comment>
+			</column>
+		</property>
+		
+		<property name="eminwonPartWorkNm" type="string" >
+			<column name="EMINWONPART_WORKNM" length="128"  >
+				<comment>재직여부</comment>
+			</column>
+		</property>
+		
+		<property name="eminwonPartEngmSe" type="string" >
+			<column name="EMINWONPART_ENGMSE" length="128"  >
+				<comment>사용여부</comment>
+			</column>
+		</property>
+			
+	</class>
+</hibernate-mapping>

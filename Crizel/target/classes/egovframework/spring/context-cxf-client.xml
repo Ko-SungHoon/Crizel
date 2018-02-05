@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:jaxws="http://cxf.apache.org/jaxws"
+ xsi:schemaLocation="
+http://www.springframework.org/schema/beans 
+http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+http://cxf.apache.org/jaxws 
+http://cxf.apache.org/schema/jaxws.xsd">
+
+
+
+ <bean id="AuthorServicesp" class="egovframework.rfc3.iam.service.AuthorService" 
+  factory-bean="clientFactory" factory-method="create"/> 
+ <bean id="clientFactory" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.AuthorService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/autho"/>
+ </bean>
+ 
+ 
+ <bean id="AdminMenuServicesp" class="egovframework.rfc3.iam.service.AdminMenuService" 
+  factory-bean="clientFactory2" factory-method="create"/> 
+ <bean id="clientFactory2" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.AdminMenuService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/AdminMenuService"/>
+ </bean>
+ 
+ 
+<bean id="CategoryServicesp" class="egovframework.rfc3.category.service.CategoryService" 
+  factory-bean="clientFactory3" factory-method="create"/> 
+ <bean id="clientFactory3" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.category.service.CategoryService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/CategoryService"/>
+ </bean>
+ 
+ 
+ 
+ <bean id="ComponentServicesp" class="egovframework.rfc3.component.service.ComponentService" 
+  factory-bean="clientFactory4" factory-method="create"/> 
+ <bean id="clientFactory4" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.component.service.ComponentService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/ComponentService"/>
+ </bean>
+   
+   
+   
+ <bean id="DomainServicesp" class="egovframework.rfc3.iam.service.DomainService" 
+  factory-bean="clientFactory5" factory-method="create"/> 
+ <bean id="clientFactory5" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.DomainService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/DomainService"/>
+ </bean>
+ 
+ 
+ <bean id="GroupServicesp" class="egovframework.rfc3.iam.service.GroupService" 
+  factory-bean="clientFactory6" factory-method="create"/> 
+ <bean id="clientFactory6" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.GroupService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/GroupService"/>
+ </bean>
+ 
+ 
+ <bean id="RFCLoginServicesp" class="egovframework.rfc3.login.service.RFCLoginService" 
+  factory-bean="clientFactory7" factory-method="create"/> 
+ <bean id="clientFactory7" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.login.service.RFCLoginService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/RFCLoginService"/>
+ </bean>
+ 
+<bean id="OfficeServicesp" class="egovframework.rfc3.office.service.OfficeService" 
+  factory-bean="clientFactory8" factory-method="create"/> 
+ <bean id="clientFactory8" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.office.service.OfficeService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/OfficeService"/>
+ </bean>
+ 
+<bean id="OfficePartServicesp" class="egovframework.rfc3.office.service.OfficePartService" 
+  factory-bean="clientFactory9" factory-method="create"/> 
+ <bean id="clientFactory9" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.office.service.OfficePartService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/OfficePartService"/>
+ </bean>
+ 
+ <bean id="OpenApiServicesp" class="egovframework.rfc3.iam.service.OpenApiService" 
+  factory-bean="clientFactory10" factory-method="create"/> 
+ <bean id="clientFactory10" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.OpenApiService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/OpenApiService"/>
+ </bean>
+ 
+ <bean id="ResourceServicesp" class="egovframework.rfc3.iam.service.ResourceService" 
+  factory-bean="clientFactory100" factory-method="create"/> 
+ <bean id="clientFactory100" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.ResourceService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/ResourceService"/>
+ </bean>
+ 
+ <bean id="ResourceRoleServicesp" class="egovframework.rfc3.iam.service.ResourceRoleService" 
+  factory-bean="clientFactory11" factory-method="create"/> 
+ <bean id="clientFactory11" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.ResourceRoleService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/ResourceRoleService"/>
+ </bean>
+ 
+ <bean id="RolesServicesp" class="egovframework.rfc3.iam.service.RolesService" 
+  factory-bean="clientFactory12" factory-method="create"/> 
+ <bean id="clientFactory12" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.RolesService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/RolesService"/>
+ </bean>
+ 
+ 
+<bean id="SiteGroupServicesp" class="egovframework.rfc3.iam.service.SiteGroupService" 
+  factory-bean="clientFactory13" factory-method="create"/> 
+ <bean id="clientFactory13" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.SiteGroupService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/SiteGroupService"/>
+ </bean>
+ 
+  <bean id="MberManageServicesp" class="egovframework.rfc3.user.service.MberManageService" 
+  factory-bean="clientFactory14" factory-method="create"/> 
+ <bean id="clientFactory14" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.user.service.MberManageService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/MberManageService"/>
+ </bean>
+ 
+<bean id="UserManageServicesp" class="egovframework.rfc3.user.service.UserManageService" 
+  factory-bean="clientFactory15" factory-method="create"/> 
+ <bean id="clientFactory15" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.user.service.UserManageService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/UserManageService"/>
+ </bean>
+ 
+ <bean id="ViewResourceServicesp" class="egovframework.rfc3.iam.service.ViewResourceService" 
+  factory-bean="clientFactory16" factory-method="create"/> 
+ <bean id="clientFactory16" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.ViewResourceService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/ViewResourceService"/>
+ </bean>
+ 
+ <bean id="ViewResourceMappingServicesp" class="egovframework.rfc3.iam.service.ViewResourceMappingService" 
+  factory-bean="clientFactory17" factory-method="create"/> 
+ <bean id="clientFactory17" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.ViewResourceMappingService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/ViewResourceMappingService"/>
+ </bean>
+ 
+ <bean id="AdminMenuRolesServicesp" class="egovframework.rfc3.iam.service.AdminMenuRolesService" 
+  factory-bean="clientFactory18" factory-method="create"/> 
+ <bean id="clientFactory18" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.AdminMenuRolesService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/AdminMenuRolesService"/>
+ </bean>
+ 
+ <bean id="AccessIpServicesp" class="egovframework.rfc3.iam.service.AccessIpService" 
+  factory-bean="clientFactory19" factory-method="create"/> 
+ <bean id="clientFactory19" class="org.apache.cxf.jaxws.JaxWsProxyFactoryBean">
+  <property name="serviceClass" value="egovframework.rfc3.iam.service.AccessIpService"/>
+  <property name="address" value="${iam.Jaxws.Client.Domain.HttpUrl}/webService/soap/AccessIpService"/>
+ </bean>
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+</beans>

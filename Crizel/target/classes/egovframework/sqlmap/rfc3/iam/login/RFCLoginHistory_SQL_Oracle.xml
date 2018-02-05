@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="RFCLoginHistory">
+
+	<typeAlias  alias="egovMap" type="egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="loginHistoryVO" type="egovframework.rfc3.login.vo.LoginHistoryVO"/>
+	
+	<cacheModel type="${Globals.ibatis.default.cache}" id="RFCLoginHistoryCache" readOnly="true" serialize="false">
+     	<flushInterval hours="24" />
+     	<flushOnExecute statement="loginHistoryDAO.inserLoginHistory"/>
+     	<flushOnExecute statement="loginHistoryDAO.updateLoginHistory"/>
+     </cacheModel>
+	
+
+	<select id="loginHistoryDAO.selectLoginStatistics"  parameterClass="loginHistoryVO"   resultClass="java.lang.Integer"  cacheModel="RFCLoginHistoryCache">
+			select 
+    			count(*) totcnt
+			from 
+		    	RFC_COMTNLOGINHISTORY A
+			where   
+			   1=1  AND  LOGIN_STATUS='ok' 
+			 <isNotEmpty prepend="AND" property="sgroupId" >
+		 	       SGROUP_ID like #sgroupId#
+		 	  </isNotEmpty>
+		      <isGreaterThan prepend="AND" property="startDate"  compareValue="0">
+			     (
+			      CAST(to_char(LOGIN_DATE,'YYYYMMDD') AS NUMBER) &gt;= #startDate#
+			      and 
+			      CAST(to_char(LOGIN_DATE,'YYYYMMDD') AS NUMBER) &lt;=  #endDate#
+			     )
+		      </isGreaterThan>
+	
+	</select>
+	
+	
+	<select id="loginHistoryDAO.selectUserStatistics"  parameterClass="loginHistoryVO"   resultClass="java.lang.Integer"  cacheModel="RFCLoginHistoryCache">
+			select 
+    			count(*) totcnt
+			from 
+		    	RFC_COMVNUSERMASTER  A
+			where   
+			   1=1  
+			 <isNotEmpty prepend="AND" property="sgroupId" >
+		 	       SITE_GROUP_ID like #sgroupId#
+		 	  </isNotEmpty>
+		      <isGreaterThan prepend="AND" property="startDate"  compareValue="0">
+			     (
+			      CAST(to_char(SBSCRB_DE,'YYYYMMDD') AS NUMBER) &gt;= #startDate#
+			      and 
+			      CAST(to_char(SBSCRB_DE,'YYYYMMDD') AS NUMBER) &lt;=  #endDate#
+			     )
+		      </isGreaterThan>
+
+	</select>
+
+	<select id="loginHistoryDAO.selectLoginLastSign" parameterClass="loginHistoryVO"  resultClass="java.util.Date">
+	
+	SELECT max(login_date)  
+	  FROM RFC_COMTNLOGINHISTORY 
+	 WHERE user_id=#userId# 
+	       AND login_status='ok'  
+	
+	</select>
+
+
+	<insert id="loginHistoryDAO.inserLoginHistory"  parameterClass="loginHistoryVO" >
+			INSERT INTO  RFC_COMTNLOGINHISTORY (
+				HIST_ID,
+				SGROUP_ID,
+				USER_ID,
+				USER_SE,
+				DOMAIN,
+				PORT,
+				CONNECT_IP,
+				SSO_KEY,
+				LOGIN_STATUS,
+				LOGIN_DATE,
+				USER_NM
+			)   VALUES (
+			   #histId# ,
+			  #sgroupId#,
+			  #userId# ,
+			  #userSe# ,
+			  #domain# ,
+			  #port# ,
+			  #connectIp# ,
+			  #ssoKey# ,
+			  #loginStatus# ,
+			  #loginDate#,
+			  #userNm# 
+			 )
+	</insert>
+	
+		<update id="loginHistoryDAO.updateLoginHistory" parameterClass="loginHistoryVO">
+				UPDATE
+					 RFC_COMTNLOGINHISTORY
+			SET 
+					 LOGIN_STATUS = '3'
+				WHERE 
+					 USER_ID = #userId#
+				 AND 
+					LOGIN_STATUS	= '2'
+	</update>
+	
+	
+	<select id="loginHistoryDAO.selectLoginTot"  parameterClass="loginHistoryVO"   resultClass="java.lang.Integer">
+			SELECT 
+    			COUNT(*) totcnt
+			FROM 
+		    	RFC_COMTNLOGINHISTORY 
+			WHERE 
+					 USER_ID = #userId#
+			AND 
+					LOGIN_STATUS	= '2'
+			AND
+					 LOGIN_DATE &gt;  #loginDate#
+	</select>
+	
+</sqlMap>

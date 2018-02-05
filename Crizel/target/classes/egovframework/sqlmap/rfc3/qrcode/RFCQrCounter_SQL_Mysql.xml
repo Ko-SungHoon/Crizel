@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCQRCount">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="counterVO" type = "egovframework.rfc3.counter.vo.CounterVO"/>
+	<typeAlias  alias="officeVO" type = "egovframework.rfc3.office.vo.OfficeVO"/>
+	
+     <resultMap id="counter" class="egovframework.rfc3.counter.vo.CounterVO">
+        <result property="counterSid" column="counterSid" />
+        <result property="qrcodeSid" column="qrcodeSid" />
+        <result property="sgroupId" column="sgroupId" />
+        <result property="domainId" column="domainId" />
+        <result property="accessDate" column="accessDate" />
+        <result property="accessTime" column="accessTime" />
+        <result property="dayOfWeek" column="dayOfWeek" /> 
+        <result property="qrType" column="qrType" /> 
+        <result property="yyyy" column="yyyy" /> 
+        <result property="yyyymm" column="yyyymm" /> 
+        <result property="itemCount" column="itemCount" /> 
+          <result property="userId" column="userId" /> 
+    </resultMap>
+    
+	 <resultMap id="counterSearch" class="egovframework.rfc3.counter.vo.CounterVO">
+        <result property="yyyy" column="yyyy" /> 
+        <result property="itemCount" column="itemCount" /> 
+    </resultMap>
+    
+        <resultMap id="counterday" class="egovframework.rfc3.counter.vo.CounterVO">
+        <result property="yyyymm" column="yyyymm" /> 
+        <result property="itemCount" column="itemCount" /> 
+    </resultMap>
+     <cacheModel type="${Globals.ibatis.default.cache}" id="RFCQRCountCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      <flushOnExecute statement="counterDAO.insertcounterCommon"/>
+     </cacheModel>
+     <!--  카운트  -->
+	<select id="counterDAO.selectcounterTotCnt"  parameterClass="CounterVO" resultClass="int" cacheModel="RFCQRCountCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNCOUNTER
+						
+						<dynamic prepend="WHERE">
+				<isNotEmpty prepend="AND"  property="domainId">
+				          		   USER_ID   = #userId#
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND"  property="qrcodeSid">
+				          		   QRCODE_SID   = #qrcodeSid#
+				            </isNotEmpty>
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '$searchKeyword$%'
+			           		</isNotEmpty>	
+				         </dynamic>
+	</select>
+	<!-- 리스트  -->
+		<select id="counterDAO.selectcounterCommonList" parameterClass="CounterVO"  resultMap="counter" cacheModel="RFCQRCountCache">
+			       SELECT 
+						COUNTER_SID		counterSid,
+					    QRCODE_SID		qrcodeSid,
+					    SGROUP_ID			sgroupId,
+					    DOMAIN_ID					domainId,
+					    ACCESS_DATE		accessDate,
+					    ACCESS_TIME		accessTime,
+					    DAY_OF_WEEK		dayOfWeek,
+					    QRTYPE					qrType,
+						SUBSTRING(ACCESS_DATE,1,4)yyyy,
+						SUBSTRING(ACCESS_DATE,1,8) yyyymm,
+					    count(*) itemCount,
+					    USER_ID					userId
+					FROM RFC_COMTNCOUNTER a 
+					<dynamic prepend="WHERE">
+						<isNotEmpty prepend="AND"  property="userId">
+						         USER_ID   = #userId#
+						 </isNotEmpty>
+			            <isNotEmpty prepend="AND"  property="qrType">
+			          		   QRTYPE   = #qrType#
+			            </isNotEmpty>
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '$searchKeyword$%'
+			           		</isNotEmpty>	
+				         </dynamic>
+ 			group by SUBSTRING(ACCESS_DATE,1,4) order by SUBSTRING(ACCESS_DATE,1,4) 
+	</select>	
+	
+	<!-- 월간통계  -->
+		<select id="counterDAO.selectcountermonthList" parameterClass="CounterVO"  resultMap="counter" cacheModel="RFCQRCountCache">
+  					SELECT 
+						COUNTER_SID		counterSid,
+					    QRCODE_SID		qrcodeSid,
+					    SGROUP_ID			sgroupId,
+					    DOMAIN_ID					domainId,
+					    ACCESS_DATE		accessDate,
+					    ACCESS_TIME		accessTime,
+					    DAY_OF_WEEK		dayOfWeek,
+					    QRTYPE					qrType,
+						SUBSTRING(ACCESS_DATE,1,6) yyyy,
+						SUBSTRING(ACCESS_DATE,1,8) yyyymm,
+					    count(*) itemCount,
+					    USER_ID					userId
+					FROM RFC_COMTNCOUNTER a 
+					<dynamic prepend="WHERE">
+						<isNotEmpty prepend="AND"  property="userId">
+						         USER_ID   = #userId#
+						 </isNotEmpty>
+			            <isNotEmpty prepend="AND"  property="qrType">
+			          		   QRTYPE   = #qrType#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND"  property="yyyy">
+			          		   SUBSTRING(ACCESS_DATE,1,4)    = #yyyy#
+			            </isNotEmpty>
+			            
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '$searchKeyword$%'
+			           		</isNotEmpty>	
+				     </dynamic>
+ 			
+ 			group by SUBSTRING(ACCESS_DATE,1,6) order by SUBSTRING(ACCESS_DATE,1,6)
+	</select>	
+	
+	<!-- 월간통계  -->
+		<select id="counterDAO.selectcounterdayList" parameterClass="CounterVO"  resultMap="counter" cacheModel="RFCQRCountCache">
+  					SELECT 
+						COUNTER_SID		counterSid,
+					    QRCODE_SID		qrcodeSid,
+					    SGROUP_ID			sgroupId,
+					    DOMAIN_ID					domainId,
+					    ACCESS_DATE		accessDate,
+					    ACCESS_TIME		accessTime,
+					    DAY_OF_WEEK		dayOfWeek,
+					    QRTYPE					qrType,
+					    SUBSTRING(ACCESS_DATE,1,6) yyyy,
+						SUBSTRING(ACCESS_DATE,1,8) yyyymm,
+					    count(*) itemCount,
+					    USER_ID					userId
+					FROM RFC_COMTNCOUNTER a 
+					<dynamic prepend="WHERE">
+						<isNotEmpty prepend="AND"  property="userId">
+						         USER_ID   = #userId#
+						 </isNotEmpty>
+			            <isNotEmpty prepend="AND"  property="qrType">
+			          		   QRTYPE   = #qrType#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND"  property="yyyy">
+			          		   SUBSTRING(ACCESS_DATE,1,4)    = #yyyy#
+			            </isNotEmpty>
+			              <isNotEmpty prepend="AND"  property="yyyymm">
+			          		   SUBSTRING(ACCESS_DATE,1,6)    = #yyyymm#
+			            </isNotEmpty>
+			            
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '$searchKeyword$%'
+			           		</isNotEmpty>	
+				     </dynamic>
+ 			
+ 			group by SUBSTRING(ACCESS_DATE,1,8) order by SUBSTRING(ACCESS_DATE,1,8)
+	</select>	
+	
+	<!-- qr 파일 등록  -->
+	<insert id="counterDAO.insertcounterCommon" parameterClass="CounterVO" >
+			          INSERT INTO   RFC_COMTNCOUNTER (
+						COUNTER_SID		,
+						QRCODE_SID	,
+						SGROUP_ID			,
+						DOMAIN_ID					,
+						ACCESS_DATE		,
+						ACCESS_TIME		,
+						DAY_OF_WEEK		,
+						QRTYPE,
+						USER_ID
+					)VALUES(
+						#counterSid#,
+						#qrcodeSid#,
+						#sgroupId#,
+						#domainId#,
+						#accessDate#,
+						#accessTime#,
+						#dayOfWeek#,
+						#qrType#,
+						#userId#
+					)
+	</insert>	
+	
+		<select id="OfficeDAO.selectOfficeQrcodeTot" parameterClass="officeVO"  resultClass="officeVO" cacheModel="RFCQRCountCache">
+					SELECT 
+						A.OFFICE_CD officeCd,
+    					A.OFFICE_NM officeNm,
+    					A.OFFICE_DP officeDp,
+    					(SELECT COUNT(*) FROM RFC_COMTNQRCODE WHERE OFFICE_CD = A.OFFICE_CD)  officeCnt
+					FROM 
+						RFC3_IAM.RFC_COMTCOFFICE A LEFT OUTER JOIN RFC3_IAM.RFC_COMTCOFFICE B ON A.OFFICE_CD = A.OFFICE_CD
+					WHERE
+						(SELECT COUNT(*) FROM RFC_COMTNQRCODE WHERE OFFICE_CD = A.OFFICE_CD)  > 0
+			          <isNotEmpty prepend="AND"   property="officeCd">
+			            	 A.OFFICE_CD LIKE '$officeCd$%'
+			           </isNotEmpty>
+					GROUP BY A.OFFICE_CD
+		</select>
+
+</sqlMap>

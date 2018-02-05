@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="JWWWDataManage">
+	<typeAlias  alias="egovMap"      						type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="jeventVO"	 							type = "egovframework.rfc3.openapi20.vo.JeventVO"/> 
+    <typeAlias  alias="jeventSearchVO"	 				type = "egovframework.rfc3.openapi20.vo.JeventSearchVO"/> 
+    <typeAlias  alias="jeventFileVO"						type = "egovframework.rfc3.openapi20.vo.JeventFileVO"/>
+    
+    <select id="JwwwDAO.selectEventDataListCnt"  parameterClass="jeventSearchVO" resultClass="int" >
+		    		  select
+						  count(*) totcnt
+						FROM
+						(  select 
+						       a.indexNum,
+						       a.startDay,
+						       a.endDay,
+						       nvl(a.eTime,' ') eTime,
+						       nvl(a.url,' ') url,
+						       nvl(a.sponSor,' ') sponSor,
+					           ' ' mngCo, 
+						       nvl(a.place,' ') place,	
+						       nvl(a.admfee,' ') admfee,
+						       nvl(a.subject,' ') subject,
+						       nvl(a.content,' ') content,
+						       ' ' mngId,
+						       ' ' mngNm, 
+						       nvl(a.orgNm,' ') orgNm,
+						       nvl(a.mngTel,' ') mngTel,
+					           ' ' mngEmail, 
+			                   0 hit,
+						       regDate,
+						       indexNum  attidx
+						    from GETEVENTLIST  a
+						  ) b
+						  where 1=1 
+						  
+						 <isNotEmpty prepend="AND" property="keyword" >
+								sponSor like '%' ||  #keyword#  || '%' or 
+							    place like '%' ||  #keyword#  || '%' or 
+							    admfee like '%' ||  #keyword#  || '%' or 
+							    subject like '%' ||  #keyword#  || '%' or 
+							    content like '%$keyword$%'
+						 </isNotEmpty>  
+						 <isNotEmpty prepend="AND" property="startDay" >
+								      startDay &gt;= TO_DATE(#startDay#,'YYYY-MM-DD') 
+						 </isNotEmpty>  
+						 <isNotEmpty prepend="AND" property="endDay" >
+						              endDay  &gt;= TO_DATE(#endDay#,'YYYY-MM-DD')
+						 </isNotEmpty> 
+						 
+    </select>
+    
+    <select id="JwwwDAO.selectEventDataList"  parameterClass="jeventSearchVO" resultClass="jeventVO" >
+    SELECT  * 
+		  FROM (
+				SELECT ROWNUM RNUM, ALL_LIST.*  
+				FROM  
+				(
+		    		select
+						  indexNum,
+						  startDay,
+						  endDay,
+						  eTime,
+						  url,
+						  sponSor,
+						  mngCo,
+						  place,
+						  admfee,
+						  subject,
+						  content,
+						  mngId,
+						  mngNm,
+						  orgNm,
+						  mngTel,
+						  mngEmail,
+						  hit,
+						  regDate,
+						  attIdx
+						FROM
+						( 
+						  select 
+						       a.indexNum,
+						       a.startDay,
+						       a.endDay,
+						       nvl(a.eTime,' ') eTime,
+						       nvl(a.url,' ') url,
+						       nvl(a.sponSor,' ') sponSor,
+					           ' ' mngCo, 
+						       nvl(a.place,' ') place,	
+						       nvl(a.admfee,' ') admfee,
+						       nvl(a.subject,' ') subject,
+						       nvl(a.content,' ') content,
+						       ' ' mngId,
+						       ' ' mngNm, 
+						       nvl(a.orgNm,' ') orgNm,
+						       nvl(a.mngTel,' ') mngTel,
+					           ' ' mngEmail, 
+			                   0 hit,
+						       regDate,
+						       indexNum  attidx
+						    from GETEVENTLIST  a
+						  ) b
+						  where 1=1 
+						  
+						 <isNotEmpty prepend="AND" property="keyword" >
+								sponSor like '%' ||  #keyword#  || '%' or 
+							    place like '%' ||  #keyword#  || '%' or 
+							    admfee like '%' ||  #keyword#  || '%' or 
+							    subject like '%' ||  #keyword#  || '%' or 
+							    content like '%$keyword$%'
+						 </isNotEmpty>  
+						  <isNotEmpty prepend="AND" property="startDay" >
+								      startDay &gt;= TO_DATE(#startDay#,'YYYY-MM-DD') 
+						 </isNotEmpty>  
+						 <isNotEmpty prepend="AND" property="endDay" >
+						              endDay  &gt;= TO_DATE(#endDay#,'YYYY-MM-DD')
+						 </isNotEmpty> 
+						 
+						 <isEmpty  property="orderBy" >
+						 	 order by indexNum desc
+						 </isEmpty>  
+						 <isNotEmpty  property="orderBy" >
+							  order by  $orderBy$
+						 </isNotEmpty>
+
+						 ) ALL_LIST
+	      )
+  WHERE  RNUM  &gt; #pageIndex#
+  AND  RNUM &lt;= #pageIndex# + #pageSize#
+    </select>
+    
+    
+    <select id="JwwwDAO.getEventDataInfo"  parameterClass="jeventSearchVO" resultClass="jeventVO" >
+		 			select 
+						       a.indexNum,
+						       a.startDay,
+						       a.endDay,
+						       nvl(a.eTime,' ') eTime,
+						       nvl(a.url,' ') url,
+						       nvl(a.sponSor,' ') sponSor,
+					           ' ' mngCo, 
+						       nvl(a.place,' ') place,	
+						       nvl(a.admfee,' ') admfee,
+						       nvl(a.subject,' ') subject,
+						       nvl(a.content,' ') content,
+						       ' ' mngId,
+						       ' ' mngNm, 
+						       nvl(a.orgNm,' ') orgNm,
+						       nvl(a.mngTel,' ') mngTel,
+					           ' ' mngEmail, 
+			                   0 hit,
+						       regDate,
+						       indexNum  attidx
+						  from GETEVENTLIST a
+						  where 1=1  and indexNum=#indexNum#
+    </select>
+</sqlMap>

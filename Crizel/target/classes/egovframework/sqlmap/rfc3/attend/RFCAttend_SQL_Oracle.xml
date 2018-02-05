@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCAttendManages">
+	
+	<cacheModel type="${Globals.ibatis.default.cache}" id="RFCAttendManageManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="attendDAO.insertAttendData"/>
+     </cacheModel>
+    <typeAlias  alias="AttendVO"	 type = "egovframework.rfc3.attend.vo.AttendVO"/>
+    <typeAlias  alias="AttendUserVO"	 type = "egovframework.rfc3.attend.vo.AttendUserVO"/>
+    
+     
+	<insert id="attendDAO.insertAttendData" parameterClass="AttendVO">
+			       	INSERT INTO RFC_ATTEND
+			       	(
+			       		MA_SEQ,
+			       		MA_ID,
+			       		MA_COMMENT,
+			       		MA_CTIME
+			       	)
+			       	VALUES
+			       	(
+			       		#maSeq#,
+			       		#maId#,
+			       		#maComment#,
+			       		SYSDATE
+			       	)			       	
+	</insert>
+	
+	<select id="attendDAO.countAttendData"  parameterClass="AttendVO" resultClass="int">
+						SELECT
+							count(*) totcnt																					  
+						FROM
+							RFC_ATTEND A 
+						WHERE
+						MA_ID = #maId#
+						AND
+						to_char(MA_CTIME, 'yyyy-mm-dd')= TRUNC(SYSDATE)
+	</select>
+	
+	
+
+
+
+	<select id="attendDAO.myAttendList"  parameterClass="AttendVO" resultClass="AttendVO">
+				SELECT
+					MA_SEQ maSeq,
+		       		MA_ID maId,
+		       		MA_COMMENT maComment,
+		       		MA_CTIME maCtime																			  
+				FROM
+					RFC_ATTEND A 
+				WHERE
+				MA_ID = #maId#
+				AND
+				to_char(MA_CTIME, 'yyyy-mm')=#searchDate#	
+				order by MA_CTIME DESC	
+	</select>
+	
+	<select id="attendDAO.allAttendList"  parameterClass="AttendVO" resultClass="AttendVO" cacheModel="RFCAttendManageManageCache">
+			SELECT 
+				MA_ID,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-01' AND MA_ID = #maId#   )as attend1,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-02' AND MA_ID = #maId#   )as attend2, 
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-03' AND MA_ID = #maId#   )as attend3, 
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-04' AND MA_ID = #maId#   )as attend4, 
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-05' AND MA_ID = #maId#   )as attend5, 
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-06' AND MA_ID = #maId#   )as attend6, 
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-07' AND MA_ID = #maId#   )as attend7, 
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-08' AND MA_ID = #maId#   )as attend8, 
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-09' AND MA_ID = #maId#   )as attend9, 
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-10' AND MA_ID = #maId#   )as attend10,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-11' AND MA_ID = #maId#   )as attend11,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-12' AND MA_ID = #maId#   )as attend12,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-13' AND MA_ID = #maId#   )as attend13,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-14' AND MA_ID = #maId#   )as attend14,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-15' AND MA_ID = #maId#   )as attend15,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-16' AND MA_ID = #maId#   )as attend16,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-17' AND MA_ID = #maId#   )as attend17,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-18' AND MA_ID = #maId#   )as attend18,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-19' AND MA_ID = #maId#   )as attend19,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-20' AND MA_ID = #maId#   )as attend20,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-21' AND MA_ID = #maId#   )as attend21,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-22' AND MA_ID = #maId#   )as attend22,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-23' AND MA_ID = #maId#   )as attend23,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-24' AND MA_ID = #maId#   )as attend24,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-25' AND MA_ID = #maId#   )as attend25,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-26' AND MA_ID = #maId#   )as attend26,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-27' AND MA_ID = #maId#   )as attend27,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-28' AND MA_ID = #maId#   )as attend28,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-29' AND MA_ID = #maId#   )as attend29,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-30' AND MA_ID = #maId#   )as attend30,
+			    (SELECT MA_CTIME FROM RFC_ATTEND  WHERE to_char(MA_CTIME, 'yyyy-mm-dd')= #searchDate#||'-31' AND MA_ID = #maId#   )as attend31,
+				(SELECT count(*) FROM RFC_ATTEND where to_char(MA_CTIME, 'yyyy-mm')=#searchDate# and MA_ID =#maId#)as attendcount		
+				FROM RFC_ATTEND
+				WHERE
+					MA_ID = #maId#
+					AND
+					to_char(MA_CTIME, 'yyyy-mm')=#searchDate#
+				GROUP BY MA_ID
+	</select>
+
+
+	<select id="attendDAO.updatelist"  parameterClass="AttendVO" resultClass="AttendVO">
+							SELECT
+								MA_SEQ maSeq,
+					       		MA_ID maId,
+					       		MA_COMMENT maComment,
+					       		MA_CTIME maCtime																				  
+							FROM
+								RFC_ATTEND A 
+							WHERE
+							MA_SEQ=#maSeq#
+	</select>
+	
+	<update id="attendDAO.updateAct"  parameterClass="AttendVO">
+							UPDATE RFC_ATTEND SET
+								MA_COMMENT = #maComment#
+							WHERE
+							MA_SEQ=#maSeq#
+	</update>
+	
+	
+	<select id="attendDAO.roleList"  parameterClass="AttendVO" resultClass="AttendVO" >
+	SELECT 
+					      	A.SGROUP_ID  sgroupId,
+					       	A.ROLE_ID  roleId,
+					       	(select  ROLE_NM  from RFC_COMTNROLES where ROLE_ID =A.ROLE_ID) roleNm,
+					       	A.SUBJECT_ID subjectId,
+					       	B.MBER_NM emnm,
+					       	A.USER_TYPE userType
+					  	 FROM 
+					  	 	RFC_COMTNAUTHORITES A  JOIN RFC_COMTNMEMBER B  ON	A.SUBJECT_ID	= B.MBER_ID
+					     WHERE 
+					      	SGROUP_ID=#sgroupId#  AND 
+					      	ROLE_ID=#roleId#  AND 
+					      	USER_TYPE='U'
+					       ORDER BY CREATE_DATE  ASC
+	</select>  
+	
+	<select id="attendDAO.findUserVO" parameterClass="AttendUserVO"  resultClass="AttendUserVO" >
+	
+	 SELECT  * 
+      FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(
+						SELECT 
+	                            	A.SGROUP_ID sgroupId,
+	                            	A.ROLE_ID roleId,
+	                            	B.MBER_ID emplyrId,
+									B.MBER_NM emplyrNm,
+									B.ADRES adres,
+	                                B.EMAIL_ADRES emailAdres,
+	                                B.MOBLFRIST_NO areaNo,
+	                                B.MOBLMIDDLE_NO middleTelNo,
+	                                B.MOBLEND_NO endTelNo,
+	                                B.USER_AUTH_CODE userAutyCode,
+	                                A.SUBJECT_ID sbujetcId,
+	                                A.USER_TYPE userType
+	                                    
+	                        	FROM RFC_COMTNAUTHORITES A JOIN RFC_COMTNMEMBER B  ON	A.SUBJECT_ID	= B.MBER_ID
+	                        	WHERE  1=1 
+	                        	AND 
+	                        	 ROLE_ID=#roleId#
+								<isNotEmpty prepend="AND" property="searchCondition" >
+					          		     $searchCondition$  LIKE '%$searchKeyword$%'
+					            </isNotEmpty>
+					            <isNotEmpty prepend="AND" property="sgroupId" >
+					          		   SITE_GROUP_ID   LIKE  #sgroupId#
+					            </isNotEmpty>
+					            
+					             	ORDER BY UNIQ_ID  DESC
+			) ALL_LIST
+	      )
+	  WHERE  RNUM  &gt; #firstIndex#
+	  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>
+	
+	<select id="attendDAO.findUserVOCount" parameterClass="AttendUserVO"  resultClass="int" cacheModel="RFCAttendManageManageCache">
+	                            SELECT 
+	                            	count(*) totcnt
+	                                    
+	                        	FROM RFC_COMTNAUTHORITES A JOIN RFC_COMTNMEMBER B  ON	A.SUBJECT_ID	= B.MBER_ID
+	                        	WHERE  1=1 
+	                        	AND 
+	                        	 ROLE_ID=#roleId#
+								<isNotEmpty prepend="AND" property="searchCondition" >
+					          		     $searchCondition$  LIKE '%$searchKeyword$%'
+					            </isNotEmpty>
+
+					            <isNotEmpty prepend="AND" property="sgroupId" >
+					          		   SITE_GROUP_ID   LIKE  #sgroupId#
+					            </isNotEmpty>
+  </select>
+
+</sqlMap>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.perform.vo">
+	<class name="PerFormInfoVO"	table="RFC_COMTN_PERFORN">
+	  <cache usage="read-write"/>
+		<comment>공연관리 테이블</comment>
+		<id name="playSid" type="long">
+			<column name="PLAY_SID">
+				<comment>공연정보 고유번호</comment>
+   			</column>
+		</id>
+		<property name="chasun" type="string" >
+			<column name="CHASUN" length="10"   >
+			<comment>인증키</comment>
+			</column>
+		</property>
+		<property name="playNm" type="string" >
+			<column name="PLAY_NM" length="30"   >
+			<comment>공연명</comment>
+			</column>
+		</property>
+		<property name="playsDate" type="string" >
+			<column name="PLAY_SDATE" length="10"   >
+			<comment>공연일</comment>
+			</column>
+		</property>
+		<property name="playsTime" type="string" >
+			<column name="PLAY_STIME" length="50"   >
+			<comment>공연시간</comment>
+			</column>
+		</property>
+		<property name="playCompany" type="string" >
+			<column name="PLAY_COMPANY" length="30"   >
+			<comment>공연업체</comment>
+			</column>
+		</property>
+		<property name="playPalce" type="string" >
+			<column name="PLAY_PALCE"  length="30"  >
+			<comment>공연장소</comment>
+			</column>
+		</property>
+		<property name="playTarget" type="string" >
+			<column name="PLAY_TARGET"  length="30"  >
+			<comment>공연대상</comment>
+			</column>
+		</property>
+		<property name="applysDate" type="string" >
+			<column name="APPLY_SDATE"  length="10"  >
+			<comment>신청일시(년월일)</comment>
+			</column>
+		</property>
+		<property name="applysHour" type="string" >
+			<column name="APPLY_SHOUR" length="5"  default="'10'" >
+			<comment>신청일시(시간)</comment>
+			</column>
+		</property>
+		<property name="applysMinute" type="string" >
+			<column name="APPLY_MINUTE" length="5"  default="'10'" >
+			<comment>신청일시(분)</comment>
+			</column>
+		</property>
+		<property name="applyCnt" type="int" >
+			<column name="APPLY_CNT" length="3"   >
+			<comment>신청정원</comment>
+			</column>
+		</property>
+		<property name="isAutoStatus" type="string" >
+			<column name="IS_AUTO_STATUS"  length="5"  >
+			<comment>신청상태 자동변경 여부</comment>
+			</column>
+		</property>
+		<property name="status" type="string" >
+			<column name="STATUS"  length="1"  >
+			<comment>수동상태</comment>
+			</column>
+		</property>
+		<property name="isUse" type="yes_no" >
+			<column name="IS_USE"  length="1"  default="'1'"  >
+			<comment>사용여부</comment>
+			</column>
+		</property>
+		<property name="regDate" type="timestamp" >
+			<column name="REG_DATE">
+			<comment>등록일</comment>
+			</column>
+		</property>
+		<property name="playType" type="string" >
+			<column name="PLAY_TYPE"  length="5"  default="'0'" >
+			<comment>공연종류</comment>
+			</column>
+		</property>
+		<property name="playAreaCd" type="string" >
+			<column name="PLAY_AREA_CD"  length="10"  >
+			<comment>접수지역</comment>
+			</column>
+		</property>
+		
+		
+	</class>
+	
+	<class name="ApplicantVO"	table="RFC_COMTN_PERFORN_APPLY">
+	  <cache usage="read-write"/>
+		<comment>신청자관리 테이블</comment>
+		<id name="applicantSid" type="long">
+			<column name="APPLICANT_SID">
+				<comment>신청자정보 고유번호</comment>
+			</column>
+		</id>
+		<property name="playSid" type="long" >
+			<column name="PLAY_SID"  >
+			<comment>공연정보 고유번호</comment>
+			</column>
+		</property>
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64"   >
+			<comment>신청자 아이디</comment>
+			</column>
+		</property>
+		<property name="userNm" type="string" >
+			<column name="USER_NM" length="30"   >
+			<comment>신청자 이름</comment>
+			</column>
+		</property>
+		<property name="aplyAreaCd" type="string" >
+			<column name="APLY_AREA_CD" length="10">
+			<comment>지역</comment>
+			</column>
+		</property>
+		<property name="aplySchoolCd" type="string" >
+			<column name="APLY_SCHOOL_CD" length="10">
+			<comment>소속유치원</comment>
+			</column>
+		</property>
+		<property name="childCnt" type="int" >
+			<column name="CHILD_CNT" length="5"   >
+			<comment>참가 유아인원수</comment>
+			</column>
+		</property>
+		<property name="aultCnt" type="int" >
+			<column name="AULT_CNT" length="5"   >
+			<comment>보호자 인원수</comment>
+			</column>
+		</property>
+		<property name="applyStatus" type="string" >
+			<column name="APPLY_STATUS"  length="1"  >
+			<comment>신청 상태</comment>
+			</column>
+		</property>
+		<property name="regDate" type="timestamp" >
+			<column name="REG_DATE">
+			<comment>신청일</comment>
+			</column>
+		</property>
+		<property name="ticketNum" type="int" >
+			<column name="TICKET_NUM" length="5"  default="0"  >
+			<comment>티켓번호</comment>
+			</column>
+		</property>
+		
+	</class>
+
+	
+</hibernate-mapping>

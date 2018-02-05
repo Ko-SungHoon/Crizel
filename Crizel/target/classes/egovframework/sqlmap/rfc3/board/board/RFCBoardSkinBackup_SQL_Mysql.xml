@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCBoardSkinBackupManage">
+	 
+	 <cacheModel type="${Globals.ibatis.default.cache}" id="RFCBoardSkinBackupManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="boardDAO.insertBoardSkinBackup"/>
+		<flushOnExecute statement="boardDAO.initBoardSkinBackup"/>
+		<flushOnExecute statement="boardDAO.updateBoardSkinBackup"/>
+     </cacheModel>
+	 
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>    
+     <typeAlias  alias="boardSkinHistoryVO" type = "egovframework.rfc3.board.vo.BoardSkinHistoryVO"/>
+     <select  id="boardDAO.selectBoardSkinBackup"  parameterClass="boardSkinHistoryVO"  resultClass="boardSkinHistoryVO" cacheModel="RFCBoardSkinBackupManageCache">
+					SELECT
+						BACKUP_SID backupSid,
+						BACKUP_TYPE backupType,
+						BACKUP_ID backupId,
+						USER_ID userId,
+						BACKUP_AREA backupArea,
+						BACKUP_CONTENT backupContent,
+						MODIFY_DATE modify_dt,
+						RESTORE_DATE restore_dt,
+						RESTORE_FL restoreFl		
+					FROM
+						RFC_COMTHBBSSKINBAK						
+					WHERE 
+						BACKUP_TYPE = #backupType# AND BACKUP_ID = #backupId# AND BACKUP_AREA = #backupArea#
+					ORDER BY
+						MODIFY_DATE DESC
+					LIMIT #recordCountPerPage# OFFSET #firstIndex#
+	</select>
+    <select  id="boardDAO.getBoardSkinBackup"  parameterClass="boardSkinHistoryVO"  resultClass="boardSkinHistoryVO" cacheModel="RFCBoardSkinBackupManageCache">
+					SELECT
+						BACKUP_SID backupSid,
+						BACKUP_TYPE backupType,
+						BACKUP_ID backupId,
+						USER_ID userId,
+						BACKUP_AREA backupArea,
+						BACKUP_CONTENT backupContent,
+						MODIFY_DATE modify_dt,
+						RESTORE_DATE restore_dt,
+						RESTORE_FL restoreFl		
+					FROM
+						RFC_COMTHBBSSKINBAK						
+					WHERE 
+						BACKUP_SID = #backupSid#						
+	</select>
+	<insert id="boardDAO.insertBoardSkinBackup"  parameterClass="boardSkinHistoryVO">
+					INSERT INTO RFC_COMTHBBSSKINBAK
+						( 
+						BACKUP_SID,
+						BACKUP_TYPE,
+						BACKUP_ID,
+						USER_ID,
+						BACKUP_AREA,
+						BACKUP_CONTENT,
+						MODIFY_DATE
+						)
+					VALUES (
+						#backupSid#,
+						#backupType#,
+						#backupId#,
+						#userId#,
+						#backupArea#,
+						#backupContent#,
+						#modify_dt#						
+					)
+	</insert>
+	<update  id="boardDAO.initBoardSkinBackup"  parameterClass="boardSkinHistoryVO" >
+					UPDATE
+						RFC_COMTHBBSSKINBAK
+					SET 	
+						RESTORE_DATE=null,
+						RESTORE_FL=0
+					WHERE 
+						BACKUP_TYPE = #backupType# AND BACKUP_ID = #backupId# AND BACKUP_AREA = #backupArea#
+	</update>
+	<update  id="boardDAO.updateBoardSkinBackup"  parameterClass="boardSkinHistoryVO" >
+					UPDATE
+						RFC_COMTHBBSSKINBAK
+					SET 	
+						RESTORE_DATE=#restore_dt#,
+						RESTORE_FL=1
+					WHERE 
+						BACKUP_SID = #backupSid#
+	</update>	
+</sqlMap>

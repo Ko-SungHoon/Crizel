@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCAuthorRoles">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	 <resultMap id="rfcAuthor" class="egovframework.rfc3.iam.vo.AuthoritesVO">
+        <result property="sgroupId" column="sgroupId" />
+        <result property="roleId" column="roleId" />
+        <result property="roleNm" column="roleNm" />
+        <result property="subjectId" column="subjectId" />
+        <result property="userType" column="userType" />
+    </resultMap>
+    
+    <cacheModel type="${Globals.ibatis.default.cache}" id="RFCAuthorRolesCache" readOnly="true" serialize="false">
+     	<flushInterval hours="24" />
+     	<flushOnExecute statement="authorDAO.insertAuthorRole"/>
+     	<flushOnExecute statement="authorDAO.updateAuthorRole"/>
+     	<flushOnExecute statement="authorDAO.deleteAuthorRole"/>
+     </cacheModel>
+	 <select id="authorDAO.selectAuthoRole"  parameterClass="egovframework.rfc3.iam.vo.AuthoritesVO"  resultClass="java.lang.Integer"  cacheModel="RFCAuthorRolesCache">
+	 					SELECT
+							  count(*) totcnt
+						FROM
+							RFC_COMTNAUTHORITES
+						WHERE
+						  SGROUP_ID=#sgroupId#
+						   AND
+						  SUBJECT_ID=#subjectId#
+	 </select>
+	 
+	  <select id="authorDAO.selectAuthorList"  parameterClass="egovframework.rfc3.iam.vo.AuthoritesVO"  resultMap="rfcAuthor"  cacheModel="RFCAuthorRolesCache">
+	 					SELECT 
+					      	SGROUP_ID  sgroupId,
+					       	ROLE_ID  roleId,
+					       	(select  ROLE_NM  from RFC_COMTNROLES where ROLE_ID =a.ROLE_ID) roleNm,
+					       	SUBJECT_ID subjectId,
+					       	USER_TYPE userType
+					  	 FROM 
+					  	 	RFC_COMTNAUTHORITES a
+					     WHERE 
+					      	SGROUP_ID=#sgroupId#  AND 
+					      	SUBJECT_ID=#subjectId#  AND 
+					      	USER_TYPE=#userType# 
+					       ORDER BY CREATE_DATE  ASC
+						 </select>
+	<insert id="authorDAO.insertAuthorRole"  parameterClass="egovframework.rfc3.iam.vo.AuthoritesVO">
+					INSERT INTO RFC_COMTNAUTHORITES
+						 (
+						 	SGROUP_ID,
+						 	ROLE_ID,
+						 	SUBJECT_ID,
+						 	USER_TYPE,
+						 	CREATE_DATE,
+						 	MODIFY_DATE)
+						VALUES 
+					  (
+						#sgroupId# ,
+						#roleId# ,
+						#subjectId#,
+						#userType# ,
+						#createDate#,
+						#modifyDate# )
+	</insert>
+	<update id="authorDAO.updateAuthorRole"  parameterClass="egovframework.rfc3.iam.vo.AuthoritesVO">
+					UPDATE 
+						RFC_COMTNAUTHORITES
+					SET 
+						ROLE_ID=#roleId#,
+						MODIFY_DATE=#modifyDate#
+					WHERE
+						SGROUP_ID=#sgroupId#
+						AND
+						SUBJECT_ID = #subjectId#
+						
+					
+	
+	</update>
+	<delete id="authorDAO.deleteAuthorRole"  parameterClass="egovframework.rfc3.iam.vo.AuthoritesVO">
+					DELETE  FROM 
+							RFC_COMTNAUTHORITES
+					WHERE  	
+						SGROUP_ID=#sgroupId#
+							AND
+						SUBJECT_ID = #subjectId#
+	</delete>
+</sqlMap>

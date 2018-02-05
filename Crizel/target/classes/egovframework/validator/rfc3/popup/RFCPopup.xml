@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE form-validation PUBLIC 
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1//EN" 
+    "http://jakarta.apache.org/commons/dtds/validator_1_1.dtd">
+
+<form-validation>
+    <formset>
+    	<form name="popupVO">
+			<field property="sgroupId" depends="required">
+        		<arg0 key="사이트 그룹" resource="false"/>
+			</field>
+			<field property="domainId" depends="required">
+        		<arg0 key="도메인 그룹" resource="false"/>
+			</field>			
+			<field property="popupTitle" depends="required">
+        		<arg0 key="제목" resource="false"/>
+			</field>
+			<!-- <field property="startYear" depends="integer">
+                <arg0 key="시작년" resource="false"/>
+            </field>
+            <field property="startMonth" depends="integer">
+                <arg0 key="시작월" resource="false"/>
+            </field>
+            <field property="startDay" depends="integer">
+                <arg0 key="시작일" resource="false"/>
+            </field>
+            <field property="startHour" depends="integer">
+                <arg0 key="시작시" resource="false"/>
+            </field>
+            <field property="startMin" depends="integer">
+                <arg0 key="시작분" resource="false"/>
+            </field>
+            <field property="endYear" depends="integer">
+				<arg0 key="종료년" resource="false"/>
+			</field>
+			<field property="endMonth" depends="integer">
+				<arg0 key="종료월" resource="false"/>
+			</field>
+			<field property="endDay" depends="integer">
+				<arg0 key="종료일" resource="false"/>
+			</field>
+			<field property="endHour" depends="integer">
+				<arg0 key="종료시" resource="false"/>
+			</field>
+			<field property="endMin" depends="integer">
+				<arg0 key="종료분" resource="false"/>
+			</field>
+			 -->
+			<field property="popupWidth" depends="integer">
+				<arg0 key="컨텐츠 넓이" resource="false"/>
+			</field>
+			<field property="popupHeight" depends="integer">
+				<arg0 key="컨텐츠 높이" resource="false"/>
+			</field>
+			
+		</form>
+		
+		<form name="popupCateVO">
+			<field property="sgroupId" depends="required">
+        		<arg0 key="사이트 그룹" resource="false"/>
+			</field>
+			<field property="domainId" depends="required">
+        		<arg0 key="도메인 그룹" resource="false"/>
+			</field>			
+			<field property="popupCategoryCode" depends="required">
+        		<arg0 key="코드" resource="false"/>
+			</field>
+			<field property="popupCategoryTitle" depends="required">
+                <arg0 key="제목" resource="false"/>
+            </field>            
+		</form>
+	</formset>
+</form-validation>
+	

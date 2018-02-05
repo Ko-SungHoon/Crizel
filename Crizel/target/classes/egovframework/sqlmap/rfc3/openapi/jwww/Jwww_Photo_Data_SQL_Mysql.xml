@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="JWWWReportDataManage">
+	<typeAlias  alias="JphotoVO"  type = "egovframework.rfc3.openapi20.vo.JphotoVO"/>
+		  <typeAlias  alias="jeventSearchVO"	 				type = "egovframework.rfc3.openapi20.vo.JeventSearchVO"/> 
+    <typeAlias  alias="jeventFileVO"						type = "egovframework.rfc3.openapi20.vo.JeventFileVO"/>
+
+    
+    <select id="JwwwDAO.selectPhotoDataListCnt"  parameterClass="jeventSearchVO" resultClass="int" >
+		    		  select
+						  count(*) totcnt
+						FROM
+						( select 
+						a.INDEXNUM,
+						a.CATEIDX,
+						a.KRSUBJECT,
+						a.ENSUBJECT,
+						a.KRCONTENT,
+						a.ENCONTENT,
+						a.HIT,
+						a.ATTIDX,
+						a.MNGID,
+						a.CLIENTIP,
+						a.APPROVAL,
+						a.REGDATE
+						  from JJ_PHOTO a
+						  ) b
+						  where 1=1 
+						  
+							 <isNotEmpty prepend="AND" property="keyword" >
+								a.KRSUBJECT like '%$keyword$%' or 
+							    a.ENSUBJECT  like '%$keyword$%' or
+							    a.KRCONTENT  like '%$keyword$%' or
+							    a.ENCONTENT like '%$keyword$%' 
+						 </isNotEmpty>  
+    </select>
+    <select id="JwwwDAO.selectPhotoDataList"  parameterClass="jeventSearchVO" resultClass="JphotoVO" >
+		    		select
+							indexNum,
+							cateIdx,
+							krSubject,
+							enSubject,
+							krContent,
+							enContent,
+							hit,
+							attIdx,
+							mngId,
+							clienTip,
+							approVal,
+							regDate
+						FROM
+						( select 
+							a.INDEXNUM,
+							a.CATEIDX,
+							a.KRSUBJECT,
+							a.ENSUBJECT,
+							a.KRCONTENT,
+							a.ENCONTENT,
+							a.HIT,
+							a.ATTIDX,
+							a.MNGID,
+							a.CLIENTIP,
+							a.APPROVAL,
+							a.REGDATE
+						  from JJ_PHOTO a
+						  ) b
+						  where 1=1 
+						  
+						 <isNotEmpty prepend="AND" property="keyword" >
+								a.KRSUBJECT like '%$keyword$%' or 
+							    a.ENSUBJECT  like '%$keyword$%' or
+							    a.KRCONTENT  like '%$keyword$%' or
+							    a.ENCONTENT like '%$keyword$%' 
+						 </isNotEmpty>  
+						 
+						 <isEmpty  property="orderBy" >
+						 	 order by indexNum desc
+						 </isEmpty>  
+						 <isNotEmpty  property="orderBy" >
+							  order by  $orderBy$
+						 </isNotEmpty>
+						 
+						  LIMIT #pageSize# OFFSET #pageIndex#
+    </select>
+    
+        <select id="JwwwDAO.getPhotoDataInfo"  parameterClass="jeventSearchVO" resultClass="JphotoVO" >
+		 			select 
+						   	indexNum,
+							cateIdx,
+							krSubject,
+							enSubject,
+							krContent,
+							enContent,
+							hit,
+							attIdx,
+							mngId,
+							clienTip,
+							approVal,
+							regDate
+						  from JJ_PHOTO
+						  where 1=1  and indexNum=#indexNum#
+    </select>
+    
+    <select id="JwwwDAO.getPhotoFileInfo"  parameterClass="JeventFileVO" resultClass="JeventFileVO" >
+		 			select 
+						indexNum,
+						attNum,
+						boardNm,
+						fileName,
+						fileSize,
+						fileExt,
+						downLoad,
+						regDate
+					from JJ_ATT_INFO
+					where 1=1  and indexNum = #attidx#
+    </select>
+
+</sqlMap>

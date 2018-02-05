@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE form-validation PUBLIC 
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1//EN" 
+    "http://jakarta.apache.org/commons/dtds/validator_1_1.dtd">
+
+<form-validation>
+    <formset>
+    	<form name="goodsVO">
+			<field property="goodsTitle" depends="required">
+        		<arg0 key="상품명" resource="false"/>
+			</field>
+			<field property="packTypeCd" depends="maxlength">
+	                <arg0 key="꾸러미코드" resource="false"/>
+	                <arg1 key="2" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>2</var-value>
+	                </var>
+	         </field>
+	         <field property="goodsSort" depends="required,integer">
+        		<arg0 key="상품정렬값" resource="false"/>
+			</field>
+			<field property="goodsPrefer" depends="required,integer">
+        		<arg0 key="상품 선호도" resource="false"/>
+			</field>
+			<field property="goodsHoldCnt" depends="required,integer">
+        		<arg0 key="상품 보유량" resource="false"/>
+			</field>
+			<field property="goodsFixPrice" depends="integer">
+        		<arg0 key="정가" resource="false"/>
+			</field>
+			<field property="goodsSalePrice" depends="required,integer">
+        		<arg0 key="판매가" resource="false"/>
+			</field>
+			<field property="goodsNumCount" depends="integer">
+        		<arg0 key="배송 횟수(회차)" resource="false"/>
+			</field>
+			<field property="saleStatus" depends="required">
+        		<arg0 key="판매상태" resource="false"/>
+			</field>
+			<field property="goodsWeight" depends="integer">
+        		<arg0 key="배송가중치" resource="false"/>
+			</field>
+			
+		</form>
+    </formset>
+</form-validation>

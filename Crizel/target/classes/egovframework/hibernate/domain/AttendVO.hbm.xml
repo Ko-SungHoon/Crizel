@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.attend.vo">
+	<class name="AttendVO"	table="RFC_ATTEND">
+	  <cache usage="read-write"/>
+	  <comment>출석부모듈 테이블</comment>
+		<id name="maSeq" column="MA_SEQ" type="long" >
+			<column name="MA_SEQ">
+				<comment>출석부 일련번호</comment>
+			</column>
+		</id>    
+		<property name="maId" type="string"  not-null="true" >
+			<column name="MA_ID" length="100" >
+				<comment>수강생 ID</comment>
+			</column>
+		</property>	
+		<property name="maComment" type="string">
+			<column name="MA_COMMENT" length="255" >
+				<comment>출석 기타사항</comment>
+			</column>
+		</property>
+		<property name="maCtime" type="timestamp">
+			<column name="MA_CTIME" >
+				<comment>출석 시간</comment>
+			</column>
+		</property>
+	</class>
+</hibernate-mapping>

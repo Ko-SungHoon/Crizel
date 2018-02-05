@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCQuestionWebManage">
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="questionVO"	 type = "egovframework.rfc3.question.vo.QuestionVO"/>
+    <typeAlias  alias="anQuestionVO"	 type = "egovframework.rfc3.question.vo.AnQuestionVO"/>
+    <typeAlias  alias="anQuestionItemVO"	 type = "egovframework.rfc3.question.vo.AnQuestionItemVO"/>
+    <typeAlias  alias="questionResultVO"	 type = "egovframework.rfc3.question.vo.QuestionResultVO"/>
+    <typeAlias  alias="questionUserInfoVO"	 type = "egovframework.rfc3.question.vo.QuestionUserInfoVO"/>
+    
+    <cacheModel type="${Globals.ibatis.default.cache}" id="RFCQuestionWebManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="questionDAO.insertQuestionResult"/>
+     </cacheModel>
+    
+    <select id="questionDAO.selectQuestionWebListTotal"  parameterClass="questionVO" resultClass="int" cacheModel="RFCQuestionWebManageCache">
+    	SELECT
+    		count(*) totcnt    	
+    	FROM
+    		(
+    			SELECT
+		    		QUESTION_SID questionSid,
+					SGROUP_ID sgroupId,
+					DOMAIN_ID domainId,
+					SKIN_ID skinId,
+					QUESTION_TYPE questionType,
+					QUESTION_TITLE questionTitle,
+					QUESTION_CONTENT questionContent,
+					START_DATE startDate,
+					END_DATE endDate,
+					QUESTION_USE_FL questionUseFl,
+					QUESTION_OPEN_FL questionOpenFl,
+					ANSWER_DUPLICATE_FL answerDuplicateFl,
+					ANSWER_COUNT answerCount,
+					LOT_AREA lotArea,
+					LOT_PERCENT lotPercent,
+					LOT_COUNT lotCount,
+					RESULT_OPEN_FL resultOpenFl,
+					USER_ID userId,
+					REGISTER_DATE register_dt
+		    	FROM
+		    		RFC_COMTNQUESTION
+		    	WHERE 
+		    		1=1 AND QUESTION_USE_FL = 'Y' AND QUESTION_TYPE = #questionType#
+		    		<isNotEmpty prepend="AND" property="sgroupId" >
+          		   		SGROUP_ID  = #sgroupId#
+		            </isNotEmpty>
+		            <isNotEmpty prepend="AND" property="domainId" >
+		            	DOMAIN_ID  = #domainId#
+		             </isNotEmpty>
+		             <isEmpty  property="domainId" >
+		             	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+		                  	   DOMAIN_ID in ( $myDomainList$ )
+		       			</isEqual>
+		            </isEmpty>
+    		) A
+    	WHERE
+    		1=1 
+    		<isNotEmpty prepend="AND" property="searchCondition" >
+          		     $searchCondition$  LIKE '%$searchKeyword$%'
+            </isNotEmpty> 
+            <!-- 
+            <isNotEmpty prepend="AND" property="startDate" >
+          		     #startDate# >= startDate 
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="endDate" >
+          		     endDate >= #endDate# 
+            </isNotEmpty>
+             -->
+    </select>
+    
+    <select id="questionDAO.selectQuestionWebList"  parameterClass="questionVO" resultClass="questionVO" cacheModel="RFCQuestionWebManageCache">
+   SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(
+			    	SELECT
+			    		questionSid,
+						sgroupId,
+						domainId,
+						skinId,
+						questionType,
+						questionTitle,
+						questionContent,
+						startDate,
+						endDate,
+						questionUseFl,
+						questionOpenFl,
+						answerDuplicateFl,
+						answerCount,
+						lotArea,
+						lotPercent,
+						lotCount,
+						resultOpenFl,
+						register_dt
+			    	FROM
+			    		(
+			    			SELECT
+					    		QUESTION_SID questionSid,
+								SGROUP_ID sgroupId,
+								DOMAIN_ID domainId,
+								SKIN_ID skinId,
+								QUESTION_TYPE questionType,
+								QUESTION_TITLE questionTitle,
+								QUESTION_CONTENT questionContent,
+								START_DATE startDate,
+								END_DATE endDate,
+								QUESTION_USE_FL questionUseFl,
+								QUESTION_OPEN_FL questionOpenFl,
+								ANSWER_DUPLICATE_FL answerDuplicateFl,
+								ANSWER_COUNT answerCount,
+								LOT_AREA lotArea,
+								LOT_PERCENT lotPercent,
+								LOT_COUNT lotCount,
+								RESULT_OPEN_FL resultOpenFl,
+								USER_ID userId,
+								REGISTER_DATE register_dt
+					    	FROM
+					    		RFC_COMTNQUESTION
+					    	WHERE 
+					    		1=1 AND QUESTION_USE_FL = 'Y' AND QUESTION_TYPE = #questionType#
+					    		<isNotEmpty prepend="AND" property="sgroupId" >
+			          		   		SGROUP_ID  = #sgroupId#
+					            </isNotEmpty>
+					            <isNotEmpty prepend="AND" property="domainId" >
+					            	DOMAIN_ID  = #domainId#
+					             </isNotEmpty>
+					             <isEmpty  property="domainId" >
+					             	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+					                  	   DOMAIN_ID in ( $myDomainList$ )
+					       			</isEqual>
+					            </isEmpty>
+			    		) A
+			    	WHERE
+			    		1=1
+			    		<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty> 
+			            <!-- 
+			            <isNotEmpty prepend="AND" property="startDate" >
+			          		     #startDate# >= startDate 
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="endDate" >
+			          		     endDate >= #endDate# 
+			            </isNotEmpty>
+			             -->
+			         ORDER BY questionSid DESC
+			    ) ALL_LIST
+	      )
+  WHERE  RNUM  &gt; #firstIndex#
+  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+    </select>    
+    
+    <select id="questionDAO.selectQuestionResult"  parameterClass="anQuestionItemVO" resultClass="questionResultVO" cacheModel="RFCQuestionWebManageCache">
+    	SELECT
+    		RESULT_SID resultSid,
+    		USERINFO_SID userInfoSid,    		
+			QUESTION_SID questionSid,
+			ANQUESTION_SID anQuestionSid,
+			ITEMQUESTION_SID itemQuestionSid,
+			SUBJECT_ANSWER subjectAnswer,
+			REGISTER_DATE register_dt
+    	FROM
+    		RFC_COMTNQUESTIONRESULT
+    	WHERE
+    		QUESTION_SID = #questionSid# AND ANQUESTION_SID = #anQuestionSid# AND ITEMQUESTION_SID = #itemQuestionSid#    		    		
+    </select>
+    
+    <select id="questionDAO.selectQuestionUserResult"  parameterClass="questionUserInfoVO" resultClass="questionResultVO" cacheModel="RFCQuestionWebManageCache">
+    	SELECT
+    		RESULT_SID resultSid,
+    		USERINFO_SID userInfoSid,    		
+			QUESTION_SID questionSid,
+			ANQUESTION_SID anQuestionSid,
+			ITEMQUESTION_SID itemQuestionSid,
+			SUBJECT_ANSWER subjectAnswer,
+			REGISTER_DATE register_dt
+    	FROM
+    		RFC_COMTNQUESTIONRESULT
+    	WHERE
+    		QUESTION_SID = #questionSid# AND USERINFO_SID=#userInfoSid#    		    		
+    </select>
+    
+    <delete id="questionDAO.deleteQuestionUserResult" parameterClass="questionUserInfoVO" >
+    	
+    	DELETE FROM RFC_COMTNQUESTIONRESULT
+WHERE QUESTION_SID = #questionSid# AND USERINFO_SID=#userInfoSid#
+    	    
+    </delete>
+    
+    
+    
+    <insert id="questionDAO.insertQuestionResult"  parameterClass="questionResultVO" >
+    	INSERT INTO RFC_COMTNQUESTIONRESULT
+    	(
+    		RESULT_SID,
+    		USERINFO_SID,    		
+			QUESTION_SID,
+			ANQUESTION_SID,
+			ITEMQUESTION_SID,
+			SUBJECT_ANSWER,
+			REGISTER_DATE
+		)
+		VALUES
+		(
+			#resultSid#,			
+			#userInfoSid#,    		
+			#questionSid#,
+			#anQuestionSid#,
+			#itemQuestionSid#,
+			#subjectAnswer#,
+			#register_dt#
+		)
+    </insert>
+    
+    <select id="questionDAO.selectQuestionResultCnt"  parameterClass="anQuestionItemVO" resultClass="int" cacheModel="RFCQuestionWebManageCache">
+    	SELECT count(*) totcnt    	
+    		FROM
+    			(SELECT 
+    				RESULT_SID resultSid,
+    				USERINFO_SID userInfoSid,    		
+					QUESTION_SID questionSid,
+					ANQUESTION_SID anQuestionSid,
+					ITEMQUESTION_SID itemQuestionSid,
+					SUBJECT_ANSWER subjectAnswer,
+					REGISTER_DATE register_dt
+    			FROM
+    			RFC_COMTNQUESTIONRESULT
+    			WHERE
+    				QUESTION_SID = #questionSid# AND ANQUESTION_SID = #anQuestionSid#
+  			)
+    </select>
+</sqlMap>

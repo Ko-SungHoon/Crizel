@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.iam.vo">
+	
+	<class name="AdminMenuOfficeVO"	table="RFC_COMTNADMINMENU_OFFICE">
+	  <cache usage="read-write"/>
+	  <comment>관리자 메뉴관리 테이블</comment>
+		<id name="authSid" type="long" >
+			<column name="AUTH_SID">
+				<comment>권한 일련번호</comment>
+			</column>
+		</id>    
+		<property name="admSid" type="string" >
+			<column name="ADM_SID" length="64" >
+				<comment>사용자 식별번호</comment>
+			</column>
+		</property>
+		<property name="sgroupId" type="string" >
+			<column name="SGROUP_ID" length="30" >
+				<comment>사이트 그룹 ID</comment>
+			</column>
+		</property>
+		<property name="officeCd" type="string" >
+			<column name="OFFICE_CD" length="13" >
+				<comment>부서 1차코드</comment>
+			</column>
+		</property>
+		<property name="officeCd2" type="string" >
+			<column name="OFFICE_CD2" length="13" >
+				<comment>부서 2차코드</comment>
+			</column>
+		</property>
+		<property name="officeCd3" type="string" >
+			<column name="OFFICE_CD3" length="13" >
+				<comment>부서 3차코드</comment>
+			</column>
+		</property>
+		<property name="officeCd4" type="string" >
+			<column name="OFFICE_CD4" length="13" >
+				<comment>부서 4차코드</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="AdminMenuVO"	table="RFC_COMTNADMINMENU">
+	  <cache usage="read-write"/>
+	  <comment>관리자 메뉴정보 테이블</comment>
+		<id name="admSid" type="string"   >
+			<column name="ADM_SID" length="64">
+				<comment>권한 일련번호</comment>
+			</column>
+		</id>    
+		<property name="groupIdx" type="int" >
+			<column name="GROUP_IDX" >
+				<comment>메뉴 그룹 번호</comment>
+			</column>
+		</property>
+		<property name="orderSid" type="int" >
+			<column name="ORDER_SID" >
+				<comment>메뉴 순서</comment>
+			</column>
+		</property>
+		<property name="name" type="string" >
+			<column name="NAME" length="50" >
+				<comment>메뉴 명</comment>
+			</column>
+		</property>
+		<property name="url" type="string" >
+			<column name="URL" length="200" >
+				<comment>메뉴 URL</comment>
+			</column>
+		</property>
+		<property name="isUse" type="string" >
+			<column name="IS_USE" length="10" >
+				<comment>메뉴 사용여부</comment>
+			</column>
+		</property>
+		<property name="urlPattern" type="string" >
+			<column name="URL_PATTERN" length="200" >
+				<comment>메뉴 URL</comment>
+			</column>
+		</property>
+		<property name="engName" type="string" >
+			<column name="ENG_NAME" length="50" >
+				<comment>메뉴 영문이름</comment>
+			</column>
+		</property>
+		<property name="componentId" type="string" >
+			<column name="COMPONENT_ID" length="64" >
+				<comment>컴포넌트 ID</comment>
+			</column>
+		</property>
+	</class>
+	
+	
+</hibernate-mapping>

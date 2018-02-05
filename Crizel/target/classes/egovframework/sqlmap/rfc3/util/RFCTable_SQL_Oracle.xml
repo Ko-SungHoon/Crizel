@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCTableManage">
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="tableVO"      type = "egovframework.rfc3.common.vo.TableVO"/>
+     <!-- 무결성 목록 -->	
+     <select id="tableDAO.selectTableAllList" resultClass="tableVO">
+				  SELECT 
+				     		NVL(A.TNAME,' ')  tableName, 
+				       		NVL(B.COMMENTS,' ')   tableComments
+				  FROM 
+				  	TAB A,  
+				  	ALL_TAB_COMMENTS B 
+				  WHERE 
+				  		A.TNAME = B.TABLE_NAME 
+				 ORDER BY 
+				 		B.TABLE_NAME ASC
+     </select>
+     <select id="tableDAO.selectTableDataIntegrity"  parameterClass="java.lang.String"  resultClass="tableVO" >
+			SELECT 
+						       A1.COLUMN_ID columnId , 
+							   A1.TABLE_COMMENTS  tableComments, 
+						       A1.TABLE_NAME  tableName,  
+						       A1.COLUMN_COMMENTS columnComments , 
+						       A1.COLUMN_NAME columnName , 
+						       A1.DATA_TYPE|| 
+						       (
+						           CASE A1.DATA_TYPE 
+						               WHEN 'CLOB' 
+						               THEN ''
+						               WHEN 'TIMESTAMP(6)' 
+						               THEN '' 
+						               WHEN 'NUMBER' 
+						               THEN '('||TO_CHAR(A1.DATA_PRECISION)||')' 
+						               WHEN 'VARCHAR2' 
+						               THEN '('||TO_CHAR(A1.CHAR_LENGTH)||')' 
+						               WHEN 'DATE' 
+						               THEN ' ' 
+						               ELSE '('||A1.CHAR_LENGTH||')' 
+						           END
+						       ) 
+						       dataType  ,
+						       (
+						           CASE 
+						               WHEN B1.CONSTRAINT_TYPE = 'P' 
+						               THEN 'Y' 
+						               ELSE 'N'
+						           END
+						       ) 
+						       pkFlag  , 
+						        (
+						           CASE 
+						               WHEN B1.CONSTRAINT_TYPE = 'R' 
+						               THEN 'Y' 
+						               ELSE 'N'
+						           END
+						       ) 
+						       fkFlag , 
+						       
+						       NVL(A1.NULL_FLAG, 'Not Null') AS nullFlag  ,
+						       A1.DATA_DEFAULT  dataDefault
+						      
+						  FROM 
+						       (SELECT B.COMMENTS TABLE_COMMENTS , 
+						              A.TABLE_NAME TABLE_NAME , 
+						              C.COMMENTS COLUMN_COMMENTS , 
+						              A.COLUMN_NAME COLUMN_NAME , 
+						              (
+						                  CASE A.NULLABLE 
+						                      WHEN 'Y' 
+						                      THEN 'Null' 
+						                  END
+						              ) 
+						              NULL_FLAG , 
+						              A.DATA_TYPE DATA_TYPE , 
+						              A.CHAR_LENGTH , 
+						              A.DATA_DEFAULT ,
+						              A.COLUMN_ID AS COLUMN_ID , 
+						              A.DATA_PRECISION 
+						         FROM USER_TAB_COLUMNS A , 
+						              USER_TAB_COMMENTS B , 
+						              USER_COL_COMMENTS C 
+						        WHERE (
+						                  A.TABLE_NAME = B.TABLE_NAME
+						              ) 
+						              AND 
+						              (
+						                  A.TABLE_NAME = C.TABLE_NAME 
+						                  AND A.COLUMN_NAME = C.COLUMN_NAME 
+						              ) 
+						              AND B.TABLE_TYPE = 'TABLE'
+						       ) A1 , 
+						       (SELECT A.TABLE_NAME , 
+						              A.COLUMN_NAME , 
+						              B.CONSTRAINT_TYPE 
+						         FROM USER_CONS_COLUMNS A , 
+						              USER_CONSTRAINTS B 
+						        WHERE (
+						                  A.CONSTRAINT_NAME = B.CONSTRAINT_NAME
+						              ) 
+						              AND B.CONSTRAINT_TYPE IN ('P', 'R')
+						       ) B1 
+						 WHERE ( 
+						           A1.TABLE_NAME = B1.TABLE_NAME(+) 
+						           AND A1.COLUMN_NAME = B1.COLUMN_NAME(+)
+						       ) 
+						       AND A1.TABLE_NAME LIKE #tableName#
+						ORDER BY A1.TABLE_NAME, 
+						 A1.COLUMN_ID  
+			            
+	</select>	
+	
+	
+	<select id="tableDAO.selectTableIndexDataList"  parameterClass="java.lang.String"  resultClass="java.util.HashMap" >
+	
+		SELECT A.uniqueness, 
+       b.* 
+  FROM ALL_INDEXES a, 
+       ALL_IND_COLUMNS b 
+ WHERE a.index_name = b.index_name 
+       AND a.table_name=upper(#tableName#)
+       
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</sqlMap>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE form-validation PUBLIC 
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1//EN" 
+    "http://jakarta.apache.org/commons/dtds/validator_1_1.dtd">
+
+<form-validation>
+    <formset>
+    	<form name="menuVO">
+			<field property="sgroupId" depends="required">
+        		<arg0 key="사이트 그룹" resource="false"/>
+			</field>
+			<field property="domainId" depends="required">
+        		<arg0 key="도메인 ID" resource="false"/>
+			</field>
+		<field property="menuNm" depends="required">
+        		<arg0 key="메뉴이름" resource="false"/>
+			</field>	
+		</form>
+    </formset>
+</form-validation>

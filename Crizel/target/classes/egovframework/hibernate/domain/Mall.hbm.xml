@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.mall.vo">
+	<class name="BuyInfoVO"	table="RFC_COMTNBUYINFO">
+		<cache usage="read-write"/>
+		<id name="buyCode" column="BUY_CODE"  type="string" length="32"/>		
+		<property name="mberId" type="string" >
+			<column name="MBER_ID" length="64"/>
+		</property>
+		<property name="buyStatus" type="string" >
+			<column name="BUY_STATUS" length="2"/>
+		</property>
+		<property name="buyTotalPrice" type="long" >
+			<column name="BUY_TOTAL_PRICE"/>
+		</property>
+		<property name="billPrice" type="long" >
+			<column name="BILL_PRICE" default="0"/>
+		</property>
+		<property name="billType" type="string" >
+			<column name="BILL_TYPE" length="16"/>
+		</property>
+		<property name="billApproval" type="string" >
+			<column name="BILL_APPROVAL" length="32"/>
+		</property>
+		<property name="billBank" type="string" >
+			<column name="BILL_BANK" length="32"/>
+		</property>
+		<property name="billAccount" type="string" >
+			<column name="BILL_ACCOUNT" length="64"/>
+		</property>
+		<property name="billPayName" type="string" >
+			<column name="BILL_PAYNAME" length="64"/>
+		</property>		
+		<property name="multiDelivery" type="string" >
+			<column name="MULTI_DELIVERY" length="32"/>
+		</property>
+		
+		<property name="receiveName" type="string" >
+			<column name="RECEIVE_NAME" length="256"/>
+		</property>
+		<property name="receiveAddress" type="string" >
+			<column name="RECEIVE_ADDRESS" length="256"/>
+		</property>
+		<property name="receiveDetailAddress" type="string" >
+			<column name="RECEIVE_DETAIL_ADDRESS" length="256"/>
+		</property>
+		<property name="receiveZipcode" type="string" >
+			<column name="RECEIVE_ZIPCODE" length="16"/>
+		</property>
+		<property name="receiveTel" type="string" >
+			<column name="RECEIVE_TEL" length="32"/>
+		</property>
+		<property name="receiveCel" type="string" >
+			<column name="RECEIVE_CEL" length="32"/>
+		</property>
+		
+		<property name="recommandName" type="string" >
+			<column name="RECOMMAND_NAME" length="32"/>
+		</property>
+		<property name="recommandTel" type="string" >
+			<column name="RECOMMAND_TEL" length="32"/>
+		</property>
+		<property name="recommandWork" type="string" >
+			<column name="RECOMMAND_WORK" length="64"/>
+		</property>
+		<property name="recommandPart" type="string" >
+			<column name="RECOMMAND_PART" length="64"/>
+		</property>
+		
+		<property name="deliveryMemo" type="string" >
+			<column name="DELIVERY_MEMO" length="256"/>
+		</property>
+		<property name="managerMemo" type="string" >
+			<column name="MANAGER_MEMO" length="512"/>
+		</property>
+		<property name="nonPayment" type="long" >
+			<column name="NON_PAYMENT" default="0"/>
+		</property>
+		
+		<property name="fixed_dt" type="timestamp" >
+			<column name="FIXED_DATE" />
+		</property>
+		<property name="modify_dt" type="timestamp" >
+			<column name="BUY_MODIFY_DATE" />
+		</property>	
+		<property name="register_dt" type="timestamp" >
+			<column name="BUY_REGISTER_DATE" />
+		</property>
+	</class>
+	
+	<class name="BuyGoodsVO"	table="RFC_COMTNBUYGOODS">
+		<cache usage="read-write"/>
+		<id name="buyGoodsSid" column="BUY_GOODS_SID"  type="long"/>
+		<property name="buyCode" type="string" >
+			<column name="BUY_CODE" length="32"/>
+		</property>
+		<property name="goodsCode" type="string" >
+			<column name="GOODS_CODE" length="64"/>
+		</property>		
+		<property name="buyGoodsType" type="string" >
+			<column name="BUY_GOODS_TYPE" length="2"/>
+		</property>		
+		<property name="mberId" type="string" >
+			<column name="MBER_ID" length="64"/>
+		</property>
+		<property name="modify_dt" type="timestamp" >
+			<column name="BUY_GOODS_MODIFY_DATE" />
+		</property>
+	</class>
+	
+	<class name="BuyGoodsDetailVO"	table="RFC_COMTNBUYGOODSDETAIL">
+		<cache usage="read-write"/>
+		<id name="detailSid" column="DETAIL_SID"  type="long"/>		
+		<property name="buyGoodsSid" type="long" >
+			<column name="BUY_GOODS_SID"/>
+		</property>
+		<property name="buyCode" type="string" >
+			<column name="BUY_CODE" length="32"/>
+		</property>
+		<property name="goodsCode" type="string" >
+			<column name="GOODS_CODE" length="64"/>
+		</property>			
+		<property name="packTypeCd" type="string" >
+			<column name="packTypeCd" length="2"/>
+		</property>
+		<property name="detailDeff" type="int" >
+			<column name="DETAIL_DEFF"/>
+		</property>
+		<property name="mberId" type="string" >
+			<column name="MBER_ID" length="64"/>
+		</property>
+		<property name="goodsIsBundle" type="string" >
+			<column name="GOODS_IS_BUNDLE" length="2"/>
+		</property>
+		<property name="goodsWeight" type="int" >
+			<column name="GOODS_WEIGHT" />
+		</property>
+		<property name="goodsPrice" type="long" >
+			<column name="GOODS_PRICE" />
+		</property>
+		<property name="deliveryType" type="string" >
+			<column name="DELIVERY_TYPE" length="2"/>
+		</property>
+		<property name="deliveryCompany" type="string" >
+			<column name="DELIVERY_COMPANY" length="64"/>
+		</property>
+		<property name="deliveryNumber" type="string" >
+			<column name="DELIVERY_NUMBER" length="32"/>
+		</property>
+		<property name="deliveryDate" type="timestamp" >
+			<column name="DELIVERY_DATE" />
+		</property>
+		<property name="detailStatus" type="string" >
+			<column name="DETAIL_STATUS" length="2"/>
+		</property>
+		<property name="deliveryMemo" type="string" >
+			<column name="DELIVERY_MEMO" length="256"/>
+		</property>
+		<property name="goodsCount" type="int" >
+			<column name="GOODS_COUNT" length="64"/>
+		</property>
+		<property name="mngId" type="string" >
+			<column name="MNG_ID" length="64"/>
+		</property>
+		<property name="goodsOption1" type="string" >
+			<column name="GOODS_OPTION1" length="64"/>
+		</property>
+		<property name="goodsOptionCount1" type="int" >
+			<column name="GOODS_OPTION_COUNT1" length="64" default="0"/>
+		</property>
+		<property name="goodsOptionText1" type="string" >
+			<column name="GOODS_OPTION_TEXT1" length="64"/>
+		</property>
+		<property name="goodsOption2" type="string" >
+			<column name="GOODS_OPTION2" length="64"/>
+		</property>
+		<property name="goodsOptionCount2" type="int" >
+			<column name="GOODS_OPTION_COUNT2" length="64" default="0"/>
+		</property>
+		<property name="goodsOptionText2" type="string" >
+			<column name="GOODS_OPTION_TEXT2" length="64"/>
+		</property>		
+		<property name="modify_dt" type="timestamp" >
+			<column name="DETAIL_MODIFY_DATE" />
+		</property>
+	</class>	
+	
+	
+	<class name="GoodsVO"	table="RFC_COMTNGOODS">
+		<cache usage="read-write"/>
+		<id name="goodsCode" column="GOODS_CODE"  type="string" length="64"/>		
+		<property name="goodsCate" type="string" >
+			<column name="GOODS_CATE" length="64"/>
+		</property>
+		<property name="goodsCate1" type="string" >
+			<column name="GOODS_CATE1" length="64"/>
+		</property>
+		<property name="goodsCate2" type="string" >
+			<column name="GOODS_CATE2" length="64"/>
+		</property>
+		<property name="goodsCate3" type="string" >
+			<column name="GOODS_CATE3" length="64"/>
+		</property>
+		<property name="goodsGroup" type="string" >
+			<column name="GOODS_GROUP" length="64"/>
+		</property>
+		<property name="goodsTitle" type="string" >
+			<column name="GOODS_TITLE" length="64"/>
+		</property>
+		<property name="packTypeCd" type="string" >
+			<column name="packTypeCd" length="2"/>
+		</property>
+		<property name="goodsFixPrice" type="long" >
+			<column name="GOODS_FIX_PRICE"/>
+		</property>
+		<property name="goodsHoldCnt" type="long" >
+			<column name="GOODS_HOLD_CNT"/>
+		</property>
+		<property name="goodsSalePrice" type="long" >
+			<column name="GOODS_SALE_PRICE"/>
+		</property>
+		<property name="goodsSort" type="long" >
+			<column name="GOODS_SORT"/>
+		</property>
+		<property name="goodsPrefer" type="int" >
+			<column name="GOODS_PREFER"/>
+		</property>
+		
+		<property name="mngId" type="string" >
+			<column name="MNG_ID" length="64"/>
+		</property>
+		<property name="saleStatus" type="string" >
+			<column name="SALE_STATUS" length="2"/>
+		</property>
+		<property name="goodsPlace" type="string" >
+			<column name="GOODS_PLACE" length="64"/>
+		</property>
+		<property name="goodsCompany" type="string" >
+			<column name="GOODS_COMPANY" length="64"/>
+		</property>
+		<property name="goodsIsBundle" type="string" >
+			<column name="GOODS_IS_BUNDLE" length="2"/>
+		</property>
+		
+		<property name="goodsWeight" type="int" >
+			<column name="GOODS_WEIGHT"/>
+		</property>
+		
+		<property name="isDeliPrice" type="string" >
+			<column name="IS_DELI_PRICE" length="2" default="'Y'"/>
+		</property>
+		
+		<property name="deliPrice" type="int" >
+			<column name="DELI_PRICE" default="3000"/>
+		</property>
+		
+		<property name="freeDeliPrice" type="int" >
+			<column name="FREE_DELI_PRICE" default="200000"/>
+		</property>
+		
+		<property name="goodsSaleType" type="string" >
+			<column name="GOODS_SALE_TYPE" length="2"/>
+		</property>
+		<property name="goodsNumCount" type="int" >
+			<column name="GOODS_NUM_COUNT" default="1"/>
+		</property>
+		<property name="goodsSaleTypeValue" type="string" >
+			<column name="GOODS_SALE_TYPE_VALUE" length="256"/>
+		</property>
+		<property name="goodsOptionText1" type="string" >
+			<column name="GOODS_OPTION_TEXT1" length="64"/>
+		</property>
+		<property name="goodsOptionValue1" type="string" >
+			<column name="GOODS_OPTION_VALUE1" length="256"/>
+		</property>
+		<property name="goodsOptionPrice1" type="string" >
+			<column name="GOODS_OPTION_PRICE1" length="2"/>
+		</property>
+		<property name="goodsOptionCount1" type="string" >
+			<column name="GOODS_OPTION_COUNT1" length="2"/>
+		</property>
+		<property name="goodsOptionProcess1" type="string" >
+			<column name="GOODS_OPTION_PROCESS1" length="16" default="'ONE'"/>
+		</property>
+		
+		<property name="goodsOptionText2" type="string" >
+			<column name="GOODS_OPTION_TEXT2" length="64"/>
+		</property>
+		<property name="goodsOptionValue2" type="string" >
+			<column name="GOODS_OPTION_VALUE2" length="256"/>
+		</property>
+		<property name="goodsOptionPrice2" type="string" >
+			<column name="GOODS_OPTION_PRICE2" length="2"/>
+		</property>
+		<property name="goodsOptionCount2" type="string" >
+			<column name="GOODS_OPTION_COUNT2" length="2"/>
+		</property>		
+		<property name="goodsOptionProcess2" type="string" >
+			<column name="GOODS_OPTION_PROCESS2" length="16" default="'ONE'"/>
+		</property>
+		<property name="goodsContent" type="text" >
+			<column name="GOODS_CONTENT" length="1073741824"/>
+		</property>
+		<property name="goodsNote" type="text" >
+			<column name="GOODS_NOTE" length="1073741824"/>
+		</property>		
+		<property name="modify_dt" type="timestamp" >
+			<column name="GOODS_MODIFY_DATE" />
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="GOODS_REGISTER_DATE" />
+		</property>
+	</class>
+	
+	<class name="GoodsFileVO"	table="RFC_COMTNGOODSFILE">
+	  <cache usage="read-write"/>	
+		<id name="fileSid" column="FILE_SID" type="long"/>
+		<property name="goodsCode" type="string" >
+			<column name="GOODS_CODE" length="64"/>
+		</property>		
+		<property name="fileName" type="string" >
+			<column name="FILE_NAME" length="255"/>
+		</property>
+		<property name="fileMask" type="string" >
+			<column name="FILE_MASK" length="255"/>
+		</property>
+		<property name="fileMemo" type="string" >
+			<column name="FILE_MEMO" length="255"/>
+		</property>		
+	</class>
+	
+	<class name="GoodsNoteVO"	table="RFC_COMTNGOODSNOTE">
+	  <cache usage="read-write"/>	
+		<id name="noteSid" column="NOTE_SID" type="long"/>
+		<property name="goodsCode" type="string" >
+			<column name="GOODS_CODE" length="64"/>
+		</property>
+		<property name="mberId" type="string" >
+			<column name="MBER_ID" length="64"/>
+		</property>
+		<property name="mberNm" type="string" >
+			<column name="MBER_NM" length="64"/>
+		</property>				
+		<property name="notePoint" type="int" >
+			<column name="NOTE_POINT" default="0"/>
+		</property>
+		<property name="noteContent" type="text" >
+			<column name="NOTE_CONTENT" length="1073741824"/>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" />
+		</property>
+				
+	</class>
+	
+	<class name="MallSetupVO"	table="RFC_COMTNMALLSETUP">
+		<cache usage="read-write"/>
+		<id name="setupKey" column="SETUP_KEY"  type="string" length="32"/>
+		<property name="setupText" type="string" >
+			<column name="SETUP_TEXT" length="64"/>
+		</property>
+		<property name="setupValue" type="text" >
+			<column name="SETUP_VALUE" length="1073741824"/>
+		</property>
+		<property name="setupValue1" type="text" >
+			<column name="SETUP_VALUE1" length="1073741824"/>
+		</property>
+		<property name="setupValue2" type="text" >
+			<column name="SETUP_VALUE2" length="1073741824"/>
+		</property>
+		<property name="setupFilePath" type="string" >
+			<column name="SETUP_FILE_PATH" length="512"/>
+		</property>
+	</class>
+</hibernate-mapping>

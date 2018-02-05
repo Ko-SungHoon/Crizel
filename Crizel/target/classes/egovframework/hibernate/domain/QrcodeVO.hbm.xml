@@ -1,0 +1,820 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.qrcode.vo">
+
+	
+	<class name="QrcodeVO" table="RFC_COMTNQRCODE">
+		<cache usage="read-write"/>
+		<comment>QR코드관리 테이블</comment>
+		<id name="qrCdSid" type="long">
+			<column name="QRCD_SID">
+				<comment>QR코드 고유번호</comment>
+			</column>
+		</id>
+		<property name="sgroupId" type="string" >
+			<column name="SGROUP_ID" length="30"   >
+			<comment>사이트그룹 아이디</comment>
+			</column>
+		</property>
+		
+		<property name="domainId" type="string" >
+			<column name="DOMAIN_Id" length="50"   >
+			<comment>도메인 아이디</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdTitle" type="string" >
+			<column name="QRCD_TITLE" length="255">
+			<comment>QR제목</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdContent" type="text" >
+			<column name="QRCD_CONTENT" length="1073741824">
+			<comment>QR컨텐츠</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdInfo" type="yes_no" >
+			<column name="QRCD_INFO" length="1" default="'0'">
+			<comment>QR종류</comment>
+			</column>
+		</property>
+		<property name="qrCdType" type="string" >
+			<column name="QRCD_TYPE" length="64" default="'0'">
+			<comment>QR타입</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdSkinSid" type="long" >
+			<column name="QRCD_SKIN_SID" length="20" default="0">
+			<comment>QR스킨 고유코드</comment>
+			</column>
+		</property>
+		
+		<property name="skinType" type="string" >
+			<column name="SKIN_TYPE" length="64" default="'0'">
+			<comment>로고 이미지 표현</comment>
+			</column>
+		</property>		
+				
+		<property name="qrCdCreateUrl" type="string" >
+			<column name="QRCD_CREATEURL" length="255">
+			<comment>QR코드 생성된주소</comment>
+			</column>
+		</property>		
+		
+		<property name="qrCdLandIngUrl" type="text" >
+			<column name="QRCD_LANDINGURL" length="1073741824">
+			<comment>연결할 URL 주소</comment>
+			</column>
+		</property>
+		
+		<property name="userphoto" type="string" >
+			<column name="USERPHOTO" length="255">
+			<comment>생성자 개인사진</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdImg150" type="string" >
+			<column name="QRCD_IMG150" length="64" >
+			<comment>QR시디 이미지 사이즈 150</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdImg400" type="string" >
+			<column name="QRCD_IMG400" length="64" >
+			<comment>QR시디 이미지 사이즈 400</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdImg630" type="string" >
+			<column name="QRCD_IMG630" length="64" >
+			<comment>QR시디 이미지 사이즈 630</comment>
+			</column>
+		</property>
+				
+		
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64" >
+			<comment>사용자 아이디</comment>
+			</column>
+		</property>
+		
+		<property name="userNm" type="string" >
+			<column name="USER_NM" length="64" >
+			<comment>사용자 이름</comment>
+			</column>
+		</property>
+	
+		<property name="userOfficeNm" type="string" >
+			<column name="USER_OFFICENM" length="64" >
+			<comment>사용자 회사명</comment>
+			</column>
+		</property>	
+		
+		<property name="userOfficePs" type="string" >
+			<column name="USER_OFFICEPS" length="64" >
+			<comment>사용자 부서명</comment>
+			</column>
+		</property>	
+
+		<property name="userHp1" type="string" >
+			<column name="USER_HP1" length="20"  >
+			<comment>휴대폰 앞자리</comment>
+			</column>
+		</property>
+		
+		<property name="userHp2" type="string" >
+			<column name="USER_HP2" length="20"  >
+			<comment>휴대폰 가운데</comment>
+			</column>
+		</property>
+		
+		<property name="userHp3" type="string" >
+			<column name="USER_HP3" length="20"  >
+			<comment>휴대폰 끝자리</comment>
+			</column>
+		</property>
+		
+		<property name="userTel1" type="string" >
+			<column name="USER_TEL1" length="20"  >
+			<comment>연락처 앞자리</comment>
+			</column>
+		</property>
+		
+		<property name="userTel2" type="string" >
+			<column name="USER_TEL2" length="20"  >
+			<comment>연락처 가운데</comment>
+			</column>
+		</property>
+		
+		<property name="userTel3" type="string" >
+			<column name="USER_TEL3" length="20"  >
+			<comment>연락처 끝자리</comment>
+			</column>
+		</property>
+		
+		<property name="userFax1" type="string" >
+			<column name="USER_FAX1" length="20"  >
+			<comment>팩스 앞자리</comment>
+			</column>
+		</property>
+		
+		<property name="userFax2" type="string" >
+			<column name="USER_FAX2" length="20"  >
+			<comment>팩스 가운데</comment>
+			</column>
+		</property>
+		
+		<property name="userFax3" type="string" >
+			<column name="USER_FAX3" length="20"  >
+			<comment>팩스 끝자리</comment>
+			</column>
+		</property>
+		
+		<property name="userMail" type="string" >
+			<column name="USER_EMAIL" length="64" >
+			<comment>이메일</comment>
+			</column>
+		</property>
+		
+		<property name="userZip" type="string" >
+			<column name="USER_ZIP" length="20"  >
+			<comment>우편번호</comment>
+			</column>
+		</property>
+		
+		<property name="userAdd1" type="text" >
+			<column name="USER_ADD1" length="1073741824">
+			<comment>주소</comment>
+			</column>
+		</property>
+		
+		<property name="userAdd2" type="text" >
+			<column name="USER_ADD2" length="1073741824">
+			<comment>상세주소</comment>
+			</column>
+		</property>
+		
+		<property name="homeLink1" type="string" >
+			<column name="HOME_LINK1" length="255">
+			<comment>URL링크1</comment>
+			</column>
+		</property>		
+
+		<property name="homeLink2" type="string" >
+			<column name="HOME_LINK2" length="255">
+			<comment>URL링크2</comment>
+			</column>
+		</property>			
+
+		<property name="homeLink3" type="string" >
+			<column name="HOME_LINK3" length="255">
+			<comment>URL링크3</comment>
+			</column>
+		</property>				
+		
+		<property name="homeLink4" type="string" >
+			<column name="HOME_LINK4" length="255">
+			<comment>URL링크4</comment>
+			</column>
+		</property>		
+
+		<property name="homeLink5" type="string" >
+			<column name="HOME_LINK5" length="255">
+			<comment>URL링크5</comment>
+			</column>
+		</property>		
+		
+		<property name="movieUrl1" type="string" >
+			<column name="MOVIE_URL1" length="255">
+			<comment>동영상링크1</comment>
+			</column>
+		</property>				
+		
+		<property name="movieUrl2" type="string" >
+			<column name="MOVIE_URL2" length="255">
+			<comment>동영상링크2</comment>
+			</column>
+		</property>	
+		
+		<property name="movieUrl3" type="string" >
+			<column name="MOVIE_URL3" length="255">
+			<comment>동영상링크3</comment>
+			</column>
+		</property>					
+		
+		<property name="movieUrl4" type="string" >
+			<column name="MOVIE_URL4" length="255">
+			<comment>동영상링크4</comment>
+			</column>
+		</property>			
+		
+		<property name="movieUrl5" type="string" >
+			<column name="MOVIE_URL5" length="255">
+			<comment>동영상링크5</comment>
+			</column>
+		</property>					
+				
+		<property name="registerDt" type="timestamp" >
+			<column name="REGISTER_DT">
+			<comment>생성일</comment>
+			</column>
+		</property>
+		
+		<property name="modifyDt" type="timestamp" >
+			<column name="MODIFY_DT">
+			<comment>수정일</comment>
+			</column>
+		</property>	
+		<property name="scanCnt" type="long" >
+			<column name="SCANCNT" length="20" default="0">
+			<comment>열람수</comment>
+			</column>
+		</property>
+		<property name="topSkin" type="long" >
+			<column name="TOPSKIN" length="20" default="0">
+			<comment>상단스킨</comment>
+			</column>
+		</property>		
+		<property name="qrSkin" type="yes_no" >
+			<column name="QRSKIN" length="1" default="'0'">
+			<comment>QE스킨</comment>
+			</column>
+		</property>
+		<property name="officeCd" type="string"  not-null="true" >
+			<column name="OFFICE_CD" length="13" >
+			<comment>부서코드</comment>
+			</column>
+		</property>
+	</class>
+	
+	
+	
+	
+	
+	<class name="QrcodeHistoryVO" table="RFC_COMTNQRCODE_HISTORY">
+		<cache usage="read-write"/>
+		<comment>QR코드 히스토리 테이블</comment>
+		<id name="qrCdHistorySid" type="long">
+			<column name="QRCD_HISTORY_SID">
+				<comment>QR코드 히스토리 고유번호</comment>
+			</column>
+		</id>
+		<property name="sgroupId" type="string" >
+			<column name="SGROUP_ID" length="30"   >
+			<comment>사이트그룹 아이디</comment>
+			</column>
+		</property>
+		
+		<property name="domainId" type="string" >
+			<column name="DOMAIN_Id" length="50"   >
+			<comment>도메인 아이디</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdTitle" type="string" >
+			<column name="QRCD_TITLE" length="255">
+			<comment>QR코드 제목</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdContent" type="text" >
+			<column name="QRCD_CONTENT" length="1073741824">
+			<comment>QR코드 내용</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdInfo" type="yes_no" >
+			<column name="QRCD_INFO" length="1" default="'0'">
+			<comment>QR코드 종류</comment>
+			</column>
+		</property>
+		<property name="qrCdType" type="string" >
+			<column name="QRCD_TYPE" length="64" default="'0'">
+			<comment>QR타입</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdSkinSid" type="long" >
+			<column name="QRCD_SKIN_SID" length="20" default="0">
+			<comment>QR스킨 고유코드</comment>
+			</column>
+		</property>
+		
+		<property name="skinType" type="string" >
+			<column name="SKIN_TYPE" length="64" default="'0'">
+			<comment>로고이미지 표현</comment>
+			</column>
+		</property>		
+				
+		<property name="qrCdCreateUrl" type="string" >
+			<column name="QRCD_CREATEURL" length="255">
+			<comment>QR코드 생성된주소</comment>
+			</column>
+		</property>		
+		
+		<property name="qrCdLandIngUrl" type="text" >
+			<column name="QRCD_LANDINGURL" length="1073741824">
+			<comment>연결할 URL 주소</comment>
+			</column>
+		</property>
+		
+		<property name="userphoto" type="string" >
+			<column name="USERPHOTO" length="255">
+			<comment>생성자 개인사진</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdImg150" type="string" >
+			<column name="QRCD_IMG150" length="64" >
+			<comment>QR시디 이미지 사이즈 150</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdImg400" type="string" >
+			<column name="QRCD_IMG400" length="64" >
+			<comment>QR시디 이미지 사이즈 400</comment>
+			</column>
+		</property>
+		
+		<property name="qrCdImg630" type="string" >
+			<column name="QRCD_IMG630" length="64" >
+			<comment>QR시디 이미지 사이즈 630</comment>
+			</column>
+		</property>
+				
+		
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64" >
+			<comment>사용자 아이디</comment>
+			</column>
+		</property>
+		
+		<property name="userNm" type="string" >
+			<column name="USER_NM" length="64" >
+			<comment>사용자 이름</comment>
+			</column>
+		</property>
+	
+		<property name="userOfficeNm" type="string" >
+			<column name="USER_OFFICENM" length="64" >
+			<comment>회사명</comment>
+			</column>
+		</property>	
+		
+		<property name="userOfficePs" type="string" >
+			<column name="USER_OFFICEPS" length="64" >
+			<comment>부서명</comment>
+			</column>
+		</property>	
+
+		<property name="userHp1" type="string" >
+			<column name="USER_HP1" length="20"  >
+			<comment>휴대폰 앞자리</comment>
+			</column>
+		</property>
+		
+		<property name="userHp2" type="string" >
+			<column name="USER_HP2" length="20"  >
+			<comment>휴대폰 가운데</comment>
+			</column>
+		</property>
+		
+		<property name="userHp3" type="string" >
+			<column name="USER_HP3" length="20"  >
+			<comment>휴대폰 끝자리</comment>
+			</column>
+		</property>
+		
+		<property name="userTel1" type="string" >
+			<column name="USER_TEL1" length="20"  >
+			<comment>연락처 앞자리</comment>
+			</column>
+		</property>
+		
+		<property name="userTel2" type="string" >
+			<column name="USER_TEL2" length="20"  >
+			<comment>연락처 가운데</comment>
+			</column>
+		</property>
+		
+		<property name="userTel3" type="string" >
+			<column name="USER_TEL3" length="20"  >
+			<comment>연락처 끝자리</comment>
+			</column>
+		</property>
+		
+		<property name="userFax1" type="string" >
+			<column name="USER_FAX1" length="20"  >
+			<comment>팩스 앞자리</comment>
+			</column>
+		</property>
+		
+		<property name="userFax2" type="string" >
+			<column name="USER_FAX2" length="20"  >
+			<comment>팩스 가운데</comment>
+			</column>
+		</property>
+		
+		<property name="userFax3" type="string" >
+			<column name="USER_FAX3" length="20"  >
+			<comment>팩스 끝자리</comment>
+			</column>
+		</property>
+		
+		<property name="userMail" type="string" >
+			<column name="USER_EMAIL" length="64" >
+			<comment>이메일</comment>
+			</column>
+		</property>
+		
+		<property name="userZip" type="string" >
+			<column name="USER_ZIP" length="20"  >
+			<comment>우편번호</comment>
+			</column>
+		</property>
+		
+		<property name="userAdd1" type="text" >
+			<column name="USER_ADD1" length="1073741824">
+			<comment>주소</comment>
+			</column>
+		</property>
+		
+		<property name="userAdd2" type="text" >
+			<column name="USER_ADD2" length="1073741824">
+			<comment>상세주소</comment>
+			</column>
+		</property>
+		
+		<property name="homeLink1" type="string" >
+			<column name="HOME_LINK1" length="255">
+			<comment>URL링크1</comment>
+			</column>
+		</property>		
+
+		<property name="homeLink2" type="string" >
+			<column name="HOME_LINK2" length="255">
+			<comment>URL링크2</comment>
+			</column>
+		</property>			
+
+		<property name="homeLink3" type="string" >
+			<column name="HOME_LINK3" length="255">
+			<comment>URL링크3</comment>
+			</column>
+		</property>				
+		
+		<property name="homeLink4" type="string" >
+			<column name="HOME_LINK4" length="255">
+			<comment>URL링크4</comment>
+			</column>
+		</property>		
+
+		<property name="homeLink5" type="string" >
+			<column name="HOME_LINK5" length="255">
+			<comment>URL링크5</comment>
+			</column>
+		</property>		
+		
+		<property name="movieUrl1" type="string" >
+			<column name="MOVIE_URL1" length="255">
+			<comment>동영상링크1</comment>
+			</column>
+		</property>				
+		
+		<property name="movieUrl2" type="string" >
+			<column name="MOVIE_URL2" length="255">
+			<comment>동영상링크2</comment>
+			</column>
+		</property>	
+		
+		<property name="movieUrl3" type="string" >
+			<column name="MOVIE_URL3" length="255">
+			<comment>동영상링크3</comment>
+			</column>
+		</property>					
+		
+		<property name="movieUrl4" type="string" >
+			<column name="MOVIE_URL4" length="255">
+			<comment>동영상링크4</comment>
+			</column>
+		</property>			
+		
+		<property name="movieUrl5" type="string" >
+			<column name="MOVIE_URL5" length="255">
+			<comment>동영상링크5</comment>
+			</column>
+		</property>					
+				
+		<property name="registerDt" type="timestamp" >
+			<column name="REGISTER_DT">
+			<comment>생성일</comment>
+			</column>
+		</property>
+		
+		<property name="modifyDt" type="timestamp" >
+			<column name="MODIFY_DT">
+			<comment>수정일</comment>
+			</column>
+		</property>	
+		<property name="scanCnt" type="long" >
+			<column name="SCANCNT" length="20" default="0">
+			<comment>열람수</comment>
+			</column>
+		</property>
+		<property name="topSkin" type="long" >
+			<column name="TOPSKIN" length="20" default="0">
+			<comment>상단스킨</comment>
+			</column>
+		</property>		
+		<property name="qrSkin" type="yes_no" >
+			<column name="QRSKIN" length="1" default="'0'">
+			<comment>QE스킨</comment>
+			</column>
+		</property>
+		<property name="officeCd" type="string"  not-null="true" >
+			<column name="OFFICE_CD" length="13" >
+			<comment>부서코드</comment>
+			</column>
+		</property>
+		
+		<property name="gubun" type="string" >
+			<column name="GUBUN"  length="1"  default="'1'"  >
+			<comment>단계 구분</comment>
+			</column>
+		</property>
+		
+		<property name="colorRGB" type="string" >
+			<column name="COLORRGB"  length="1"  default="''"  >
+			<comment>컬러색</comment>
+			</column>
+		</property>
+		
+	</class>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	<class name="QrcodeFileVO" table="RFC_COMTNQRCODEFILE">
+		<cache usage="read-write"/>
+		<comment>QR코드 첨부파일 테이블</comment>
+		<id name="qrfileSid" type="long">
+			<column name="QRFILE_SID">
+				<comment>QR코드 첨부파일 고유번호</comment>
+			</column>
+		</id>
+		<property name="dataSid" type="long" >
+			<column name="DATA_SID" length="20" default="0">
+			<comment>게시물 고유코드</comment>
+			</column>
+		</property>
+		
+		<property name="fileNm" type="string" >
+			<column name="FILE_NM" length="255">
+			<comment>파일명</comment>
+			</column>
+		</property>
+
+		<property name="fileMask" type="string" >
+			<column name="FILE_MASK" length="255">
+			<comment>파일마스크</comment>
+			</column>
+		</property>	
+		<property name="thumbnail" type="string" >
+			<column name="THUMBNAIL" length="255">
+			<comment>썸네일</comment>
+			</column>
+		</property>	
+		<property name="fileSize" type="string" >
+			<column name="FILE_SIZE" length="255">
+			<comment>파일 사이즈</comment>
+			</column>
+		</property>		
+		
+		<property name="fileType" type="string" >
+			<column name="FILE_TYPE" length="64" default="'N'">
+			<comment>파일타입</comment>
+			</column>
+		</property>
+		
+		<property name="registerDt" type="timestamp" >
+			<column name="REGISTER_DT">
+			<comment>등록일</comment>
+			</column>
+		</property>
+		
+		<property name="modifyDt" type="timestamp" >
+			<column name="MODIFY_DT">
+			<comment>수정일</comment>
+			</column>
+		</property>		
+		
+		<property name="fileNo" type="long" >
+			<column name="FILE_NO" length="20" default="0">
+			<comment>파일번호</comment>
+			</column>
+		</property>	
+
+	</class>
+	
+		<class name="QrcodeSkinVO" table="RFC_COMTNQRCODESKIN">
+		<cache usage="read-write"/>
+		<comment>QR코드 스킨 테이블</comment>
+		<id name="qrskinSid" type="long">
+			<column name="QRSKIN_SID">
+				<comment>QR코드 스킨 고유번호</comment>
+			</column>
+		</id>
+		<property name="sgroupId" type="string" >
+			<column name="SGROUP_ID" length="30"   >
+			<comment>사이트그룹 아이디</comment>
+			</column>
+		</property>
+		
+		<property name="domainId" type="string" >
+			<column name="DOMAIN_Id" length="50"   >
+			<comment>도메인 아이디</comment>
+			</column>
+		</property>
+		
+		<property name="qrskinSize" type="long" >
+			<column name="QRSKIN_SIZE" length="20" default="0">
+			<comment>스킨 크기</comment>
+			</column>
+		</property>		
+		
+		<property name="qrskinLogPosition" type="string" >
+			<column name="QRSKIN_LOG_POSITION" length="1" default="'N'">
+			<comment>QR로그포지션</comment>
+			</column>
+		</property>
+		
+		<property name="qrskinNm" type="string" >
+			<column name="QRSKIN_NM" length="255"   >
+			<comment>QR스킨명</comment>
+			</column>
+		</property>
+		
+		<property name="qrskinImg150" type="string" >
+			<column name="QRSKIN_IMG150" length="255">
+			<comment>QR스킨 이미지사이즈 150</comment>
+			</column>
+		</property>
+		
+		<property name="qrskinImg400" type="string" >
+			<column name="QRSKIN_IMG400" length="255">
+			<comment>QR스킨 이미지사이즈 400</comment>
+			</column>
+		</property>
+		
+		<property name="qrskinImg630" type="string" >
+			<column name="QRSKIN_IMG630" length="255">
+			<comment>QR스킨 이미지사이즈 630</comment>
+			</column>
+		</property>
+		
+		<property name="qrskinImgMask150" type="string" >
+			<column name="QRSKIN_IMGMASK150" length="255">
+			<comment>QR스킨 이미지마스크 사이즈 150</comment>
+			</column>
+		</property>
+		
+		<property name="qrskinImgMask400" type="string" >
+			<column name="QRSKIN_IMGMASK400" length="255">
+			<comment>QR스킨 이미지마스크 사이즈 400</comment>
+			</column>
+		</property>
+		
+		<property name="qrskinImgMask630" type="string" >
+			<column name="QRSKIN_IMGMASK630" length="255">
+			<comment>QR스킨 이미지마스크 사이즈 630</comment>
+			</column>
+		</property>
+
+		<property name="qrskinTopLogImg150" type="string" >
+			<column name="QRSKIN_TOPLOG_IMG150" length="255">
+			<comment>QR스킨상단 이미지사이즈 150</comment>
+			</column>
+		</property>
+
+		<property name="qrskinTopLogImg400" type="string" >
+			<column name="QRSKIN_TOPLOG_IMG400" length="255">
+			<comment>QR스킨상단 이미지사이즈 400</comment>
+			</column>
+		</property>
+		
+		<property name="qrskinTopLogImg630" type="string">
+			<column name="QRSKIN_TOPLOG_IMG630" length="255">
+			<comment>QR스킨상단 이미지사이즈 630</comment>
+			</column>
+		</property>			
+		
+		<property name="qrskinTopLogImgMask150" type="string" >
+			<column name="QRSKIN_TOPLOG_IMGMASK150" length="255">
+			<comment>QR스킨상단 이미지마스크 사이즈 150</comment>
+			</column>
+		</property>
+
+		<property name="qrskinTopLogImgMask400" type="string" >
+			<column name="QRSKIN_TOPLOG_IMGMASK400" length="255">
+			<comment>QR스킨상단 이미지마스크 사이즈 400</comment>
+			</column>
+		</property>
+		
+		<property name="qrskinTopLogImgMask630" type="string">
+			<column name="QRSKIN_TOPLOG_IMGMASK630" length="255">
+			<comment>QR스킨상단 이미지마스크 사이즈 630</comment>
+			</column>
+		</property>									
+
+		<property name="qrskinBottomLogImg150" type="string">
+			<column name="QRSKIN_BOOTTOMLOG_IMG150" length="255">
+			<comment>QR스킨하단 이미지 사이즈 150</comment>
+			</column>
+		</property>	
+		
+		<property name="qrskinBottomLogImg400" type="string">
+			<column name="QRSKIN_BOOTTOMLOG_IMG400" length="255">
+			<comment>QR스킨하단 이미지 사이즈 400</comment>
+			</column>
+		</property>			
+
+		<property name="qrskinBottomLogImg630" type="string">
+			<column name="QRSKIN_BOOTTOMLOG_IMG630" length="255">
+			<comment>QR스킨하단 이미지 사이즈 630</comment>
+			</column>
+		</property>			
+		
+		<property name="qrskinBottomLogImgMask150" type="string">
+			<column name="QRSKIN_BOOTTOMLOG_IMGMASK150" length="255">
+			<comment>QR스킨하단 이미지마스크 사이즈 150</comment>
+			</column>
+		</property>	
+		
+		<property name="qrskinBottomLogImgMask400" type="string">
+			<column name="QRSKIN_BOOTTOMLOG_IMGMASK400" length="255">
+			<comment>QR스킨하단 이미지마스크 사이즈 400</comment>
+			</column>
+		</property>			
+
+		<property name="qrskinBottomLogImgMask630" type="string">
+			<column name="QRSKIN_BOOTTOMLOG_IMGMASK630" length="255">
+			<comment>QR스킨하단 이미지마스크 사이즈 630</comment>
+			</column>
+		</property>			
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,318 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCContentsBackUp">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="ContentsBackUpVO" type = "egovframework.rfc3.contents.vo.ContentsBackUpVO"/>
+     
+     
+     <cacheModel type="${Globals.ibatis.default.cache}" id="RFCContentsBackUpCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="ContentsDAO.insertContentsBackUptList"/>
+      	<flushOnExecute statement="ContentsDAO.updateBackupContents"/>
+      	<flushOnExecute statement="ContentsDAO.updateBackupReset"/>
+     </cacheModel>
+     
+     
+     <resultMap id="contentsBackUpVO" class="egovframework.rfc3.contents.vo.ContentsBackUpVO">
+	<result property="contentsBpSid" column="contentsBpSid" /> 
+	<result property="contentsSid" column="contentsSid" /> 
+	<result property="sgroupId" column="sgroupId" /> 
+	<result property="domainId" column="domainId" /> 
+	<result property="menuCd" column="menuCd" /> 
+	<result property="layoutSid" column="layoutSid" /> 
+	<result property="contentsLinkSid" column="contentsLinkSid" />
+	<result property="contentsType" column="contentsType" /> 
+	<result property="contentsStyle" column="contentsStyle" /> 
+	<result property="contentsTitle" column="contentsTitle" /> 
+	<result property="engName" column="engName" />
+	<result property="contentsTitleImg" column="contentsTitleImg" /> 
+	<result property="contentsContent" column="contentsContent" /> 
+	<result property="contentsBoardUrl" column="contentsBoardUrl" /> 
+	<result property="contentsBoardId" column="contentsBoardId" /> 
+	<result property="contentsLinkUrl" column="contentsLinkUrl" /> 
+	<result property="editorIsUse" column="editorIsUse" /> 
+	<result property="isSkinApply" column="isSkinApply" /> 
+	<result property="contentsRegDate" column="contentsRegDate" /> 
+	<result property="contentsModiDate" column="contentsModiDate" /> 
+	<result property="contsFlag" column="contsFlag" /> 
+	<result property="userId" column="userId" /> 
+	<result property="isRestore" column="isRestore" /> 
+	<result property="restoreDate" column="restoreDate" /> 
+	<result property="contentsTitleImgDesc" column="contentsTitleImgDesc" /> 
+	<result property="mobileContents" column="mobileContents" /> 
+	<result property="contentsLinkName" column="contentsLinkName" /> 
+		<result property="mobileIsUse" column="mobileIsUse" /> 
+    </resultMap>
+    
+    
+     <select id="ContentsDAO.selectContentsBackUpTotCnt"  parameterClass="ContentsBackUpVO" resultClass="int" cacheModel="RFCContentsBackUpCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNCONTENTS_BACKUP_TB
+						
+						<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId" >
+			          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+				           	<isNotEmpty prepend="AND" property="domainId" >
+				          		    			 DOMAIN_ID  = #domainId#
+				            </isNotEmpty>	
+				            <isEmpty  property="domainId" >
+			          		     <isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+							            		    DOMAIN_ID in ( $myDomainList$ )
+							     </isEqual>
+				            </isEmpty>  
+				            <isNotEmpty prepend="AND"  property="contentsSid" >
+				          		   CONTENTS_SID   = #contentsSid#
+				            </isNotEmpty>
+				             <isNotEmpty prepend="AND"  property="contsFlag" >
+				          		   CONTS_FLAG   = #contsFlag#
+				            </isNotEmpty>
+				         </dynamic>
+				       
+	</select>
+	
+
+	<select id="ContentsDAO.selectContentstBackUpList" parameterClass="ContentsBackUpVO"  resultMap="contentsBackUpVO" cacheModel="RFCContentsBackUpCache">
+			          SELECT 
+
+							CONTENTS_BP_SID						contentsBpSid		,
+							CONTENTS_SID							contentsSid			,
+							SGROUP_ID									sgroupId			,
+							DOMAIN_ID										domainId			,
+							MENU_CD										menuCd				,
+							LAYOUT_SID									layoutSid			,
+							CONTENTS_LINK_SID					contentsLinkSid		,
+							CONTENTS_TYPE							contentsType		,
+							CONTENTS_STYLE						contentsStyle		,
+							CONTENTS_TITLE						contentsTitle		,
+							ENG_NAME									engName,
+							CONTENTS_TITLE_IMG				contentsTitleImg	,
+							CONTENTS_CONTENT				contentsContent		,
+							CONTENTS_BOARD_URL			contentsBoardUrl	,
+							CONTENTS_BOARDID					contentsBoardId		,
+							CONTENTS_LINK_URL					contentsLinkUrl		,
+							EDITOR_IS_USE							editorIsUse			,
+							IS_SKIN_APPLY								isSkinApply			,
+							CONTENTS_REG_DATE				contentsRegDate		,
+							CONTENTS_MODI_DATE				contentsModiDate	,
+							CONTS_FLAG								contsFlag			,
+							USER_ID											userId				,
+							IS_RESTORE									isRestore			,
+							RESTORE_DATE							restoreDate			,
+							CONTENTS_TITLE_IMG_DESC	contentsTitleImgDesc,
+							MOBILE_CONTENTS						mobileContents		,
+							''														contentsLinkName,
+							MOBILE_IS_USE							mobileIsUse																											
+					FROM  RFC_COMTNCONTENTS_BACKUP_TB
+					<dynamic  prepend="WHERE">
+						<isNotEmpty prepend="AND"  property="sgroupId" >
+			          		   SGROUP_ID   = #sgroupId#
+			            </isNotEmpty>
+			           	<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            </isNotEmpty>	
+			            <isEmpty  property="domainId" >
+		          		     <isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     </isEqual>
+			            </isEmpty>  
+			            <isNotEmpty prepend="AND"  property="contentsSid" >
+			          		   CONTENTS_SID   = #contentsSid#
+			            </isNotEmpty>
+			             <isNotEmpty prepend="AND"  property="contsFlag" >
+			          		   CONTS_FLAG   = #contsFlag#
+			            </isNotEmpty>
+			       </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+		                 LIMIT #recordCountPerPage# OFFSET #firstIndex#
+        
+	</select>	
+	
+	<select id="ContentsDAO.selectContentstBackUpVo" parameterClass="ContentsBackUpVO"  resultMap="contentsBackUpVO" cacheModel="RFCContentsBackUpCache">
+			          SELECT 
+
+							CONTENTS_BP_SID						contentsBpSid		,
+							CONTENTS_SID							contentsSid			,
+							SGROUP_ID									sgroupId			,
+							DOMAIN_ID										domainId			,
+							MENU_CD										menuCd				,
+							LAYOUT_SID									layoutSid			,
+							CONTENTS_LINK_SID					contentsLinkSid		,
+							CONTENTS_TYPE							contentsType		,
+							CONTENTS_STYLE						contentsStyle		,
+							CONTENTS_TITLE						contentsTitle		,
+							ENG_NAME									engName,
+							CONTENTS_TITLE_IMG				contentsTitleImg	,
+							CONTENTS_CONTENT				contentsContent		,
+							CONTENTS_BOARD_URL			contentsBoardUrl	,
+							CONTENTS_BOARDID					contentsBoardId		,
+							CONTENTS_LINK_URL					contentsLinkUrl		,
+							EDITOR_IS_USE							editorIsUse			,
+							IS_SKIN_APPLY								isSkinApply			,
+							CONTENTS_REG_DATE				contentsRegDate		,
+							CONTENTS_MODI_DATE				contentsModiDate	,
+							CONTS_FLAG								contsFlag			,
+							USER_ID											userId				,
+							IS_RESTORE									isRestore			,
+							RESTORE_DATE							restoreDate			,
+							CONTENTS_TITLE_IMG_DESC	contentsTitleImgDesc,
+							MOBILE_CONTENTS						mobileContents		,
+							(
+									SELECT
+										CONTENTS_TITLE 
+									FROM 
+										RFC_COMTNCONTENTS
+									WHERE 
+										CONTENTS_SID =
+																		(
+																			SELECT
+																				CONTENTS_LINK_SID
+																			 FROM
+																			 	 RFC_COMTNCONTENTS_BACKUP_TB
+																			 WHERE 
+																			 	 CONTENTS_BP_SID   = #contentsBpSid#
+																		 )
+								)	contentsLinkName,
+							MOBILE_IS_USE							mobileIsUse																											
+					FROM  RFC_COMTNCONTENTS_BACKUP_TB
+					WHERE
+			
+		     		   CONTENTS_BP_SID   = #contentsBpSid#
+	</select>	
+	
+		<insert id="ContentsDAO.insertContentsBackUptList" parameterClass="contentsBackUpVO">
+				INSERT INTO 
+				  	RFC_COMTNCONTENTS_BACKUP_TB  (
+							CONTENTS_BP_SID,
+							CONTENTS_SID,
+							SGROUP_ID,
+							DOMAIN_ID,
+							MENU_CD,
+							LAYOUT_SID,
+							CONTENTS_LINK_SID,
+							CONTENTS_TYPE,
+							CONTENTS_STYLE,
+							CONTENTS_TITLE,
+							ENG_NAME,
+							CONTENTS_TITLE_IMG,
+							CONTENTS_CONTENT,
+							CONTENTS_BOARD_URL,
+							CONTENTS_BOARDID,
+							CONTENTS_LINK_URL,
+							EDITOR_IS_USE,
+							IS_SKIN_APPLY,
+							CONTENTS_REG_DATE,
+							CONTENTS_MODI_DATE,
+							CONTS_FLAG,
+							USER_ID,
+							IS_RESTORE,
+							RESTORE_DATE,
+							CONTENTS_TITLE_IMG_DESC,
+							MOBILE_CONTENTS,
+							MOBILE_IS_USE
+				) VALUES (
+							#contentsBpSid#,          
+							#contentsSid#,            
+							#sgroupId#,               
+							#domainId#,               
+							#menuCd#,                 
+							#layoutSid#,              
+							#contentsLinkSid#,        
+							#contentsType#,           
+							#contentsStyle#,          
+							#contentsTitle#,       
+							#engName#,   
+							#contentsTitleImg#,       
+							#contentsContent#,        
+							#contentsBoardUrl#,       
+							#contentsBoardId#,        
+							#contentsLinkUrl#,        
+							#editorIsUse#,            
+							#isSkinApply#,            
+							#contentsRegDate#,        
+							#contentsModiDate#,       
+							#contsFlag#,              
+							#userId#,                 
+							#isRestore#,              
+							#restoreDate#,            
+							#contentsTitleImgDesc#,   
+							#mobileContents#,         
+							#mobileIsUse#		
+				)
+	</insert>
+	
+	 <update id="ContentsDAO.updateBackupContents" parameterClass="contentsBackUpVO">
+     	UPDATE
+     					RFC_COMTNCONTENTS_BACKUP_TB
+     	SET
+						    IS_RESTORE = #isRestore#,
+							RESTORE_DATE = #restoreDate#
+		WHERE
+							CONTENTS_BP_SID = #contentsBpSid#		
+     </update>
+     <update id="ContentsDAO.updateBackupReset" parameterClass="contentsBackUpVO">
+			UPDATE
+							RFC_COMTNCONTENTS_BACKUP_TB
+	     	SET
+							    IS_RESTORE = 'no',
+								RESTORE_DATE = null
+			WHERE
+								CONTENTS_SID = #contentsSid#
+			AND
+								CONTENTS_BP_SID != #contentsBpSid#
+     	</update>																				    
+     <select id="ContentsDAO.viewContentstBackupList" parameterClass="ContentsBackUpVO"  resultMap="contentsBackUpVO"  cacheModel="RFCContentsBackUpCache">
+			          SELECT 
+							CONTENTS_BP_SID						contentsBpSid		,
+							CONTENTS_SID							contentsSid			,
+							SGROUP_ID									sgroupId			,
+							DOMAIN_ID										domainId			,
+							MENU_CD										menuCd				,
+							LAYOUT_SID									layoutSid			,
+							CONTENTS_LINK_SID					contentsLinkSid		,
+							CONTENTS_TYPE							contentsType		,
+							CONTENTS_STYLE						contentsStyle		,
+							CONTENTS_TITLE						contentsTitle		,
+							ENG_NAME									engName,
+							CONTENTS_TITLE_IMG				contentsTitleImg	,
+							CONTENTS_CONTENT				contentsContent		,
+							CONTENTS_BOARD_URL			contentsBoardUrl	,
+							CONTENTS_BOARDID					contentsBoardId		,
+							CONTENTS_LINK_URL					contentsLinkUrl		,
+							EDITOR_IS_USE							editorIsUse			,
+							IS_SKIN_APPLY								isSkinApply			,
+							CONTENTS_REG_DATE				contentsRegDate		,
+							CONTENTS_MODI_DATE				contentsModiDate	,
+							CONTS_FLAG								contsFlag			,
+							USER_ID											userId				,
+							IS_RESTORE									isRestore			,
+							RESTORE_DATE							restoreDate			,
+							CONTENTS_TITLE_IMG_DESC	contentsTitleImgDesc,
+							MOBILE_CONTENTS						mobileContents		,
+							''														contentsLinkName,
+							MOBILE_IS_USE							mobileIsUse																																				
+					FROM  RFC_COMTNCONTENTS_BACKUP_TB
+					<dynamic  prepend="WHERE">
+						<isNotEmpty prepend="AND"  property="sgroupId" >
+			          		   SGROUP_ID   = #sgroupId#
+			            </isNotEmpty>
+			           	<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            </isNotEmpty>	
+			            <isEmpty  property="domainId" >
+		          		     <isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     </isEqual>
+			            </isEmpty>
+			            <isNotEmpty prepend="AND"  property="contentsSid" >
+			          		   CONTENTS_SID   = #contentsSid#
+			            </isNotEmpty>	    
+			       </dynamic>
+	</select>	
+	
+	
+	
+</sqlMap>

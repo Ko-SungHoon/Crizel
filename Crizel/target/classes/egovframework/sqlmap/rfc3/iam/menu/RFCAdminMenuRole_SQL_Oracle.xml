@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCAdminMenuRoles">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>	 
+	<typeAlias  alias="adminMenuRolesVO" type = "egovframework.rfc3.iam.vo.AdminMenuRolesVO"/>
+	<typeAlias  alias="groupMenuRolesVO" type = "egovframework.rfc3.iam.vo.GroupMenuRolesVO"/>
+	 
+	  <cacheModel type="${Globals.ibatis.default.cache}" id="RFCAdminMenuRoles" readOnly="true" serialize="false">
+     	<flushInterval hours="24" />
+     	<flushOnExecute statement="adminRolesDAO.insertAdminMenuRole"/>
+     	<flushOnExecute statement="adminRolesDAO.updateAdminMenuRole"/>
+     	<flushOnExecute statement="adminRolesDAO.deleteAdminMenuRole"/>
+     	
+     	<flushOnExecute statement="adminRolesDAO.insertGroupMenuRole"/>
+     	<flushOnExecute statement="adminRolesDAO.deleteGroupMenuRole"/>
+     </cacheModel>
+	 <select id="adminRolesDAO.selectAdminRoleCnt"  parameterClass="java.lang.String"  resultClass="java.lang.Integer"  cacheModel="RFCAdminMenuRoles">
+	 					SELECT
+							  count(*) totcnt
+						FROM
+							RFC_COMTNADMIN_ROLES
+						WHERE
+						  ADM_SID=#admSid#
+	 </select>
+	  <select id="adminRolesDAO.selectAdminMenuRoleList"  parameterClass="java.lang.String"  resultClass="adminMenuRolesVO">
+	 					SELECT
+							  ROLE_ID roleId,
+							  (select ROLE_NM from RFC_COMTNROLES where  ROLE_ID=A.ROLE_ID)  roleNm
+						FROM
+							RFC_COMTNADMIN_ROLES A
+						WHERE
+						  ADM_SID=#admSid#
+	 </select>
+	  <!-- group menu add -->
+	 <select id="adminRolesDAO.selectGroupMenuRoleList"  parameterClass="groupMenuRolesVO"  resultClass="groupMenuRolesVO"  cacheModel="RFCAdminMenuRoles">
+	 					SELECT
+							ADM_SID   admSid,
+							GROUP_ID  groupId
+						FROM
+							RFC_COMTNGROUP_ROLES A
+						WHERE
+						  ADM_SID=#admSid# and GROUP_ID=#groupId#
+	 </select>
+	  <select id="adminRolesDAO.selectAdminRoleCntForRoleId"  parameterClass="adminMenuRolesVO"  resultClass="java.lang.Integer"  cacheModel="RFCAdminMenuRoles">
+	 					SELECT
+							  count(*) totcnt
+						FROM
+							RFC_COMTNADMIN_ROLES
+						WHERE
+						  ADM_SID=#admSid# and ROLE_ID=#roleId#
+	 </select>
+	  <select id="adminRolesDAO.selectAdminRoleNotAppliedList"  parameterClass="List"  resultClass="adminMenuRolesVO"  cacheModel="RFCAdminMenuRoles">
+	 					SELECT
+							  ROLE_ID roleId,
+							  ADM_SID admSid
+						FROM
+							RFC_COMTNADMIN_ROLES
+						WHERE
+						 ADM_SID not in
+						 <iterate open="(" close=")" conjunction=",">
+						 	#[]#
+						 </iterate>
+	 </select>
+	<insert id="adminRolesDAO.insertAdminMenuRole"  parameterClass="adminMenuRolesVO">
+					INSERT INTO RFC_COMTNADMIN_ROLES
+						 (
+						 	ADM_SID,
+						 	ROLE_ID
+						 ) VALUES  (
+							#admSid# ,
+							#roleId#
+						 )
+	</insert>
+	<!-- group menu add -->
+	<insert id="adminRolesDAO.insertGroupMenuRole"  parameterClass="groupMenuRolesVO" >
+					INSERT INTO RFC_COMTNGROUP_ROLES
+						 (
+						 	ADM_SID,
+						 	GROUP_ID
+						 ) VALUES  (
+							#admSid# ,
+							#groupId#
+						 )
+	</insert>
+	<update id="adminRolesDAO.updateAdminMenuRole"  parameterClass="adminMenuRolesVO">
+					UPDATE 
+						 RFC_COMTNADMIN_ROLES
+					SET 
+						 ROLE_ID=#roleId#
+					WHERE
+						 ADM_SID=#admSid#
+						
+					
+	
+	</update>
+	<delete id="adminRolesDAO.deleteAdminMenuRoleForRoleId"  parameterClass="adminMenuRolesVO">
+					DELETE  FROM 
+							RFC_COMTNADMIN_ROLES
+					WHERE  	
+						 ADM_SID=#admSid# and  ROLE_ID=#roleId#
+	</delete>
+	<delete id="adminRolesDAO.deleteAdminMenuRole"  parameterClass="java.lang.String">
+					DELETE  FROM 
+							RFC_COMTNADMIN_ROLES
+					WHERE  	
+						 ADM_SID=#admSid#
+	</delete>
+	<!-- group menu add -->
+	<delete id="adminRolesDAO.deleteGroupMenuRole"  parameterClass="java.lang.String">
+					DELETE  FROM 
+							RFC_COMTNGROUP_ROLES
+					WHERE  	
+					        GROUP_ID=#groupId#
+	</delete>
+</sqlMap>

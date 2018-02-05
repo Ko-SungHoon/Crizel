@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+xmlns:tx="http://www.springframework.org/schema/tx"
+xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.0.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+      
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <property name="hibernateProperties">
+            <props>
+				<!--hibernate dialect here -->
+				<!--hibernate dialect-START-->
+                <prop key="hibernate.dialect">${Globals.hibernate.dialect}</prop>
+				<!--hibernate dialect-END-->
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.use_sql_comments">true</prop>
+                <prop key="hibernate.hbm2ddl.auto">${Globals.hibernate.hbm2ddl.auto}</prop>
+				<!-- jdbc.batch_size will direct hibernate to use jdbc2 API for batch updates -->
+				<!-- One of the more advanced features of JDBC 2.0 is the ability to submit multiple update statements to the database for processing as a single unit -->
+                <prop key="hibernate.jdbc.batch_size">5</prop>                
+                 
+                <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+                <prop key="hibernate.cache.use_second_level_cache">false</prop>
+            </props>
+        </property>
+        <property name="mappingResources">
+            <list>
+            
+            	 <!-- iam extension -->
+            	<value>egovframework/hibernate/domain/OpenApiAuthKeyVO.hbm.xml</value>
+                <value>egovframework/hibernate/domain/OpenApiQosVO.hbm.xml</value>
+                <value>egovframework/hibernate/domain/SmsCertiVO.hbm.xml</value>
+            
+                <!--iam  basic  -->
+                <value>egovframework/hibernate/domain/UserManageVO.hbm.xml</value>
+                <value>egovframework/hibernate/domain/MberManageVO.hbm.xml</value>
+                <value>egovframework/hibernate/domain/AuthoritesVO.hbm.xml</value>
+                <value>egovframework/hibernate/domain/CodeSequence.hbm.xml</value>
+                <value>egovframework/hibernate/domain/SiteGroupVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/RolesVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/RolesHierarchyVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/GroupVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/ResourceVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/ResourceRolesVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/DomainVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/LoginHistoryVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/ViewResourceRoleVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/ViewResourceVO.hbm.xml</value>                                  
+                 <value>egovframework/hibernate/domain/OfficeVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/CategoryVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/SsoVO.hbm.xml</value>                 
+                 <value>egovframework/hibernate/domain/AdminMenuVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/AdminMenuRolesVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/AccessIpVO.hbm.xml</value>
+                 
+                 <value>egovframework/hibernate/domain/ComponentVO.hbm.xml</value>
+				 <value>egovframework/hibernate/domain/CommonCountVO.hbm.xml</value>
+				 <value>egovframework/hibernate/domain/SystemSettingsVO.hbm.xml</value>
+				 <value>egovframework/hibernate/domain/SwitchingLogVO.hbm.xml</value>
+                <!-- <value>egovframework/hibernate/domain/NewZipCodeVO.hbm.xml</value> -->
+                <value>egovframework/hibernate/domain/EminwonOfficePort.xml</value>
+                <value>egovframework/hibernate/domain/EminwonOffice.xml</value>
+                
+                
+                            
+            	 <!-- cms  extension  -->
+            	 <value>egovframework/hibernate/domain/QrcodeVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/CounterVO.hbm.xml</value>
+                  <value>egovframework/hibernate/domain/SnsInfoVO.xml</value>                 
+                 <value>egovframework/hibernate/domain/LandJiga.hbm.xml</value>
+            	 <value>egovframework/hibernate/domain/ElectUserVO.hbm.xml</value>
+            	 <value>egovframework/hibernate/domain/CodeSequenceCMS.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/BoardVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/LayoutVO.hbm.xml</value> 
+                 <value>egovframework/hibernate/domain/Mall.hbm.xml</value>
+            	 <!--
+            	 <value>egovframework/hibernate/domain/TeachingVO.hbm.xml</value>
+            	 <value>egovframework/hibernate/domain/PerFormVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/FoodErpVO.hbm.xml</value>         
+                 -->
+                 <value>egovframework/hibernate/domain/EduCationVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/ReSearchVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/MenuVO.hbm.xml</value>           
+                 <value>egovframework/hibernate/domain/ContentsVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/QuestionVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/PopupVO.hbm.xml</value>
+                 <value>egovframework/hibernate/domain/ScrapVO.hbm.xml</value>                 
+                 <value>egovframework/hibernate/domain/VisitCounterVO.hbm.xml</value>   
+                 <value>egovframework/hibernate/domain/SnsCommentVO.hbm.xml</value> 
+				
+				
+				 
+				 
+				             
+            </list>
+        </property>
+    </bean>
+    
+  
+ 
+    
+</beans>

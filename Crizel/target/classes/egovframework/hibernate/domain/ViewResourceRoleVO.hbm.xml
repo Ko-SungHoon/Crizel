@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.iam.vo">
+	<class name="ViewResourceRoleVO"	table="RFC_COMTNVIEWRESOURCEROLE">
+		<comment>버튼 접근관리 테이블</comment>
+	  	<composite-id>
+
+			<key-property name="category"  type="string">
+				<column name="CATEGORY" length="30">
+            		<comment>프로그램 식별코드</comment>
+            	</column>
+			</key-property>
+			
+			<key-property name="refId"  type="string">
+				<column name="REF_ID" length="30">
+            		<comment>권한대상</comment>
+            	</column>
+			</key-property>
+
+		</composite-id>
+		<property name="sgroupId" type="string"  not-null="true">
+			<column name="SGROUP_ID" length="30"   >
+				<comment>사이트 식별코드</comment>
+			</column>
+		</property>
+		<property name="mask" type="int" >
+			<column name="MASK" length="5"  >
+				<comment>변환코드</comment>
+			</column>
+		</property>
+		<property name="permissions" type="string" >
+			<column name="PERMISSIONS" length="255"   >
+				<comment>퍼미션 코드</comment>
+			</column>
+		</property>
+		<property name="refType" type="string" >
+			<column name="REF_TYPE" length="10"   >
+				<comment>접근타입</comment>
+			</column>
+		</property>
+		<property name="createDate"  type="timestamp"  insert="true" update="false">
+			<column name="CREATE_DATE"    >
+				<comment>등록일</comment>
+			</column>
+		</property>
+		<property name="modifyDate"  type="timestamp"  insert="false" update="true">
+			<column name="MODIFY_DATE"    >
+				<comment>수정일</comment>
+			</column>
+		</property>		
+	</class>
+	
+	<class name="ViewResourceRoleHistoryVO"	table="RFC_COMTNVIEWROLEHISTORYS">
+	  	 <cache usage="read-write"/>
+	  	 <comment>버튼 접근관리 이력 테이블</comment>
+	  	 
+		
+		<id name="historyId"  type="long">
+			<column name="HISTORY_ID">
+				<comment>고유번호</comment>
+            </column>
+		</id>
+		
+		
+		<property name="category" type="string"  not-null="true">
+			<column name="CATEGORY" length="30"   >
+				<comment>프로그램 코드</comment>
+			</column>
+		</property>
+		<property name="refId" type="string"  not-null="true">
+			<column name="REF_ID" length="30"   >
+				<comment>권한대상</comment>
+			</column>
+		</property>
+		<property name="sgroupId" type="string"  not-null="true">
+			<column name="SGROUP_ID" length="30"   >
+				<comment>사이트구룹 코드</comment>
+			</column>
+		</property>
+		<property name="mask" type="int" >
+			<column name="MASK" length="5"  >
+				<comment>변환코드</comment>
+			</column>
+		</property>
+		<property name="permissions" type="string" >
+			<column name="PERMISSIONS" length="255"   >
+				<comment>퍼미션 코드</comment>
+			</column>
+		</property>
+		<property name="refType" type="string" >
+			<column name="REF_TYPE" length="10"   >
+				<comment>접근타입</comment>
+			</column>
+		</property>
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="65"   >
+				<comment>등록자 아이디</comment>
+			</column>
+		</property>
+		<property name="createDate"  type="timestamp"  insert="true" update="false">
+			<column name="CREATE_DATE"    >
+				<comment>등록일</comment>
+			</column>
+		</property>
+		<property name="modifyDate"  type="timestamp"  insert="false" update="true">
+			<column name="MODIFY_DATE"    >
+				<comment>수정일</comment>
+			</column>
+		</property>		
+		<property name="userIp" type="string">
+			<column name="USER_IP" length="32">
+				<comment>등록자 아이피</comment>
+			</column>
+		</property>
+	</class>
+</hibernate-mapping>

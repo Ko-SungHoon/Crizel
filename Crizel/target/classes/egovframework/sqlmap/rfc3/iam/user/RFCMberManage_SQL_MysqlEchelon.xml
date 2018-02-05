@@ -1,0 +1,685 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCMberManage">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="MberManageVO" type = "egovframework.rfc3.user.vo.MberManageVO"/>
+     
+      
+     <resultMap id="mberManage" class="egovframework.rfc3.user.vo.MberManageVO">
+        <result property="uniqId" column="uniqId" />
+        <result property="mberId" column="mberId" />
+        <result property="mberNm" column="mberNm" />
+        <result property="sgroupId" column="sgroupId" />
+        <result property="groupId" column="groupId"/>
+        <result property="mberSttusCode" column="mberSttusCode"/>
+        <result property="userTy" column="userTy"/>
+        <result property="hakYear" column="hakYear"/>
+        <result property="hakYeon" column="hakYeon"/>
+        <result property="banNo" column="banNo"/>
+        <result property="sbscrbDe" column="sbscrbDe"/>
+        <result property="sgroupNm" column="sgroupNm"/>
+        <result property="groupNm" column="groupNm"/>
+        <result property="photoImage" column="photoImage"/>
+        <result property="userAuthCode" column="userAuthCode"/>
+    </resultMap>
+  
+	<resultMap id="rfczipcode" class="egovframework.rfc3.user.vo.ZipCodeVO">
+        <result property="seq" column="seq" />
+        <result property="zipcode" column="zipcode" />
+        <result property="sido" column="sido" />
+        <result property="gugun" column="gugun" />
+        <result property="dong" column="dong"/>
+        <result property="bunji" column="bunji"/>
+    </resultMap>
+    
+     <cacheModel type="${Globals.ibatis.default.cache}" id="RFCMberManageCache" readOnly="true" serialize="false">
+     	<flushInterval hours="24" />
+     	<flushOnExecute statement="mberManageDAO.insertUser"/>
+     	<flushOnExecute statement="mberManageDAO.updateUser"/>
+     	<flushOnExecute statement="mberManageDAO.deleteUserId"/>
+     	<flushOnExecute statement="mberManageDAO.deleteUserIdForSitetGroup"/>
+     	<flushOnExecute statement="mberManageDAO.withdrawUser"/>
+     	<flushOnExecute statement="mberManageDAO.updateUserSttus"/>
+     </cacheModel>
+    
+	<select id="mberManageDAO.selectMberManageListTotCnt"  parameterClass="MberManageVO" resultClass="java.lang.Integer"  cacheModel="RFCMberManageCache">
+						SELECT
+							  count(*) totcnt
+						FROM
+						    RFC_COMTNMEMBER A  INNER JOIN RFC_COMTNSITEGROUP B ON A.SITE_GROUP_ID = B.SGROUP_ID
+						WHERE  1=1   and B.IS_USE='1'
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		   SITE_GROUP_ID   LIKE  #sgroupId#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="mberSttusCode" >
+			          		   MBER_STTUS_CODE   LIKE #mberSttusCode#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userTy" >
+			          		   USER_TY   LIKE #userTy#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="groupId" >
+			          		   GROUP_ID   LIKE #groupId#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc1" >
+			          		   USER_ETC1   = #userEtc1#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc2" >
+			          		   USER_ETC2   = #userEtc2#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc3" >
+			          		   USER_ETC3   = #userEtc3#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc4" >
+			          		   USER_ETC4   = #userEtc4#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc5" >
+			          		   USER_ETC5   = #userEtc5#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc6" >
+			          		   USER_ETC6   = #userEtc6#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc7" >
+			          		   USER_ETC7   = #userEtc7#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc8" >
+			          		   USER_ETC8   = #userEtc8#
+			            </isNotEmpty>
+			             <isNotEmpty prepend="AND" property="userEtc9" >
+			          		   USER_ETC9   = #userEtc9#
+			            </isNotEmpty>
+			             <isNotEmpty prepend="AND" property="userEtc10" >
+			          		   USER_ETC10   = #userEtc10#
+			            </isNotEmpty>
+			            
+			            <isNotEmpty prepend="AND"  property="roleId" >
+			             ( MBER_ID in 
+			             		              (
+				             		  			select
+				             		  				 SUBJECT_ID 
+				             		  			from  RFC_COMTNAUTHORITES where  1=1 
+				             		  			<isNotEmpty prepend="AND" property="sgroupId" >
+									          		   SGROUP_ID   LIKE  #sgroupId#
+									           </isNotEmpty>
+				             		  			 and  ROLE_ID like  #roleId#
+			             		  			  )
+			             		  or	  
+			             	   GROUP_ID  in 
+			             		              (
+				             		  			select
+				             		  				 SUBJECT_ID 
+				             		  			from  RFC_COMTNAUTHORITES where  1=1 
+				             		  			<isNotEmpty prepend="AND" property="sgroupId" >
+									          		   SGROUP_ID   LIKE  #sgroupId#
+									           </isNotEmpty>
+				             		  			 and  ROLE_ID like  #roleId#
+			             		  			  )
+			             )
+	             		 </isNotEmpty>
+	             		
+	             		
+	</select>
+	<select id="mberManageDAO.selectMberManageList" parameterClass="MberManageVO"  resultClass="MberManageVO"  cacheModel="RFCMberManageCache">
+			          	SELECT
+			          		UNIQ_ID uniqId,
+			          		MBER_ID mberId,
+			          		MBER_NM mberNm,
+			          		SITE_GROUP_ID sgroupId,
+			          		GROUP_ID groupId,
+			          		MBER_STTUS_CODE mberSttusCode,
+			          		SBSCRB_DE sbscrbDe,
+			          		A.MODIFY_DATE modifyDate,
+			          		USER_TY userTy,
+			          		HAK_YEAR hakYear,
+			          		HAK_YEON hakYeon,
+			          		BAN_NO banNo,
+			          		PHOTO_IMAGE photoImage,
+			          		USER_AUTH_CODE userAuthCode,
+			          		(select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SITE_GROUP_ID )  sgroupNm,
+			          		(select  GROUP_NM from  RFC_COMTNGROUP where  GROUP_ID =A.GROUP_ID )  groupNm,
+			          		USER_ETC1 userEtc1,
+							USER_ETC2 userEtc2,
+							USER_ETC3 userEtc3,
+							USER_ETC4 userEtc4,
+							USER_ETC5 userEtc5,
+							USER_ETC6 userEtc6,
+							USER_ETC7 userEtc7,
+							USER_ETC8 userEtc8,
+							USER_ETC9 userEtc9,
+							USER_ETC10 userEtc10
+						FROM
+						    RFC_COMTNMEMBER A  INNER JOIN RFC_COMTNSITEGROUP B ON A.SITE_GROUP_ID = B.SGROUP_ID
+						WHERE  1=1   and B.IS_USE='1'
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		   SITE_GROUP_ID   LIKE  #sgroupId#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="mberSttusCode" >
+			          		   MBER_STTUS_CODE   LIKE #mberSttusCode#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userTy" >
+			          		   USER_TY   LIKE #userTy#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="groupId" >
+			          		   GROUP_ID   LIKE #groupId#
+			            </isNotEmpty>
+			             <isNotEmpty prepend="AND" property="userEtc1" >
+			          		   USER_ETC1   = #userEtc1#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc2" >
+			          		   USER_ETC2   = #userEtc2#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc3" >
+			          		   USER_ETC3   = #userEtc3#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc4" >
+			          		   USER_ETC4   = #userEtc4#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc5" >
+			          		   USER_ETC5   = #userEtc5#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc6" >
+			          		   USER_ETC6   = #userEtc6#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc7" >
+			          		   USER_ETC7   = #userEtc7#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="userEtc8" >
+			          		   USER_ETC8   = #userEtc8#
+			            </isNotEmpty>
+			             <isNotEmpty prepend="AND" property="userEtc9" >
+			          		   USER_ETC9   = #userEtc9#
+			            </isNotEmpty>
+			             <isNotEmpty prepend="AND" property="userEtc10" >
+			          		   USER_ETC10   = #userEtc10#
+			            </isNotEmpty>
+			          
+	          		    <isNotEmpty prepend="AND"  property="roleId" >
+			             	   ( MBER_ID in 
+			             		              (
+				             		  			select
+				             		  				 SUBJECT_ID 
+				             		  			from  RFC_COMTNAUTHORITES where  1=1 
+				             		  			<isNotEmpty prepend="AND" property="sgroupId" >
+									          		   SGROUP_ID   LIKE  #sgroupId#
+									           </isNotEmpty>
+				             		  			 and  ROLE_ID like  #roleId#
+			             		  			  )
+			             		  or	  
+			             	   GROUP_ID  in 
+			             		              (
+				             		  			select
+				             		  				 SUBJECT_ID 
+				             		  			from  RFC_COMTNAUTHORITES where  1=1 
+				             		  			<isNotEmpty prepend="AND" property="sgroupId" >
+									          		   SGROUP_ID   LIKE  #sgroupId#
+									           </isNotEmpty>
+				             		  			 and  ROLE_ID like  #roleId#
+			             		  			  )
+			             )
+	             		 </isNotEmpty>
+			           
+			            <isNotEmpty  property="orderField" >
+			            	  ORDER BY  $orderField$   $orderSort$
+			            </isNotEmpty>
+			            <isEmpty  property="orderField" >
+			             	ORDER BY UNIQ_ID  DESC
+			             </isEmpty>
+			              LIMIT #recordCountPerPage# OFFSET #firstIndex#
+	</select>
+	
+	<select id="mberManageDAO.getUserInfoUnique"    resultClass="MberManageVO"  cacheModel="RFCMberManageCache">
+				select 
+						UNIQ_ID uniqId ,
+						MBER_ID mberId,
+						MBER_NM mberNm,
+						IHID_NUM ihidnum,
+						PASSWORD password,
+						PASSWORD_CNSR passwordCnsr,
+						PASSWORD_HINT passwordHint,
+						ZIP zip,
+						ADRES  adres,
+						ECL_DECRYPT(DETAIL_ADRES) detailAdres,
+						ECL_DECRYPT(AREA_NO) areaNo,
+						ECL_DECRYPT(MIDDLETEL_NO) middleTelno,
+						ECL_DECRYPT(ENDTEL_NO) endTelno,
+						ECL_DECRYPT(MOBLFRIST_NO) moblfristNo,
+						ECL_DECRYPT(MOBLMIDDLE_NO) moblmiddleNo,
+						ECL_DECRYPT(MOBLEND_NO) moblendNo,
+						MBER_FX_NUM mberFxnum,
+						ECL_DECRYPT(EMAIL_ADRES) emailAdres,
+						EMAIL_YN emailYn,
+						HOMEPAGE homepage,
+						SEX_DSTN_CODE sexdstnCode,
+						BRTH_GUBUN brthGubun,
+						BRTH brth,
+						SITE_GROUP_ID sgroupId,
+						GROUP_ID groupId,
+						MBER_STTUS_CODE mberSttusCode,
+						USER_TY userTy,
+		          		HAK_YEAR hakYear,
+		          		HAK_YEON hakYeon,
+		          		BAN_NO banNo,
+		          		SUB_DN subDn,
+						PHOTO_IMAGE photoImage,
+						SBSCRB_DE sbscrbDe,
+						MODIFY_DATE modifyDate,
+						PARENT_NAME parentName ,
+						PARENT_TEL  parentTel,
+						USER_ETC1 userEtc1,
+						USER_ETC2 userEtc2,
+						USER_ETC3 userEtc3,
+						USER_ETC4 userEtc4,
+						USER_ETC5 userEtc5,
+						USER_ETC6 userEtc6,
+						USER_ETC7 userEtc7,
+						USER_ETC8 userEtc8,
+						USER_ETC9 userEtc9,
+						USER_ETC10 userEtc10,
+						USER_LEVEL userLevel,
+						USER_AUTH_CODE userAuthCode
+					from 
+						RFC_COMTNMEMBER
+					where
+						UNIQ_ID=#uniqId#
+	</select>
+	
+	<select id="mberManageDAO.searchUserId"    resultClass="MberManageVO"  cacheModel="RFCMberManageCache">
+				select 
+						UNIQ_ID uniqId ,
+						MBER_ID mberId,
+						ECL_DECRYPT(AREA_NO) areaNo,
+						ECL_DECRYPT(MIDDLETEL_NO) middleTelno,
+						ECL_DECRYPT(ENDTEL_NO) endTelno,
+						ECL_DECRYPT(MOBLFRIST_NO) moblfristNo,
+						ECL_DECRYPT(MOBLMIDDLE_NO) moblmiddleNo,
+						ECL_DECRYPT(MOBLEND_NO) moblendNo,
+						ECL_DECRYPT(EMAIL_ADRES) emailAdres
+					from 
+						RFC_COMTNMEMBER
+					where
+						IHID_NUM != '' AND IHID_NUM IS NOT NULL AND IHID_NUM = #ihidnum# AND MBER_NM=#mberNm#
+	</select>
+	
+	<select id="mberManageDAO.search14UnderUserId"    resultClass="MberManageVO"  cacheModel="RFCMberManageCache">
+				select 
+						UNIQ_ID uniqId ,
+						MBER_ID mberId,
+						ECL_DECRYPT(AREA_NO) areaNo,
+						ECL_DECRYPT(MIDDLETEL_NO) middleTelno,
+						ECL_DECRYPT(ENDTEL_NO) endTelno,
+						ECL_DECRYPT(MOBLFRIST_NO) moblfristNo,
+						ECL_DECRYPT(MOBLMIDDLE_NO) moblmiddleNo,
+						ECL_DECRYPT(MOBLEND_NO) moblendNo,
+						ECL_DECRYPT(EMAIL_ADRES) emailAdres,
+						USER_AUTH_CODE userAuthCode
+					from 
+						RFC_COMTNMEMBER
+					where
+						IHID_NUM != '' AND IHID_NUM IS NOT NULL AND IHID_NUM = #ihidnum# AND PARENT_NAME=#parentName#
+	</select>
+	
+	<select id="mberManageDAO.searchUserPw"    resultClass="MberManageVO"  cacheModel="RFCMberManageCache">
+				select 
+						UNIQ_ID uniqId ,
+						MBER_ID mberId,
+						MBER_NM mberNm,
+						IHID_NUM ihidnum,
+						PASSWORD_CNSR passwordCnsr,
+						PASSWORD_HINT passwordHint,
+						ECL_DECRYPT(AREA_NO) areaNo,
+						ECL_DECRYPT(MIDDLETEL_NO) middleTelno,
+						ECL_DECRYPT(ENDTEL_NO) endTelno,
+						ECL_DECRYPT(MOBLFRIST_NO) moblfristNo,
+						ECL_DECRYPT(MOBLMIDDLE_NO) moblmiddleNo,
+						ECL_DECRYPT(MOBLEND_NO) moblendNo,
+						ECL_DECRYPT(EMAIL_ADRES) emailAdres,
+						USER_AUTH_CODE userAuthCode
+					from 
+						RFC_COMTNMEMBER
+					where
+						IHID_NUM != '' AND IHID_NUM IS NOT NULL AND IHID_NUM = #ihidnum# AND MBER_NM=#mberNm# AND MBER_ID=#mberId#
+	</select>
+	
+	<select id="mberManageDAO.search14UnderUserPw"    resultClass="MberManageVO"  cacheModel="RFCMberManageCache">
+				select 
+						UNIQ_ID uniqId ,
+						MBER_ID mberId,
+						MBER_NM mberNm,
+						IHID_NUM ihidnum,
+						PASSWORD_CNSR passwordCnsr,
+						PASSWORD_HINT passwordHint,
+						ECL_DECRYPT(AREA_NO) areaNo,
+						ECL_DECRYPT(MIDDLETEL_NO) middleTelno,
+						ECL_DECRYPT(ENDTEL_NO) endTelno,
+						ECL_DECRYPT(MOBLFRIST_NO) moblfristNo,
+						ECL_DECRYPT(MOBLMIDDLE_NO) moblmiddleNo,
+						ECL_DECRYPT(MOBLEND_NO) moblendNo,
+						ECL_DECRYPT(EMAIL_ADRES) emailAdres,
+						USER_AUTH_CODE userAuthCode
+					from 
+						RFC_COMTNMEMBER
+					where
+						IHID_NUM != '' AND IHID_NUM IS NOT NULL AND IHID_NUM = #ihidnum# AND PARENT_NAME=#parentName# AND MBER_ID=#mberId#
+	</select>
+		
+	<select id="mberManageDAO.isExistUserId"   resultClass="java.lang.Integer"  cacheModel="RFCMberManageCache">
+		 <![CDATA[
+              SELECT 
+            		COUNT(1) usedCnt
+                FROM 
+                (
+	                SELECT
+	                    EMPLYR_ID             userId
+	                FROM    RFC_COMTNMANAGER
+	                UNION ALL
+	                SELECT
+	                    MBER_ID               userId
+	                FROM    RFC_COMTNMEMBER
+                ) A
+              WHERE userId = #checkId#
+          ]]>
+	</select>
+	
+	<insert id="mberManageDAO.insertUser" parameterClass="MberManageVO">
+				INSERT INTO 
+				  RFC_COMTNMEMBER  (
+					UNIQ_ID,
+					MBER_ID,
+					MBER_NM,
+					IHID_NUM,
+					PASSWORD,
+					PASSWORD_CNSR,
+					PASSWORD_HINT,
+					ZIP,
+					ADRES,
+					DETAIL_ADRES,
+					AREA_NO,
+					MIDDLETEL_NO,
+					ENDTEL_NO,
+					MOBLFRIST_NO,
+					MOBLMIDDLE_NO,
+					MOBLEND_NO,
+					MBER_FX_NUM,
+					EMAIL_ADRES,
+					EMAIL_YN,
+					HOMEPAGE,
+					SEX_DSTN_CODE,
+					BRTH_GUBUN,
+					BRTH,
+					SITE_GROUP_ID,
+					GROUP_ID,
+					MBER_STTUS_CODE,
+					USER_TY,
+					HAK_YEAR,
+					HAK_YEON,
+					BAN_NO,
+					SUB_DN,
+					PHOTO_IMAGE,
+					SBSCRB_DE,
+					PARENT_NAME,
+					PARENT_TEL,
+					USER_ETC1,
+					USER_ETC2,
+					USER_ETC3,
+					USER_ETC4,
+					USER_ETC5,
+					USER_ETC6,
+					USER_ETC7,
+					USER_ETC8,
+					USER_ETC9,
+					USER_ETC10,
+					USER_LEVEL,
+					USER_AUTH_CODE
+					) VALUES (
+					 #uniqId# ,
+					 #mberId#, 
+					#mberNm# , 
+					#ihidnum#, 
+					#password# , 
+					#passwordCnsr#,
+					#passwordHint# ,
+					#zip# ,
+					#adres#,
+					ECL_ENCRYPT(#detailAdres#), 
+					ECL_ENCRYPT(#areaNo#), 
+					ECL_ENCRYPT(#middleTelno#), 
+					ECL_ENCRYPT(#endTelno#),
+					ECL_ENCRYPT(#moblfristNo#) ,
+					ECL_ENCRYPT(#moblmiddleNo#) , 
+					ECL_ENCRYPT(#moblendNo#),
+					#mberFxnum#,
+					ECL_ENCRYPT(#emailAdres#) , 
+					#emailYn#,
+					#homepage# , 
+					#sexdstnCode#, 
+					#brthGubun#, 
+					#brth#,
+					#sgroupId# , 
+					#groupId#,
+					#mberSttusCode# ,
+					#userTy#,
+					#hakYear#,
+					#hakYeon#,
+					#banNo#,
+					#subDn#,
+					#photoImage#, 
+					#sbscrbDe#, 
+					#parentName#,
+					#parentTel#,
+					#userEtc1#, 
+					#userEtc2#,
+					#userEtc3# ,
+					#userEtc4# ,
+					#userEtc5# ,
+					#userEtc6# , 
+					#userEtc7#, 
+					#userEtc8#, 
+					#userEtc9#, 
+					#userEtc10#, 
+					#userLevel#,
+					#userAuthCode#
+				)
+	</insert>
+	
+	<update id="mberManageDAO.updateUser" parameterClass="MberManageVO">
+				UPDATE
+					 RFC_COMTNMEMBER
+			SET 
+					MBER_NM=#mberNm#,
+					IHID_NUM=#ihidnum#,
+					PASSWORD=#password#,
+					PASSWORD_CNSR=#passwordCnsr#,
+					PASSWORD_HINT=#passwordHint#,
+					ZIP=#zip#,
+					ADRES=#adres#,
+					DETAIL_ADRES=ECL_ENCRYPT(#detailAdres#),
+					AREA_NO=ECL_ENCRYPT(#areaNo#),
+					MIDDLETEL_NO=ECL_ENCRYPT(#middleTelno#),
+					ENDTEL_NO=ECL_ENCRYPT(#endTelno#),
+					MOBLFRIST_NO=ECL_ENCRYPT(#moblfristNo#),
+					MOBLMIDDLE_NO=ECL_ENCRYPT(#moblmiddleNo#),
+					MOBLEND_NO=ECL_ENCRYPT(#moblendNo#),
+					MBER_FX_NUM=#mberFxnum#,
+					EMAIL_ADRES=ECL_ENCRYPT(#emailAdres#),
+					EMAIL_YN=#emailYn#,
+					HOMEPAGE=#homepage#,
+					SEX_DSTN_CODE=#sexdstnCode#,
+					BRTH_GUBUN=#brthGubun#,
+					BRTH=#brth#,
+					SITE_GROUP_ID=#sgroupId#,
+					GROUP_ID=#groupId#,
+					MBER_STTUS_CODE=#mberSttusCode#,
+					USER_TY=#userTy#,
+					HAK_YEAR=#hakYear#,
+					HAK_YEON=#hakYeon#,
+					BAN_NO=#banNo#,
+					SUB_DN=#subDn#,
+					PHOTO_IMAGE=#photoImage#,
+					SBSCRB_DE=#sbscrbDe#,
+					PARENT_NAME=#parentName#,
+					PARENT_TEL=#parentTel#,
+					USER_ETC1=#userEtc1#,
+					USER_ETC2=#userEtc2#,
+					USER_ETC3=#userEtc3#,
+					USER_ETC4=#userEtc4#,
+					USER_ETC5=#userEtc5#,
+					USER_ETC6=#userEtc6#,
+					USER_ETC7=#userEtc7#,
+					USER_ETC8=#userEtc8#,
+					USER_ETC9=#userEtc9#,
+					USER_ETC10=#userEtc10#,
+					USER_LEVEL=#userLevel#,
+					MODIFY_DATE=now(),
+					USER_AUTH_CODE =  #userAuthCode#
+				WHERE 
+					 UNIQ_ID=#uniqId#
+	</update>
+	<update id="mberManageDAO.withdrawUser" parameterClass="String">
+				UPDATE
+					 RFC_COMTNMEMBER
+			SET 
+					IHID_NUM='',
+					PASSWORD='',
+					PASSWORD_CNSR='',
+					PASSWORD_HINT='',
+					ZIP='',
+					ADRES='',
+					DETAIL_ADRES='',
+					AREA_NO='',
+					MIDDLETEL_NO='',
+					ENDTEL_NO='',
+					MOBLFRIST_NO='',
+					MOBLMIDDLE_NO='',
+					MOBLEND_NO='',
+					MBER_FX_NUM='',
+					HOMEPAGE='',
+					MBER_STTUS_CODE='D',
+					PARENT_NAME='',
+					PARENT_TEL='',
+					MODIFY_DATE=now()
+				WHERE 
+					 UNIQ_ID=#uniqId#
+	</update>
+	<select id="mberManageDAO.getUserInfoCerti"    resultClass="MberManageVO"  cacheModel="RFCMberManageCache">
+				select 
+						UNIQ_ID uniqId ,
+						MBER_ID mberId,
+						MBER_NM mberNm,
+						IHID_NUM ihidnum,
+						PASSWORD password,
+						PASSWORD_CNSR passwordCnsr,
+						PASSWORD_HINT passwordHint,
+						ZIP zip,
+						ADRES  adres,
+						ECL_DECRYPT(DETAIL_ADRES) detailAdres,
+						ECL_DECRYPT(AREA_NO) areaNo,
+						ECL_DECRYPT(MIDDLETEL_NO) middleTelno,
+						ECL_DECRYPT(ENDTEL_NO) endTelno,
+						ECL_DECRYPT(MOBLFRIST_NO) moblfristNo,
+						ECL_DECRYPT(MOBLMIDDLE_NO) moblmiddleNo,
+						ECL_DECRYPT(MOBLEND_NO) moblendNo,
+						ECL_DECRYPT(EMAIL_ADRES) emailAdres,
+						MBER_FX_NUM mberFxnum,						
+						EMAIL_YN emailYn,
+						HOMEPAGE homepage,
+						SEX_DSTN_CODE sexdstnCode,
+						BRTH_GUBUN brthGubun,
+						BRTH brth,
+						SITE_GROUP_ID sgroupId,
+						GROUP_ID groupId,
+						MBER_STTUS_CODE mberSttusCode,
+						USER_TY userTy,
+		          		HAK_YEAR hakYear,
+		          		HAK_YEON hakYeon,
+		          		BAN_NO banNo,
+		          		SUB_DN subDn,
+						PHOTO_IMAGE photoImage,
+						SBSCRB_DE sbscrbDe,
+						MODIFY_DATE modifyDate,
+						PARENT_NAME parentName ,
+						PARENT_TEL  parentTel,
+						USER_ETC1 userEtc1,
+						USER_ETC2 userEtc2,
+						USER_ETC3 userEtc3,
+						USER_ETC4 userEtc4,
+						USER_ETC5 userEtc5,
+						USER_ETC6 userEtc6,
+						USER_ETC7 userEtc7,
+						USER_ETC8 userEtc8,
+						USER_ETC9 userEtc9,
+						USER_ETC10 userEtc10,
+						USER_LEVEL userLevel,
+						USER_AUTH_CODE userAuthCode
+					from 
+						RFC_COMTNMEMBER
+					where
+						MBER_NM=#mberNm#
+						AND EMAIL_ADRES=ECL_ENCRYPT(#emailAdres#) 
+						<isNotEmpty prepend="AND"  property="moblfristNo" >
+							MOBLFRIST_NO = ECL_ENCRYPT(#moblfristNo#)
+						</isNotEmpty>
+						<isNotEmpty prepend="AND"  property="moblmiddleNo" >
+							MOBLMIDDLE_NO = ECL_ENCRYPT(#moblmiddleNo#)
+						</isNotEmpty>
+						<isNotEmpty prepend="AND"  property="moblendNo" >
+							MOBLEND_NO = ECL_ENCRYPT(#moblendNo#)
+						</isNotEmpty>
+	</select>
+    
+    <delete id="mberManageDAO.deleteUserId" >
+    		DELETE FROM
+    			 RFC_COMTNMEMBER
+		  WHERE 
+			    UNIQ_ID=#uniqId#
+    </delete>
+    
+    <delete id="mberManageDAO.deleteUserIdForSitetGroup" >
+    		DELETE FROM
+    			 RFC_COMTNMEMBER
+		  WHERE 
+			    SITE_GROUP_ID=#sgroupId#
+    </delete>
+    
+    <update id="mberManageDAO.updateUserSttus" parameterClass="MberManageVO">
+			UPDATE
+					 RFC_COMTNMEMBER
+			SET 
+					MBER_STTUS_CODE=#mberSttusCode#
+				WHERE 
+					 UNIQ_ID=#uniqId#
+				AND
+					(MBER_STTUS_CODE = 'P' or MBER_STTUS_CODE = 'C')
+					 
+	</update>
+	
+	<select id="mberManageDAO.isExistEmailAdres"   resultClass="java.lang.Integer">
+		 
+              SELECT 
+            		COUNT(1) usedCnt
+                FROM 
+                (
+	                SELECT
+	                    EMAIL_ADRES             emailAdres,
+	                    UNIQ_ID             uniqId
+	                FROM    RFC_COMTNMANAGER
+	                UNION ALL
+	                SELECT
+	                    EMAIL_ADRES               emailAdres,
+	                    UNIQ_ID               uniqId
+	                FROM    RFC_COMTNMEMBER
+                ) A
+              WHERE emailAdres = #checkId#
+              
+              <isNotEmpty prepend="AND" property="checkId2" >
+			        uniqId != #checkId2#
+			  </isNotEmpty>
+			            
+         
+	</select>
+	
+</sqlMap>

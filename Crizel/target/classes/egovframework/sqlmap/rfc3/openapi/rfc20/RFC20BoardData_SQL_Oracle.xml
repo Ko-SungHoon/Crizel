@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFC20BoardDataManage">
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	
+    <typeAlias  alias="boardVO"	 							 type = "egovframework.rfc3.openapi20.vo.BoardVO"/>
+    <typeAlias  alias="boardSearchVO"			 		 type = "egovframework.rfc3.openapi20.vo.BoardSearchVO"/>
+    <typeAlias  alias="boardDataVO"		        		 type = "egovframework.rfc3.openapi20.vo.BoardDataVO"/>
+    <typeAlias  alias="boardExtensionDataVO"	 	 type = "egovframework.rfc3.openapi20.vo.BoardExtensionDataVO"/>
+    <typeAlias  alias="boardExtensionVO"	 			 type = "egovframework.rfc3.openapi20.vo.BoardExtensionVO"/>
+    <typeAlias  alias="boardFileVO"							 type = "egovframework.rfc3.openapi20.vo.BoardFileVO"/>
+    
+    <select id="RFC2boardDAO.getBoardInfo" parameterClass="boardVO"  resultClass="boardVO">
+			       select
+					       BOARD_SID boardSid,
+					       BOARD_ID boardId,
+					       BOARD_Title  boardTitle,
+					       BOARD_Row  boardRow,
+					       BOARD_Cell  boardCell,
+					       BOARD_PAGE_BLOCK  boardPageBlock,
+					       LIST_LEVEL  listLevel,
+					       VIEW_LEVEL  viewLevel,
+					       WRITE_LEVEL writeLevel,
+					       REPLY_LEVEL replyLevel,
+					       UPDATE_LEVEL  updateLevel,
+					       DELETE_LEVEL deleteLevel,
+					       COMMENT_LEVEL commentLevel,
+					       GROUP_CD groupCd,
+					       CASE
+					       		WHEN	LIST_WRITER_LEVEL_FL = 'N'
+					       		THEN 0
+					       		WHEN LIST_WRITER_LEVEL_FL = 'Y'
+					       		THEN 1
+					       		ELSE 0
+					       END AS listWriterLevel,
+					       
+					       CASE
+					       		WHEN	RSS_IS_USE = 'N'
+					       		THEN 0
+					       		WHEN RSS_IS_USE = 'Y'
+					       		THEN 1
+					       		ELSE 0
+					       END AS rssIsUse,		
+					       			       
+					       CASE
+					       		WHEN	LIST_REPLY_FL = 'N'
+					       		THEN 0
+					       		WHEN LIST_REPLY_FL = 'Y'
+					       		THEN 1
+					       		ELSE 0
+					       END AS listReplyFl
+						  from 
+						      RFC_BOARD_TB  
+						 WHERE  
+							    BOARD_ID  = #boardId#
+							
+	</select>
+    
+    <select id="RFC2boardDAO.selectBoardDataListTotal"  parameterClass="boardSearchVO" resultClass="int">
+						SELECT
+							count(dataSid) totcnt
+						from (
+								SELECT
+									distinct(A.DATA_SID) dataSid
+								FROM
+									RFC_BOARD_DATA_TB  A 
+								   
+								WHERE 
+							 	   A.DATA_STATUS='N'  AND  
+								   A.DELETE_STATUS = 'N'  AND 
+								   A.DATA_SECRET_FL = 'N'  AND 
+								   A.DATA_NOTICE_FL = 'N'		AND
+								   A.BOARD_SID = #boardSid#  
+				
+								 <isNotEmpty prepend="AND" property="keyword" >
+								   (
+										 A.DATA_TITLE like '%$keyword$%' or 
+									     A.DATA_CONTENT like '%$keyword$%' or
+									     A.TMP_FIELD1  like '%$keyword$%' or
+									     A.TMP_FIELD2  like '%$keyword$%' or
+									     A.TMP_FIELD3  like '%$keyword$%' or
+									     A.TMP_FIELD4  like '%$keyword$%'  or
+									     A.TMP_FIELD5  like '%$keyword$%' or
+									     A.USER_NICK  like '%$keyword$%' or
+									     A.USER_ICON  like '%$keyword$%' or
+									     A.USER_EMAIL  like '%$keyword$%' or
+									     B.EXTENSION_VALUE  like '%$keyword$%' 
+									)
+								</isNotEmpty>
+								<isNotEmpty prepend="AND" property="categoryCode1" >
+										A.CATEGORY_CODE1  like '%$categoryCode1$%'
+								</isNotEmpty>						
+								<isNotEmpty prepend="AND" property="categoryCode2" >
+										A.CATEGORY_CODE2  like '%$categoryCode2$%'
+								</isNotEmpty>
+								<isNotEmpty prepend="AND" property="categoryCode3" >
+										A.CATEGORY_CODE3  like '%$categoryCode3$%'
+								</isNotEmpty>
+								<isEqual prepend="AND" property="isCalxy" compareValue="true" >
+										length(B.EXTENSION_VALUE) > 0 
+										AND   B.EXTENSION_KEY=#keyX#
+										AND   cast(B.EXTENSION_VALUE as decimal(10,7)) &gt;  #startLati#
+										AND   cast(B.EXTENSION_VALUE as decimal(10,7)) &lt;   #endLati#
+										AND   A.DATA_SID in
+						               (
+						                SELECT DATA_SID 
+						                FROM RFC_BOARD_EXTENSION_DATA_TB 
+						                WHERE BOARD_SID = #boardSid#   
+						                     AND length(EXTENSION_VALUE) > 0 
+						                     AND  EXTENSION_KEY=#keyY#
+						                     AND  cast(EXTENSION_VALUE as decimal(10,7)) &gt;  #startLongi#
+											AND   cast(EXTENSION_VALUE as decimal(10,7)) &lt;   #endLongi#
+						               )  
+									
+								</isEqual>
+							)  A
+       				     where 1=1
+	</select>
+	<select id="RFC2boardDAO.selectBoardDataList"  parameterClass="boardSearchVO" resultClass="boardDataVO" >
+			SELECT * 
+			FROM
+				(
+						SELECT
+							ROWNUM RNUM, A.*
+						FROM
+						(
+						SELECT
+							distinct(A.DATA_SID) dataSid,
+							A.BOARD_SID boardSid,
+							A.DATA_IDX dataIdx,
+							A.DATA_REF dataRef,
+							A.DATA_DEP dataDep,
+							A.DATA_TITLE dataTitle,
+							'' dataContent,
+							A.USER_ID userId,
+							A.USER_PW userPw,
+							A.USER_NICK userFiled1,
+							A.USER_ICON userFiled2,							
+							A.USER_EMAIL userFiled3,
+							A.USER_HOMEPAGE userHomepage,
+							
+							CASE
+					       		WHEN	A.DATA_NOTICE_FL = 'N'
+					       		THEN 0
+					       		WHEN A.DATA_NOTICE_FL = 'Y'
+					       		THEN 1
+					       		ELSE 0
+					       END AS dataNotice,
+					       
+					       CASE
+					       		WHEN	A.DATA_SECRET_FL = 'N'
+					       		THEN 0
+					       		WHEN A.DATA_SECRET_FL = 'Y'
+					       		THEN 1
+					       		ELSE 0
+					       END AS dataSecret,
+
+							A.ANSWER_STATUS answerStatus,
+							A.DATA_STATUS dataStatus,
+							A.DELETE_STATUS deleteStatus,
+							A.TAG_NAME tagName,
+							A.TAG_ID tagId,
+							A.VIEW_COUNT viewCount,
+							'' filterContent,
+							A.START_DT startDate,
+							A.END_DT endDate,
+							A.CATEGORY_CODE1 categoryCode1,
+							A.CATEGORY_CODE2 categoryCode2,
+							A.CATEGORY_CODE3 categoryCode3,
+							A.PCODE pcode,
+							A.STAR_POINT starPoint,
+							A.TMP_FIELD1 tmpField1,
+						    A.TMP_FIELD2 tmpField2,
+						    A.TMP_FIELD3 tmpField3,
+						    A.TMP_FIELD4 tmpField4,
+						    A.TMP_FIELD5 tmpField5, 		
+							A.MODIFY_DT modify_dt,
+							A.REGISTER_DT register_dt	
+							<isEqual  property="isCalxy" compareValue="true" >,
+							GetDistance(#posy#,#posx#,
+								       (SELECT EXTENSION_VALUE 
+								         FROM RFC_BOARD_EXTENSION_DATA_TB 
+								        WHERE DATA_SID=A.DATA_SID 
+								              AND EXTENSION_KEY=#keyY#   limit 1
+								       ),
+								       (SELECT EXTENSION_VALUE 
+								         FROM RFC_BOARD_EXTENSION_DATA_TB 
+								        WHERE DATA_SID=A.DATA_SID 
+								              AND EXTENSION_KEY=#keyX#  limit 1
+								       )
+						          )  as distance		
+						          
+						        </isEqual>												  
+						FROM
+							RFC_BOARD_DATA_TB  A 
+						   
+						WHERE 
+					 	   A.DATA_STATUS='N'  AND  
+						   A.DELETE_STATUS = 'N'  AND 
+						   A.DATA_SECRET_FL = 'N'  AND 
+						   A.DATA_NOTICE_FL = 'N'		AND
+						   A.BOARD_SID = #boardSid#  
+						<isNotEmpty prepend="AND" property="keyword" >
+								 (
+								 A.DATA_TITLE like '%$keyword$%' or 
+							     A.DATA_CONTENT like '%$keyword$%' or
+							     A.TMP_FIELD1  like '%$keyword$%' or
+							     A.TMP_FIELD2  like '%$keyword$%' or
+							     A.TMP_FIELD3  like '%$keyword$%' or
+							     A.TMP_FIELD4  like '%$keyword$%'  or
+							     A.TMP_FIELD5  like '%$keyword$%' or
+							     A.USER_NICK  like '%$keyword$%' or
+								 A.USER_ICON  like '%$keyword$%' or
+								 A.USER_EMAIL  like '%$keyword$%' or
+							     B.EXTENSION_VALUE  like '%$keyword$%' 
+							    )
+						</isNotEmpty>
+						<isNotEmpty prepend="AND" property="categoryCode1" >
+								A.CATEGORY_CODE1  like '%$categoryCode1$%'
+						</isNotEmpty>						
+						<isNotEmpty prepend="AND" property="categoryCode2" >
+								A.CATEGORY_CODE2  like '%$categoryCode2$%'
+						</isNotEmpty>
+						<isNotEmpty prepend="AND" property="categoryCode3" >
+								A.CATEGORY_CODE3  like '%$categoryCode3$%'
+						</isNotEmpty>
+						<isEqual prepend="AND" property="isCalxy" compareValue="true" >
+										length(B.EXTENSION_VALUE) > 0 
+										AND   B.EXTENSION_KEY=#keyX#
+										AND   cast(B.EXTENSION_VALUE as decimal(10,7)) &gt;  #startLati#
+										AND   cast(B.EXTENSION_VALUE as decimal(10,7)) &lt;   #endLati#
+										AND   A.DATA_SID in
+						               (
+						                SELECT DATA_SID 
+						                FROM RFC_BOARD_EXTENSION_DATA_TB 
+						                WHERE BOARD_SID = #boardSid#   
+						                     AND length(EXTENSION_VALUE) > 0 
+						                     AND  EXTENSION_KEY=#keyY#
+						                     AND  cast(EXTENSION_VALUE as decimal(10,7)) &gt;  #startLongi#
+											AND   cast(EXTENSION_VALUE as decimal(10,7)) &lt;   #endLongi#
+						               )  
+									
+						</isEqual>
+						<isNotEmpty  property="orderBy" >
+							  ORDER BY  $orderBy$
+						</isNotEmpty>
+						<isEmpty  property="orderBy" >
+							ORDER BY dataIdx DESC, dataRef DESC, dataDep ASC
+						</isEmpty>
+						) A
+					
+						
+				)
+				WHERE RNUM  &gt; #pageIndex#  
+  				AND  RNUM &lt;= #pageIndex# + #pageSize#
+	</select>
+	<select id="RFC2boardDAO.selectBoardNoticeDataList"  parameterClass="boardSearchVO" resultClass="boardDataVO" >
+						SELECT
+							dataSid,
+							boardSid,
+							dataIdx,
+							dataRef,
+							dataDep,
+							dataTitle,
+							dataContent,
+							userId,
+							userPw,
+							userFiled1,
+							userFiled2,							
+							userFiled3,
+							dataNotice,
+							dataSecret,
+							answerStatus,
+							dataStatus,
+							deleteStatus,
+							tagName,
+							tagId,
+							viewCount,
+							filterContent,
+							startDate,
+							endDate,
+							categoryCode1,
+							categoryCode2,
+							categoryCode3,
+							pcode,
+							starPoint,
+							tmpField1,
+							tmpField2,
+							tmpField3,
+							tmpField4,
+							tmpField5,
+							modify_dt,
+							register_dt	
+						FROM
+						(
+						SELECT
+							distinct(A.DATA_SID) dataSid,
+							A.BOARD_SID boardSid,
+							A.DATA_IDX dataIdx,
+							A.DATA_REF dataRef,
+							A.DATA_DEP dataDep,
+							A.DATA_TITLE dataTitle,
+							A.DATA_CONTENT dataContent,
+							A.USER_ID userId,
+							A.USER_PW userPw,
+							A.USER_NICK userFiled1,
+							A.USER_ICON userFiled2,							
+							A.USER_EMAIL userFiled3,
+							A.USER_HOMEPAGE userHomepage,
+							CASE
+					       		WHEN	A.DATA_NOTICE_FL = 'N'
+					       		THEN 0
+					       		WHEN A.DATA_NOTICE_FL = 'Y'
+					       		THEN 1
+					       		ELSE 0
+					       END AS dataNotice,
+					       
+					       CASE
+					       		WHEN	A.DATA_SECRET_FL = 'N'
+					       		THEN 0
+					       		WHEN A.DATA_SECRET_FL = 'Y'
+					       		THEN 1
+					       		ELSE 0
+					       END AS dataSecret,
+							A.ANSWER_STATUS answerStatus,
+							A.DATA_STATUS dataStatus,
+							A.DELETE_STATUS deleteStatus,
+							A.TAG_NAME tagName,
+							A.TAG_ID tagId,
+							A.VIEW_COUNT viewCount,
+							A.FILTER_CONTENT filterContent,
+							A.START_DT startDate,
+							A.END_DT endDate,
+							A.CATEGORY_CODE1 categoryCode1,
+							A.CATEGORY_CODE2 categoryCode2,
+							A.CATEGORY_CODE3 categoryCode3,
+							A.PCODE pcode,
+							A.STAR_POINT starPoint,
+							A.TMP_FIELD1 tmpField1,
+						    A.TMP_FIELD2 tmpField2,
+						    A.TMP_FIELD3 tmpField3,
+						    A.TMP_FIELD4 tmpField4,
+						    A.TMP_FIELD5 tmpField5, 		
+							A.MODIFY_DT modify_dt,
+							A.REGISTER_DT register_dt																		  
+						FROM
+							RFC_BOARD_DATA_TB  A 
+						WHERE  
+							A.BOARD_SID = #boardSid# AND 
+							A.DELETE_STATUS = 'N' AND
+						    A.DATA_STATUS='N'  AND  
+							A.DATA_NOTICE_FL = 'Y'  AND
+							A.DATA_SECRET_FL = 'N' AND
+                            ( A.DATA_STATUS != 'F' OR A.DATA_STATUS IS NULL OR REPLACE(A.DATA_STATUS,' ','') = '' ) AND 
+									(
+										( sysdate >= A.START_DT AND A.END_DT >= sysdate) OR 
+										( A.START_DT IS NULL AND A.END_DT IS NULL) OR
+										( sysdate >= A.START_DT AND A.END_DT IS NULL) OR 
+										( A.START_DT IS NULL AND A.END_DT >= sysdate)	
+									)
+						)  A
+						ORDER BY dataIdx DESC, dataRef DESC, dataDep ASC
+	</select>
+	
+	<select id="RFC2boardDAO.getBoardData" parameterClass="boardSearchVO"  resultClass="boardDataVO" >
+			       	SELECT			       			
+			       			DATA_SID dataSid,
+							BOARD_SID boardSid,
+							DATA_IDX dataIdx,
+							DATA_REF dataRef,
+							DATA_DEP dataDep,
+							DATA_TITLE dataTitle,
+							DATA_CONTENT dataContent,
+							USER_ID userId,
+							USER_PW userPw,
+							USER_NICK userFiled1,
+							USER_ICON userFiled2,
+							USER_EMAIL userFiled3,
+							USER_HOMEPAGE userHomepage,
+							CASE
+					       		WHEN	DATA_NOTICE_FL = 'N'
+					       		THEN 0
+					       		WHEN DATA_NOTICE_FL = 'Y'
+					       		THEN 1
+					       		ELSE 0
+					       END AS dataNotice,
+					       
+					       CASE
+					       		WHEN	DATA_SECRET_FL = 'N'
+					       		THEN 0
+					       		WHEN DATA_SECRET_FL = 'Y'
+					       		THEN 1
+					       		ELSE 0
+					       END AS dataSecret,
+							ANSWER_STATUS answerStatus,
+							DATA_STATUS dataStatus,
+							DELETE_STATUS deleteStatus,
+							TAG_NAME tagName,
+							TAG_ID tagId,
+							VIEW_COUNT viewCount,
+							FILTER_CONTENT filterContent,
+							START_DT startDate,
+							END_DT endDate,
+							CATEGORY_CODE1 categoryCode1,
+							CATEGORY_CODE2 categoryCode2,
+							CATEGORY_CODE3 categoryCode3,
+							PCODE pcode,
+							STAR_POINT starPoint,
+							TMP_FIELD1 tmpField1,
+						    TMP_FIELD2 tmpField2,
+						    TMP_FIELD3 tmpField3,
+						    TMP_FIELD4 tmpField4,
+						    TMP_FIELD5 tmpField5,
+							MODIFY_DT modify_dt,							
+							REGISTER_DT register_dt
+						FROM
+						    RFC_BOARD_DATA_TB						
+						WHERE  
+						    DATA_SID = #dataSid# AND
+						    DATA_STATUS='N'  AND  
+						    DELETE_STATUS = 'N'  AND 
+						    DATA_SECRET_FL = 'N' 
+	</select>
+	
+	<select id="RFC2boardDAO.selectBoardExtensionDataList"  parameterClass="boardSearchVO" resultClass="boardExtensionDataVO" >
+						SELECT
+							DATA_SID dataSid,
+							BOARD_SID boardSid,
+							EXTENSION_KEY extensionKey,
+							EXTENSION_VALUE extensionValue																  
+						FROM
+						 	  RFC_BOARD_EXTENSION_DATA_TB
+						WHERE  BOARD_SID = #boardSid# AND DATA_SID = #dataSid#
+	</select>
+
+	<select id="RFC2boardDAO.selectBoardFileList"  parameterClass="boardSearchVO" resultClass="boardFileVO">
+						SELECT
+							FILE_SID fileSid,
+							DATA_SID dataSid,
+							BOARD_SID boardSid,
+							FILE_NAME fileName,
+							FILE_MASK fileMask,
+							FILE_MEMO fileMemo,
+							FILE_SIZE fileSize,
+							FILE_STATUS fileStatus,
+							FILE_DEL_STATUS fileDelStatus,
+							DOWNLOAD_CNT downloadCnt,
+							REGISTER_DT register_dt
+						FROM 
+							RFC_BOARD_FILE_TB
+						WHERE
+							BOARD_SID = #boardSid#  AND 
+							DATA_SID = #dataSid# 	AND  
+							FILE_DEL_STATUS = 'N'  AND 
+							FILE_STATUS='N'
+	</select>	
+	<select id="RFC2boardDAO.selectFieldValidator"  parameterClass="boardExtensionVO"  resultClass="boardExtensionVO">
+						SELECT
+							BOARD_ID boardId,
+							EXTENSION_KEY extensionKey
+						FROM
+						 	  RFC_BOARD_EXTENSION_TB
+						WHERE  BOARD_ID = #boardId# AND EXTENSION_KEY = #extensionKey# 
+	</select>
+</sqlMap>

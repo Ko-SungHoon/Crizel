@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.common.vo">
+	<class name="CodeSequenceCMS"	table="RFC_COMTECOPSEQ_CMS">
+	  <cache usage="read-write"/>
+	  <comment>CMS고유번호 생성테이블</comment>
+		<id name="tableName" type="string"  length="30" >
+			<column name="TABLE_NAME">
+				<comment>자동증가 고유 키 정보</comment>
+			</column>
+		</id>    
+		<property name="nextId"  type="big_decimal" >
+			<column name="NEXT_ID"  length="30" >
+				<comment>다음 자동 증가 값</comment>
+			</column>
+		</property>
+	</class>
+</hibernate-mapping>

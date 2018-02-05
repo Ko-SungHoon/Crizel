@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE form-validation PUBLIC 
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1//EN" 
+    "http://jakarta.apache.org/commons/dtds/validator_1_1.dtd">
+
+<form-validation>
+    <formset>
+    	<form name="perFormInfoVO">
+    	    <field property="playType" depends="required">
+        		<arg0 key="공연종류" resource="false"/>
+			</field>
+			<field property="chasun" depends="required">
+        		<arg0 key="차순" resource="false"/>
+			</field>	
+			<field property="applysDate" depends="required">
+        		<arg0 key="신청일시" resource="false"/>
+			</field>
+			<field property="applysHour" depends="required">
+        		<arg0 key="신청시간" resource="false"/>
+			</field>
+			<field property="playsDate" depends="required">
+        		<arg0 key="공연일시" resource="false"/>
+			</field>		
+			<field property="playNm" depends="required">
+        		<arg0 key="공연명" resource="false"/>
+			</field>
+			<field property="playCompany" depends="required">
+        		<arg0 key="공연업체" resource="false"/>
+			</field>
+			<field property="playPalce" depends="required">
+        		<arg0 key="공연장소" resource="false"/>
+			</field>
+			<field property="playTarget" depends="required">
+        		<arg0 key="대상" resource="false"/>
+			</field>
+			<field property="applyCnt" depends="required,integer">
+        		<arg0 key="정원" resource="false"/>
+			</field>
+			<field property="isAutoStatus" depends="required">
+        		<arg0 key="자동변경 여부" resource="false"/>
+			</field>
+			<field property="isUse" depends="required">
+        		<arg0 key="사용여부" resource="false"/>
+			</field>
+		</form>
+	
+	</formset>
+</form-validation>
+	

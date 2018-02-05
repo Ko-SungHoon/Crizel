@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<b:beans  
+    xmlns:sec="http://www.springframework.org/schema/security"
+    xmlns:b="http://www.springframework.org/schema/beans"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+                        http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security-3.0.3.xsd
+                        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.0.xsd">
+	                                          
+      <b:bean id="springSecurityFilterChain" class="org.springframework.security.web.FilterChainProxy">
+    	<sec:filter-chain-map path-type="regex">
+    		  <sec:filter-chain pattern="\A/images/.*\Z" filters="none" />
+    		  <sec:filter-chain pattern="\A/common/.*\Z"  filters="none" />
+    		  <sec:filter-chain pattern="\A/css/.*\Z"  filters="none" />
+    		  <sec:filter-chain pattern="\A/jquery/.*\Z"  filters="none" />
+    		  <sec:filter-chain pattern="\A/js/.*\Z"  filters="none" />
+    		  <sec:filter-chain pattern="\A/dwr/.*\Z"  filters="none" />
+    		  <!-- <sec:filter-chain pattern="\A/iam/login/.*\Z"  filters="none" /> -->
+    		  <sec:filter-chain pattern="\A/iam/cmm/.*\Z" filters="none" />
+    		  <sec:filter-chain pattern="\A/webService/.*\Z" filters="none" />
+    		  
+    		  <!--  not permit sko extension -->
+   		        
+   		      <sec:filter-chain pattern="\A/index.sko?.*\Z"  filters="extLimitFilter" />
+	          <sec:filter-chain pattern="\A/board/.*.sko?.*\Z"  filters="extLimitFilter" />
+	          
+	          <sec:filter-chain pattern="\A/survey/.*.sko?.*\Z"  filters="extLimitFilter" />
+	          <sec:filter-chain pattern="\A/event/.*.sko?.*\Z"  filters="extLimitFilter" />
+	          <sec:filter-chain pattern="\A/jeonju/.*.sko?.*\Z"  filters="extLimitFilter" />
+	          <sec:filter-chain pattern="\A/user/.*.sko?.*\Z"  filters="extLimitFilter" />
+	          <sec:filter-chain pattern="\A/qrcode/.*.sko?.*\Z"  filters="extLimitFilter" />
+	          <sec:filter-chain pattern="\A/mall/.*.sko?.*\Z"  filters="extLimitFilter" />
+	          
+		      <sec:filter-chain pattern="\A/.*\Z" filters="
+		        httpSessionContextIntegrationFilter,
+		        rfc3LogOutFilter,
+		        rfc3AuthenticationFilter,
+		        rememberMeAuthenticationFilter,
+		        securityContextHolderAwareRequestFilter,
+		        anonymousProcessingFilter,
+		        exceptionTranslationFilter,
+		        sessionManagementFilter,
+		         concurrentSessionFilter,
+		        filterSecurityInterceptor
+		          "/>
+		      
+        </sec:filter-chain-map>
+  </b:bean> 
+  
+    <b:bean id="securedObjectService"
+        class="egovframework.rfc3.iam.security.securedobject.impl.SecuredObjectServiceImpl">
+        <b:property name="securedObjectDAO" ref="securedObjectDAO"/>
+    </b:bean>
+
+    <b:bean id="securedObjectDAO" class="egovframework.rfc3.iam.security.securedobject.impl.SecuredObjectDAO" >
+        <b:property name="dataSource" ref="dataSource"/>
+        <b:property name="sessionFactory" ref="sessionFactory"/>        
+    </b:bean>
+    
+     <b:bean id="roleHierarchy" class="org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl" >
+        <b:property name="hierarchy" ref="hierarchyStrings"/>
+    </b:bean>
+     <b:bean id="hierarchyStrings"  class="egovframework.rfc3.iam.security.userdetails.hierarchicalroles.HierarchyStringsFactoryBean" init-method="init">
+        <b:property name="securedObjectService" ref="securedObjectService"/>
+    </b:bean>
+   
+    <b:bean id="userDetailsServiceWrapper"  class="org.springframework.security.access.hierarchicalroles.UserDetailsServiceWrapper" >
+        <b:property name="roleHierarchy" ref="roleHierarchy"/>
+        <b:property name="userDetailsService" ref="jdbcUserService"/>
+    </b:bean>
+    
+   
+   <b:bean id="filterSecurityInterceptor" class="org.springframework.security.web.access.intercept.FilterSecurityInterceptor">
+   		<b:property name="observeOncePerRequest" value="false" />
+        <b:property name="authenticationManager" ref="authenticationManager" />
+        <b:property name="accessDecisionManager" ref="accessDecisionManager" />
+        <b:property name="securityMetadataSource" ref="databaseObjectDefinitionSource" />
+    </b:bean>
+	<b:bean id="databaseObjectDefinitionSource"  class="org.springframework.security.web.access.intercept.EgovReloadableDefaultFilterInvocationDefinitionSource">
+        <b:constructor-arg ref="regexUrlPathMatcher" />
+        <b:constructor-arg ref="requestMap" />      
+        <b:property name="securedObjectService" ref="securedObjectService"/>
+    </b:bean>
+     <b:bean id="accessDecisionManager"  class="org.springframework.security.access.vote.AffirmativeBased">
+        <b:property name="allowIfAllAbstainDecisions" value="false" />
+        <b:property name="decisionVoters">
+            <b:list>
+                <b:bean
+                    class="org.springframework.security.access.vote.RoleVoter">
+                    <b:property name="rolePrefix" value="" />
+                </b:bean>
+                <b:bean
+                    class="org.springframework.security.access.vote.AuthenticatedVoter" />
+            </b:list>
+        </b:property>
+    </b:bean>
+    
+    <b:bean id="regexUrlPathMatcher" class="org.springframework.security.web.util.RegexUrlPathMatcher" />
+    <b:bean id="requestMap"   class="egovframework.rfc3.iam.security.intercept.ResourcesMapFactoryBean" init-method="init">
+        <b:property name="securedObjectService" ref="securedObjectService"/>
+        <b:property name="resourceType" value="url"/>
+    </b:bean>
+    
+   
+
+    <b:bean id="authenticationManager" class="org.springframework.security.authentication.ProviderManager">
+  		<b:property name="providers">
+		    <b:list>
+		      <b:ref bean="daoAuthenticationProvider"/>
+		      <b:ref bean="rememberMeAuthenticationProvider"/>
+		      <b:ref bean="realNameAuthenticationProvider"/>
+		    </b:list>
+  		</b:property>
+	</b:bean>
+	
+	<b:bean id="daoAuthenticationProvider" class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+  		<b:property name="userDetailsService" ref="jdbcUserService"/>
+  		<b:property name="passwordEncoder" ref="passwordEncoder"/>
+	</b:bean>
+	<b:bean id="passwordEncoder" class="egovframework.rfc3.iam.security.authentication.MessageDigestPasswordEncoder">
+  		 <b:constructor-arg value="sha-256" />
+         <b:constructor-arg value="true" /> 
+         <b:property name="dataSource" ref="dataSource"/>
+	</b:bean>
+  
+    <b:bean id="rfc3AuthenticationFilter" class="egovframework.rfc3.iam.security.authentication.UsernamePasswordAuthenticationFilter">
+    	<b:property name="sessionAuthenticationStrategy" ref="sas" />
+	  	<b:property name="authenticationManager" ref="authenticationManager"/>
+	  	<b:property name="authenticationSuccessHandler" ref="rfc3LoginSuccessHandler"/>
+	  	<b:property name="authenticationFailureHandler" ref="rfc3LoginFailureHandler"/>
+	  	<b:property name="postOnly" value="false"/>
+	  	<b:property name="filterProcessesUrl" value="/j_spring_security_check"/>
+	    <b:property name="rememberMeServices" ref="rememberMeServices"/>
+	</b:bean> 
+	<b:bean id="loginUrlAuthenticationEntryPoint"  class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">  
+		<b:property name="loginFormUrl" value="/iam/login/login.sko" />
+		<!-- <b:property name="loginFormUrl" value="/iam/cmm/accessDenied.sko" /> -->
+	</b:bean>
+	<b:bean id="rfc3LoginSuccessHandler" class="egovframework.rfc3.iam.security.authentication.LoginSuccessHandler">
+	  		 <b:property name="defaultTargetUrl" value="/"/>  
+	  		 <b:property name="alwaysUseDefaultTargetUrl" value="false"/>  
+	</b:bean> 
+	<b:bean id="rfc3LoginFailureHandler" class="egovframework.rfc3.iam.security.authentication.LoginFailureHandler">
+	  	     <b:property name="defaultFailureUrl" value="/iam/cmm/loginError.sko?message=error.login.failure"/> 
+	</b:bean>
+	 
+	<b:bean id="concurrentSessionFilter"  class="org.springframework.security.web.session.ConcurrentSessionFilter">
+    	<b:property name="sessionRegistry" ref="sessionRegistry" />
+    	<b:property name="expiredUrl" value="/iam/cmm/loginError.sko?message=error.login.session.expired" />
+  	</b:bean>
+  	<b:bean id="sessionRegistry" class="org.springframework.security.core.session.SessionRegistryImpl" />
+  	<b:bean id="sas" class="org.springframework.security.web.authentication.session.ConcurrentSessionControlStrategy">
+	    <b:constructor-arg name="sessionRegistry" ref="sessionRegistry" />
+	    <b:property name="exceptionIfMaximumExceeded" value="${Globals.security.exceptionIfMaximumExceeded}" />
+	    <b:property name="maximumSessions" value="${Globals.security.maximumSessions}" />
+   </b:bean>
+  	<b:bean name="sessionManagementFilter" class="org.springframework.security.web.session.SessionManagementFilter">
+   	  <b:constructor-arg name="securityContextRepository" ref="securityContextRepository"/>
+   	  <!-- auto logout   after sesion remove function-->
+   	  <!-- <b:property name="invalidSessionUrl" value="/iam/cmm/loginError.sko?message=error.login.session.invalid"></b:property>-->
+   </b:bean>
+   <b:bean id="securityContextRepository" class="org.springframework.security.web.context.HttpSessionSecurityContextRepository" >
+   		<b:property name="disableUrlRewriting" value="true" />
+   </b:bean>
+   
+	<b:bean id="rfc3LogOutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter" >
+			<b:constructor-arg index="0" ref="rfc3LogoutSuccessHandler" />
+			<b:constructor-arg index="1" >
+				<b:list>
+					  <b:ref bean="rfc3LogoutHandler" /> 
+					  <b:ref bean="rememberMeServices" /> 
+				</b:list>
+			</b:constructor-arg>
+           <b:property name="filterProcessesUrl" value="/j_spring_security_logout"/>
+	</b:bean>
+	 <b:bean id="rfc3LogoutHandler" class="egovframework.rfc3.iam.security.authentication.logout.SecurityContextLogoutHandler">
+	  	<b:property name="invalidateHttpSession" value="true"/>
+	</b:bean> 
+	 <b:bean id="rfc3LogoutSuccessHandler" class="egovframework.rfc3.iam.security.authentication.logout.RFC3LogoutSuccessHandler" />
+
+
+     <!-- cache -->
+     <!-- 
+    <b:bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean" >
+    	<b:property name="configLocation">
+   			 <b:value>classpath:ehcache.xml</b:value>
+  		</b:property>
+     </b:bean> 
+     -->
+     
+     <!-- remember me -->
+   <b:bean id="rememberMeAuthenticationFilter" class="egovframework.rfc3.iam.security.authentication.rememberme.RememberMeAuthenticationFilter">
+  		 <b:property name="rememberMeServices" ref="rememberMeServices"/>
+  	 	 <b:property name="authenticationManager" ref="authenticationManager" />
+  	 	 <b:property name="cookieName" value="${Globals.security.cookieName}"/>
+  	 	 <b:property name="isCurrentAccessCheck" value="${Globals.security.isCurrentAccessCheck}"/>
+  </b:bean>
+  <b:bean id="rememberMeServices" class="egovframework.rfc3.iam.security.authentication.rememberme.PersistentTokenBasedRememberMeServices">
+  		<b:property name="userDetailsService" ref="jdbcUserService"/>
+  		<b:property name="tokenRepository" ref="tokenRepository"/>
+  		<b:property name="key" value="${Globals.security.remembermeTokenKey}"/>
+  		<b:property name="alwaysRemember" value="${Globals.security.alwaysRemember}"/>
+  		<b:property name="cookieName" value="${Globals.security.cookieName}"/>
+  		<b:property name="tokenValiditySeconds" value="${Globals.security.tokenValiditySeconds}"/>
+  </b:bean>
+  <b:bean id="tokenRepository" class="egovframework.rfc3.iam.security.authentication.rememberme.JdbcTokenRepositoryImpl">
+  		<b:property name="dataSource" ref="dataSource"/>
+   </b:bean>
+    <b:bean id="rememberMeAuthenticationProvider" class="org.springframework.security.authentication.RememberMeAuthenticationProvider">
+  		<b:property name="key" value="${Globals.security.remembermeTokenKey}"/>
+   </b:bean>
+   
+   <!--  default filter --> 
+   <b:bean id="httpSessionContextIntegrationFilter"  class="org.springframework.security.web.context.HttpSessionContextIntegrationFilter"/>
+   <b:bean id="securityContextHolderAwareRequestFilter" class="org.springframework.security.web.servletapi.SecurityContextHolderAwareRequestFilter"/>
+   <b:bean id="anonymousProcessingFilter"  class="egovframework.rfc3.iam.security.authentication.AnonymousAuthenticationFilter">
+    	<b:property name="key" value="${Globals.security.anonymousTokenKey}"/>
+    	<b:property name="userAttribute" value="anonymousUser,ROLE_ANONYMOUS"/>
+  </b:bean>
+  
+  <!-- realName -->
+   <b:bean id="realNameAuthenticationProvider" class="egovframework.rfc3.iam.security.authentication.rlauth.RealNameAuthenticationProvider">
+  		<b:property name="key" value="${Globals.security.realNameTokenKey}"/>
+   </b:bean>
+   
+   
+  <b:bean id="exceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    	<b:property name="authenticationEntryPoint" ref="loginUrlAuthenticationEntryPoint"/>
+    	<b:property name="accessDeniedHandler" ref="accessDeniedHandler"/>
+  </b:bean>
+  <b:bean id="accessDeniedHandler" class="org.springframework.security.web.access.AccessDeniedHandlerImpl">
+    	<b:property name="errorPage" value="/iam/cmm/accessDenied.sko"/>
+  </b:bean>
+  <b:bean id="basicProcessingFilter" class="org.springframework.security.web.authentication.www.BasicAuthenticationFilter">
+    <b:property name="authenticationManager" ref="authenticationManager"/>
+    <b:property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint"/>
+  </b:bean>
+  <b:bean id="basicAuthenticationEntryPoint" class="org.springframework.security.web.authentication.www.BasicAuthenticationEntryPoint">
+    <b:property name="realmName" value="Secured newsfeeds"/>
+  </b:bean>
+  <b:bean id="basicExceptionTranslationFilter" class="org.springframework.security.web.access.ExceptionTranslationFilter">
+    <b:property name="authenticationEntryPoint" ref="basicAuthenticationEntryPoint"/>
+  </b:bean>
+   <b:bean id="extLimitFilter" class="egovframework.rfc3.iam.security.authentication.ExtLimitFilter"/>
+
+  
+
+  <b:bean id="jdbcUserService"
+            class="egovframework.rfc3.iam.security.userdetails.jdbc.EgovJdbcUserDetailsManager" >
+        <b:property name="usersByUsernameQuery" value="
+                                                     SELECT 
+                                                           USER_ID, 
+                                                           PASSWORD, 
+                                                           1 ENABLED, 
+                                                           USER_NM,   
+                                                           USER_EMAIL, 
+                                                           USER_SE, 
+                                                           ORGNZT_ID,
+                                                           UNIQ_ID,
+                                                           USER_HOMEPAGE,
+                                                           SITE_GROUP_ID,
+                                                           GROUP_ID,
+                                                           USER_LEVEL,
+                                                           (SELECT SGROUP_NM  FROM  RFC_COMTNSITEGROUP  WHERE   SGROUP_ID=A.SITE_GROUP_ID) SGROUP_NM,
+                                                           (SELECT OFFICE_NM FROM RFC_COMTCOFFICE WHERE OFFICE_CD=A.ORGNZT_ID) OFFICE_NM,                                                           
+                                                           CASE USER_SE
+                                                           WHEN 'USR' THEN (SELECT PWCHANGE_DATE  FROM  RFC_COMTNMANAGER  WHERE   EMPLYR_ID = A.USER_ID )
+                                                           ELSE (SELECT PWCHANGE_DATE  FROM  RFC_COMTNMEMBER  WHERE   MBER_ID = A.USER_ID )
+                                                            END PWCHANGE_DATE
+                                                       FROM 
+                                                           RFC_COMVNUSERMASTER A ,  RFC_COMTNSITEGROUP B 
+                                                      WHERE  
+                                                         A.SITE_GROUP_ID =B.SGROUP_ID AND
+                                                         B.IS_USE='1' AND   USER_ID = ? "/>
+        <b:property name="authoritiesByUsernameQuery" value="										  
+												        SELECT
+													    	 A.USER_ID,
+													    	 B.ROLE_ID,
+													   		 B.SGROUP_ID,
+													    	 B.SUBJECT_ID,
+													     	 B.USER_TYPE,
+													    	 A.GROUP_ID,
+													    	 A.USER_SE													    	
+													FROM
+													    RFC_COMVNUSERMASTER A 
+													    LEFT JOIN RFC_COMTNAUTHORITES B 
+													    ON  ((A.SITE_GROUP_ID=B.SGROUP_ID) AND  (A.USER_ID=B.SUBJECT_ID OR  A.GROUP_ID = B.SUBJECT_ID))
+													WHERE A.USER_ID=?
+         "/>
+        <b:property name="roleHierarchy" ref="roleHierarchy"/>
+        <b:property name="dataSource" ref="dataSource"/>
+        <b:property name="mapClass" value="egovframework.rfc3.iam.security.common.EgovSessionMapping"/> 
+    </b:bean>
+
+
+
+   <!-- customizing method security start -->
+    <b:bean id="methodMap" class="egovframework.rfc3.iam.security.intercept.ResourcesMapFactoryBean" init-method="init">
+        <b:property name="securedObjectService" ref="securedObjectService" />
+        <b:property name="resourceType" value="method" />
+    </b:bean>
+
+    <b:bean id="methodSecurityMetadataSources" class="org.springframework.security.access.method.MapBasedMethodSecurityMetadataSource">
+        <b:constructor-arg ref="methodMap" />
+    </b:bean>
+
+    <b:bean id="_delegatingMethodSecurityMetadataSource" class="org.springframework.security.access.method.DelegatingMethodSecurityMetadataSource">
+        <b:property name="methodSecurityMetadataSources">
+            <b:list>
+                <b:ref bean="methodSecurityMetadataSources" />
+                <b:bean class="org.springframework.security.access.annotation.SecuredAnnotationSecurityMetadataSource" />
+                <b:bean class="org.springframework.security.access.annotation.Jsr250MethodSecurityMetadataSource" />
+            </b:list>
+        </b:property>
+    </b:bean>
+
+    <b:bean id="_methodSecurityMetadataSourceAdvisor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityMetadataSourceAdvisor">
+        <b:constructor-arg value="_methodSecurityInterceptor" />
+        <b:constructor-arg ref="_delegatingMethodSecurityMetadataSource" />
+		<b:constructor-arg value="_delegatingMethodSecurityMetadataSource" />
+    </b:bean>
+
+    <b:bean id="_methodSecurityInterceptor" class="org.springframework.security.access.intercept.aopalliance.MethodSecurityInterceptor">
+        <b:property name="validateConfigAttributes" value="false" />
+        <b:property name="authenticationManager" ref="authenticationManager" />
+        <b:property name="accessDecisionManager" ref="accessDecisionManager" />
+        <!--b:property name="afterInvocationManager" ref="afterInvocationManager" /-->
+        <b:property name="securityMetadataSource" ref="_delegatingMethodSecurityMetadataSource" />
+    </b:bean>
+    <!-- customizing method security end -->
+
+  <!-- view button role  start  -->
+    <b:bean id="viewResourceAccessService"
+		class="egovframework.rfc3.iam.acl.impl.ViewResourceAccessServiceImpl">
+		<b:property name="securedObjectService" ref="securedObjectService" />
+		<b:property name="registeredPermissions">
+			<b:list>
+				<b:ref bean="egovframework.rfc3.iam.acl.ExtBasePermission.READ" />
+				<b:ref bean="egovframework.rfc3.iam.acl.ExtBasePermission.WRITE" />
+				<b:ref bean="egovframework.rfc3.iam.acl.ExtBasePermission.CREATE" />
+				<b:ref bean="egovframework.rfc3.iam.acl.ExtBasePermission.DELETE" />
+				<b:ref bean="egovframework.rfc3.iam.acl.ExtBasePermission.ADMINISTRATION" />
+				<b:ref bean="egovframework.rfc3.iam.acl.ExtBasePermission.LIST" />
+				<b:ref bean="egovframework.rfc3.iam.acl.ExtBasePermission.MODIFY" />
+				<b:ref bean="egovframework.rfc3.iam.acl.ExtBasePermission.REPLY" />
+				<b:ref bean="egovframework.rfc3.iam.acl.ExtBasePermission.MEMO" />
+				<b:ref bean="egovframework.rfc3.iam.acl.ExtBasePermission.DOWNLOAD" />
+				<!--<b:ref local="egovframework.rfc3.iam.acl.ExtBasePermission.UPLOAD" />-->
+			</b:list>
+		</b:property>
+	</b:bean>
+	
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.LIST"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.LIST" />
+	</b:bean>
+	
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.READ"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.READ" />
+	</b:bean>
+	
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.WRITE"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.WRITE" />
+	</b:bean>
+	
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.MODIFY"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.MODIFY" />
+	</b:bean>
+	
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.DELETE"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.DELETE" />
+	</b:bean>
+	
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.REPLY"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.REPLY" />
+	</b:bean>
+	
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.MEMO"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.MEMO" />
+	</b:bean>
+	
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.DOWNLOAD"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.DOWNLOAD" />
+	</b:bean>
+	
+	
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.CREATE"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.CREATE" />
+	</b:bean>
+	<!-- 
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.UPLOAD"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.UPLOAD" />
+	</b:bean>
+	-->
+	<b:bean id="egovframework.rfc3.iam.acl.ExtBasePermission.ADMINISTRATION"
+		class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+		<b:property name="staticField"
+			value="egovframework.rfc3.iam.acl.ExtBasePermission.ADMINISTRATION" />
+	</b:bean>
+	
+	<!-- view button role   end -->
+	
+</b:beans>

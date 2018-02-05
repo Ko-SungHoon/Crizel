@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.office.vo">
+	<class name="EminwonOfficeVO"	table="RFC_COMTNEMINWON">
+	 
+	  <cache usage="read-write"/>
+	  <comment>행정포탈 조직도  테이블</comment>
+		<id name="eminwonOpSid"  type="long">
+			<column name="EMINWONOP_SID">
+				<comment>행정포탈 고유번호</comment>
+            </column>
+		</id>
+		
+		<property name="eminwonOpDeptId" type="string" >
+			<column name="EMINWONOP_DEPTID" length="64"  >
+				<comment>행정포탈 식별코드</comment>
+			</column>
+		</property>
+		
+		<property name="eminwonOpDeptName" type="string" >
+			<column name="EMINWONOP_DEPTNAME" length="64"  >
+				<comment>행정포탈 부서명</comment>
+			</column>
+		</property>
+		
+		<property name="eminwonOpParId" type="string" >
+			<column name="EMINWONOP_PARID" length="64"  >
+				<comment>행정포탈 상위부서 코드</comment>
+			</column>
+		</property>
+		
+		<property name="eminwonOpSeq" type="string" >
+			<column name="EMINWONOP_SEQ" length="64"  >
+				<comment>부서순서 코드</comment>
+			</column>
+		</property>
+				
+	</class>
+</hibernate-mapping>

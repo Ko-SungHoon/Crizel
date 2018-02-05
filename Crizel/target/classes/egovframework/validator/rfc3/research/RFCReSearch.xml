@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE form-validation PUBLIC 
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1//EN" 
+    "http://jakarta.apache.org/commons/dtds/validator_1_1.dtd">
+
+<form-validation>
+    <formset>
+    	<form name="reSearchVO">
+    		<!-- 
+			<field property="reYear" depends="required,minlength,maxlength,integer">
+        		<arg0 key="년도(yyyy)" resource="false"/>
+        		<arg1 key="4" resource="false"/>
+        		<var>
+                <var-name>minlength</var-name>
+                <var-value>4</var-value>
+                </var>
+        		<arg2 key="4" resource="false"/>
+        		<var>
+                <var-name>maxlength</var-name>
+                <var-value>4</var-value>
+                </var>
+			</field>
+			 -->
+			<field property="reGubun" depends="required">
+        		<arg0 key="연수 구분" resource="false"/>
+			</field>			
+			<field property="reKind" depends="required">
+        		<arg0 key="연수 종류" resource="false"/>
+			</field>
+			<field property="reNm" depends="required">
+        		<arg0 key="연수 과정명" resource="false"/>
+			</field>
+			<field property="rePrefixStr" depends="required">
+        		<arg0 key="이수번호 시작명" resource="false"/>
+			</field>
+			<field property="reApplySdate" depends="required">
+        		<arg0 key="연수 신청 시작일" resource="false"/>
+			</field>
+			<field property="reApplyEdate" depends="required">
+        		<arg0 key="연수 신청  종료일" resource="false"/>
+			</field>
+			<field property="reSdate" depends="required">
+        		<arg0 key="연수 시작일" resource="false"/>
+			</field>
+			<field property="reEdate" depends="required">
+        		<arg0 key="연수 종료일" resource="false"/>
+			</field>
+			<field property="reTargetPeopleNm" depends="required">
+        		<arg0 key="연수 대상" resource="false"/>
+			</field>
+			<field property="reTotalTimeCnt" depends="required,integer">
+        		<arg0 key="총 연수 시간" resource="false"/>
+			</field>
+			<field property="reTotalPeopleCnt" depends="required,integer">
+        		<arg0 key="연수 참여 인원" resource="false"/>
+			</field>
+			<field property="rePlaceNm" depends="required">
+        		<arg0 key="연수 장소" resource="false"/>
+			</field>
+			<field property="reApplyStatus" depends="required">
+        		<arg0 key="접수자동여부" resource="false"/>
+			</field>
+			<field property="isUse" depends="required">
+        		<arg0 key="사용여부" resource="false"/>
+			</field>
+			<field property="surveySkin" depends="required">
+        		<arg0 key="소감록 스킨" resource="false"/>
+			</field>
+			
+		</form>
+		<form name="reSearchLectureVO">
+			<field property="reUniqId" depends="required">
+        		<arg0 key="연수 코드" resource="false"/>
+			</field>			
+			<field property="lectName" depends="required">
+        		<arg0 key="강좌제목" resource="false"/>
+			</field>
+			<field property="instructor" depends="required">
+        		<arg0 key="강사 명" resource="false"/>
+			</field>
+			<field property="lectTime" depends="required">
+        		<arg0 key="강좌시간" resource="false"/>
+			</field>
+			<field property="rangeCode" depends="required">
+        		<arg0 key="영역" resource="false"/>
+			</field>
+		</form>
+		<form name="reSearchApplyVO">
+			<field property="isGunbun" depends="required">
+        		<arg0 key="연수대상" resource="false"/>
+			</field>			
+			<field property="userId" depends="required">
+        		<arg0 key="신청자 아이디" resource="false"/>
+			</field>
+			<field property="aplyNm" depends="required">
+        		<arg0 key="신청자 이름" resource="false"/>
+			</field>
+			<field property="aplyBirthDay" depends="required">
+        		<arg0 key="생년월일" resource="false"/>
+			</field>
+			<field property="aplySex" depends="required">
+        		<arg0 key="성별" resource="false"/>
+			</field>
+			
+			<field property="aplyEmail" depends="required">
+        		<arg0 key="이메일" resource="false"/>
+			</field>
+			<field property="aplyHomeTel" depends="required">
+        		<arg0 key="자택전화" resource="false"/>
+			</field>
+			<field property="aplyHp" depends="required">
+        		<arg0 key="휴대폰" resource="false"/>
+			</field>
+			<field property="aplyStatus" depends="required">
+        		<arg0 key="접수상태" resource="false"/>
+			</field>
+		</form>
+	</formset>
+</form-validation>
+	

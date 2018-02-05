@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.iam.vo">
+
+
+	<class name="SwitchingLogVO"	table="RFC_SWITCHING_LOG_TB">
+	  <cache usage="read-write"/>
+		<comment>로그  테이블</comment>
+		
+		<id name="slogSid" type="long">
+			<column name="SLOG_SID">
+				<comment>로그스위칭 고유ID</comment>
+			</column>
+		</id>
+		
+		<property name="id" type="string" not-null="true">
+			<column name="ID" length="100">
+				<comment>로그스위칭 아이디</comment>
+			</column>
+		</property>
+		
+		<property name="sgubun" type="string" not-null="true">
+			<column name="SGUBUN" length="50">
+				<comment>로그스위칭 종류</comment>
+			</column>
+		</property>
+		
+		<property name="regDate"  type="timestamp"  >
+			<column name="REG_DATE">
+				<comment>등록일</comment>
+			</column>
+		</property>	
+	
+	</class>
+
+</hibernate-mapping>

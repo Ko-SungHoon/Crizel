@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.iam.vo">
+
+
+	<class name="SystemSettingsVO"	table="RFC_SYSTEM_SETTINGS_TB">
+	  <cache usage="read-write"/>
+		<comment>시스템설정 테이블</comment>
+		
+		
+		<id name="systemSettingsSid"  type="long">
+			<column name="SYSTEM_SETTINGS_SID">
+				<comment>시스템설정 고유번호</comment>
+            </column>
+		</id>
+		
+		<property name="ssopAlterIs" type="string" >
+			<column name="SSOP_ALTER_IS" length="1"   default="'0'" >
+				<comment>패스워드 변경기간 사용여부</comment>
+			</column>
+		</property>
+		
+		<property name="ssopAlterDay" type="string" >
+			<column name="SSOP_ALTER_DAY" length="100"   default="'60'" >
+				<comment>패스워드 변경기간 설정여부</comment>
+			</column>
+		</property>
+		
+		<property name="ssopAlterAftDay" type="string" >
+			<column name="SSOP_ALTER_AFT_DAY" length="100"   default="'7'" >
+				<comment>패스워드 변경기간 설정</comment>
+			</column>
+		</property>
+		
+		<property name="ssouTimeLock" type="string" >
+			<column name="SSOU_TIME_LOCK" length="100"   default="'60'" >
+				<comment>계정차단 시간</comment>
+			</column>
+		</property>
+		
+		<property name="ssouLockCount" type="string" >
+			<column name="SSOU_LOCK_COUNT" length="100"   default="'3'" >
+				<comment>계정차단 횟수</comment>
+			</column>
+		</property>
+		
+		<property name="ssouIsLock" type="string" >
+			<column name="SSOU_IS_LOCK" length="1"   default="'0'" >
+				<comment>계정잠금 사용여부</comment>
+			</column>
+		</property>
+		
+	</class>
+
+</hibernate-mapping>

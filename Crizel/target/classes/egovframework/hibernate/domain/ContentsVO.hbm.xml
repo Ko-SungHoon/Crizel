@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.contents.vo">
+	<class name="ContentsVO" table="RFC_COMTNCONTENTS">
+		<cache usage="read-write"/>
+		<comment>컨텐츠 관리 테이블</comment>
+		<id name="contentsSid"  type="long">       
+			<column name="CONTENTS_SID">
+				<comment>컨텐츠 고유ID</comment>
+            </column>
+        </id> 
+		<property name="sgroupId" type="string"  not-null="true" >
+			<column name="SGROUP_ID" length="30" >
+				<comment>사이트 그룹ID</comment>
+			</column>
+		</property>
+		
+		<property name="domainId" type="string"  not-null="true" >
+			<column name="DOMAIN_ID" length="30"  >
+				<comment>도메인ID</comment>
+			</column>
+		</property>
+		
+		<property name="menuCd" type="string" >
+			<column name="MENU_CD" length="13"  >
+				<comment>메뉴코드</comment>
+			</column>
+		</property>
+
+		<property name="layoutSid"  type="long" >
+			<column name="LAYOUT_SID" default="0"  >
+				<comment>연결 레이아웃ID</comment>
+			</column>
+		</property>
+		<property name="contentsLinkSid"  type="long" >
+			<column name="CONTENTS_LINK_SID"  >
+				<comment>링크된 컨텐츠  고유ID</comment>
+			</column>
+		</property>
+		<property name="contentsType" type="string" >
+			<column name="CONTENTS_TYPE" length="20" >
+				<comment>컨텐츠 타입</comment>
+			</column>
+		</property>
+		<property name="contentsStyle"  type="string" >
+			<column name="CONTENTS_STYLE"  length="20" >
+				<comment>컨텐츠 스타일</comment>
+			</column>
+		</property>
+
+		<property name="contentsTitle" type="string" >
+			<column name="CONTENTS_TITLE" length="255" >
+				<comment>컨텐츠 제목</comment>
+			</column>
+		</property>
+		<property name="engName" type="string" >
+			<column name="ENG_NAME" length="100" >
+				<comment>영문제목</comment>
+			</column>
+		</property>
+		
+		<property name="contentsTitleImg" type="string" >
+			<column name="CONTENTS_TITLE_IMG" length="255">
+				<comment>컨텐츠 타이틀 이미지</comment>
+			</column>
+		</property>
+		
+		<property name="contentsContent" type="text" >
+			<column name="CONTENTS_CONTENT" length="1073741824">
+				<comment>컨텐츠 내용</comment>
+			</column>
+		</property>
+		
+		<property name="contentsBoardUrl" type="string" >
+			<column name="CONTENTS_BOARD_URL" length="255">
+				<comment>게시판 주소</comment>
+			</column>
+		</property>
+		
+		<property name="contentsBoardId" type="string" >
+			<column name="CONTENTS_BOARDID" length="64">
+				<comment>연결된 게시판ID</comment>
+			</column>
+		</property>
+		
+		<property name="contentsLinkUrl" type="string" >
+			<column name="CONTENTS_LINK_URL" length="255">
+				<comment>링크주소</comment>
+			</column>
+		</property>
+		
+		<property name="editorIsUse" type="string" >
+			<column name="EDITOR_IS_USE" length="5">
+				<comment>에디터 사용여부</comment>
+			</column>
+		</property>
+		
+		<property name="isSkinApply"  type="yes_no" >
+			<column name="IS_SKIN_APPLY" length="1" default="'0'" >
+				<comment>스킨적용</comment>
+			</column>
+		</property>
+		
+		<property name="contentsRegDate" type="timestamp" insert="true" update="false" >
+			<column name="CONTENTS_REG_DATE">
+				<comment>컨텐츠 등록일</comment>
+			</column>
+		</property>
+		
+		<property name="contentsModiDate" type="timestamp" insert="true" update="true" >
+			<column name="CONTENTS_MODI_DATE">
+				<comment>컨텐츠 수정일</comment>
+			</column>
+		</property>
+		
+		<property name="contentsTitleImgDesc"  type="string" >
+			<column name="CONTENTS_TITLE_IMG_DESC" length="255">
+				<comment>컨텐츠 타이틀 이미지 경로</comment>
+			</column>
+		</property>
+		
+		<property name="mobileContents" type="text" >
+			<column name="MOBILE_CONTENTS" length="1073741824">
+				<comment>모바일 컨텐츠내용</comment>
+			</column>
+		</property>
+		
+		<property name="mobileIsUse"  type="yes_no" >
+			<column name="MOBILE_IS_USE" length="1" default="'0'" >
+				<comment>모바일 사용유무</comment>
+			</column>
+		</property>
+		
+	</class>
+	
+	<class name="ContentsBackUpVO" table="RFC_COMTNCONTENTS_BACKUP_TB">
+		<cache usage="read-write"/>
+		<comment>컨텐츠 백업 테이블</comment>
+		<id name="contentsBpSid"  type="long">
+			<column name="CONTENTS_BP_SID">
+				<comment>컨텐츠 고유ID</comment>
+            </column>
+        </id> 
+		<property name="contentsSid"  type="long" >
+			<column name="CONTENTS_SID" >
+				<comment>원본 컨텐츠 고유ID</comment>
+			</column>
+		</property>		
+		<property name="sgroupId" type="string"   not-null="true">
+			<column name="SGROUP_ID" length="30" >
+				<comment>사이트 그룹ID</comment>
+			</column>
+		</property>		
+		<property name="domainId" type="string"   not-null="true">
+			<column name="DOMAIN_ID" length="30"   >
+				<comment>도메인ID</comment>
+			</column>
+		</property>		
+		<property name="menuCd" type="string" >
+			<column name="MENU_CD" length="13"  >
+				<comment>메뉴코드</comment>
+			</column>
+		</property>
+		<property name="layoutSid"  type="long" >
+			<column name="LAYOUT_SID"  default="0"  >
+				<comment>연결한 레이아웃ID</comment>
+			</column>
+		</property>
+		<property name="contentsLinkSid"  type="long" >
+			<column name="CONTENTS_LINK_SID"   >
+				<comment>링크된 컨텐츠 고유ID</comment>
+			</column>
+		</property>
+		<property name="contentsType" type="string" >
+			<column name="CONTENTS_TYPE" length="20"   >
+				<comment>컨텐츠 타입</comment>
+			</column>
+		</property>
+		<property name="contentsStyle"  type="string" >
+			<column name="CONTENTS_STYLE"  length="20"  >
+				<comment>컨텐츠 스타일</comment>
+			</column>
+		</property>
+		<property name="contentsTitle" type="string" >
+			<column name="CONTENTS_TITLE" length="255"  >
+				<comment>컨텐츠 제목</comment>
+			</column>
+		</property>
+		<property name="engName" type="string" >
+			<column name="ENG_NAME" length="100" >
+				<comment>영문제목</comment>
+			</column>
+		</property>
+		<property name="contentsTitleImg" type="string" >
+			<column name="CONTENTS_TITLE_IMG" length="255">
+				<comment>컨텐츠 타이틀 이미지 경로</comment>
+			</column>
+		</property>
+		<property name="contentsContent" type="text" >
+			<column name="CONTENTS_CONTENT" length="1073741824">
+				<comment>컨텐츠 내용</comment>
+			</column>
+		</property>
+		<property name="contentsBoardUrl" type="string" >
+			<column name="CONTENTS_BOARD_URL" length="255" >
+				<comment>게시판 주소</comment>
+			</column>
+		</property>
+		<property name="contentsBoardId" type="string" >
+			<column name="CONTENTS_BOARDID" length="64" >
+				<comment>게시판ID</comment>
+			</column>
+		</property>
+		<property name="contentsLinkUrl" type="string" >
+			<column name="CONTENTS_LINK_URL" length="255" >
+				<comment>링크주소</comment>
+			</column>
+		</property>
+		<property name="editorIsUse" type="string" >
+			<column name="EDITOR_IS_USE" length="5" >
+				<comment>에디터 사용여부</comment>
+			</column>
+		</property>
+		<property name="isSkinApply"  type="yes_no" >
+			<column name="IS_SKIN_APPLY" length="1" default="'0'"  >
+				<comment>스킨적용</comment>
+			</column>
+		</property>
+		<property name="contentsRegDate" type="timestamp" insert="true" update="false" >
+			<column name="CONTENTS_REG_DATE">
+				<comment>컨텐츠 등록일</comment>
+			</column>
+		</property>
+		<property name="contentsModiDate" type="timestamp" insert="true" update="true" >
+			<column name="CONTENTS_MODI_DATE">
+				<comment>컨텐츠 수정일</comment>
+			</column>
+		</property>
+
+		<property name="contsFlag" type="string" >
+			<column name="CONTS_FLAG" length="15">
+				<comment>저장상태</comment>
+			</column>
+		</property>
+
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="20">
+				<comment>등록자ID</comment>
+			</column>
+		</property>
+		<property name="isRestore" type="string" >
+			<column name="IS_RESTORE" length="10" default="'no'">
+				<comment>복원여부</comment>
+			</column>
+		</property>
+		<property name="restoreDate" type="timestamp" insert="false" update="true" >
+			<column name="RESTORE_DATE">
+				<comment>복원일</comment>
+			</column>
+		</property>
+		<property name="contentsTitleImgDesc"  type="string" >
+			<column name="CONTENTS_TITLE_IMG_DESC" length="255">
+				<comment>컨텐츠 타이틀 이미지설명</comment>
+			</column>
+		</property>
+		
+		<property name="mobileContents" type="text" >
+			<column name="MOBILE_CONTENTS" length="1073741824">
+				<comment>모바일 컨텐츠 내용</comment>
+			</column>
+		</property>
+		<property name="mobileIsUse"  type="yes_no" >
+			<column name="MOBILE_IS_USE" length="1" default="'0'" >
+				<comment>모바일 사용여부</comment>
+			</column>
+		</property>
+	</class>
+	
+	
+</hibernate-mapping>
+

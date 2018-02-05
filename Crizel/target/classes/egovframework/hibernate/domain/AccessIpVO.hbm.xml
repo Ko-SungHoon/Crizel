@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.iam.vo">
+	<class name="AccessIpVO"	table="RFC_COMTNACCESSIP">
+	  <cache usage="read-write"/>
+	  <comment>관리자 접속허용 테이블</comment>
+		<id name="aipSid" type="long"  >
+			<column name="AIP_SID">
+				<comment>접속허용IP 일련번호</comment>
+			</column>
+		</id>    
+		<property name="atype" type="string" >
+			<column name="ATYPE" length="10" >
+				<comment>접속허용 타입</comment>
+			</column>
+		</property>
+		<property name="accessIp" type="string" >
+			<column name="ACCESS_IP" length="20" >
+				<comment>접속허용IP</comment>
+			</column>
+		</property>
+		<property name="memo" type="string" >
+			<column name="MEMO" length="200" >
+				<comment>기타설명</comment>
+			</column>
+		</property>
+		
+		<property name="idRest" type="text" >
+			<column name="ID_REST" length="1073741824"/>
+		</property>
+		
+		
+		
+		
+		
+	</class>
+</hibernate-mapping>

@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.popup.vo">
+	<class name="PopupVO"	table="RFC_COMTNPOPUP">
+		<cache usage="read-write"/>
+		<comment>팝업관리 테이블</comment>
+		<id name="popupSid" type="long">
+			<column name="POPUP_SID">
+				<comment>팝업 고유번호</comment>
+            </column>
+		</id>
+		<property name="sgroupId" type="string"  not-null="true" >
+			<column name="SGROUP_ID" length="30"  >
+			<comment>사이트그룹 아이디</comment>
+			</column>
+		</property>
+		<property name="domainId" type="string"  not-null="true" >
+			<column name="DOMAIN_ID" length="30"  >
+			<comment>도메인 아이디</comment>
+			</column>
+		</property>
+		<property name="popupCategoryCode" type="string" >
+			<column name="POPUP_CATEGORY_CODE" length="4"  >
+			<comment>팝업 카테고리 코드</comment>
+			</column>
+		</property>
+		<property name="popupTitle" type="string" >
+			<column name="POPUP_TITLE" length="255"  >
+			<comment>팝업 제목</comment>
+			</column>
+		</property>
+		<property name="popupMode" type="string" >
+			<column name="POPUP_MODE" length="8"  >
+			<comment>팝업 모드</comment>
+			</column>
+		</property>
+		<property name="startDate" type="string" >
+			<column name="START_DATE" length="12"  >
+			<comment>시작 일시</comment>
+			</column>
+		</property>
+		<property name="endDate" type="string" >
+			<column name="END_DATE" length="12"  >
+			<comment>종료 일시</comment>
+			</column>
+		</property>
+		<property name="popupWidth" type="int" >
+			<column name="POPUP_WIDTH" default="0" >
+			<comment>팝업 넓이</comment>
+			</column>
+		</property>
+		<property name="popupHeight" type="int" >
+			<column name="POPUP_HEIGHT" default="0"  >
+			<comment>팝업 높이</comment>
+			</column>
+		</property>
+		<property name="popupLeft" type="int" >
+			<column name="POPUP_LEFT" default="0"  >
+			<comment>왼쪽 창 간격</comment>
+			</column>
+		</property>
+		<property name="popupTop" type="int" >
+			<column name="POPUP_TOP" default="0"  >
+			<comment>상단 창 간격</comment>
+			</column>
+		</property>
+		<property name="popupScroll" type="string" >
+			<column name="POPUP_SCROLL" length="2"   >
+			<comment>팝업창 스크롤사용 유무</comment>
+			</column>
+		</property>
+		<property name="popupType" type="string" >
+			<column name="POPUP_TYPE" length="12"  >
+			<comment>팝업창 종류(이미지,HTML)</comment>
+			</column>
+		</property>
+		<property name="popupFile" type="string" >
+			<column name="POPUP_FILE" length="255">
+			<comment>첨부파일</comment>
+			</column>
+		</property>
+		<property name="popupUrl" type="string" >
+			<column name="POPUP_URL" length="255">
+			<comment>팝업클릭시 바로가기 URL</comment>
+			</column>
+		</property>
+		<property name="popupTarget" type="string" >
+			<column name="POPUP_TARGET" length="12">
+			<comment>팝업대상(현재창,새창)</comment>
+			</column>
+		</property>
+		<property name="popupContent" type="text" >
+			<column name="POPUP_CONTENT" >
+			<comment>팝업내용</comment>
+			</column>
+		</property>
+		<property name="popupSummary" type="text" >
+			<column name="POPUP_SUMMARY" >
+			<comment>팝업이미지 대체텍스트</comment>
+			</column>
+		</property>
+		<property name="popupIsUse" type="string" >
+			<column name="POPUP_ISUSE" length="2">
+			<comment>팝업사용유무</comment>
+			</column>
+		</property>
+		<property name="popupIsGroup" type="string" >
+			<column name="POPUP_ISGROUP" length="2">
+			<comment>통합출력 여부</comment>
+			</column>
+		</property>
+		<property name="popupOrderIdx" type="string" >
+			<column name="POPUP_ORDERIDX" length="2">
+			<comment>팝업순서</comment>
+			</column>
+		</property>		
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+			<comment>등록일</comment>
+			</column>
+		</property>	
+	</class>
+	
+	<class name="PopupCategoryVO"	table="RFC_COMTNPOPUPCATE">
+		<cache usage="read-write"/>
+		<comment>팝업카테고리 테이블</comment>
+		<id name="popupCategorySid" type="long">
+			<column name="POPUP_CATEGORY_SID">
+				<comment>팝업카테고리 고유번호</comment>
+   			</column>
+		</id>
+		<property name="sgroupId" type="string"  not-null="true" >
+			<column name="SGROUP_ID" length="30"  >
+			<comment>사이트그룹 아이디</comment>
+			</column>
+		</property>
+		<property name="domainId" type="string"  not-null="true" >
+			<column name="DOMAIN_ID" length="30"  >
+			<comment>도메인 아이디</comment>
+			</column>
+		</property>
+		<property name="popupCategoryCode" type="string"  not-null="true" >
+			<column name="POPUP_CATEGORY_CODE" length="4"  >
+			<comment>카테고리 코드</comment>
+			</column>
+		</property>
+		<property name="popupCategoryTitle" type="string" >
+			<column name="POPUP_CATEGORY_TITLE" length="255"  >
+			<comment>카테고리 제목</comment>
+			</column>
+		</property>		
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+			<comment>등록일</comment>
+			</column>
+		</property>	
+	</class>
+	
+	
+	<class name="PopupUseDomainVO"	table="RFC_COMTNPOPUP_DOMAIN">
+		<cache usage="read-write"/>
+		<comment>적용도메인팝업관리 테이블</comment>
+		<id name="popUseSid" type="long">
+			<column name="POP_USE_SID">
+				<comment>적용팝업 고유번호</comment>
+   			</column>
+		</id>
+		<property name="popupSid" type="long"  not-null="true" >
+			<column name="POPUP_SID" length="20" default="0">
+				<comment>팝업번호</comment>
+			</column>
+		</property>
+		
+		<property name="domainId" type="string"  not-null="true" >
+			<column name="DOMAIN_ID" length="30"  >
+			<comment>도메인 아이디</comment>
+			</column>
+		</property>
+	</class>
+	
+	
+	
+</hibernate-mapping>

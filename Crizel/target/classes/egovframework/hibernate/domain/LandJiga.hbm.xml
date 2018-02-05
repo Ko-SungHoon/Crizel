@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.landjiga.vo">
+	<class name="LandVO"	table="RFC_COMTNLAND">
+		<cache usage="read-write"/>
+		<comment>주택가격 테이블</comment>
+		<id name="seqNo" type="int">
+			
+			<column name="SEQNO">
+				<comment>주택가격 고유 값</comment>
+            </column>
+            <generator class="native" />
+		</id>		
+		<property name="landCd" type="string" >
+			<column name="LAND_CD" length="20">
+				<comment>주택가격 코드</comment>
+			</column>
+		</property>
+		<property name="sidosggCd" type="string" >
+			<column name="SIDOSGG_CD" length="5">
+				<comment>시도 코드</comment>
+			</column>
+		</property>
+		<property name="umdCd" type="string" >
+			<column name="UMD_CD" length="3">
+				<comment>지역 코드</comment>
+			</column>
+		</property>
+		<property name="admdCd" type="string" >
+			<column name="ADMD_CD" length="3">
+				<comment>상세 지역코드</comment>
+			</column>
+		</property>
+		<property name="riCd" type="string" >
+			<column name="RI_CD" length="2">
+				<comment>리 코드</comment>
+			</column>
+		</property>
+		<property name="landGbn" type="string" >
+			<column name="LAND_GBN" length="1">
+				<comment>구분 값</comment>
+			</column>
+		</property>
+		<property name="landBobn" type="string" >
+			<column name="LAND_BOBN" length="4">
+				<comment>본 코드</comment>
+			</column>
+		</property>
+		<property name="landBubn" type="string" >
+			<column name="LAND_BUBN" length="4">
+				<comment>부 코드</comment>
+			</column>
+		</property>
+		<property name="baseMon" type="string" >
+			<column name="BASE_MON" length="1">
+				<comment>주택가격 월</comment>
+			</column>
+		</property>
+		<property name="hprice" type="string" >
+			<column name="HPRICE" length="20">
+				<comment>주택가격 값</comment>
+			</column>
+		</property>
+		<property name="year" type="string" >
+			<column name="YEAR" length="4">
+				<comment>주택가격 년도</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="JigaVO"	table="RFC_COMTNJIGA">
+		<cache usage="read-write"/>
+		<comment>공시지가 테이블</comment>
+		<id name="cno" type="int">
+			
+			<column name="CNO">
+				<comment>공시지가 고유 값</comment>
+            </column>
+            <generator class="native" />
+		</id>		
+		<property name="landCd" type="string" >
+			<column name="LAND_CD" length="20">
+				<comment>공시지가 고유 값</comment>
+			</column>
+		</property>
+		<property name="year" type="string" >
+			<column name="YEAR" length="4">
+				<comment>공시지가 년도</comment>
+			</column>
+		</property>
+		<property name="jiga" type="string" >
+			<column name="JIGA" length="100">
+				<comment>공시지가 값</comment>
+			</column>
+		</property>		
+		<property name="baseMon" type="string" >
+			<column name="BASE_MON" length="1">
+				<comment>공시지가 월</comment>
+			</column>
+		</property>
+		<property name="pyoYn" type="string" >
+			<column name="PYO_YN" length="1">
+				<comment>공시지가 상태</comment>
+			</column>
+		</property>		
+	</class>
+</hibernate-mapping>

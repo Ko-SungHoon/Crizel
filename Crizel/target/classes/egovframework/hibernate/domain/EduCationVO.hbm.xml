@@ -1,0 +1,556 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.education.vo">
+	<class name="EduCationVO"	table="RFC_COMTN_EDU_LECTURE">
+		<cache usage="read-write"/>
+		<comment>교육정보 테이블</comment>
+	
+		<id name="idx"  type="long">       
+			<column name="IDX">
+				<comment>고유번호</comment>
+            </column>
+        </id> 
+		<property name="placeIdx" type="long" >
+			<column name="PLACE_IDX" >
+				<comment>장소 식별번호</comment>
+			</column>
+		</property>
+		<property name="subjectIdx" type="long" >
+			<column name="SUBJECT_IDX"  >
+				<comment>교육정보 식별번호</comment>
+			</column>
+		</property>
+		<property name="teacherId" type="string" >
+			<column name="TEACHER_ID" length="30" >
+				<comment>강사 아이디</comment>
+			</column>
+		</property>
+		<property name="teacherIdx" type="long" >
+			<column name="TEACHER_IDX" >
+				<comment>강사 식별코드</comment>
+			</column>
+		</property>
+		<property name="lectureTime" type="string" >
+			<column name="LECTURE_TIME" length="10"  >
+				<comment>강의시간</comment>
+			</column>
+		</property>
+		<property name="subJect" type="string" >
+			<column name="SUBJECT" length="90">
+				<comment>강의 제목</comment>
+			</column>
+		</property>
+		<property name="startDate" type="string" >
+			<column name="STARTDATE" length="8">
+				<comment>시작일</comment>
+			</column>
+		</property>
+		<property name="endDate" type="string" >
+			<column name="ENDDATE" length="8">
+				<comment>종료일</comment>
+			</column>
+		</property>
+		<property name="startTime" type="string" >
+			<column name="STARTTIME" length="4">
+				<comment>시작시간</comment>
+			</column>
+		</property>
+		<property name="endTime" type="string" >
+			<column name="ENDTIME" length="4">
+				<comment>종료시간</comment>
+			</column>
+		</property>
+		<property name="lectureTerm" type="int" >
+			<column name="LECTURE_TERM">
+				<comment>지원자 수</comment>
+			</column>
+		</property>
+		<property name="limitCount" type="int" >
+			<column name="LIMIT_COUNT" default="0" >
+				<comment>지원마감자 수</comment>
+			</column>
+		</property>
+		<property name="attStartDate" type="string" >
+			<column name="ATT_STARTDATE" length="14" >
+				<comment>접수 시작일</comment>
+			</column>
+		</property>
+		<property name="attEndDate" type="string" >
+			<column name="ATT_ENDDATE" length="14">
+				<comment>접수 종료일</comment>
+			</column>
+		</property>
+		<property name="modifyId" type="string" >
+			<column name="MODIFY_ID" length="20">
+				<comment>수정자 아이디</comment>
+			</column>
+		</property>
+		<property name="createDate" type="timestamp"  insert="true" update="false">
+			<column name="CREATE_DATE" >
+				<comment>생성일</comment>
+			</column>
+		</property>
+		<property name="modifyDate" type="timestamp"  insert="false" update="true">
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="status" type="string" >
+			<column name="STATUS" length="1" default="'Y'" >
+				<comment>수강상태값</comment>
+			</column>
+		</property>
+		<property name="ipAddr"  type="string" >
+			<column name="IPADDR" length="20" >
+				<comment>접속자 아이피</comment>
+			</column>
+		</property>
+		<property name="autoAppliCation" type="string" >
+			<column name="AUTO_APPLICATION" length="1" default="'Y'" >
+				<comment>신청자 자동신청</comment>
+			</column>
+		</property>
+		<property name="limitGubun1Year" type="int" >
+			<column name="LIMIT_GUBUN1_YEAR" default="1" >
+				<comment>접수 횟수 제한</comment>
+			</column>
+		</property>
+		<property name="limitGubun1Count" type="int" >
+			<column name="LIMIT_GUBUN1_COUNT" default="2" >
+				<comment>접수제한</comment>
+			</column>
+		</property>
+		<property name="limitGubun2Auth" type="string" >
+			<column name="LIMIT_GUBUN2_AUTH"  length="1" default="'N'" >
+				<comment>접수 횟수 초과시</comment>
+			</column>
+		</property>
+		<property name="limitGubun2After" type="int" >
+			<column name="LIMIT_GUBUN2_AFTER" default="0" >
+				<comment>접수 횟수초과신청 가능여부</comment>
+			</column>
+		</property>
+		<property name="limitGubun2Auto" type="string" >
+			<column name="LIMIT_GUBUN2_AUTO" length="1" default="'N'" >
+				<comment>접수 자동/수동 여부</comment>
+			</column>
+		</property>
+		<property name="dupGubunAuth" type="string" >
+			<column name="DUP_GUBUN_AUTH"  length="1" default="'N'" >
+				<comment>중복신청 여부 </comment>
+			</column>
+		</property>
+		<property name="dupGubunAfter" type="int" >
+			<column name="DUP_GUBUN_AFTER" default="0" >
+				<comment>중복처리 처리방법</comment>
+			</column>
+		</property>
+		<property name="dupGubunAuto" type="string" >
+			<column name="DUP_GUBUN_AUTO"  length="1" default="'N'" >
+				<comment>중복처리 자동/수동 여부</comment>
+			</column>
+		</property>
+		<property name="attendAnceDates" type="string" >
+			<column name="ATTENDANCE_DATES"  length="2000" >
+				<comment>출석정보</comment>
+			</column>
+		</property>
+		<property name="attendAnceStudents" type="string" >
+			<column name="ATTENDANCE_STUDENTS"  length="2000" >
+				<comment>출석 학생정보</comment>
+			</column>
+		</property>
+		
+	
+	</class>
+	
+	<class name="EduCationApplyVO"	table="RFC_COMTN_EDU_ATTENDING">
+		<cache usage="read-write"/>
+		<comment>출석정보 테이블</comment>
+		<id name="idx"  type="long">       
+			<column name="IDX">
+				<comment>고유번호</comment>
+            </column>
+        </id> 
+		
+		<property name="studentId" type="string" >
+			<column name="STUDENT_ID" length="50"  >
+				<comment>신청자 아이디</comment>
+			</column>
+		</property>
+		<property name="studentIdx" type="long" >
+			<column name="STUDENT_IDX" >
+				<comment>신청자 식별코드</comment>
+			</column>
+		</property>
+		<property name="lectureIdx" type="long" >
+			<column name="LECTURE_IDX" >
+				<comment>수강 식별코드</comment>
+			</column>
+		</property>
+		<property name="status" type="int" >
+			<column name="STATUS" default="0" >
+				<comment>출석상태</comment>
+			</column>
+		</property>
+		<property name="subjectIdx" type="long" >
+			<column name="SUBJECT_IDX" >
+				<comment>수강 제목 실별코드</comment>
+			</column>
+		</property>
+		<property name="startDate" type="string" >
+			<column name="STARTDATE" length="8">
+				<comment>강의 시작일</comment>
+			</column>
+		</property>
+		<property name="endDate" type="string" >
+			<column name="ENDDATE" length="8">
+				<comment>강의 종료일</comment>
+			</column>
+		</property>
+		<property name="lectureTerm" type="int" >
+			<column name="LECTURE_TERM" >
+				<comment>강의 기간</comment>
+			</column>
+		</property>
+		<property name="modifyId" type="string" >
+			<column name="MODIFY_ID" length="20">
+				<comment>수정자</comment>
+			</column>
+		</property>
+		<property name="createDate" type="timestamp"  insert="true" update="false" >
+			<column name="CREATE_DATE" >
+				<comment>생성일</comment>
+			</column>
+		</property>
+		<property name="modifyDate" type="timestamp"  insert="false" update="true" >
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="ipAddr" type="string" >
+			<column name="IPADDR" length="20">
+				<comment>등록자 아이피</comment>
+			</column>
+		</property>
+		<property name="attDate" type="string" >
+			<column name="ATT_DATE" length="14">
+				<comment>접수기간</comment>
+			</column>
+		</property>
+		<property name="attCancelDate" type="string" >
+			<column name="ATT_CANCELDATE" length="14">
+				<comment>신청취소 기간</comment>
+			</column>
+		</property>
+		<property name="attReject" type="string" >
+			<column name="ATT_REJECT" length="1">
+				<comment>신청과목</comment>
+			</column>
+		</property>
+		<property name="attMemo" type="string" >
+			<column name="ATT_MEMO" length="2000">
+				<comment>신청 메모</comment>
+			</column>
+		</property>
+		<property name="certificateNum" type="long" >
+			<column name="CERTIFICATE_NUM" default="0" >
+				<comment>신청자격 구분코드</comment>
+			</column>
+		</property>
+
+	</class>
+	
+	<class name="EduSubjectVO"	table="RFC_COMTN_EDU_SUBJECT">
+		<cache usage="read-write"/>
+		<comment>강의 과목 테이블</comment>
+		<id name="idx"  type="long">       
+			<column name="IDX">
+				<comment>고유번호</comment>
+            </column>
+        </id>
+		
+		
+		<property name="status" type="string" >
+			<column name="STATUS" length="1" default="'N'"  >
+				<comment>공개 여부</comment>
+			</column>
+		</property>
+		<property name="vname" type="string" >
+			<column name="VNAME" length="50"  >
+				<comment>과목 제목</comment>
+			</column>
+		</property>
+		<property name="contents" type="text" >
+			<column name="CONTENT" length="1073741824">
+				<comment>과목 내용</comment>
+			</column>
+		</property>
+		<property name="program" type="string" >
+			<column name="PROGRAM" length="1000">
+				<comment>프로그램 명</comment>
+			</column>
+		</property>
+		<property name="modifyId" type="string" >
+			<column name="MODIFY_ID" length="20">
+				<comment>수정자 아이디</comment>
+			</column>
+		</property>
+		<property name="modifyDate" type="timestamp"  insert="false" update="true">
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="ipAddr" type="string" >
+			<column name="IPADDR" length="30">
+				<comment>등록자 아이피</comment>
+			</column>
+		</property>
+
+	</class>
+	
+	<class name="EduPlaceVO"	table="RFC_COMTN_EDU_PLACE">
+		<cache usage="read-write"/>
+		<comment>강의실 정보 테이블</comment>
+		<id name="idx"  type="long">       
+			<column name="IDX">
+				<comment>고유번호</comment>
+            </column>
+        </id>
+     
+		<property name="id" type="string" >
+			<column name="ID" length="20"  >
+				<comment>강의실 구분코드</comment>
+			</column>
+		</property>
+		<property name="status" type="string" >
+			<column name="STATUS" length="1" default="'N'"  >
+				<comment>공개여부</comment>
+			</column>
+		</property>
+		<property name="vname" type="string" >
+			<column name="VNAME" length="30">
+				<comment>강의실 명</comment>
+			</column>
+		</property>
+		<property name="tel" type="string" >
+			<column name="TEL" length="14">
+				<comment>전화번호</comment>
+			</column>
+		</property>
+		<property name="fax" type="string" >
+			<column name="FAX" length="14">
+				<comment>팩스번호</comment>
+			</column>
+		</property>
+		<property name="seat" type="int" >
+			<column name="SEAT" default="0">
+				<comment>교육인원</comment>
+			</column>
+		</property>
+		<property name="homePage" type="string" >
+			<column name="HOMEPAGE" length="200">
+				<comment>홈페이지 정보</comment>
+			</column>
+		</property>
+		<property name="vmap" type="string" >
+			<column name="VMAP" length="200">
+				<comment>지도정보</comment>
+			</column>
+		</property>
+		<property name="zip" type="string" >
+			<column name="ZIP" length="7">
+				<comment>번지정보</comment>
+			</column>
+		</property>
+		<property name="addr1" type="string" >
+			<column name="ADDR1" length="200">
+				<comment>상세주소1</comment>
+			</column>
+		</property>
+		<property name="addr2" type="string" >
+			<column name="ADDR2" length="200">
+				<comment>상세주소2</comment>
+			</column>
+		</property>
+		<property name="modifyId" type="string" >
+			<column name="MODIFY_ID" length="20">
+				<comment>수정자 아이디</comment>
+			</column>
+		</property>
+		<property name="modifyDate" type="timestamp"  insert="false" update="true" >
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="vimage" type="string" >
+			<column name="VIMAGE" length="200">
+				<comment>대표이미지</comment>
+			</column>
+		</property>
+		<property name="trafficPublic" type="string" >
+			<column name="TRAFFIC_PUBLIC" length="2000">
+				<comment>오시는길 대중교통</comment>
+			</column>
+		</property>
+		<property name="trafficCar" type="string" >
+			<column name="TRAFFIC_CAR" length="2000">
+				<comment>오시는길 자동차</comment>
+			</column>
+		</property>
+		<property name="eduTime" type="string" >
+			<column name="EDU_TIME" length="1000">
+				<comment>강의시간</comment>
+			</column>
+		</property>
+		<property name="alert" type="string" >
+			<column name="ALERT" length="400">
+				<comment>알림사항</comment>
+			</column>
+		</property>
+		<property name="ipAddr" type="string" >
+			<column name="IPADDR" length="30">
+				<comment>등록자 아이피</comment>
+			</column>
+		</property>
+
+	</class>
+	
+	<class name="EduAttendanceVO"	table="RFC_COMTN_EDU_ATTENDANCE">
+		<cache usage="read-write"/>
+		<comment>수강생 정보 테이블</comment>
+		<id name="idx"  type="long">       
+			<column name="IDX">
+				<comment>고유번호</comment>
+            </column>
+        </id>
+        
+		<property name="status" type="string" >
+			<column name="STATUS" length="1" default="'N'"  >
+				<comment>공개여부</comment>
+			</column>
+		</property>
+		<property name="lectureIdx" type="long" >
+			<column name="LECTURE_IDX" >
+				<comment>강의 고유번호</comment>
+			</column>
+		</property>
+		<property name="studentId" type="string" >
+			<column name="STUDENT_ID" length="30" >
+				<comment>수강생 아이디</comment>
+			</column>
+		</property>
+		<property name="studentIdx" type="long" >
+			<column name="STUDENT_IDX"  >
+				<comment>수강생 구분코드</comment>
+			</column>
+		</property>
+		<property name="lectureDate" type="string" >
+			<column name="LECTURE_DATE" length="8" >
+				<comment>강의등록일</comment>
+			</column>
+		</property>		
+
+	</class>
+	
+	<class name="EduReportVO"	table="RFC_COMTN_EDU_REPORT">
+		<cache usage="read-write"/>
+		<comment>과제 정보 테이블</comment>
+		<id name="idx"  type="long">       
+			<column name="IDX">
+				<comment>고유번호</comment>
+            </column>
+        </id>
+		<property name="lectureIdx" type="long" >
+			<column name="LECTURE_IDX" >
+				<comment>강좌 식별코드</comment>
+			</column>
+		</property>
+		<property name="lectureDate" type="string" >
+			<column name="LECTURE_DATE" length="8" >
+				<comment>강좌 등록일</comment>
+			</column>
+		</property>
+		<property name="attenDanceCount" type="int" >
+			<column name="ATTENDANCE_COUNT" >
+				<comment>과제횟수</comment>
+			</column>
+		</property>
+		<property name="attenDanceStudent" type="string" >
+			<column name="ATTENDANCE_STUDENT" length="2000" >
+				<comment>접수자 정보</comment>
+			</column>
+		</property>
+		<property name="lectureContent" type="string" >
+			<column name="LECTURE_CONTENT" length="2000" >
+				<comment>과제정보</comment>
+			</column>
+		</property>
+		<property name="modifyId" type="string" >
+			<column name="MODIFY_ID" length="20">
+				<comment>수정자 아이디</comment>
+			</column>
+		</property>
+		<property name="modifyDate" type="string" >
+			<column name="MODIFY_DATE" length="14" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="ipAddr" type="string" >
+			<column name="IPADDR" length="20">
+				<comment>등록자 아이피</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="EduAfterVO"	table="RFC_COMTN_EDU_AFTER">
+		<cache usage="read-write"/>
+		
+		<comment>교육현황 정보 테이블</comment>
+		<id name="idx"  type="long">       
+			<column name="IDX">
+				<comment>고유번호</comment>
+            </column>
+        </id>
+        
+		
+		<property name="lectureIdx" type="long" >
+			<column name="LECTURE_IDX" >
+				<comment>강좌 식별코드</comment>
+			</column>
+		</property>
+		<property name="studentIdx" type="long" >
+			<column name="STUDENT_IDX" >
+				<comment>신청자 식별코드</comment>
+			</column>
+		</property>
+		<property name="studentId" type="string" >
+			<column name="STUDENT_ID" length="50">
+				<comment>신청자 아이디</comment>
+			</column>
+		</property>
+		<property name="questionNo" type="int" >
+			<column name="QUESTION_NO" >
+				<comment>질문 식별번호</comment>
+			</column>
+		</property>
+		<property name="answerNo" type="int" >
+			<column name="ANSWER_NO" >
+				<comment>답변 식별번호</comment>
+			</column>
+		</property>
+		<property name="answerText" type="string" >
+			<column name="ANSWER_TEXT" length="2000">
+				<comment>답변내용</comment>
+			</column>
+		</property>
+		<property name="regDate" type="timestamp"  insert="true" update="false">
+			<column name="REG_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+
+</hibernate-mapping>

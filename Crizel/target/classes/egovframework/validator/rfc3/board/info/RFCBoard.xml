@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE form-validation PUBLIC 
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1//EN" 
+    "http://jakarta.apache.org/commons/dtds/validator_1_1.dtd">
+
+<form-validation>
+    <formset>
+    	<form name="boardVO">
+			<field property="sgroupId" depends="required">
+        		<arg0 key="사이트 그룹" resource="false"/>
+			</field>
+			<field property="domainId" depends="required">
+        		<arg0 key="도메인 그룹" resource="false"/>
+			</field>			
+			<!--
+			<field property="boardId" depends="required">
+        		<arg0 key="게시판 ID" resource="false"/>
+			</field>
+			 -->
+			 
+			<field property="boardTitle" depends="required">
+        		<arg0 key="게시판 이름" resource="false"/>
+			</field>
+			<!--
+			<field property="skinId" depends="required">
+        		<arg0 key="게시판 기본 스킨" resource="false"/>
+			</field>
+			 -->
+		</form>
+		<form name="boardVOAll">
+			<field property="sgroupId" depends="required">
+        		<arg0 key="사이트 그룹" resource="false"/>
+			</field>
+			<field property="domainId" depends="required">
+        		<arg0 key="도메인 그룹" resource="false"/>
+			</field>				
+			<field property="boardId" depends="required">
+        		<arg0 key="게시판 ID" resource="false"/>
+			</field>
+			<field property="boardTitle" depends="required">
+        		<arg0 key="게시판 이름" resource="false"/>
+			</field>			
+			<!-- 
+			<field property="skinId" depends="required">
+        		<arg0 key="게시판 기본 스킨" resource="false"/>
+			</field>
+			 -->
+			<field property="boardCel" depends="required, maxlength, integer">
+	                <arg0 key="열 갯수" resource="false"/>
+	                <arg1 key="2" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>2</var-value>
+	                </var>
+	         </field>
+	         <field property="boardRow" depends="required, maxlength, integer">
+	                <arg0 key="행 갯수" resource="false"/>
+	                <arg1 key="2" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>2</var-value>
+	                </var>
+	         </field>
+	         <field property="boardPageBlock" depends="required, maxlength, integer">
+	                <arg0 key="페이지 블럭" resource="false"/>
+	                <arg1 key="2" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>2</var-value>
+	                </var>
+	         </field>
+	         <field property="boardFileSize" depends="required, maxlength, integer">
+	                <arg0 key="첨부파일 용량" resource="false"/>
+	                <arg1 key="4" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>4</var-value>
+	                </var>
+	         </field>
+	         <field property="boardFileCnt" depends="required, maxlength, integer">
+	                <arg0 key="첨부파일 갯수" resource="false"/>
+	                <arg1 key="2" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>2</var-value>
+	                </var>
+	         </field>
+	         <field property="dataTitleLength" depends="required, maxlength, integer">
+	                <arg0 key="제목 길이" resource="false"/>
+	                <arg1 key="2" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>2</var-value>
+	                </var>
+	         </field>
+	         <field property="newiconIntervalTime" depends="required, maxlength, integer">
+	                <arg0 key="새글아이콘 표시 시간" resource="false"/>
+	                <arg1 key="2" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>2</var-value>
+	                </var>
+	         </field>
+		</form>
+		
+		<form name="boardEtcVO">
+			<field property="boardId" depends="required">
+        		<arg0 key="게시판 ID" resource="false"/>
+			</field>
+			<field property="thumbnailWidth" depends="required, maxlength, integer">
+	                <arg0 key="썸네일 넓이" resource="false"/>
+	                <arg1 key="4" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>4</var-value>
+	                </var>
+	         </field>
+	         <field property="thumbnailHeight" depends="required, maxlength, integer">
+	                <arg0 key="썸네일 높이" resource="false"/>
+	                <arg1 key="4" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>4</var-value>
+	                </var>
+	         </field>
+	         <field property="protectReplyCnt" depends="required, maxlength, integer">
+	                <arg0 key="원본글 보호갯수" resource="false"/>
+	                <arg1 key="2" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>2</var-value>
+	                </var>
+	         </field>	   
+		</form>
+		
+		<form name="boardExtensionVO">
+			<field property="boardId" depends="required">
+        		<arg0 key="게시판 ID" resource="false"/>
+			</field>
+			<field property="extensionKey" depends="required">
+        		<arg0 key="확장필드키" resource="false"/>
+			</field>
+			<field property="extensionDesc" depends="required">
+        		<arg0 key="확장필드 명" resource="false"/>
+			</field>
+			<field property="extensionSortIdx" depends="required, maxlength, integer">
+	                <arg0 key="정렬순서" resource="false"/>
+	                <arg1 key="3" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>3</var-value>
+	                </var>
+	         </field>	         	   
+		</form>
+		
+		<form name="boardCategoryVO">
+			<field property="boardId" depends="required">
+        		<arg0 key="게시판 ID" resource="false"/>
+			</field>
+			<field property="categoryDepth" depends="required, maxlength, integer">
+	                <arg0 key="카테고리 차수" resource="false"/>
+	                <arg1 key="2" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>2</var-value>
+	                </var>
+	         </field>
+			<field property="categoryCode" depends="required">
+        		<arg0 key="카테고리 코드" resource="false"/>
+			</field>
+			
+			<field property="categoryName" depends="required">
+        		<arg0 key="카테고리 명" resource="false"/>
+			</field>
+			
+			<field property="categorySortIdx" depends="required, maxlength, integer">
+	                <arg0 key="정렬순서" resource="false"/>
+	                <arg1 key="2" resource="false"/>
+	                <var>
+	                <var-name>maxlength</var-name>
+	                <var-value>2</var-value>
+	                </var>
+	         </field>	         	   
+		</form>
+		<form name="boardSkinVO">
+			<field property="sgroupId" depends="required">
+        		<arg0 key="사이트 그룹" resource="false"/>
+			</field>
+			<!-- 
+			<field property="skinId" depends="required">
+        		<arg0 key="스킨 ID" resource="false"/>
+			</field>
+			 -->
+			<field property="skinName" depends="required">
+        		<arg0 key="스킨 이름" resource="false"/>
+			</field>
+			<!-- 			
+			<field property="skinId" depends="required">
+        		<arg0 key="게시판 기본 스킨" resource="false"/>
+			</field>
+			 -->
+		</form>
+		<form name="boardActionVO">
+			<field property="sgroupId" depends="required">
+        		<arg0 key="사이트 그룹" resource="false"/>
+			</field>
+			<!-- 
+			<field property="actionId" depends="required">
+        		<arg0 key="액션 ID" resource="false"/>
+			</field>
+			 -->
+			<field property="actionName" depends="required">
+        		<arg0 key="액션 이름" resource="false"/>
+			</field>
+			<!-- 			
+			<field property="skinId" depends="required">
+        		<arg0 key="게시판 기본 스킨" resource="false"/>
+			</field>
+			 -->
+		</form>
+    </formset>
+</form-validation>

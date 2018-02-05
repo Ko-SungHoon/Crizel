@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCSnsInfoManage">
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="snsInfoVO"	 type = "egovframework.rfc3.sns.vo.SnsInfoVO"/>
+    
+    <cacheModel type="${Globals.ibatis.default.cache}" id="RFCSnsInfoManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+		<flushOnExecute statement="snsInfoDAO.insertSnsInfo"/>
+		<flushOnExecute statement="snsInfoDAO.updateSnsInfo"/>
+		<flushOnExecute statement="snsInfoDAO.deleteSnsInfo"/>
+     </cacheModel>
+     
+     <select id="snsInfoDAO.selectSnsInfoCount" parameterClass="snsInfoVO"  resultClass="int" cacheModel="RFCSnsInfoManageCache">
+			       	SELECT
+		       			count(*) totcnt
+					FROM
+					    RFC_COMTNSNSINFO
+					WHERE
+						USER_ID = #userId#
+						AND SNS_TYPE = #snsType#							
+	</select>
+	
+	<select id="snsInfoDAO.getSnsInfo" parameterClass="snsInfoVO"  resultClass="snsInfoVO" cacheModel="RFCSnsInfoManageCache">
+			       	SELECT
+			       			SNS_SID snsSid,
+			       			SNS_TYPE snsType,
+			       			SNS_ID_TYPE snsIdType,
+			       			SNS_ID snsId,
+			       			SNS_PW snsPw,
+			       			SNS_NOTE snsNote,			       			
+							REGISTER_DATE register_dt,
+							MODIFY_DATE modify_dt
+						FROM
+						    RFC_COMTNSNSINFO
+						WHERE
+							USER_ID = #userId#
+							<isNotEqual prepend="AND" property="snsSid" compareValue="0">
+								SNS_SID = #snsSid#
+							</isNotEqual>
+							<isNotEqual prepend="AND" property="snsType" compareValue="0">
+								SNS_TYPE = #snsType#
+							</isNotEqual>
+							
+	</select>
+     
+     <insert id="snsInfoDAO.insertSnsInfo"  parameterClass="snsInfoVO">
+					INSERT INTO RFC_COMTNSNSINFO
+					( 
+						SNS_SID,
+						USER_ID,
+		       			SNS_TYPE,
+		       			SNS_ID_TYPE,
+		       			SNS_ID,
+		       			SNS_PW,
+		       			SNS_NOTE,			       			
+						REGISTER_DATE,
+						MODIFY_DATE
+					)
+					VALUES (
+						#snsSid#,
+						#userId#,
+		       			#snsType#,
+		       			#snsIdType#,
+		       			#snsId#,
+		       			#snsPw#,
+		       			#snsNote#,			       			
+						#register_dt#,
+						#modify_dt#
+					)
+	</insert>	
+	
+	<update id="snsInfoDAO.updateSnsInfo"  parameterClass="snsInfoVO">
+					UPDATE RFC_COMTNSNSINFO
+					SET
+		       			SNS_TYPE = #snsType#,
+		       			SNS_ID_TYPE = #snsIdType#,
+		       			SNS_ID = #snsId#,
+		       			SNS_PW = #snsPw#,
+		       			SNS_NOTE = #snsNote#,			       			
+						MODIFY_DATE = #modify_dt#
+					WHERE
+						USER_ID = #userId# AND SNS_SID = #snsSid#
+	</update>
+	
+	<delete id="snsInfoDAO.deleteSnsInfo"  parameterClass="snsInfoVO">
+					DELETE FROM RFC_COMTNSNSINFO
+					WHERE
+						USER_ID = #userId# AND SNS_SID = #snsSid#				
+	</delete>
+</sqlMap>

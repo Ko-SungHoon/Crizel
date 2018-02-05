@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCBoardDataBackupManage">
+	
+	<cacheModel type="${Globals.ibatis.default.cache}" id="RFCBoardDataBackupManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="boardDAO.insertBoardData"/>
+      	<flushOnExecute statement="boardDAO.restoreBoardDataBak"/>
+      	<flushOnExecute statement="boardDAO.deleteBoardDataBak"/>
+     </cacheModel>     
+    <typeAlias  alias="boardDataVO"	 type = "egovframework.rfc3.board.vo.BoardDataVO"/>
+    <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="boardVO"	 type = "egovframework.rfc3.board.vo.BoardVO"/>
+    <update id="boardDAO.restoreBoardDataBak" parameterClass="boardVO"  >
+    	UPDATE RFC_COMTHBBSDATABAK
+    	SET
+    		RESTORE_DATE=#restore_dt#
+    	WHERE
+    		DATA_BACKUP_SID IN ($sidList$)
+    </update>
+    <delete id="boardDAO.deleteBoardDataBak" parameterClass="boardVO"  >
+    	DELETE FROM RFC_COMTHBBSDATABAK
+    	WHERE
+    		DATA_BACKUP_SID IN ($sidList$)
+    </delete>
+    <insert id="boardDAO.insertBoardDataBackup" parameterClass="boardDataVO"  >
+			       	INSERT INTO RFC_COMTHBBSDATABAK
+			       	(
+			       		DATA_BACKUP_SID,
+			       		DATA_SID,
+			       		ACTION_TYPE,
+						BOARD_ID,
+						BOARD_SID,
+						DATA_IDX,
+						DATA_REF,
+						DATA_DEP,
+						USER_ID,
+						USER_PW,
+						USER_NICK,
+						USER_ICON,
+						USER_LEVEL,
+						USER_IP,
+						USER_HOMEPAGE,
+						USER_TEL,
+						USER_CEL,
+						USER_DETAILADDR,
+						USER_JUMIN1,
+						USER_JUMIN2,
+						USER_EMAIL,
+						USER_ZIPCODE,
+						USER_ADDRESS,						
+						TMP_FIELD1,
+						TMP_FIELD2,
+						TMP_FIELD3,
+						TMP_FIELD4,
+						TMP_FIELD5,
+						TMP_FIELD6,
+						TMP_FIELD7,
+						TMP_FIELD8,
+						TMP_FIELD9,
+						TMP_FIELD10,
+						DATA_TITLE,
+						DATA_CONTENT,
+						BACKUP_DATA_TITLE,
+						BACKUP_DATA_CONTENT,
+						BACKUP_USER_NICK,
+						DATA_NOTICE,
+						DATA_SECRET,
+						ANSWER_STATUS,
+						DATA_STATUS,
+						DELETE_STATUS,
+						TAG_NAME,
+						TAG_ID,
+						VIEW_COUNT,
+						FILTER_CONTENT,
+						START_DATE,
+						END_DATE,
+						CATEGORY_CODE1,
+						CATEGORY_CODE2,
+						CATEGORY_CODE3,
+						PCODE,
+						STAR_POINT,
+						MODIFY_DATE,
+						REGISTER_DATE,
+						DELETE_DATE,
+						RESTORE_DATE
+			       	)
+			       	VALUES
+			       	(
+			       		#dataBackupSid#,
+			       		#dataSid#,
+			       		#actionType#,
+						#boardId#,
+						#boardSid#,
+						#dataIdx#,
+						#dataRef#,
+						#dataDep#,
+						#userId#,
+						#userPw#,
+						#userNick#,
+						#userIcon#,
+						#userLevel#,
+						#userIp#,
+						#userHomepage#,
+						<isEqual property="isAnother" compareValue="Echelon">
+							<isEqual property="isEchelon" compareValue="true">								
+								ECL_ENCRYPT(#userTel#),
+								ECL_ENCRYPT(#userCel#),						
+								ECL_ENCRYPT(#userDetailAddr#),
+								ECL_ENCRYPT(#userJumin1#),
+								ECL_ENCRYPT(#userJumin2#),
+								ECL_ENCRYPT(#userEmail#),
+							</isEqual>
+							<isNotEqual property="isEchelon" compareValue="true">								
+								#userTel#,
+								#userCel#,						
+								#userDetailAddr#,
+								#userJumin1#,
+								#userJumin2#,
+								#userEmail#,
+							</isNotEqual>
+						</isEqual>
+						
+						<isEqual property="isAnother" compareValue="Damo">
+								SCP.ENC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,#userTel#),
+								SCP.ENC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,#userCel#),
+								SCP.ENC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,#userDetailAddr#),
+								SCP.ENC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,#userJumin1#),
+								SCP.ENC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,#userJumin2#),
+								SCP.ENC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,#userEmail#),
+						</isEqual>
+						<isEmpty property="isAnother">
+							
+								#userTel#,
+								#userCel#,						
+								#userDetailAddr#,
+								#userJumin1#,
+								#userJumin2#,
+								#userEmail#,
+							
+						</isEmpty>
+						#userZipcode#,
+						#userAddress#,
+						#tmpField1#,
+						#tmpField2#,
+						#tmpField3#,
+						#tmpField4#,
+						#tmpField5#,
+						#tmpField6#,
+						#tmpField7#,
+						#tmpField8#,
+						#tmpField9#,
+						#tmpField10#,
+						#dataTitle#,
+						#dataContent#,
+						#backupDataTitle#,
+						#backupDataContent#,
+						#backupUserNick#,
+						#dataNotice#,
+						#dataSecret#,
+						#answerStatus#,
+						#dataStatus#,
+						#deleteStatus#,
+						#tagName#,
+						#tagId#,
+						#viewCount#,
+						#filterContent#,
+						#startDate#,
+						#endDate#,
+						#categoryCode1#,
+						#categoryCode2#,
+						#categoryCode3#,
+						#pcode#,
+						#starPoint#,
+						#modify_dt#,
+						#register_dt#,
+						#delete_dt#,
+						#restore_dt#
+			       	)			       	
+	</insert>
+	<!-- cacheModel="RFCBoardDataBackupManageCache" -->
+	<select id="boardDAO.selectBoardDataBackupTotal"  parameterClass="boardVO" resultClass="int" >
+    	SELECT
+    		count(*) totcnt
+    	FROM
+    		RFC_COMTHBBSDATABAK A LEFT OUTER JOIN RFC_COMTNBBS B ON A.BOARD_ID = B.BOARD_ID 
+    	WHERE 1=1
+    		<isNotEmpty prepend="AND" property="boardId" >
+          		    B.BOARD_ID =#boardId# 
+            </isNotEmpty>	
+    		<isNotEmpty prepend="AND" property="searchCondition" >
+          		    A. $searchCondition$  LIKE '%$searchKeyword$%'
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="sgroupId" >
+          		     B.SGROUP_ID  = #sgroupId#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="domainId" >
+                      B.DOMAIN_ID  = #domainId#
+               </isNotEmpty>		
+           <isEmpty  property="domainId" >
+               	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+                	B.DOMAIN_ID in ( $myDomainList$ )
+        		</isEqual>
+           </isEmpty> 
+    </select>
+    <select id="boardDAO.getBoardDataBak" parameterClass="boardDataVO"  resultClass="boardDataVO" cacheModel="RFCBoardDataBackupManageCache">
+			       	SELECT			  
+			       			DATA_BACKUP_SID dataBackupSid,     			
+			       			DATA_SID dataSid,
+			       			ACTION_TYPE actionType,
+							BOARD_ID boardId,
+							BOARD_SID boardSid,
+							DATA_IDX dataIdx,
+							DATA_REF dataRef,
+							DATA_DEP dataDep,
+							DATA_TITLE dataTitle,
+							DATA_CONTENT dataContent,
+							USER_NICK userNick,
+							USER_ID userId,
+							USER_PW userPw,
+							USER_ICON userIcon,
+							USER_HOMEPAGE userHomepage,
+							<isEqual property="isAnother" compareValue="Echelon">
+								<isEqual property="isEchelon" compareValue="true">								
+									ECL_DECRYPT(USER_TEL) userTel,
+									ECL_DECRYPT(USER_CEL) userCel,
+									ECL_DECRYPT(USER_DETAILADDR) userDetailAddr,
+									ECL_DECRYPT(USER_JUMIN1) userJumin1,
+									ECL_DECRYPT(USER_JUMIN2) userJumin2,
+									ECL_DECRYPT(USER_EMAIL) userEmail,
+								</isEqual>
+								<isNotEqual property="isEchelon" compareValue="true">								
+									USER_TEL userTel,
+									USER_CEL userCel,
+									USER_DETAILADDR userDetailAddr,
+									USER_JUMIN1 userJumin1,
+									USER_JUMIN2 userJumin2,
+									USER_EMAIL userEmail,
+								</isNotEqual>
+							</isEqual>
+							
+							<isEqual property="isAnother" compareValue="Damo">
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_TEL) userTel,
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_CEL) userCel,
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_DETAILADDR) userDetailAddr,
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_JUMIN1) userJumin1,
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_JUMIN2) userJumin2,
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_EMAIL) userEmail,
+							</isEqual>
+							<isEmpty property="isAnother">			
+												
+									USER_TEL userTel,
+									USER_CEL userCel,
+									USER_DETAILADDR userDetailAddr,
+									USER_JUMIN1 userJumin1,
+									USER_JUMIN2 userJumin2,
+									USER_EMAIL userEmail,
+								
+							</isEmpty>
+							USER_ZIPCODE userZipcode,
+							USER_ADDRESS userAddress,
+							TMP_FIELD1 tmpField1,
+							TMP_FIELD2 tmpField2,
+							TMP_FIELD3 tmpField3,
+							TMP_FIELD4 tmpField4,
+							TMP_FIELD5 tmpField5,
+							TMP_FIELD6 tmpField6,
+							TMP_FIELD7 tmpField7,
+							TMP_FIELD8 tmpField8,
+							TMP_FIELD9 tmpField9,
+							TMP_FIELD10 tmpField10,
+							BACKUP_DATA_TITLE backupDataTitle,
+							BACKUP_DATA_CONTENT backupDataContent,
+							BACKUP_USER_NICK backupUserNick,
+							DATA_NOTICE dataNotice,
+							DATA_SECRET dataSecret,
+							ANSWER_STATUS answerStatus,
+							DATA_STATUS dataStatus,
+							DELETE_STATUS deleteStatus,
+							TAG_NAME tagName,
+							TAG_ID tagId,
+							VIEW_COUNT viewCount,
+							FILTER_CONTENT filterContent,
+							START_DATE startDate,
+							END_DATE endDate,
+							CATEGORY_CODE1 categoryCode1,
+							CATEGORY_CODE2 categoryCode2,
+							CATEGORY_CODE3 categoryCode3,
+							PCODE pcode,
+							STAR_POINT starPoint,
+							MODIFY_DATE modify_dt,							
+							REGISTER_DATE register_dt,
+							RESTORE_DATE restore_dt
+						FROM
+						    RFC_COMTHBBSDATABAK						
+						WHERE  DATA_BACKUP_SID = #dataBackupSid#
+						<isNotEmpty prepend="AND" property="boardId" >
+							BOARD_ID = #boardId#
+						</isNotEmpty>
+						<!-- AND BOARD_ID = #boardId#  -->
+	</select>
+	<select id="boardDAO.getBoardDataBakList" parameterClass="boardVO"  resultClass="boardDataVO" cacheModel="RFCBoardDataBackupManageCache">
+			       	SELECT			  
+			       			DATA_BACKUP_SID dataBackupSid,     			
+			       			DATA_SID dataSid,
+			       			ACTION_TYPE actionType,
+							BOARD_ID boardId,
+							BOARD_SID boardSid,
+							DATA_IDX dataIdx,
+							DATA_REF dataRef,
+							DATA_DEP dataDep,
+							DATA_TITLE dataTitle,
+							DATA_CONTENT dataContent,
+							USER_NICK userNick,
+							USER_ID userId,
+							USER_PW userPw,
+							USER_ICON userIcon,
+							USER_HOMEPAGE userHomepage,
+							<isEqual property="isAnother" compareValue="Echelon">
+								<isEqual property="isEchelon" compareValue="true">								
+									ECL_DECRYPT(USER_TEL) userTel,
+									ECL_DECRYPT(USER_CEL) userCel,
+									ECL_DECRYPT(USER_DETAILADDR) userDetailAddr,
+									ECL_DECRYPT(USER_JUMIN1) userJumin1,
+									ECL_DECRYPT(USER_JUMIN2) userJumin2,
+									ECL_DECRYPT(USER_EMAIL) userEmail,
+								</isEqual>
+								<isNotEqual property="isEchelon" compareValue="true">								
+									USER_TEL userTel,
+									USER_CEL userCel,
+									USER_DETAILADDR userDetailAddr,
+									USER_JUMIN1 userJumin1,
+									USER_JUMIN2 userJumin2,
+									USER_EMAIL userEmail,
+								</isNotEqual>
+							</isEqual>
+							
+							<isEqual property="isAnother" compareValue="Damo">
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_TEL) userTel,
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_CEL) userCel,
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_DETAILADDR) userDetailAddr,
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_JUMIN1) userJumin1,
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_JUMIN2) userJumin2,
+								SCP.DEC_STR(#damoUser#,'RFC_COMTHBBSDATABAK',#damoKey#,USER_EMAIL) userEmail,
+							</isEqual>
+							<isEmpty property="isAnother">		
+											
+								USER_TEL userTel,
+								USER_CEL userCel,
+								USER_DETAILADDR userDetailAddr,
+								USER_JUMIN1 userJumin1,
+								USER_JUMIN2 userJumin2,
+								USER_EMAIL userEmail,
+							
+							</isEmpty>
+							USER_ZIPCODE userZipcode,
+							USER_ADDRESS userAddress,
+							TMP_FIELD1 tmpField1,
+							TMP_FIELD2 tmpField2,
+							TMP_FIELD3 tmpField3,
+							TMP_FIELD4 tmpField4,
+							TMP_FIELD5 tmpField5,
+							TMP_FIELD6 tmpField6,
+							TMP_FIELD7 tmpField7,
+							TMP_FIELD8 tmpField8,
+							TMP_FIELD9 tmpField9,
+							TMP_FIELD10 tmpField10,
+							BACKUP_DATA_TITLE backupDataTitle,
+							BACKUP_DATA_CONTENT backupDataContent,
+							BACKUP_USER_NICK backupUserNick,
+							DATA_NOTICE dataNotice,
+							DATA_SECRET dataSecret,
+							ANSWER_STATUS answerStatus,
+							DATA_STATUS dataStatus,
+							DELETE_STATUS deleteStatus,
+							TAG_NAME tagName,
+							TAG_ID tagId,
+							VIEW_COUNT viewCount,
+							FILTER_CONTENT filterContent,
+							START_DATE startDate,
+							END_DATE endDate,
+							CATEGORY_CODE1 categoryCode1,
+							CATEGORY_CODE2 categoryCode2,
+							CATEGORY_CODE3 categoryCode3,
+							PCODE pcode,
+							STAR_POINT starPoint,
+							MODIFY_DATE modify_dt,							
+							REGISTER_DATE register_dt,
+							RESTORE_DATE restore_dt
+						FROM
+						    RFC_COMTHBBSDATABAK						
+						WHERE  DATA_BACKUP_SID IN ($sidList$) 
+	</select>
+	<!-- 
+	cacheModel="RFCBoardDataBackupManageCache"
+	 -->
+    <select id="boardDAO.selectBoardDataBackupList"  parameterClass="boardVO" resultClass="boardDataVO" >
+   SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(
+			    	SELECT
+			    		A.DATA_BACKUP_SID dataBackupSid,
+			    		A.BOARD_ID boardId,
+			    		A.BOARD_SID boardSid,
+						A.DATA_SID dataSid,
+						A.ACTION_TYPE actionType,
+						A.DATA_TITLE dataTitle,
+						A.USER_ID userId,
+						A.USER_NICK userNIck,
+						A.USER_IP userIp,
+						A.DATA_DEP dataDep,
+						A.DATA_STATUS dataStatus,
+						A.DELETE_STATUS deleteStatus,
+						A.ANSWER_STATUS answerStatus,
+						A.DATA_NOTICE dataNotice,
+						A.DATA_SECRET dataSecret,
+						TO_CHAR(A.START_DATE,'YYYY-MM-DD') start_dt,
+						TO_CHAR(A.END_DATE,'YYYY-MM-DD')  end_dt,
+						A.VIEW_COUNT viewCount,
+						A.REGISTER_DATE register_dt,			
+			    		B.BOARD_TITLE boardTitle,
+			    		A.DELETE_DATE delete_dt,
+			    		A.RESTORE_DATE restore_dt
+			    	FROM
+			    		RFC_COMTHBBSDATABAK A LEFT OUTER JOIN RFC_COMTNBBS B ON A.BOARD_ID = B.BOARD_ID 
+			    	WHERE 1=1 
+			    		<isNotEmpty prepend="AND" property="boardId" >
+			          		    B.BOARD_ID =#boardId# 
+			            </isNotEmpty>	
+			    		<isNotEmpty prepend="AND" property="searchCondition" >
+			          		    A. $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>		
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		     B.SGROUP_ID  = #sgroupId#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="domainId" >
+			                      B.DOMAIN_ID  = #domainId#
+			               </isNotEmpty>
+			           <isEmpty  property="domainId" >
+			               	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+			                	B.DOMAIN_ID in ( $myDomainList$ )
+			        		</isEqual>
+			           </isEmpty> 
+			           <!-- <isEmpty  property="boardId" >
+			           		ORDER BY A.DELETE_DATE DESC
+			           </isEmpty>
+			           <isNotEmpty property="boardId" >
+			           		ORDER BY A.DATA_NOTICE  DESC, A.DATA_IDX DESC,A.DATA_REF DESC,A.DATA_DEP ASC
+			           </isNotEmpty>     -->
+			           ORDER BY A.DELETE_DATE DESC      	
+			            ) ALL_LIST
+	      )
+  WHERE  RNUM  &gt; #firstIndex#
+  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+			          
+    </select>
+    
+    <select id="boardDAO.selectBackupHistoryTotal"  parameterClass="boardDataVO" resultClass="int" cacheModel="RFCBoardDataBackupManageCache">
+    	SELECT
+    		count(*) totcnt
+    	FROM
+    		RFC_COMTHBBSDATABAK A LEFT OUTER JOIN RFC_COMTNBBS B ON A.BOARD_ID = B.BOARD_ID 
+    	WHERE A.DATA_SID = #dataSid#
+    		<isNotEmpty prepend="AND" property="boardId" >
+          		    B.BOARD_ID =#boardId# 
+            </isNotEmpty>	
+    </select>
+    <select id="boardDAO.selectBackupHistoryList"  parameterClass="boardDataVO" resultClass="boardDataVO" cacheModel="RFCBoardDataBackupManageCache">
+	SELECT  * 
+      FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(
+		    	SELECT
+		    		A.DATA_BACKUP_SID dataBackupSid,
+		    		A.BOARD_ID boardId,
+		    		A.BOARD_SID boardSid,
+					A.DATA_SID dataSid,
+					A.ACTION_TYPE actionType,
+					A.DATA_TITLE dataTitle,
+					A.USER_ID userId,
+					A.USER_NICK userNIck,
+					A.USER_IP userIp,
+					A.DATA_DEP dataDep,
+					A.DATA_STATUS dataStatus,
+					A.DELETE_STATUS deleteStatus,
+					A.ANSWER_STATUS answerStatus,
+					A.DATA_NOTICE dataNotice,
+					A.DATA_SECRET dataSecret,
+					TO_CHAR(A.START_DATE,'YYYY-MM-DD') start_dt,
+					TO_CHAR(A.END_DATE,'YYYY-MM-DD')  end_dt,
+					A.VIEW_COUNT viewCount,
+					A.REGISTER_DATE register_dt,			
+		    		B.BOARD_TITLE boardTitle,
+		    		A.DELETE_DATE delete_dt,
+		    		A.RESTORE_DATE restore_dt
+		    	FROM
+		    		RFC_COMTHBBSDATABAK A LEFT OUTER JOIN RFC_COMTNBBS B ON A.BOARD_ID = B.BOARD_ID 
+		    	WHERE A.DATA_SID = #dataSid#
+		    		<isNotEmpty prepend="AND" property="boardId" >
+		          		    B.BOARD_ID =#boardId# 
+		            </isNotEmpty>	 
+		           <!-- <isEmpty  property="boardId" >
+		           		ORDER BY A.DELETE_DATE DESC
+		           </isEmpty>
+		           <isNotEmpty property="boardId" >
+		           		ORDER BY A.DATA_NOTICE  DESC, A.DATA_IDX DESC,A.DATA_REF DESC,A.DATA_DEP ASC
+		           </isNotEmpty>     -->
+		           ORDER BY A.DELETE_DATE DESC      	
+		           ) ALL_LIST
+	      )
+  WHERE  RNUM  &gt; #firstIndex#
+  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+
+    </select>
+    
+    
+</sqlMap>

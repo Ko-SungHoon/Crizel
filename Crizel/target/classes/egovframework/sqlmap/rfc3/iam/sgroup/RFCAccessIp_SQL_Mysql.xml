@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCAccessIp">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>    
+	 <typeAlias  alias="accessIpVO" type = "egovframework.rfc3.iam.vo.AccessIpVO"/>
+	 <typeAlias  alias="systemSettingsVO" type = "egovframework.rfc3.iam.vo.SystemSettingsVO"/>
+	 <typeAlias  alias="switchingLogVO"	 type = "egovframework.rfc3.iam.vo.SwitchingLogVO"/>
+	 
+	  <cacheModel type="${Globals.ibatis.default.cache}" id="RFCAccessIpCache" readOnly="true" serialize="false">
+     	<flushInterval hours="24" />
+     	<flushOnExecute statement="accessIpDAO.insertAccessIP"/>
+     	<flushOnExecute statement="accessIpDAO.deleteAccessIP"/>
+     </cacheModel>
+	 <select	id="accessIpDAO.selectAccessList"  parameterClass="java.lang.String" resultClass="accessIpVO"  cacheModel="RFCAccessIpCache" >
+	 		  select 
+	 				AIP_SID aipSid,
+			        ATYPE atype,
+			        ACCESS_IP accessIp,
+			        MEMO memo
+			  from 
+			  		RFC_COMTNACCESSIP
+			  where
+			  	   ATYPE=#atype#
+			  order by AIP_SID desc
+	 </select>
+	 
+	 
+	 <select id="accessIpDAO.selectAccessList2"  parameterClass="accessIpVO" resultClass="accessIpVO" >
+	 		  select 
+	 				AIP_SID aipSid,
+			        ATYPE atype,
+			        ACCESS_IP accessIp,
+			        MEMO memo,
+			        ID_REST idRest
+			  from 
+			  		RFC_COMTNACCESSIP
+			  where
+			  	   ATYPE=#atype#  AND ACCESS_IP  REGEXP '$accessIp$'
+			  order by AIP_SID desc
+	 </select>
+	 
+	  
+	<update  id="accessIpDAO.updateAccessIP"  parameterClass="accessIpVO" >
+					UPDATE  RFC_COMTNACCESSIP
+						SET 
+							ID_REST=#idRest#							
+				WHERE
+				          AIP_SID=#aipSid#
+	</update>
+	 
+	 <select id="accessIpDAO.getAccessIP"  parameterClass="long"   resultClass="accessIpVO" >
+				  SELECT 
+				         AIP_SID aipSid,
+			        ATYPE atype,
+			        ACCESS_IP accessIp,
+			        MEMO memo,
+			        ID_REST idRest
+			  		FROM 
+			  		      RFC_COMTNACCESSIP
+			  		 WHERE
+			  		    AIP_SID=#aipSid#
+	</select>
+	 
+	 
+	 <select	id="accessIpDAO.isAccessIpCnt"  parameterClass="accessIpVO" resultClass="int"   cacheModel="RFCAccessIpCache">
+	 		  select 
+	 				count(*) cnt
+			  from 
+			  		RFC_COMTNACCESSIP
+			  where
+			  	   ATYPE=#atype# and ACCESS_IP=#accessIp#
+	 </select>
+	 
+	 <insert id="accessIpDAO.insertAccessIP" parameterClass="accessIpVO" >
+	 		insert into  RFC_COMTNACCESSIP( 
+	 					AIP_SID,
+	 					ATYPE,
+	 					ACCESS_IP,
+	 					MEMO 
+	 					)  values (
+	 					 #aipSid#,
+	 					 #atype#,
+	 					 #accessIp#,
+	 					 #memo#
+	 					 )
+	 </insert>
+	 
+	 <delete	id="accessIpDAO.deleteAccessIP" parameterClass="long">
+	 		delete from
+	 			 RFC_COMTNACCESSIP
+	 		where 
+	 		    AIP_SID=#aipSid#
+	 </delete>
+	 
+	 <select	id="accessIpDAO.getSystemSet"  resultClass="systemSettingsVO">
+	 		  
+	 		  SELECT 
+	 		  	    A.SYSTEM_SETTINGS_SID as systemSettingsSid,   
+					A.SSOP_ALTER_IS as ssopAlterIs,   
+					A.SSOP_ALTER_DAY as ssopAlterDay,   
+					A.SSOP_ALTER_AFT_DAY as ssopAlterAftDay,   
+					A.SSOU_TIME_LOCK as ssouTimeLock,   
+					A.SSOU_LOCK_COUNT as ssouLockCount,   
+					A.SSOU_IS_LOCK as ssouIsLock 
+			  FROM RFC_SYSTEM_SETTINGS_TB A 
+			  WHERE SYSTEM_SETTINGS_SID=1
+	 </select>
+	 
+	 
+	 <update  id="accessIpDAO.updateSystemSettings"  parameterClass="systemSettingsVO" >
+					UPDATE RFC_SYSTEM_SETTINGS_TB 
+       SET SSOP_ALTER_IS=#ssopAlterIs#, SSOP_ALTER_DAY=#ssopAlterDay#,  SSOP_ALTER_AFT_DAY=#ssopAlterAftDay#,  SSOU_TIME_LOCK=#ssouTimeLock#,  SSOU_LOCK_COUNT=#ssouLockCount#,  SSOU_IS_LOCK=#ssouIsLock#   
+ WHERE SYSTEM_SETTINGS_SID=1 
+	</update>
+	 
+	 
+	 
+	 <select id="accessIpDAO.selectSwitchingCnt"  parameterClass="switchingLogVO" resultClass="java.lang.Integer">
+						SELECT
+							  count(*) totcnt
+						FROM
+					    RFC_SWITCHING_LOG_TB A 
+						WHERE  1=1  
+						
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+	</select>
+	 
+	 <select id="accessIpDAO.selectSwitching" parameterClass="switchingLogVO"  resultClass="switchingLogVO">
+  
+			         SELECT 
+				        A.SLOG_SID as slogSid,   
+						A.ID as id,   
+						A.SGUBUN as sgubun,   
+						A.REG_DATE as regDate  	
+			  		FROM 
+			  		      RFC_SWITCHING_LOG_TB A 
+						WHERE  1=1 
+						
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+			            			             
+			            <isNotEmpty  property="orderField" >
+			            	  	ORDER BY  $orderField$   $orderSort$
+			            </isNotEmpty>
+			            
+			            <isEmpty  property="orderField" >
+			             		ORDER BY SLOG_SID  DESC
+			            </isEmpty>
+			            
+          			 LIMIT #recordCountPerPage# OFFSET #firstIndex#	             
+	</select>
+	
+	<insert id="accessIpDAO.insertSwitching"  parameterClass="switchingLogVO">
+											
+						INSERT 
+  INTO RFC_SWITCHING_LOG_TB 
+       ( 
+           SLOG_SID
+		   ,ID
+		   ,SGUBUN
+		   <isNotEmpty prepend="," property="regDate">REG_DATE</isNotEmpty>			
+       ) 
+       VALUES 
+       ( 
+        #slogSid#
+		,#id#
+		,#sgubun#
+		<isNotEmpty prepend="," property="regDate">#regDate#</isNotEmpty>			
+       ) 
+	</insert>
+</sqlMap>

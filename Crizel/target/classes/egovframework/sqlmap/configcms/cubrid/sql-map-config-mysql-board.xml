@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMapConfig PUBLIC "-//iBATIS.com//DTD SQL Map Config 2.0//EN"
+    "http://ibatis.apache.org/dtd/sql-map-config-2.dtd">
+
+<sqlMapConfig>
+	<properties resource="egovframework/message/key-common.properties"/>
+	<settings lazyLoadingEnabled="true"  cacheModelsEnabled="true"/> 
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/board/RFCBoardBasic_SQL_Cubrid.xml"/>
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/board/RFCBoardEtc_SQL_Cubrid.xml"/>
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/board/RFCBoardExtension_SQL_Cubrid.xml"/>
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/board/RFCBoardCategory_SQL_Mysql.xml"/>	
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/board/RFCBoardSkin_SQL_Mysql.xml"/>
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/board/RFCBoardSkinBackup_SQL_Mysql.xml"/>
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/board/RFCBoardAction_SQL_Mysql.xml"/>
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/data/RFCBoardData_SQL_Cubrid.xml"/>	
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/data/RFCBoardDataBackup_SQL_Mysql.xml"/>
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/data/RFCBoardHistory_SQL_Mysql.xml"/>
+	<sqlMap resource="egovframework/sqlmap/rfc3/board/data/RFCBoardReply_SQL_Mysql.xml"/>	
+</sqlMapConfig>

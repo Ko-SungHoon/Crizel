@@ -1,0 +1,473 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCGoodsManage">
+	<cacheModel type="${Globals.ibatis.default.cache}" id="RFCGoodsManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="goodsDAO.goodsInsert"/>
+      	<flushOnExecute statement="goodsDAO.goodsUpdate"/>
+      	<flushOnExecute statement="goodsDAO.goodsChangeStatus"/>
+      	<flushOnExecute statement="goodsDAO.goodsFileInsert"/>
+      	<flushOnExecute statement="goodsDAO.goodsFileUpdate"/>
+      	<flushOnExecute statement="goodsDAO.goodsFileDelete"/>
+      	
+     </cacheModel>
+	<typeAlias  alias="goodsVO" type = "egovframework.rfc3.mall.vo.GoodsVO"/>
+	<typeAlias  alias="goodsFileVO" type = "egovframework.rfc3.mall.vo.GoodsFileVO"/>
+	<typeAlias  alias="goodsNoteVO" type = "egovframework.rfc3.mall.vo.GoodsNoteVO"/>
+	
+	<select id="goodsDAO.selectGoodsTotal"  parameterClass="goodsVO" resultClass="int" cacheModel="RFCGoodsManageCache">
+		SELECT
+			  count(*) totcnt
+		FROM
+		 	  RFC_COMTNGOODS
+		WHERE
+			 SALE_STATUS != 'D'
+			 <isNotEmpty prepend="AND" property="searchCondition" >
+			 	$searchCondition$  LIKE '%$searchKeyword$%'
+			 </isNotEmpty>				                  
+			 <isNotEmpty prepend="AND" property="goodsCate" >
+			 	GOODS_CATE = #goodsCate# 
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="goodsCate1" >
+			 	GOODS_CATE1 = #goodsCate1#
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="goodsCate2" >
+			 	GOODS_CATE2 = #goodsCate2#
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="goodsCate3" >
+			 	GOODS_CATE3 = #goodsCate3#
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="mngId" >
+			 	MNG_ID = #mngId#
+			 </isNotEmpty>
+			 <isNotEmpty prepend="AND" property="goodsGroup" >
+			 	GOODS_GROUP LIKE '%$goodsGroup$%'
+			 </isNotEmpty>
+			 <isEqual prepend="AND" property="packTypeFl" compareValue="Y">
+			 	packTypeCd IS NOT NULL
+			 </isEqual>
+			 <isEqual prepend="AND" property="packTypeFl" compareValue="N">
+			 	( packTypeCd IS NULL OR packTypeCd = '')
+			 </isEqual>
+			 <isNotEmpty prepend="AND" property="saleStatus" >
+			 	SALE_STATUS = #saleStatus#
+			 </isNotEmpty>
+			 <isEmpty prepend="AND" property="saleStatus" >
+			 	SALE_STATUS != 'N'
+			 </isEmpty>
+	</select>
+	<select id="goodsDAO.selectGoodsList"  parameterClass="goodsVO" resultClass="goodsVO" cacheModel="RFCGoodsManageCache">
+		SELECT  * 
+		FROM (
+			SELECT ROWNUM RNUM, ALL_LIST.*  
+			FROM  
+			(   
+				SELECT
+					GOODS_CODE goodsCode,
+					GOODS_CATE goodsCate,
+					GOODS_CATE1 goodsCate1,
+					GOODS_CATE2 goodsCate2,
+					GOODS_CATE3 goodsCate3,
+					GOODS_GROUP goodsGroup,
+					GOODS_TITLE goodsTitle,
+					packTypeCd packTypeCd,
+					GOODS_FIX_PRICE goodsFixPrice,
+					GOODS_HOLD_CNT goodsHoldCnt,
+					GOODS_SALE_PRICE goodsSalePrice,
+					GOODS_SORT goodsSort,
+					GOODS_PREFER goodsPrefer,
+					MNG_ID mngId,
+					SALE_STATUS saleStatus,
+					GOODS_PLACE goodsPlace,
+					GOODS_COMPANY goodsCompany,
+					GOODS_IS_BUNDLE goodsIsBundle,
+					GOODS_WEIGHT goodsWeight,
+					IS_DELI_PRICE isDeliPrice,
+					DELI_PRICE deliPrice,
+					FREE_DELI_PRICE freeDeliPrice,					
+					GOODS_SALE_TYPE goodsSaleType,
+					GOODS_NUM_COUNT goodsNumCount,
+					GOODS_SALE_TYPE_VALUE goodsSaleTypeValue,
+					GOODS_OPTION_TEXT1 goodsOptionText1,
+					GOODS_OPTION_VALUE1 goodsOptionValue1,
+					GOODS_OPTION_PRICE1 goodsOptionPrice1,
+					GOODS_OPTION_COUNT1 goodsOptionCount1,
+					GOODS_OPTION_PROCESS1 goodsOptionProcess1,
+					GOODS_OPTION_TEXT2 goodsOptionText2,
+					GOODS_OPTION_VALUE2 goodsOptionValue2,
+					GOODS_OPTION_PRICE2 goodsOptionPrice2,
+					GOODS_OPTION_COUNT2 goodsOptionCount2,
+					GOODS_OPTION_PROCESS2 goodsOptionProcess2,
+					GOODS_CONTENT goodsContent,
+					GOODS_NOTE goodsNote,
+					GOODS_MODIFY_DATE modify_dt,
+					GOODS_REGISTER_DATE register_dt
+				FROM
+				 	  RFC_COMTNGOODS
+				WHERE
+					 SALE_STATUS != 'D'
+					 <isNotEmpty prepend="AND" property="searchCondition" >
+					 	$searchCondition$  LIKE '%$searchKeyword$%'
+					 </isNotEmpty>				                  
+					 <isNotEmpty prepend="AND" property="goodsCate" >
+					 	GOODS_CATE = #goodsCate# 
+					 </isNotEmpty>
+					 <isNotEmpty prepend="AND" property="goodsCate1" >
+					 	GOODS_CATE1 = #goodsCate1#
+					 </isNotEmpty>
+					 <isNotEmpty prepend="AND" property="goodsCate2" >
+					 	GOODS_CATE2 = #goodsCate2#
+					 </isNotEmpty>
+					 <isNotEmpty prepend="AND" property="goodsCate3" >
+					 	GOODS_CATE3 = #goodsCate3#
+					 </isNotEmpty>
+					 <isNotEmpty prepend="AND" property="mngId" >
+					 	MNG_ID = #mngId#
+					 </isNotEmpty>
+					 <isNotEmpty prepend="AND" property="goodsGroup" >
+					 	GOODS_GROUP LIKE '%$goodsGroup$%'
+					 </isNotEmpty>
+					 <isEqual prepend="AND" property="packTypeFl" compareValue="Y">
+					 	packTypeCd IS NOT NULL
+					 </isEqual>
+					 <isEqual prepend="AND" property="packTypeFl" compareValue="N">
+					 	( packTypeCd IS NULL OR packTypeCd = '')
+					 </isEqual>
+					 <isNotEmpty prepend="AND" property="saleStatus" >
+					 	SALE_STATUS = #saleStatus#
+					 </isNotEmpty>		
+					 <isEmpty prepend="AND" property="saleStatus" >
+					 	SALE_STATUS != 'N'
+					 </isEmpty>			 
+					 
+				<isNotEmpty property="orderby" >
+					ORDER BY $orderby$
+				</isNotEmpty>
+				<isEmpty property="orderby" >
+					ORDER BY GOODS_SORT ASC
+				</isEmpty>				
+				) ALL_LIST
+			)
+		WHERE  
+			RNUM  &gt; #firstIndex#
+			AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#		
+	</select>
+	
+	<select id="goodsDAO.getGoods"  parameterClass="goodsVO" resultClass="goodsVO" cacheModel="RFCGoodsManageCache">
+		SELECT
+			GOODS_CODE goodsCode,
+			GOODS_CATE goodsCate,
+			GOODS_CATE1 goodsCate1,
+			GOODS_CATE2 goodsCate2,
+			GOODS_CATE3 goodsCate3,
+			GOODS_GROUP goodsGroup,
+			GOODS_TITLE goodsTitle,
+			packTypeCd packTypeCd,
+			GOODS_FIX_PRICE goodsFixPrice,
+			GOODS_HOLD_CNT goodsHoldCnt,
+			GOODS_SALE_PRICE goodsSalePrice,
+			GOODS_SORT goodsSort,
+			GOODS_PREFER goodsPrefer,
+			MNG_ID mngId,
+			SALE_STATUS saleStatus,
+			GOODS_PLACE goodsPlace,
+			GOODS_COMPANY goodsCompany,
+			GOODS_IS_BUNDLE goodsIsBundle,
+			GOODS_WEIGHT goodsWeight,
+			IS_DELI_PRICE isDeliPrice,
+			DELI_PRICE deliPrice,
+			FREE_DELI_PRICE freeDeliPrice,
+			GOODS_SALE_TYPE goodsSaleType,
+			GOODS_NUM_COUNT goodsNumCount,
+			GOODS_SALE_TYPE_VALUE goodsSaleTypeValue,
+			GOODS_OPTION_TEXT1 goodsOptionText1,
+			GOODS_OPTION_VALUE1 goodsOptionValue1,
+			GOODS_OPTION_PRICE1 goodsOptionPrice1,
+			GOODS_OPTION_COUNT1 goodsOptionCount1,
+			GOODS_OPTION_PROCESS1 goodsOptionProcess1,
+			GOODS_OPTION_TEXT2 goodsOptionText2,
+			GOODS_OPTION_VALUE2 goodsOptionValue2,
+			GOODS_OPTION_PRICE2 goodsOptionPrice2,
+			GOODS_OPTION_COUNT2 goodsOptionCount2,
+			GOODS_OPTION_PROCESS2 goodsOptionProcess2,
+			GOODS_CONTENT goodsContent,
+			GOODS_NOTE goodsNote,
+			GOODS_MODIFY_DATE modify_dt,
+			GOODS_REGISTER_DATE register_dt
+		FROM
+		 	  RFC_COMTNGOODS
+		WHERE
+			 SALE_STATUS != 'D' AND GOODS_CODE = #goodsCode#	
+	</select>
+	
+	<insert id="goodsDAO.goodsInsert"  parameterClass="goodsVO">
+		INSERT INTO RFC_COMTNGOODS
+			(
+				GOODS_CODE,
+				GOODS_CATE,
+				GOODS_CATE1,
+				GOODS_CATE2,
+				GOODS_CATE3,
+				GOODS_GROUP,
+				GOODS_TITLE,
+				packTypeCd,
+				GOODS_FIX_PRICE,
+				GOODS_HOLD_CNT,
+				GOODS_SALE_PRICE,
+				GOODS_SORT,
+				GOODS_PREFER,
+				MNG_ID,
+				SALE_STATUS,
+				GOODS_PLACE,
+				GOODS_COMPANY,
+				GOODS_IS_BUNDLE,
+				GOODS_WEIGHT,
+				IS_DELI_PRICE,
+				DELI_PRICE,
+				FREE_DELI_PRICE,
+				GOODS_SALE_TYPE,
+				GOODS_NUM_COUNT,
+				GOODS_SALE_TYPE_VALUE,
+				GOODS_OPTION_TEXT1,
+				GOODS_OPTION_VALUE1,
+				GOODS_OPTION_PRICE1,
+				GOODS_OPTION_COUNT1,
+				GOODS_OPTION_PROCESS1,
+				GOODS_OPTION_TEXT2,
+				GOODS_OPTION_VALUE2,
+				GOODS_OPTION_PRICE2,
+				GOODS_OPTION_COUNT2,
+				GOODS_OPTION_PROCESS2,
+				GOODS_CONTENT,
+				GOODS_NOTE,
+				GOODS_MODIFY_DATE,
+				GOODS_REGISTER_DATE
+			)
+			VALUES
+			(
+				#goodsCode#,
+				#goodsCate#,
+				#goodsCate1#,
+				#goodsCate2#,
+				#goodsCate3#,
+				#goodsGroup#,
+				#goodsTitle#,
+				#packTypeCd#,
+				#goodsFixPrice#,
+				#goodsHoldCnt#,
+				#goodsSalePrice#,
+				#goodsSort#,
+				#goodsPrefer#,
+				#mngId#,
+				#saleStatus#,
+				#goodsPlace#,
+				#goodsCompany#,
+				#goodsIsBundle#,
+				#goodsWeight#,
+				#isDeliPrice#,
+				#deliPrice#,
+				#freeDeliPrice#,
+				#goodsSaleType#,
+				#goodsNumCount#,
+				#goodsSaleTypeValue#,
+				#goodsOptionText1#,
+				#goodsOptionValue1#,
+				#goodsOptionPrice1#,
+				#goodsOptionCount1#,
+				#goodsOptionProcess1#,
+				#goodsOptionText2#,
+				#goodsOptionValue2#,
+				#goodsOptionPrice2#,
+				#goodsOptionCount2#,
+				#goodsOptionProcess2#,
+				#goodsContent#,
+				#goodsNote#,
+				#modify_dt#,
+				#register_dt#
+			)		
+	</insert>
+	
+	<update id="goodsDAO.goodsUpdate"  parameterClass="goodsVO">
+		UPDATE RFC_COMTNGOODS 
+		SET			
+			GOODS_CATE=#goodsCate#,
+			GOODS_CATE1=#goodsCate1#,
+			GOODS_CATE2=#goodsCate2#,
+			GOODS_CATE3=#goodsCate3#,
+			GOODS_GROUP=#goodsGroup#,
+			GOODS_TITLE=#goodsTitle#,
+			packTypeCd=#packTypeCd#,
+			GOODS_FIX_PRICE=#goodsFixPrice#,
+			GOODS_HOLD_CNT=#goodsHoldCnt#,
+			GOODS_SALE_PRICE=#goodsSalePrice#,
+			GOODS_SORT=#goodsSort#,
+			GOODS_PREFER=#goodsPrefer#,
+			MNG_ID=#mngId#,
+			SALE_STATUS=#saleStatus#,
+			GOODS_PLACE=#goodsPlace#,
+			GOODS_COMPANY=#goodsCompany#,
+			GOODS_IS_BUNDLE=#goodsIsBundle#,
+			GOODS_WEIGHT=#goodsWeight#,
+			IS_DELI_PRICE=#isDeliPrice#,
+			DELI_PRICE=#deliPrice#,
+			FREE_DELI_PRICE=#freeDeliPrice#,
+			GOODS_SALE_TYPE=#goodsSaleType#,
+			GOODS_NUM_COUNT=#goodsNumCount#,
+			GOODS_SALE_TYPE_VALUE=#goodsSaleTypeValue#,
+			GOODS_OPTION_TEXT1=#goodsOptionText1#,
+			GOODS_OPTION_VALUE1=#goodsOptionValue1#,
+			GOODS_OPTION_PRICE1=#goodsOptionPrice1#,
+			GOODS_OPTION_COUNT1=#goodsOptionCount1#,
+			GOODS_OPTION_PROCESS1=#goodsOptionProcess1#,
+			GOODS_OPTION_TEXT2=#goodsOptionText2#,
+			GOODS_OPTION_VALUE2=#goodsOptionValue2#,
+			GOODS_OPTION_PRICE2=#goodsOptionPrice2#,
+			GOODS_OPTION_COUNT2=#goodsOptionCount2#,
+			GOODS_OPTION_PROCESS2=#goodsOptionProcess2#,
+			GOODS_CONTENT=#goodsContent#,
+			GOODS_NOTE=#goodsNote#,
+			GOODS_MODIFY_DATE=#modify_dt#		
+		WHERE
+		 SALE_STATUS != 'D' AND GOODS_CODE = #goodsCode#	
+	</update>
+	<update id="goodsDAO.goodsChangeStatus"  parameterClass="goodsVO">
+		UPDATE RFC_COMTNGOODS 
+		SET			
+			SALE_STATUS=#saleStatus#					
+		WHERE
+		 	GOODS_CODE = #goodsCode#	
+	</update>
+	<select id="goodsDAO.selectGoodsFileList" parameterClass="goodsVO" resultClass="goodsFileVO" cacheModel="RFCGoodsManageCache">
+		SELECT
+			FILE_SID fileSid,
+			GOODS_CODE goodsCode,
+			FILE_MASK fileMask,
+			FILE_NAME fileName,
+			FILE_MEMO fileMemo
+		FROM
+			RFC_COMTNGOODSFILE
+		WHERE
+			GOODS_CODE = #goodsCode#
+	</select>
+	<select id="goodsDAO.getGoodsFile" parameterClass="goodsFileVO" resultClass="goodsFileVO" cacheModel="RFCGoodsManageCache">
+		SELECT
+			FILE_SID fileSid,
+			GOODS_CODE goodsCode,
+			FILE_MASK fileMask,
+			FILE_NAME fileName,
+			FILE_MEMO fileMemo
+		FROM
+			RFC_COMTNGOODSFILE
+		WHERE
+			GOODS_CODE = #goodsCode# AND FILE_MEMO = #fileMemo#
+	</select>
+	<insert id="goodsDAO.goodsFileInsert"  parameterClass="goodsFileVO">
+		INSERT INTO RFC_COMTNGOODSFILE
+			(
+				FILE_SID,
+				GOODS_CODE,				
+				FILE_MASK,
+				FILE_NAME,
+				FILE_MEMO
+			)
+			VALUES
+			(
+				#fileSid#,
+				#goodsCode#,
+				#fileMask#,
+				#fileName#,
+				#fileMemo#				
+			)		
+	</insert>
+	<update id="goodsDAO.goodsFileUpdate"  parameterClass="goodsFileVO">
+		UPDATE RFC_COMTNGOODSFILE 
+		SET			
+			FILE_MASK=#fileMask#,
+			FILE_NAME=#fileName#
+		WHERE
+		 	FILE_SID = #fileSid# AND GOODS_CODE = #goodsCode# AND FILE_MEMO = #fileMemo#
+	</update>
+	
+	<update id="goodsDAO.goodsFileDelete"  parameterClass="goodsFileVO">
+		DELETE 
+		FROM
+			RFC_COMTNGOODSFILE 
+		WHERE
+		 	FILE_SID = #fileSid# AND GOODS_CODE = #goodsCode#
+	</update>
+	
+	<insert id="goodsDAO.goodsNoteInsert"  parameterClass="goodsNoteVO">
+		INSERT INTO RFC_COMTNGOODSNOTE
+			(
+				NOTE_SID,
+				GOODS_CODE,
+				MBER_ID,
+				MBER_NM,
+				NOTE_POINT,
+				NOTE_CONTENT,
+				REGISTER_DATE
+			)
+			VALUES
+			(
+				#noteSid#,
+				#goodsCode#,
+				#mberId#,
+				#mberNm#,
+				#notePoint#,
+				#noteContent#,
+				#register_dt#		
+			)		
+	</insert>
+	
+	<update id="goodsDAO.goodsNoteDelete"  parameterClass="goodsNoteVO">
+		DELETE 
+		FROM
+			RFC_COMTNGOODSNOTE 
+		WHERE
+		 	NOTE_SID = #noteSid# AND GOODS_CODE = #goodsCode#
+		 	<isEqual prepend="AND" property="isManager" compareValue="false">
+		 		MBER_ID = #mberId# 
+		 	</isEqual>
+	</update>
+	
+	<select id="goodsDAO.isGoodsNoteWrite" parameterClass="goodsNoteVO" resultClass="int" cacheModel="RFCGoodsManageCache">
+		SELECT
+			count(*) totcnt
+		FROM RFC_COMTNGOODSNOTE
+		WHERE
+			GOODS_CODE = #goodsCode# AND MBER_ID = #mberId#
+	</select> 
+		 	
+	<select id="goodsDAO.selectGoodsNoteList" parameterClass="goodsNoteVO" resultClass="goodsNoteVO" cacheModel="RFCGoodsManageCache">
+		SELECT  * 
+		FROM (
+			SELECT ROWNUM RNUM, ALL_LIST.*  
+			FROM  
+			(  
+			 	SELECT
+				 	NOTE_SID noteSid,
+					GOODS_CODE goodsCode,
+					MBER_ID mberId,
+					MBER_NM mberNm,
+					NOTE_POINT notePoint,
+					NOTE_CONTENT noteContent,
+					REGISTER_DATE register_dt
+				FROM
+					RFC_COMTNGOODSNOTE
+				WHERE
+					GOODS_CODE = #goodsCode#
+			) ALL_LIST
+		)
+		WHERE  
+			RNUM  &gt; #startRow#
+			AND  RNUM &lt;= #startRow# + #pageRow#		
+	</select>
+	<select id="goodsDAO.selectGoodsNoteListTotal" parameterClass="goodsNoteVO" resultClass="int" cacheModel="RFCGoodsManageCache">		
+		 	SELECT
+			 	count(*) totcnt
+			FROM
+				RFC_COMTNGOODSNOTE
+			WHERE
+				GOODS_CODE = #goodsCode#				
+	</select>
+</sqlMap>

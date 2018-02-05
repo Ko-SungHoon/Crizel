@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCResource">
+	 <typeAlias  alias="egovMap"        type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="resourceVO" 	type = "egovframework.rfc3.iam.vo.ResourceVO"/>  
+      
+     <resultMap id="resource" class="egovframework.rfc3.iam.vo.ResourceVO">
+        <result property="sgroupId" column="sgroupId" />
+        <result property="sgroupNm" column="sgroupNm" />
+        <result property="createDate" column="createDate" />
+        <result property="resourceId" column="resourceId" />
+        <result property="resourceName" column="resourceName" />
+        <result property="resourceType" column="resourceType" />
+        <result property="description" column="description" />
+        <result property="sortOrder" column="sortOrder" />
+        <result property="resourcePattern" column="resourcePattern" />
+        <result property="domain" column="domain" />
+        <result property="port" column="port" />
+        <result property="domainId" column="domainId" />
+        <result property="isPermit" column="isPermit" />
+    </resultMap>
+    
+     <cacheModel type="${Globals.ibatis.default.cache}" id="RFCResourceCache" readOnly="true" serialize="false">
+     	<flushInterval hours="24" />
+     	<flushOnExecute statement="resourceDAO.insertResource"/>
+     	<flushOnExecute statement="resourceDAO.updateResource"/>
+     	<flushOnExecute statement="resourceDAO.deleteResource"/>
+     	<flushOnExecute statement="resourceDAO.deleteResourceForSiteGroup"/>
+     	<flushOnExecute statement="resourceDAO.deleteResourceForDomain"/>
+     </cacheModel>
+        
+    <select id="resourceDAO.selectResourceListTotCnt"  parameterClass="resourceVO"  resultClass="java.lang.Integer"  cacheModel="RFCResourceCache">
+						SELECT
+						    count(*) totcnty
+						FROM
+							 RFC_COMTNRESOURCE  A 
+						 	LEFT JOIN RFC_COMTNDOMAIN  C  ON (A.DOMAIN_ID = C.DOMAIN_ID )
+						WHERE 1=1
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		   A.SGROUP_ID   LIKE  #sgroupId#
+			            </isNotEmpty>
+			             <isNotEmpty prepend="AND" property="domainId" >
+			          		   C.DOMAIN_ID   LIKE  #domainId#
+			            </isNotEmpty>
+	          		     <isNotEmpty prepend="AND"  property="roleId" >
+	             			 	RESOURCE_ID in (select RESOURCE_ID from  RFC_COMTNRESOURCE_ROLES where ROLE_ID=#roleId#)
+	             		 </isNotEmpty>
+	</select>
+	<select id="resourceDAO.selectResourceList" parameterClass="resourceVO"  resultMap="resource" cacheModel="RFCResourceCache">
+			          	SELECT
+							  A.SGROUP_ID  sgroupId,
+							   (select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SGROUP_ID )  sgroupNm,
+							  A.RESOURCE_ID    resourceId,
+							  A.RESOURCE_NAME  resourceName,
+							  A.RESOURCE_PATTERN  resourcePattern,
+							  A.DESCRIPTION  description,
+							  A.RESOURCE_TYPE  resourceType,
+							  A.SORT_ORDER  sortOrder,
+							  A.CREATE_DATE createDate,
+							  C.[DOMAIN] [domain],
+							  C.PORT port,
+							  C.DOMAIN_ID domainId,
+							  A.IS_PERMIT  isPermit,
+							  A.MENU_CD menuCd
+				     	FROM
+							 RFC_COMTNRESOURCE  A  
+						 	LEFT JOIN RFC_COMTNDOMAIN  C  ON (A.DOMAIN_ID = C.DOMAIN_ID)
+						WHERE   1=1
+					   <isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		   A.SGROUP_ID   LIKE  #sgroupId#
+			            </isNotEmpty>
+			             <isNotEmpty prepend="AND" property="domainId" >
+			          		   C.DOMAIN_ID   LIKE  #domainId#
+			            </isNotEmpty>
+	          		     <isNotEmpty prepend="AND"  property="roleId" >
+	             			 	RESOURCE_ID in (select RESOURCE_ID from  RFC_COMTNRESOURCE_ROLES where ROLE_ID=#roleId#)
+	             		 </isNotEmpty>
+			            <isNotEmpty  property="orderField" >
+			            	  ORDER BY  $orderField$   $orderSort$
+			            </isNotEmpty>
+			            <isEmpty  property="orderField" >
+			             	ORDER BY A.RESOURCE_ID DESC ,A.SORT_ORDER  ASC
+			             </isEmpty>
+			              LIMIT #recordCountPerPage# OFFSET #firstIndex#
+	</select>
+	<select id="resourceDAO.selectMainResourceList" parameterClass="java.lang.String"  resultMap="resource"  cacheModel="RFCResourceCache">
+			          	SELECT
+							  A.SGROUP_ID  sgroupId,
+							   (select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SGROUP_ID )  sgroupNm,
+							  A.RESOURCE_ID    resourceId,
+							  A.RESOURCE_NAME  resourceName,
+							  A.RESOURCE_PATTERN  resourcePattern,
+							  A.DESCRIPTION  description,
+							  A.RESOURCE_TYPE  resourceType,
+							  A.SORT_ORDER  sortOrder,
+							  A.CREATE_DATE createDate,
+							  C.[DOMAIN] [domain],
+							  C.PORT port,
+							  C.DOMAIN_ID domainId,
+							   A.IS_PERMIT  isPermit,
+							    A.MENU_CD menuCd
+							FROM
+							   RFC_COMTNRESOURCE  A  INNER JOIN RFC_COMTNSITEGROUP B ON A.SGROUP_ID = B.SGROUP_ID
+						 	  LEFT JOIN RFC_COMTNDOMAIN  C  ON (A.DOMAIN_ID = C.DOMAIN_ID)
+						  WHERE  1=1
+			            <isNotEmpty  >
+			          		 AND  A.SGROUP_ID   LIKE  #sgroupId#
+			            </isNotEmpty>
+			            ORDER BY  A.RESOURCE_ID DESC
+			            LIMIT 20
+	</select>
+	<select id="resourceDAO.getResourceInfo"     resultClass="resourceVO"  cacheModel="RFCResourceCache">
+			    select 
+			    		RESOURCE_ID  resourceId, 
+						SGROUP_ID sgroupId,
+						RESOURCE_NAME resourceName,
+						RESOURCE_PATTERN resourcePattern,
+						DESCRIPTION description,
+						RESOURCE_TYPE resourceType,
+						SORT_ORDER sortOrder,
+						CREATE_DATE createDate,
+						MODIFY_DATE modifyDate,
+						DOMAIN_ID domainId,
+						IS_PERMIT  isPermit,
+						MENU_CD menuCd
+				from 
+					   RFC_COMTNRESOURCE
+				where 
+					   RESOURCE_ID = #resourceId#
+	</select>
+	
+	 <select id="resourceDAO.getResourceInfoForMenuCd"     resultClass="resourceVO"  cacheModel="RFCResourceCache">
+			    select 
+			    		RESOURCE_ID  resourceId, 
+						SGROUP_ID sgroupId,
+						RESOURCE_NAME resourceName,
+						RESOURCE_PATTERN resourcePattern,
+						DESCRIPTION description,
+						RESOURCE_TYPE resourceType,
+						SORT_ORDER sortOrder,
+						CREATE_DATE createDate,
+						MODIFY_DATE modifyDate,
+						DOMAIN_ID domainId,
+						IS_PERMIT  isPermit,
+						MENU_CD menuCd
+				from 
+					   RFC_COMTNRESOURCE
+				where 
+					   MENU_CD = #menuCd#
+	</select>
+
+	<insert id="resourceDAO.insertResource"  parameterClass="resourceVO">
+						INSERT INTO    RFC_COMTNRESOURCE  (
+								  RESOURCE_ID,
+								  SGROUP_ID,
+								  RESOURCE_NAME,
+								  RESOURCE_PATTERN,
+								  DESCRIPTION,
+								  RESOURCE_TYPE,
+								  SORT_ORDER,
+								  CREATE_DATE,
+								  MODIFY_DATE,
+								  DOMAIN_ID,
+								  IS_PERMIT,
+								  MENU_CD
+								   )  VALUES (
+								     #resourceId#,
+								     #sgroupId# ,
+								     #resourceName# ,
+								     #resourcePattern# ,
+								     #description# ,
+								     #resourceType# ,
+								     #sortOrder# ,
+								     #createDate# ,
+								     #modifyDate# ,
+								     #domainId#,
+								     $isPermit$,
+								     #menuCd#
+								   )
+	</insert>
+	<update  id="resourceDAO.updateResource"  parameterClass="resourceVO" >
+					UPDATE
+							   RFC_COMTNRESOURCE
+					  SET 	
+					  			SGROUP_ID =#sgroupId#,
+					            RESOURCE_NAME=#resourceName#, 
+								RESOURCE_PATTERN =#resourcePattern#,
+								DESCRIPTION=#description#,
+								RESOURCE_TYPE=#resourceType#,
+								SORT_ORDER=#sortOrder#,
+				  				MODIFY_DATE=#modifyDate#,
+				  				DOMAIN_ID=#domainId#,
+				  				IS_PERMIT=$isPermit$
+				  	  WHERE 
+				  				RESOURCE_ID = #resourceId#
+	</update>
+	<update  id="resourceDAO.updateResourceMenuCd"  parameterClass="resourceVO" >
+					UPDATE
+							   RFC_COMTNRESOURCE
+					  SET 	
+					            RESOURCE_NAME=#resourceName#, 
+								RESOURCE_PATTERN =#resourcePattern#,
+				  				MODIFY_DATE=#modifyDate#
+				  	  WHERE 
+				  				MENU_CD = #menuCd#
+	</update>
+	<delete id="resourceDAO.deleteResource"  >
+					DELETE  FROM 
+							RFC_COMTNRESOURCE
+					WHERE  
+							RESOURCE_ID = #resourceId#
+	</delete>
+	<delete id="resourceDAO.deleteResourceForSiteGroup"  >
+					DELETE  FROM 
+							RFC_COMTNRESOURCE
+					WHERE  
+							SGROUP_ID = #sgroupId#
+	</delete>
+	<delete id="resourceDAO.deleteResourceForDomain"  >
+					DELETE  FROM 
+							RFC_COMTNRESOURCE
+					WHERE  
+							DOMAIN_ID = #domainId#
+	</delete>
+	<delete id="resourceDAO.deleteResourceForMenuCd"  >
+					DELETE  FROM 
+							RFC_COMTNRESOURCE
+					WHERE  
+							MENU_CD = #menuCd#
+	</delete>
+	
+</sqlMap>

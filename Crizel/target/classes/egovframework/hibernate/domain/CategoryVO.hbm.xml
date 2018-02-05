@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.category.vo">
+	<class name="CategoryVO" table="RFC_COMTCCOMMON_CATEGORY">
+		<cache usage="read-write"/>
+		<comment>카테고리 테이블</comment>
+
+		<id name="cateSid" type="long">
+				<column name="CATE_SID">
+            		<comment>카테고리 일련번호</comment>
+            	</column>
+		</id>   
+		
+		<property name="cateCd" type="string" not-null="true" >
+			<column name="CATE_CD" length="64" >
+				<comment>카테고리 식별코드</comment>
+			</column>
+		</property>
+		<property name="cateNm" type="string" >
+			<column name="CATE_NM" length="64">
+				<comment>카테고리 제목</comment>
+			</column>
+		</property>
+		<property name="cateDate" type="date" >
+			<column name="CATE_DATE">
+				<comment>등록일</comment>
+			</column>
+		</property>
+		<property name="cateIsUse" type="yes_no" >
+			<column name="CATE_IS_USE"  length="1" default="'1'" >
+				<comment>카테고리 사용여부</comment>
+			</column>
+		</property>
+	</class>
+
+	<class name="CategoryCode1VO" table="RFC_COMTCCOMMON_CATEGORY1">
+		<cache usage="read-write"/>
+		<comment>카테고리 1차 테이블</comment>
+		<id name="cate1Sid" type="long">
+				<column name="CATE1_SID">
+            		<comment>카테고리 일련번호</comment>
+            	</column>
+		</id>  
+		
+		<property name="cateCd" type="string" not-null="true" >
+			<column name="CATE_CD" length="64" >
+				<comment>부모 식별코드</comment>
+			</column>
+		</property>
+		<property name="cate1Cd" type="string" not-null="true" >
+			<column name="CATE1_CD" length="64" >
+				<comment>카테고리 식별코드</comment>
+			</column>
+		</property>
+		<property name="cate1Nm" type="string" >
+			<column name="CATE1_NM" length="125">
+				<comment>카테고리 제목</comment>
+			</column>
+		</property>
+		<property name="cate1Content1" type="string" >
+			<column name="CATE1_CONTENT1" length="500">
+				<comment>카테고리 내용</comment>
+			</column>
+		</property>
+		<property name="cate1Content2" type="string" >
+			<column name="CATE1_CONTENT2" length="500">
+				<comment>카테고리 내용</comment>
+			</column>
+		</property>
+		<property name="cate1Content3" type="string" >
+			<column name="CATE1_CONTENT3" length="500">
+				<comment>카테고리 내용</comment>
+			</column>
+		</property>
+		<property name="cate1Date" type="date" >
+			<column name="CATE1_DATE">
+				<comment>카테고리 등록일</comment>
+			</column>
+		</property>
+		<property name="cate1IsUse" type="yes_no" >
+			<column name="CATE1_IS_USE" length="1" default="'1'" >
+				<comment>카테고리 사용여부</comment>
+			</column>
+		</property>
+		<property name="cate1Idx" type="int" >
+			<column name="CATE1_IDX" length="11" default="10" >
+				<comment>카테고리 순서</comment>
+			</column>
+		</property>
+</class>
+
+<class name="CategoryCode2VO" table="RFC_COMTCCOMMON_CATEGORY2">
+		<cache usage="read-write"/>
+		<comment>카테고리 2차 테이블</comment>
+		<id name="cate2Sid" type="long">
+				<column name="CATE2_SID">
+            		<comment>카테고리 일련번호</comment>
+            	</column>
+		</id>
+		
+		<property name="cateCd" type="string"  not-null="true" >
+			<column name="CATE_CD" length="64" >
+				<comment>부모 식별코드</comment>
+			</column>
+		</property>
+		<property name="cate1Cd" type="string"  not-null="true" >
+			<column name="CATE1_CD" length="64" >
+				<comment>1차 카테고리 식별코드</comment>
+			</column>
+		</property>
+		<property name="cate2Cd" type="string"  not-null="true" >
+			<column name="CATE2_CD" length="64" >
+				<comment>카테고리 식별코드</comment>
+			</column>
+		</property>
+		<property name="cate2Nm" type="string" >
+			<column name="CATE2_NM" length="125">
+				<comment>카테고리 제목</comment>
+			</column>
+		</property>
+		<property name="cate2Content1" type="string" >
+			<column name="CATE2_CONTENT1" length="500">
+				<comment>카테고리 내용</comment>
+			</column>
+		</property>
+		<property name="cate2Content2" type="string" >
+			<column name="CATE2_CONTENT2" length="500">
+				<comment>카테고리 내용</comment>
+			</column>
+		</property>
+		<property name="cate2Content3" type="string" >
+			<column name="CATE2_CONTENT3" length="500">
+				<comment>카테고리 내용</comment>
+			</column>
+		</property>
+		<property name="cate2Date" type="date" >
+			<column name="CATE2_DATE">
+				<comment>카테고리 등록일</comment>
+			</column>
+		</property>
+		<property name="cate2IsUse" type="yes_no" >
+			<column name="CATE2_IS_USE" length="1" default="'1'" >
+				<comment>카테고리 사용여부</comment>
+			</column>
+		</property>
+		<property name="cate2Idx" type="int" >
+			<column name="CATE2_IDX" length="11" default="10" >
+				<comment>카테고리 순서</comment>
+			</column>
+		</property>
+</class>
+
+<class name="CategoryCode3VO" table="RFC_COMTCCOMMON_CATEGORY3">
+		<cache usage="read-write"/>
+		<comment>카테고리 3차 테이블</comment>
+		<id name="cate3Sid" type="long">
+				<column name="CATE3_SID">
+            		<comment>카테고리 일련번호</comment>
+            	</column>
+		</id>
+		
+		<property name="cateCd" type="string"  not-null="true" >
+			<column name="CATE_CD" length="64" >
+				<comment>부모 식별코드</comment>
+			</column>
+		</property>
+		<property name="cate1Cd" type="string"  not-null="true" >
+			<column name="CATE1_CD" length="64" >
+				<comment>카테고리 1차 식별코드</comment>
+			</column>
+		</property>
+		<property name="cate2Cd" type="string"  not-null="true" >
+			<column name="CATE2_CD" length="64" >
+				<comment>카테고리 2차 식별코드</comment>
+			</column>
+		</property>
+		<property name="cate3Cd" type="string"  not-null="true" >
+			<column name="CATE3_CD" length="64" >
+				<comment>카테고리 식별코드</comment>
+			</column>
+		</property>
+		<property name="cate3Nm" type="string" >
+			<column name="CATE3_NM" length="125">
+				<comment>카테고리 제목</comment>
+			</column>
+		</property>
+		<property name="cate3Content1" type="string" >
+			<column name="CATE3_CONTENT1" length="500">
+				<comment>카테고리 내용</comment>
+			</column>
+		</property>
+		<property name="cate3Content2" type="string" >
+			<column name="CATE3_CONTENT2" length="500">
+				<comment>카테고리 내용</comment>
+			</column>
+		</property>
+		<property name="cate3Content3" type="string" >
+			<column name="CATE3_CONTENT3" length="500">
+				<comment>카테고리 내용</comment>
+			</column>
+		</property>
+		<property name="cate3Date" type="date" >
+			<column name="CATE3_DATE">
+				<comment>카테고리 등록일</comment>
+			</column>
+		</property>
+		<property name="cate3IsUse" type="yes_no" >
+			<column name="CATE3_IS_USE" length="1" default="'1'" >
+				<comment>카테고리 사용여부</comment>
+			</column>
+		</property>
+		<property name="cate3Idx" type="int" >
+			<column name="CATE3_IDX" length="11" default="10" >
+				<comment>카테고리 순서</comment>
+			</column>
+		</property>
+</class>
+
+</hibernate-mapping>

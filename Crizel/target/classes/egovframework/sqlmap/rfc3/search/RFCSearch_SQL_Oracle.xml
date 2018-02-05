@@ -1,0 +1,291 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCSearchManage">
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+	<typeAlias  alias="searchVO"	 type = "egovframework.rfc3.search.vo.SearchVO"/>
+	
+	<resultMap id="menu" class="egovframework.rfc3.search.vo.SearchResultVO">
+		<result property="domainId" column="domainId" />
+		<result property="menuCd" column="menuCd" />
+		<result property="menuParentCd" column="menuParentCd" />
+		<result property="menuNm" column="menuNm" />
+		<result property="menuDp" column="menuDp" />
+		<result property="contentsSid" column="contentsSid" />
+		<result property="contentsType" column="contentsType" />
+		<result property="contentsStyle" column="contentsStyle" />
+		<result property="contentsContent" column="contentsContent" />
+	</resultMap>
+	
+	<resultMap id="data" class="egovframework.rfc3.search.vo.SearchResultVO">
+		<result property="domainId" column="domainId" />
+		<result property="menuCd" column="menuCd" />
+		<result property="menuParentCd" column="menuParentCd" />
+		<result property="menuNm" column="menuNm" />
+		<result property="menuDp" column="menuDp" />
+		<result property="contentsSid" column="contentsSid" />
+		<result property="contentsType" column="contentsType" />
+		<result property="boardId" column="boardId" />
+		<result property="dataSid" column="dataSid" />
+		<result property="dataTitle" column="dataTitle" />
+		<result property="dataContent" column="dataContent" />
+		<result property="register_dt" column="register_dt" />
+	</resultMap>
+	
+	<resultMap id="file" class="egovframework.rfc3.search.vo.SearchResultVO">
+		<result property="domainId" column="domainId" />
+		<result property="menuCd" column="menuCd" />
+		<result property="menuParentCd" column="menuParentCd" />
+		<result property="menuNm" column="menuNm" />
+		<result property="menuDp" column="menuDp" />
+		<result property="contentsSid" column="contentsSid" />
+		<result property="contentsType" column="contentsType" />
+		<result property="boardId" column="boardId" />
+		<result property="dataSid" column="dataSid" />
+		<result property="dataTitle" column="dataTitle" />
+		<result property="dataContent" column="dataContent" />
+		<result property="fileSid" column="fileSid" />
+		<result property="fileName" column="fileName" />
+		<result property="fileMask" column="fileMask" />
+		<result property="fileSize" column="fileSize" />
+	</resultMap>
+    
+    <cacheModel type="${Globals.ibatis.default.cache}" id="RFCSearchManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+<!--       	<flushOnExecute statement="scrapDAO.insertScrap"/>  -->      	
+     </cacheModel>
+     
+     <select id="searchDAO.selectSearchContentTotal" parameterClass="searchVO"  resultClass="int" cacheModel="RFCSearchManageCache">
+						SELECT
+							count(*) totcnt
+						FROM 
+							RFC_COMTNMENU MENU INNER JOIN  RFC_COMTNCONTENTS CONTENT
+						ON
+							MENU.MENU_CONTENTS_SID = CONTENT.CONTENTS_SID
+						WHERE
+							MENU.MENU_IS_USE = '1' AND MENU.SEARCH_TAGRGET_FL = 'Y' AND
+							( MENU.MENU_LOGIN_APPLY IS NULL OR MENU.MENU_LOGIN_APPLY = '' OR MENU.MENU_LOGIN_APPLY = 'all' OR MENU.MENU_LOGIN_APPLY = 'before') AND
+							CONTENT.CONTENTS_TYPE = 'contents' AND 
+							CONTENT.CONTENTS_STYLE = 'sub'
+							<isNotEmpty prepend="AND" property="sgroupId" >
+				          		    MENU.SGROUP_ID  = #sgroupId#
+				            </isNotEmpty>
+							<isNotEmpty prepend="AND" property="domainId" >
+			                       MENU.DOMAIN_ID  = #domainId#
+			                </isNotEmpty> 
+			                <isEmpty  property="domainId" >
+			                	<isNotEmpty prepend="AND" property="myDomainList" >
+			                     	   MENU.DOMAIN_ID in ( $myDomainList$ )
+			          			</isNotEmpty>
+			               </isEmpty>
+	</select>	
+	
+	<select id="searchDAO.selectSearchContent" parameterClass="searchVO"  resultMap="menu" cacheModel="RFCSearchManageCache">
+						SELECT
+							MENU.DOMAIN_ID domainId,							 
+							MENU.MENU_CD menuCd,
+							MENU.MENU_PARENT_CD menuParentCd,
+							MENU.MENU_NM menuNm,
+							MENU.MENU_DP menuDp,
+							CONTENT.CONTENTS_SID contentsSid,
+							CONTENT.CONTENTS_TYPE contentsType,
+							CONTENT.CONTENTS_STYLE contentsStyle,
+							CONTENT.CONTENTS_CONTENT contentsContent
+					FROM 
+							RFC_COMTNMENU MENU INNER JOIN  RFC_COMTNCONTENTS CONTENT
+						ON
+							MENU.MENU_CONTENTS_SID = CONTENT.CONTENTS_SID
+						WHERE
+							MENU.MENU_IS_USE = '1' AND MENU.SEARCH_TAGRGET_FL = 'Y' AND
+							( MENU.MENU_LOGIN_APPLY IS NULL OR MENU.MENU_LOGIN_APPLY = '' OR MENU.MENU_LOGIN_APPLY = 'all' OR MENU.MENU_LOGIN_APPLY = 'before') AND
+							CONTENT.CONTENTS_TYPE = 'contents' AND 
+							CONTENT.CONTENTS_STYLE = 'sub' 
+							<isNotEmpty prepend="AND" property="sgroupId" >
+				          		    MENU.SGROUP_ID  = #sgroupId#
+				            </isNotEmpty>
+							<isNotEmpty prepend="AND" property="domainId" >
+			                       MENU.DOMAIN_ID  = #domainId#
+			                </isNotEmpty> 
+			                <isEmpty  property="domainId" >
+			                   	<isNotEmpty prepend="AND" property="myDomainList" >
+			                     	   MENU.DOMAIN_ID in ( $myDomainList$ )
+			          			</isNotEmpty>
+			               </isEmpty>
+			              ORDER BY CONTENT.CONTENTS_MODI_DATE DESC 
+	</select>
+	
+	<select id="searchDAO.selectSearchBoardTotal" parameterClass="searchVO"  resultClass="int" cacheModel="RFCSearchManageCache">
+						SELECT
+							count(DISTINCT(DATA.DATA_SID)) totcnt
+						FROM 
+						    RFC_COMTNMENU MENU 
+						   INNER JOIN RFC_COMTNCONTENTS CONTENT ON MENU.MENU_CONTENTS_SID = CONTENT.CONTENTS_SID
+						   INNER JOIN RFC_COMTNBBSETC BOARD ON CONTENT.CONTENTS_BOARDID = BOARD.BOARD_ID 
+						   INNER JOIN RFC_COMTNBBSDATA DATA ON BOARD.BOARD_ID = DATA.BOARD_ID
+						WHERE
+						    MENU.MENU_IS_USE = '1'  AND MENU.SEARCH_TAGRGET_FL = 'Y' AND
+							( MENU.MENU_LOGIN_APPLY IS NULL OR MENU.MENU_LOGIN_APPLY = '' OR MENU.MENU_LOGIN_APPLY = 'all' OR MENU.MENU_LOGIN_APPLY = 'before') AND 
+						    CONTENT.CONTENTS_TYPE = 'board' AND
+						    BOARD.BOARD_SEARCH_FL = '1' AND
+						    ( DATA.DATA_STATUS = 'N' OR DATA.DATA_STATUS = '' OR DATA.DATA_STATUS IS NULL )  AND
+						    ( DATA.DELETE_STATUS = 'N' OR DATA.DELETE_STATUS = '' OR DATA.DELETE_STATUS IS NULL ) AND
+						    ( DATA.DATA_SECRET = 0 OR DATA.DATA_SECRET = '' OR DATA.DATA_SECRET IS NULL )
+						    <isNotEmpty prepend="AND" property="sgroupId" >
+				          		    MENU.SGROUP_ID  = #sgroupId#
+				            </isNotEmpty>
+							<isNotEmpty prepend="AND" property="domainId" >
+			                       MENU.DOMAIN_ID  = #domainId#
+			                </isNotEmpty> 
+			                <isEmpty  property="domainId" >
+			                   	<isNotEmpty prepend="AND" property="myDomainList" >
+			                     	   MENU.DOMAIN_ID in ( $myDomainList$ )
+			          			</isNotEmpty>
+			               </isEmpty>
+	</select>	
+	
+	<select id="searchDAO.selectSearchBoard" parameterClass="searchVO"  resultMap="data" cacheModel="RFCSearchManageCache">
+						SELECT
+							MENU.DOMAIN_ID domainId,
+							MENU.MENU_CD menuCd,
+							MENU.MENU_PARENT_CD menuParentCd,
+							MENU.MENU_NM menuNm,
+							MENU.MENU_DP menuDp,
+							CONTENT.CONTENTS_SID contentsSid,
+							CONTENT.CONTENTS_TYPE contentsType,
+							BOARD.BOARD_ID boardId,
+							DATA.DATA_SID dataSid,
+							DATA.DATA_TITLE dataTitle,
+							DATA.DATA_CONTENT dataContent,
+							DATA.REGISTER_DATE register_dt
+						FROM 
+							RFC_COMTNMENU MENU 
+						   INNER JOIN RFC_COMTNCONTENTS CONTENT ON MENU.MENU_CONTENTS_SID = CONTENT.CONTENTS_SID
+						   INNER JOIN RFC_COMTNBBSETC BOARD ON CONTENT.CONTENTS_BOARDID = BOARD.BOARD_ID 
+						   INNER JOIN RFC_COMTNBBSDATA DATA ON BOARD.BOARD_ID = DATA.BOARD_ID
+						WHERE
+						
+						   <!-- 중복된 검색으로 인해 경남도교육청 20160421-->
+						   1=1		AND 
+			              ( 
+			                  ( 
+			                      MENU_BOARD_GB='cate' 
+			                      AND MENU.CATEGORY_CODE1=DATA.CATEGORY_CODE1 
+			                  ) 
+			                  OR 
+			                  ( 
+			                      MENU_BOARD_GB='cate' 
+			                      AND MENU.CATEGORY_CODE1 IS NULL 
+			                      AND DATA.CATEGORY_CODE1 IS NOT NULL 
+			                  ) 
+			                  OR 
+			                  ( 
+			                      (
+			                          MENU_BOARD_GB!='cate' 
+			                          OR MENU_BOARD_GB IS NULL 
+			                          OR MENU_BOARD_GB=''
+			                      ) 
+			                      AND DATA.CATEGORY_CODE1 IS NULL 
+			                  ) 
+			              ) AND
+						  <!-- 중복된 검색으로 인해 경남도교육청 20164021-->
+						
+						
+						    MENU.MENU_IS_USE = '1'  AND MENU.SEARCH_TAGRGET_FL = 'Y' AND
+							( MENU.MENU_LOGIN_APPLY IS NULL OR MENU.MENU_LOGIN_APPLY = '' OR MENU.MENU_LOGIN_APPLY = 'all' OR MENU.MENU_LOGIN_APPLY = 'before') AND 
+						    CONTENT.CONTENTS_TYPE = 'board' AND
+						    BOARD.BOARD_SEARCH_FL = '1' AND
+						    ( DATA.DATA_STATUS = 'N' OR DATA.DATA_STATUS = '' OR DATA.DATA_STATUS IS NULL )  AND
+						    ( DATA.DELETE_STATUS = 'N' OR DATA.DELETE_STATUS = '' OR DATA.DELETE_STATUS IS NULL ) AND
+						    ( DATA.DATA_SECRET = 0 OR DATA.DATA_SECRET = '' OR DATA.DATA_SECRET IS NULL )
+						    <isNotEmpty prepend="AND" property="sgroupId" >
+				          		    MENU.SGROUP_ID  = #sgroupId#
+				            </isNotEmpty>
+							<isNotEmpty prepend="AND" property="domainId" >
+			                       MENU.DOMAIN_ID  = #domainId#
+			                </isNotEmpty> 
+			                <isEmpty  property="domainId" >
+			                   	<isNotEmpty prepend="AND" property="myDomainList" >
+			                     	   MENU.DOMAIN_ID in ( $myDomainList$ )
+			          			</isNotEmpty>
+			               </isEmpty>
+			               ORDER BY DATA.MODIFY_DATE DESC
+	</select>	
+	
+	<select id="searchDAO.selectSearchFileTotal" parameterClass="searchVO"  resultClass="int" cacheModel="RFCSearchManageCache">
+						SELECT
+							count(DISTINCT(FILES.FILE_SID)) totcnt
+						FROM 
+						    RFC_COMTNMENU MENU 
+						   INNER JOIN RFC_COMTNCONTENTS CONTENT ON MENU.MENU_CONTENTS_SID = CONTENT.CONTENTS_SID 
+						   INNER JOIN RFC_COMTNBBSETC BOARD ON CONTENT.CONTENTS_BOARDID = BOARD.BOARD_ID
+						   INNER JOIN RFC_COMTNBBSDATA DATA ON BOARD.BOARD_ID = DATA.BOARD_ID
+						   INNER JOIN RFC_COMTNBBSFILE FILES ON DATA.DATA_SID = FILES.DATA_SID
+						WHERE
+						    MENU.MENU_IS_USE = '1'  AND MENU.SEARCH_TAGRGET_FL = 'Y' AND
+							( MENU.MENU_LOGIN_APPLY IS NULL OR MENU.MENU_LOGIN_APPLY = '' OR MENU.MENU_LOGIN_APPLY = 'all' OR MENU.MENU_LOGIN_APPLY = 'before') AND 
+						    CONTENT.CONTENTS_TYPE = 'board' AND
+						    BOARD.BOARD_SEARCH_FL = '1' AND
+						    ( DATA.DATA_STATUS = 'N' OR DATA.DATA_STATUS = '' OR DATA.DATA_STATUS IS NULL )  AND
+						    ( DATA.DELETE_STATUS = 'N' OR DATA.DELETE_STATUS = '' OR DATA.DELETE_STATUS IS NULL ) AND
+						    ( DATA.DATA_SECRET = 0 OR DATA.DATA_SECRET = '' OR DATA.DATA_SECRET IS NULL ) AND
+						    ( FILES.FILE_DEL_STATUS = 'N' OR FILES.FILE_DEL_STATUS = '' OR FILES.FILE_DEL_STATUS IS NULL ) AND
+						    ( FILES.FILE_STATUS = 'N' OR FILES.FILE_STATUS = '' OR FILES.FILE_STATUS IS NULL )
+						    <isNotEmpty prepend="AND" property="sgroupId" >
+				          		    MENU.SGROUP_ID  = #sgroupId#
+				            </isNotEmpty>
+							<isNotEmpty prepend="AND" property="domainId" >
+			                       MENU.DOMAIN_ID  = #domainId#
+			                </isNotEmpty> 
+			                <isEmpty  property="domainId" >
+			                   	<isNotEmpty prepend="AND" property="myDomainList" >
+			                     	   MENU.DOMAIN_ID in ( $myDomainList$ )
+			          			</isNotEmpty>
+			               </isEmpty>
+	</select>	
+	
+	<select id="searchDAO.selectSearchFile" parameterClass="searchVO"  resultMap="file" cacheModel="RFCSearchManageCache">
+						SELECT
+							MENU.DOMAIN_ID domainId,
+							MENU.MENU_CD menuCd,
+							MENU.MENU_PARENT_CD menuParentCd,
+							MENU.MENU_NM menuNm,
+							MENU.MENU_DP menuDp,
+							CONTENT.CONTENTS_SID contentsSid,
+							CONTENT.CONTENTS_TYPE contentsType,
+							BOARD.BOARD_ID boardId,
+							DATA.DATA_SID dataSid,
+							DATA.DATA_TITLE dataTitle,
+							DATA.DATA_CONTENT dataContent,
+							FILES.FILE_SID fileSid,
+							FILES.FILE_NAME fileName,
+							FILES.FILE_MASK fileMask,
+							FILES.FILE_SIZE fileSize
+						FROM 
+						    RFC_COMTNMENU MENU 
+						   INNER JOIN RFC_COMTNCONTENTS CONTENT ON MENU.MENU_CONTENTS_SID = CONTENT.CONTENTS_SID 
+						   INNER JOIN RFC_COMTNBBSETC BOARD ON CONTENT.CONTENTS_BOARDID = BOARD.BOARD_ID
+						   INNER JOIN RFC_COMTNBBSDATA DATA ON BOARD.BOARD_ID = DATA.BOARD_ID
+						   INNER JOIN RFC_COMTNBBSFILE FILES ON DATA.DATA_SID = FILES.DATA_SID					
+						WHERE
+						    MENU.MENU_IS_USE = '1'  AND MENU.SEARCH_TAGRGET_FL = 'Y' AND
+							( MENU.MENU_LOGIN_APPLY IS NULL OR MENU.MENU_LOGIN_APPLY = '' OR MENU.MENU_LOGIN_APPLY = 'all' OR MENU.MENU_LOGIN_APPLY = 'before') AND 
+						    CONTENT.CONTENTS_TYPE = 'board' AND
+						    BOARD.BOARD_SEARCH_FL = '1' AND
+						    ( DATA.DATA_STATUS = 'N' OR DATA.DATA_STATUS = '' OR DATA.DATA_STATUS IS NULL )  AND
+						    ( DATA.DELETE_STATUS = 'N' OR DATA.DELETE_STATUS = '' OR DATA.DELETE_STATUS IS NULL ) AND
+						    ( DATA.DATA_SECRET = 0 OR DATA.DATA_SECRET = '' OR DATA.DATA_SECRET IS NULL ) AND
+						    ( FILES.FILE_DEL_STATUS = 'N' OR FILES.FILE_DEL_STATUS = '' OR FILES.FILE_DEL_STATUS IS NULL ) AND
+						    ( FILES.FILE_STATUS = 'N' OR FILES.FILE_STATUS = '' OR FILES.FILE_STATUS IS NULL )
+						    <isNotEmpty prepend="AND" property="sgroupId" >
+				          		    MENU.SGROUP_ID  = #sgroupId#
+				            </isNotEmpty>
+							<isNotEmpty prepend="AND" property="domainId" >
+			                       MENU.DOMAIN_ID  = #domainId#
+			                </isNotEmpty> 
+			                <isEmpty  property="domainId" >
+			                   	<isNotEmpty prepend="AND" property="myDomainList" >
+			                     	   MENU.DOMAIN_ID in ( $myDomainList$ )
+			          			</isNotEmpty>
+			               </isEmpty>
+			              ORDER BY FILES.REGISTER_DT DESC
+	</select>	
+</sqlMap>

@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCPerformManage">
+  	
+  	<cacheModel type="${Globals.ibatis.default.cache}" id="RFCPerformManageeCache" readOnly="true" serialize="false">
+	        <flushInterval hours="24" />
+	        <flushOnExecute statement="RFCPerformDAO.insertPerform"/>
+	        <flushOnExecute statement="RFCPerformDAO.updatePerform"/>
+	        <flushOnExecute statement="RFCPerformDAO.deletePerform"/>
+	        <flushOnExecute statement="RFCPerformDAO.insertApplicant"/>
+	        <flushOnExecute statement="RFCPerformDAO.updateApplicant"/>
+	        <flushOnExecute statement="RFCPerformDAO.deleteApplicant"/>
+	        <flushOnExecute statement="RFCPerformDAO.deleteApplicantAllplaySid"/>
+      </cacheModel>
+      
+      <!--  공연정보 -->
+       <typeAlias  alias="perFormInfoVO"     type = "egovframework.rfc3.perform.vo.PerFormInfoVO"/>
+       <select id="RFCPerformDAO.selectPerformTotListCnt" parameterClass="perFormInfoVO" resultClass="int"   cacheModel="RFCPerformManageeCache">
+       			select 
+	  				 count(*) totcnt
+	  			from
+	  				 RFC_COMTN_PERFORN a
+	  			where 1=1
+	  			<isNotEmpty prepend="AND" property="searchCondition" >
+				          $searchCondition$  LIKE concat ('%',#searchKeyword#,'%')
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="status" >
+				        STATUS = #status#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="playType" >
+				        PLAY_TYPE = #playType#
+				</isNotEmpty>
+				<isEqual prepend="AND" property="isUse"  compareValue="true">
+				        IS_USE ='1'
+				</isEqual>
+       </select>
+       
+        <select id="RFCPerformDAO.selectPerformTotList" parameterClass="perFormInfoVO" resultClass="perFormInfoVO"   cacheModel="RFCPerformManageeCache">
+       			select 
+	  				   a.PLAY_SID playSid,
+				       a.CHASUN chasun,
+				       a.PLAY_NM playNm,
+				       a.PLAY_SDATE playsDate,
+				       a.PLAY_STIME playsTime,
+				       a.PLAY_COMPANY playCompany,
+				       a.PLAY_PALCE playPalce,
+				       a.PLAY_TARGET playTarget,
+				       a.APPLY_SDATE applysDate,
+				       a.APPLY_CNT applyCnt,
+				       a.IS_AUTO_STATUS isAutoStatus,
+				       a.STATUS status,
+				       a.IS_USE isUse,
+				       a.REG_DATE regDate,
+				       a.APPLY_SHOUR applysHour,
+				       a.PLAY_TYPE  playType,
+				       a.PLAY_AREA_CD  playAreaCd,
+				       a.APPLY_MINUTE applysMinute
+				       
+	  			from
+	  				 RFC_COMTN_PERFORN a
+	  			where 1=1
+	  			<isNotEmpty prepend="AND" property="searchCondition" >
+				           $searchCondition$  LIKE concat ('%',#searchKeyword#,'%')
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="status" >
+				        STATUS = #status#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="playType" >
+				        PLAY_TYPE = #playType#
+				</isNotEmpty>
+				<isEqual prepend="AND" property="isUse"  compareValue="true">
+				        IS_USE ='1'
+				</isEqual>
+				order by a.PLAY_SID desc
+				 LIMIT #recordCountPerPage# OFFSET #firstIndex#
+       </select>
+       
+         <select id="RFCPerformDAO.getPerformInfo" parameterClass="long" resultClass="perFormInfoVO"   cacheModel="RFCPerformManageeCache">
+       			select 
+	  				   a.PLAY_SID playSid,
+				       a.CHASUN chasun,
+				       a.PLAY_NM playNm,
+				       a.PLAY_SDATE playsDate,
+				       a.PLAY_STIME playsTime,
+				       a.PLAY_COMPANY playCompany,
+				       a.PLAY_PALCE playPalce,
+				       a.PLAY_TARGET playTarget,
+				       a.APPLY_SDATE applysDate,
+				       a.APPLY_CNT applyCnt,
+				       a.IS_AUTO_STATUS isAutoStatus,
+				       a.STATUS status,
+				       a.IS_USE isUse,
+				       a.REG_DATE regDate,
+				       a.APPLY_SHOUR applysHour,
+				       a.APPLY_MINUTE applysMinute,
+				       a.PLAY_TYPE  playType,
+				       a.PLAY_AREA_CD  playAreaCd
+	  			from
+	  				 RFC_COMTN_PERFORN a
+	  			where
+	  				a.PLAY_SID=#playSid#
+       </select>
+       
+       <insert id="RFCPerformDAO.insertPerform"  parameterClass="perFormInfoVO">
+       				insert into RFC_COMTN_PERFORN ( 
+       					PLAY_SID,
+       					CHASUN,
+       					PLAY_NM,
+       					PLAY_SDATE,
+       					PLAY_STIME,
+       					PLAY_COMPANY,
+       					PLAY_PALCE,
+       					PLAY_TARGET,
+       					APPLY_SDATE,
+       					APPLY_CNT,
+       					IS_AUTO_STATUS,
+       					STATUS,
+       					IS_USE,
+       					REG_DATE,
+       					APPLY_SHOUR,
+       					PLAY_TYPE,
+       					PLAY_AREA_CD,
+       					APPLY_MINUTE )
+						values(
+						#playSid# ,
+						#chasun# ,
+						#playNm# ,
+						#playsDate# ,
+						#playsTime# ,
+						#playCompany# ,
+						#playPalce# ,
+						#playTarget# ,
+						#applysDate# ,
+						#applyCnt# ,
+						#isAutoStatus# ,
+						#status# ,
+						#isUse# ,
+						#regDate#,
+						#applysHour#,
+						#playType#,
+						#playAreaCd#,
+						#applysMinute#
+						  )
+       </insert>
+       
+       <update id="RFCPerformDAO.updatePerform"  parameterClass="perFormInfoVO">
+       					update
+       							 RFC_COMTN_PERFORN
+							set 
+								CHASUN = #chasun#, 
+								PLAY_NM = #playNm#, 
+								PLAY_SDATE = #playsDate#, 
+								PLAY_STIME = #playsTime#, 
+								PLAY_COMPANY = #playCompany#, 
+								PLAY_PALCE = #playPalce#, 
+								PLAY_TARGET = #playTarget#, 
+								APPLY_SDATE = #applysDate#, 
+								APPLY_CNT = #applyCnt#, 
+								IS_AUTO_STATUS = #isAutoStatus#, 
+								STATUS = #status#, 
+								IS_USE = #isUse#,
+								APPLY_SHOUR=#applysHour#,
+								PLAY_TYPE=#playType#,
+								PLAY_AREA_CD=#playAreaCd#,
+								APPLY_MINUTE=#applysMinute#
+						where 
+								PLAY_SID=#playSid#       					
+       </update>
+       
+       <delete id="RFCPerformDAO.deletePerform"  parameterClass="long">
+       			delete from RFC_COMTN_PERFORN where  PLAY_SID=#playSid#       			
+       </delete>
+       
+       
+        <!--  신청자 정보 -->
+        <typeAlias  alias="applicantVO"     type = "egovframework.rfc3.perform.vo.ApplicantVO"/>
+        <select id="RFCPerformDAO.selectApplicanTotListCnt" parameterClass="applicantVO" resultClass="int"   cacheModel="RFCPerformManageeCache">
+        			select 
+	  				 count(*) totcnt
+	  			from
+	  				 RFC_COMTN_PERFORN_APPLY a
+	  			where 1=1 and  PLAY_SID=#playSid#
+	  			<isNotEmpty prepend="AND" property="searchCondition" >
+				          $searchCondition$  LIKE concat ('%',#searchKeyword#,'%')
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="aplyAreaCd" >
+				        APLY_AREA_CD = #aplyAreaCd#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="aplySchoolCd" >
+				        APLY_SCHOOL_CD = #aplySchoolCd#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="applyStatus" >
+				        APPLY_STATUS = #applyStatus#
+				</isNotEmpty>
+        </select>
+        
+        
+        <select id="RFCPerformDAO.selectApplicantTotList" parameterClass="applicantVO" resultClass="applicantVO"   cacheModel="RFCPerformManageeCache">
+        			select 
+		  				   a.APPLICANT_SID  applicantSid,
+					       a.PLAY_SID playSid,
+					       a.USER_ID  userId,
+					       a.USER_NM  userNm,
+					       a.APLY_AREA_CD  aplyAreaCd,
+					       a.APLY_SCHOOL_CD  aplySchoolCd,
+					       a.CHILD_CNT childCnt , 
+					       a.AULT_CNT  aultCnt,
+					       a.APPLY_STATUS  applyStatus,
+					       a.REG_DATE  regDate,
+					       a.TICKET_NUM ticketNum
+	  			from
+	  				 RFC_COMTN_PERFORN_APPLY a
+	  			where 1=1 and  PLAY_SID=#playSid#
+	  			<isNotEmpty prepend="AND" property="searchCondition" >
+				            $searchCondition$  LIKE concat ('%',#searchKeyword#,'%')
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="aplyAreaCd" >
+				        APLY_AREA_CD = #aplyAreaCd#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="aplySchoolCd" >
+				        APLY_SCHOOL_CD = #aplySchoolCd#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="applyStatus" >
+				        APPLY_STATUS = #applyStatus#
+				</isNotEmpty>
+				
+				order by  a.APPLICANT_SID desc
+				
+				 LIMIT #recordCountPerPage# OFFSET #firstIndex#
+        </select>
+        
+        <select id="RFCPerformDAO.selectApplicantMyList"  parameterClass="String"   resultClass="applicantVO"   cacheModel="RFCPerformManageeCache">
+        			select 
+		  				   a.APPLICANT_SID  applicantSid,
+					       a.PLAY_SID playSid,
+					       a.USER_ID  userId,
+					       a.USER_NM  userNm,
+					       a.APLY_AREA_CD  aplyAreaCd,
+					       a.APLY_SCHOOL_CD  aplySchoolCd,
+					       a.CHILD_CNT childCnt , 
+					       a.AULT_CNT  aultCnt,
+					       a.APPLY_STATUS  applyStatus,
+					       a.REG_DATE  regDate,
+					       a.TICKET_NUM ticketNum
+	  			from
+	  				 RFC_COMTN_PERFORN_APPLY a
+	  			where 
+	  				1=1 and  USER_ID=#userId#
+				    order by  a.APPLICANT_SID desc
+        </select>
+        
+        
+          <select id="RFCPerformDAO.getApplicantInfo"  parameterClass="long" resultClass="applicantVO"   cacheModel="RFCPerformManageeCache">
+        			select 
+		  				   a.APPLICANT_SID  applicantSid,
+					       a.PLAY_SID playSid,
+					       a.USER_ID  userId,
+					       a.USER_NM  userNm,
+					       a.APLY_AREA_CD  aplyAreaCd,
+					       a.APLY_SCHOOL_CD  aplySchoolCd,
+					       a.CHILD_CNT childCnt , 
+					       a.AULT_CNT  aultCnt,
+					       a.APPLY_STATUS  applyStatus,
+					       a.REG_DATE  regDate,
+					       a.TICKET_NUM ticketNum
+	  			from
+	  				 RFC_COMTN_PERFORN_APPLY a
+	  			where 
+	  				 a.APPLICANT_SID=#applicantSid#
+        </select>
+        
+        <select id="RFCPerformDAO.isExistApplicantCnt"  parameterClass="applicantVO" resultClass="int"   cacheModel="RFCPerformManageeCache">
+        			select 
+		  				  count(*) totCnt
+		  			from
+		  				 RFC_COMTN_PERFORN_APPLY a
+		  			where 
+		  				 a.USER_ID=#userId# and a.PLAY_SID=#playSid#
+        </select>
+        
+        <select id="RFCPerformDAO.selectApplicantForSchoolList" parameterClass="applicantVO" resultClass="applicantVO"   cacheModel="RFCPerformManageeCache">
+        		select 
+	  				   a.APPLICANT_SID  applicantSid,
+					       a.PLAY_SID playSid,
+					       a.USER_ID  userId,
+					       a.USER_NM  userNm,
+					       a.APLY_AREA_CD  aplyAreaCd,
+					       a.APLY_SCHOOL_CD  aplySchoolCd,
+					       a.CHILD_CNT childCnt , 
+					       a.AULT_CNT  aultCnt,
+					       a.APPLY_STATUS  applyStatus,
+					       a.REG_DATE  regDate,
+					       a.TICKET_NUM ticketNum
+	  			from
+	  				 RFC_COMTN_PERFORN_APPLY a
+	  			where 
+	  			    PLAY_SID=#playSid# and APLY_AREA_CD = #aplyAreaCd# and APLY_SCHOOL_CD = #aplySchoolCd# limit 1
+        </select>
+        
+        
+        <select id="RFCPerformDAO.AllApplicantCnt"  parameterClass="long" resultClass="int"   cacheModel="RFCPerformManageeCache">
+        			select 
+		  				 ifnull(sum(CHILD_CNT+AULT_CNT),0) totCnt
+		  			from
+		  				 RFC_COMTN_PERFORN_APPLY a
+		  			where 
+		  				a.PLAY_SID=#playSid#
+        </select>
+        
+         <select id="RFCPerformDAO.getMaxTicketNum"  parameterClass="long" resultClass="int"   cacheModel="RFCPerformManageeCache">
+        			select 
+		  				   ifnull(max(TICKET_NUM),0)  maxNum
+		  			from
+		  				 RFC_COMTN_PERFORN_APPLY a
+		  			where 
+		  				a.PLAY_SID=#playSid#
+        </select>
+        
+        <insert id="RFCPerformDAO.insertApplicant"  parameterClass="applicantVO">
+        				insert into RFC_COMTN_PERFORN_APPLY(
+        							 APPLICANT_SID,
+        							 PLAY_SID,
+        							 USER_ID,
+        							 USER_NM,
+        							 APLY_AREA_CD,
+        							 APLY_SCHOOL_CD,
+        							 CHILD_CNT,
+        							 AULT_CNT,
+        							 APPLY_STATUS,
+        							 REG_DATE ,
+        							 TICKET_NUM
+        							 ) values(
+	        							 #applicantSid# ,
+	        							 #playSid# ,
+	        							 #userId# ,
+	        							 #userNm# ,
+	        							 #aplyAreaCd# ,
+	        							 #aplySchoolCd# ,
+	        							 #childCnt# ,
+	        							 #aultCnt# ,
+	        							 #applyStatus# ,
+	        							 #regDate#  ,
+	        							 #ticketNum#
+	        					      )
+        </insert>
+        
+        <update id="RFCPerformDAO.updateApplicant"  parameterClass="applicantVO">
+        						update
+        							 RFC_COMTN_PERFORN_APPLY
+								set 
+									USER_ID = #userId#, 
+									USER_NM = #userNm#, 
+									APLY_AREA_CD = #aplyAreaCd#, 
+									APLY_SCHOOL_CD = #aplySchoolCd#, 
+									CHILD_CNT = #childCnt#, 
+									AULT_CNT = #aultCnt#, 
+									APPLY_STATUS = #applyStatus#,
+									TICKET_NUM=#ticketNum#
+								where 
+									APPLICANT_SID =#applicantSid#
+        </update>
+        
+        
+        <delete id="RFCPerformDAO.deleteApplicant"  parameterClass="long">
+        					delete from RFC_COMTN_PERFORN_APPLY where  APPLICANT_SID =#applicantSid#
+        </delete>
+        
+        <delete id="RFCPerformDAO.deleteApplicantAllplaySid"  parameterClass="long">
+        					delete from RFC_COMTN_PERFORN_APPLY where  PLAY_SID =#playSid#
+        </delete>
+       
+       
+       
+    
+   </sqlMap>

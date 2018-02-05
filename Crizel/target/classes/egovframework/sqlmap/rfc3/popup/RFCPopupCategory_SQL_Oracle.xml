@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCPopupCategoryManage">
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="popupCategoryVO"	 type = "egovframework.rfc3.popup.vo.PopupCategoryVO"/>
+    
+     <cacheModel type="${Globals.ibatis.default.cache}" id="RFCPopupCategoryManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      <flushOnExecute statement="popupDAO.insertPopupCategory"/>
+      <flushOnExecute statement="popupDAO.updatePopupCategory"/>
+      <flushOnExecute statement="popupDAO.deletePopupCategory"/>
+     </cacheModel>
+     
+     <select id="popupDAO.selectPopupCateListTotal"  parameterClass="popupCategoryVO" resultClass="int" cacheModel="RFCPopupCategoryManageCache">
+    	SELECT
+    		count(*) totcnt
+    	FROM
+    		RFC_COMTNPOPUPCATE
+    	WHERE
+    		1=1
+    		<isNotEmpty prepend="AND" property="searchCondition" >
+          		     $searchCondition$  LIKE '%$searchKeyword$%'
+            </isNotEmpty>		
+           <isNotEmpty prepend="AND" property="sgroupId" >
+          		     SGROUP_ID  = #sgroupId#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="domainId" >
+                    DOMAIN_ID  = #domainId#
+             </isNotEmpty> 
+             <isEmpty  property="domainId" >
+                	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+                  	   DOMAIN_ID in ( $myDomainList$ )
+       			</isEqual>
+            </isEmpty>
+  	</select>
+  	
+  	<select id="popupDAO.selectPopupCateList"  parameterClass="popupCategoryVO" resultClass="popupCategoryVO" cacheModel="RFCPopupCategoryManageCache">
+	SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(
+		    	SELECT
+		    		POPUP_CATEGORY_SID popupCategorySid,
+					SGROUP_ID sgroupId,
+					DOMAIN_ID domainId,
+					POPUP_CATEGORY_CODE popupCategoryCode,
+					POPUP_CATEGORY_TITLE popupCategoryTitle,			
+					REGISTER_DATE register_dt
+		    	FROM
+		    		RFC_COMTNPOPUPCATE
+		    	WHERE
+		    		1=1
+		    		<isNotEmpty prepend="AND" property="searchCondition" >
+		          		     $searchCondition$  LIKE '%$searchKeyword$%'
+		            </isNotEmpty>		
+		           <isNotEmpty prepend="AND" property="sgroupId" >
+		          		     SGROUP_ID  = #sgroupId#
+		            </isNotEmpty>
+		            <isNotEmpty prepend="AND" property="domainId" >
+		                    DOMAIN_ID  = #domainId#
+		             </isNotEmpty> 
+		             <isEmpty  property="domainId" >
+		                	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+		                  	   DOMAIN_ID in ( $myDomainList$ )
+		       			</isEqual>
+		            </isEmpty>
+		           ORDER BY POPUP_CATEGORY_SID DESC
+		   		) ALL_LIST
+	      )
+  WHERE  RNUM  &gt; #firstIndex#
+  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+  	</select>
+  	
+  	<select id="popupDAO.selectPopupCategory"  parameterClass="popupCategoryVO" resultClass="popupCategoryVO" cacheModel="RFCPopupCategoryManageCache">
+    	SELECT
+    		POPUP_CATEGORY_SID popupCategorySid,
+			SGROUP_ID sgroupId,
+			DOMAIN_ID domainId,
+			POPUP_CATEGORY_CODE popupCategoryCode,
+			POPUP_CATEGORY_TITLE popupCategoryTitle,			
+			REGISTER_DATE register_dt
+    	FROM
+    		RFC_COMTNPOPUPCATE
+    	WHERE
+    		SGROUP_ID  = #sgroupId# AND DOMAIN_ID  = #domainId#            
+  	</select>
+  	
+  	<select id="popupDAO.checkPopupCategory"  parameterClass="popupCategoryVO" resultClass="int" cacheModel="RFCPopupCategoryManageCache">
+    	SELECT
+    		count(*) totcnt
+    	FROM
+    		RFC_COMTNPOPUPCATE
+    	WHERE
+    		SGROUP_ID  = #sgroupId# AND DOMAIN_ID  = #domainId# AND POPUP_CATEGORY_CODE=#popupCategoryCode#            
+  	</select>
+  	
+  	<select id="popupDAO.getPopupCategory"  parameterClass="popupCategoryVO" resultClass="popupCategoryVO" cacheModel="RFCPopupCategoryManageCache">
+    	SELECT
+    		POPUP_CATEGORY_SID popupCategorySid,
+			SGROUP_ID sgroupId,
+			DOMAIN_ID domainId,
+			POPUP_CATEGORY_CODE popupCategoryCode,
+			POPUP_CATEGORY_TITLE popupCategoryTitle,			
+			REGISTER_DATE register_dt
+    	FROM
+    		RFC_COMTNPOPUPCATE
+    	WHERE
+    		POPUP_CATEGORY_SID = #popupCategorySid#
+  	</select>
+  	
+  	<insert id="popupDAO.insertPopupCategory"  parameterClass="popupCategoryVO">
+    	INSERT INTO RFC_COMTNPOPUPCATE
+    	(
+    		POPUP_CATEGORY_SID,
+			SGROUP_ID,
+			DOMAIN_ID,
+			POPUP_CATEGORY_CODE,
+			POPUP_CATEGORY_TITLE,
+			REGISTER_DATE
+    	)
+    	VALUES
+    	(
+    		#popupCategorySid#,
+			#sgroupId#,
+			#domainId#,
+			#popupCategoryCode#,
+			#popupCategoryTitle#,
+			#register_dt#
+    	)
+  	</insert>
+  	
+  	<update id="popupDAO.updatePopupCategory"  parameterClass="popupCategoryVO">
+    	UPDATE RFC_COMTNPOPUPCATE
+    	SET
+    		SGROUP_ID=#sgroupId#,
+			DOMAIN_ID=#domainId#,
+			POPUP_CATEGORY_TITLE = #popupCategoryTitle#
+    	WHERE
+    		POPUP_CATEGORY_SID = #popupCategorySid#
+  	</update>
+  	
+  	<delete id="popupDAO.deletePopupCategory"  parameterClass="popupCategoryVO">
+    	DELETE FROM RFC_COMTNPOPUPCATE
+    	WHERE
+    		POPUP_CATEGORY_SID = #popupCategorySid#
+  	</delete>
+  	
+  	
+  	
+</sqlMap>

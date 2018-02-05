@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.visitcounter.vo">
+	<class name="VisitCounterVO"	table="RFC_COMTHVISITCOUNTER">
+	  <cache usage="read-write"/>
+	    
+	    <comment>접속자 통계 테이블</comment>
+		<id name="counterSid"  type="long">
+			<column name="COUNTER_SID">
+				<comment>고유번호</comment>
+            </column>
+		</id>
+	    
+		<property name="sgroupId" type="string"  not-null="true" >
+			<column name="SGROUP_ID" length="30"  >
+				<comment>사이트 식별코드</comment>
+			</column>
+		</property>
+		<property name="domainId" type="string"  not-null="true" >
+			<column name="DOMAIN_ID" length="30"  >
+				<comment>도메인 식별코드</comment>
+			</column>
+		</property>		
+		<property name="accessDate" type="string" >
+			<column name="ACCESS_DATE" length="8"  >
+				<comment>접속일</comment>
+			</column>
+		</property>   
+		<property name="accessTime" type="string" >
+			<column name="ACCESS_TIME" length="6"  >
+				<comment>접속시간</comment>
+			</column>
+		</property>   
+		<property name="connectIp" type="string" >
+			<column name="CONNECT_IP" length="18"  >
+				<comment>접속자 아이피</comment>
+			</column>
+		</property>   
+		<property name="referer" type="string" >
+			<column name="REFERER" length="255"  >
+				<comment>접속지 정보</comment>
+			</column>
+		</property>   
+		<property name="browser" type="string" >
+			<column name="BROWSER" length="32"  >
+				<comment>브라우저 정보</comment>
+			</column>
+		</property>   
+		<property name="connectOs" type="string" >
+			<column name="CONNECT_OS" length="32"  >
+				<comment>OS 정보</comment>
+			</column>
+		</property>   		
+		<property name="dayOfWeek" type="int" >
+			<column name="DAY_OF_WEEK" length="1"  default="0">
+				<comment>일일접속</comment>
+			</column>
+		</property>   
+	</class>
+	
+	<class name="BannerCounterVO"	table="RFC_COMTHBANNERCOUNTER">
+	  <cache usage="read-write"/>
+		
+	    <comment>접속자 통계 테이블</comment>
+		<id name="bannerCountSid"  type="long">
+			<column name="BANNER_COUNT_SID">
+				<comment>고유번호</comment>
+            </column>
+		</id>
+		
+		<property name="bannerType" type="string" >
+			<column name="BANNER_TYPE" length="30"  >
+				<comment>배터 타입</comment>
+			</column>
+		</property>
+		<property name="popupSid" type="long" >
+			<column name="POPUP_SID" default="0">
+				<comment>팝업 고유코드</comment>
+			</column>
+		</property>
+		<property name="bannerTitle" type="string"  >
+			<column name="BANNER_TITLE" length="256"  >
+				<comment>배너 타이틀</comment>
+			</column>
+		</property>		
+		<property name="bannerUrl" type="string" >
+			<column name="BANNER_URL" length="1024"  >
+				<comment>배너 주소</comment>
+			</column>
+		</property>   
+		<property name="userName" type="string" >
+			<column name="USER_NAME" length="60"  >
+				<comment>접속자 이름</comment>
+			</column>
+		</property>   
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64"  >
+				<comment>접속자 아이디</comment>
+			</column>
+		</property>
+		<property name="connectIp" type="string" >
+			<column name="CONNECT_IP" length="18"  >
+				<comment>접속자 아이피</comment>
+			</column>
+		</property>   
+		<property name="accessDate" type="string" >
+			<column name="ACCESS_DATE" length="8"  >
+				<comment>접속일</comment>
+			</column>
+		</property>
+		<property name="accessTime" type="string" >
+			<column name="ACCESS_TIME" length="6"  >
+				<comment>접속시간</comment>
+			</column>
+		</property>  
+	</class>
+</hibernate-mapping>

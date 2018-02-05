@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCMenu">
+	 <typeAlias  alias="egovMap" type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="menuUserVO" type = "egovframework.rfc3.menu.vo.MenuUserVO"/>
+     
+     <resultMap id="menuuser" class="egovframework.rfc3.menu.vo.MenuUserVO">
+		<result property="menuUserSid" column="menuUserSid" />
+		<result property="sgroupId" column="sgroupId" />
+		<result property="domainId" column="domainId" />				
+		<result property="menuUserCd" column="menuUserCd" />
+		<result property="parentMenuUserCd" column="parentMenuUserCd" />
+		<result property="menuTitle" column="menuTitle" />
+		<result property="menuUrl" column="menuUrl" />	
+		<result property="userId" column="userId" />	
+		<result property="menuSortDp" column="menuSortDp" />	
+		<result property="menuStatus" column="menuStatus" />	
+    </resultMap>		
+		
+<!-- 
+MENU_USER_SID
+SGROUP_ID
+DOMAIN_ID
+MENU_USER_CD
+PARENT_MENU_USER_CD
+MENU_TITLE
+MENU_URL
+USER_ID
+MENU_SORT_DP
+MENU_STATUS
+-->
+	<select id="MenuUserDAO.selectMenuUserTotCnt"  parameterClass="menuUserVO" resultClass="int" >
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNMENU_USER
+						
+						<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId" >
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+			           		 <isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '$searchKeyword$%'
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	    
+				         </dynamic>
+	</select>
+	
+	<select id="MenuUserDAO.selectMenuListUser" parameterClass="menuUserVO"  resultMap="menuuser" >
+			          SELECT 
+							MENU_USER_SID						menuUserSid,
+							SGROUP_ID								sgroupId,
+							DOMAIN_ID									domainId,
+							MENU_USER_CD						menuUserCd,
+							PARENT_MENU_USER_CD		parentMenuUserCd,
+							MENU_TITLE								menuTitle,
+							MENU_URL									menuUrl,
+							USER_ID										userId,
+							MENU_SORT_DP						menuSortDp,
+							MENU_STATUS							menuStatus
+						
+																																						
+					FROM  RFC_COMTNMENU_USER A
+					<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+				            
+			           		 <isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '$searchKeyword$%'
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	
+			            
+			       </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+		            
+		              	LIMIT #recordCountPerPage# OFFSET #firstIndex#
+		            
+	</select>	
+	
+	<select id="MenuUserDAO.selectSubMenuListUser" parameterClass="menuUserVO"  resultMap="menuuser" >
+			          SELECT 
+							MENU_USER_SID						menuUserSid,
+							SGROUP_ID								sgroupId,
+							DOMAIN_ID									domainId,
+							MENU_USER_CD						menuUserCd,
+							PARENT_MENU_USER_CD		parentMenuUserCd,
+							MENU_TITLE								menuTitle,
+							MENU_URL									menuUrl,
+							USER_ID										userId,
+							MENU_SORT_DP						menuSortDp,
+							MENU_STATUS							menuStatus
+						
+																																						
+					FROM  RFC_COMTNMENU_USER A
+					<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId">
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+				            
+			           		 <isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '$searchKeyword$%'
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	
+			            
+			       </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+	</select>	
+	
+		<insert id="MenuUserDAO.insertMenuUser"  parameterClass="menuUserVO">
+			INSERT INTO RFC_COMTNMENU_USER
+			(
+				MENU_USER_SID						,
+				SGROUP_ID								,
+				DOMAIN_ID									,
+				MENU_USER_CD						,
+				PARENT_MENU_USER_CD		,
+				MENU_TITLE								,
+				MENU_URL									,
+				USER_ID										,
+				MENU_SORT_DP						,
+				MENU_STATUS							
+	
+			)
+			VALUES
+			(
+				#menuUserSid#,
+				#sgroupId#,
+				#domainId#,
+				#menuUserCd#,
+				#parentMenuUserCd#,
+				#menuTitle#,
+				#menuUrl#,
+				#userId#,
+				#menuSortDp#,
+				#menuStatus#
+			)
+	
+	</insert>
+	
+	<delete id="MenuUserVO.deleteMenuUser" parameterClass="menuUserVO" >
+		DELETE  FROM RFC_COMTNMENU_USER
+					WHERE  MENU_USER_SID=#menuUserSid#
+	</delete>
+	
+	
+	<select id="MenuUserDAO.selectMenutUserData" parameterClass="menuUserVO"  resultMap="menuuser">
+			          SELECT 
+								MENU_USER_SID						menuUserSid,
+								SGROUP_ID								sgroupId,
+								DOMAIN_ID									domainId,
+								MENU_USER_CD						menuUserCd,
+								PARENT_MENU_USER_CD		parentMenuUserCd,
+								MENU_TITLE								menuTitle,
+								MENU_URL									menuUrl,
+								USER_ID										userId,
+								MENU_SORT_DP						menuSortDp,
+								MENU_STATUS							menuStatus											
+					FROM  RFC_COMTNMENU_USER
+					WHERE
+							MENU_USER_SID = #menuUserSid#
+					
+	</select>
+	
+	<update id="MenuUserVO.updateMenuUser" parameterClass="menuUserVO">
+     	UPDATE
+     					RFC_COMTNMENU_USER
+     	SET		
+						
+						MENU_USER_SID						=#menuUserSid#,
+						SGROUP_ID								=#sgroupId#,
+						DOMAIN_ID									=#domainId#,
+						MENU_USER_CD						=#menuUserCd#,
+						PARENT_MENU_USER_CD		=#parentMenuUserCd#,
+						MENU_TITLE								=#menuTitle#,
+						MENU_URL									=#menuUrl#,
+						USER_ID										=#userId#,
+						MENU_SORT_DP						=#menuSortDp#,
+						MENU_STATUS							=#menuStatus#
+		WHERE
+						MENU_USER_SID=#menuUserSid#
+     					
+     </update>
+	
+</sqlMap>

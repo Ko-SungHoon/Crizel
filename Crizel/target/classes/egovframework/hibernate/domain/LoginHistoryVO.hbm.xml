@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.login.vo">
+	<class name="LoginHistoryVO"	table="RFC_COMTNLOGINHISTORY">
+	  <cache usage="read-write"/>
+	  <comment>로그인 히스터리</comment>
+	    <id name="histId" type="string" >
+			<column name="HIST_ID" length="30">
+				<comment>히스토리 고유ID</comment>
+            </column>
+		</id>
+	    <property name="sgroupId" type="string" >
+			<column name="SGROUP_ID" length="30">
+				<comment>사이트 그룹ID</comment>
+			</column>
+		</property>
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+				<comment>로그인 ID</comment>
+			</column>
+		</property>
+		
+		<property name="userNm" type="string" >
+			<column name="USER_NM" length="64">
+				<comment>로그인한 회원이름</comment>
+			</column>
+		</property>
+		
+	    <property name="userSe" type="string" >
+			<column name="USER_SE" length="10"  >
+				<comment>로그인한 회원종류</comment>
+			</column>
+		</property>
+		<property name="domain" type="string" >
+			<column name="DOMAIN" length="50" >
+				<comment>로그인한 회원 사이트</comment>
+			</column>
+		</property>
+		<property name="port" type="string" >
+			<column name="PORT" length="10">
+				<comment>도메인PORT</comment>
+			</column>
+		</property>
+		<property name="connectIp" type="string" >
+			<column name="CONNECT_IP" length="30">
+				<comment>접속 IP</comment>
+			</column>
+		</property>
+		<property name="ssoKey" type="string" >
+			<column name="SSO_KEY" length="125">
+				<comment>회원 SSO_KEY 값</comment>
+			</column>
+		</property>
+		<property name="loginStatus" type="string" >
+			<column name="LOGIN_STATUS" length="5">
+				<comment>성공/실패 상태</comment>
+			</column>
+		</property>
+		<property name="loginDate"  type="timestamp" >
+			<column name="LOGIN_DATE" >
+				<comment>접속시간</comment>
+			</column>
+		</property>
+	</class>
+</hibernate-mapping>

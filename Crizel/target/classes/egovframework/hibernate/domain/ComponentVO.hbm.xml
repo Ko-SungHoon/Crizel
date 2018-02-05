@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.component.vo">
+	<class name="ComponentVO"	table="RFC_COMTNCOMPONENT">
+	  <cache usage="read-write"/>
+	  <comment>컴포넌트 테이블</comment>
+
+		<id name="componentId" type="string">
+				<column name="COMPONENT_ID" length="64">
+            		<comment>컴포넌트 식별코드</comment>
+            	</column>
+		</id>
+		<property name="componentName" type="string" >
+			<column name="COMPONENT_NAME" length="64" >
+				<comment>컴포넌트 이름</comment>
+			</column>
+		</property>
+		<property name="licenseName" type="string" >
+			<column name="LICENSE_NAME" length="64" >
+				<comment>컴포넌트 라이선스 명</comment>
+			</column>
+		</property>
+		<property name="overImage" type="string" >
+			<column name="OVER_IMAGE" length="512" >
+				<comment>상단 탭 오버이미지</comment>
+			</column>
+		</property>
+		<property name="outImage" type="string" >
+			<column name="OUT_IMAGE" length="512" >
+				<comment>상단 탭 아웃이미지</comment>
+			</column>
+		</property>
+		<property name="orderIdx" type="int" >
+			<column name="ORDER_IDX" default="1" >
+				<comment>순서</comment>
+			</column>
+		</property>
+		<property name="isUse" type="yes_no" >
+			<column name="IS_USE" length="1" default="1" >
+				<comment>사용여부</comment>
+			</column>
+		</property>
+		<property name="deleteStatus" type="string" >
+			<column name="DELETE_STATUS" length="2" default="'N'" >
+				<comment>삭제여부</comment>
+			</column>
+		</property>
+		<property name="defaultComponent" type="string" >
+			<column name="DEFAULT_COMPONENT" length="2" default="'N'" >
+				<comment>기본 컴포넌트 여부</comment>
+			</column>
+		</property>
+		<property name="writerId" type="string" >
+			<column name="WRITER_ID" length="64" >
+				<comment>등록자 아이디</comment>
+			</column>
+		</property>
+		<property name="modifierId" type="string" >
+			<column name="MODIFIER_ID" length="64" >
+				<comment>수정자 아이디</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+		<property name="modify_dt" type="timestamp" >
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+	</class>
+</hibernate-mapping>

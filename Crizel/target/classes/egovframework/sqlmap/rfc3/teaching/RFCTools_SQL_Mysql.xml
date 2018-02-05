@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCTeachingManage">
+  	
+  	<cacheModel type="${Globals.ibatis.default.cache}" id="RFCTeachingManageCache" readOnly="true" serialize="false">
+	        <flushInterval hours="24" />
+			<flushOnExecute statement="RFCTeachingDAO.insertTools"/>
+			<flushOnExecute statement="RFCTeachingDAO.updateTools"/>
+			<flushOnExecute statement="RFCTeachingDAO.deleteTools"/>
+			<flushOnExecute statement="RFCTeachingDAO.insertToolsBasket"/>
+			<flushOnExecute statement="RFCTeachingDAO.updateToolsBasketOrderCnt"/>
+			<flushOnExecute statement="RFCTeachingDAO.updateRegDateToolsBasket"/>
+			<flushOnExecute statement="RFCTeachingDAO.deleteToolsBasket"/>
+			<flushOnExecute statement="RFCTeachingDAO.deleteToolsBasketForsessionKey"/>
+			<flushOnExecute statement="RFCTeachingDAO.deleteToolsBasketForLastTime"/>
+			<flushOnExecute statement="RFCTeachingDAO.updateToolsBasketOrderCntForToolsSidSessionKey"/>
+      </cacheModel>
+      
+      <!--  교구/교재 정보 -->
+      <typeAlias  alias="toolsVO"      type = "egovframework.rfc3.teachingtool.vo.ToolsVO"/>
+	 <select id="RFCTeachingDAO.selectToolsListTotCnt" parameterClass="toolsVO" resultClass="int"   cacheModel="RFCTeachingManageCache">
+	  			select 
+	  				 count(*) totcnt
+	  			from
+	  				 RFC_COMTNTOOLS a
+	  			where 1=1
+	  			<isNotEmpty prepend="AND" property="searchCondition" >
+				           $searchCondition$  LIKE concat ('%',#searchKeyword#,'%')
+				</isNotEmpty>
+	  			<isNotEmpty prepend="AND" property="categoryId" >
+				         CATEGORY_ID  = #categoryId#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="isDelivered" >
+				         IS_DELIVERED  = #isDelivered#
+				</isNotEmpty>
+	  </select>
+	  <select id="RFCTeachingDAO.selectToolsList" parameterClass="toolsVO" resultClass="toolsVO"   cacheModel="RFCTeachingManageCache">
+	  			select 
+	  				   a.TOOLS_SID toolsSid,
+				       a.CATEGORY_ID categoryId,
+				       a.TOOLS_NAME toolsName,
+				       a.GAUGE gauge,
+				       a.UNIT unit,
+				       a.TOTAL_CNT totalCnt,
+				       a.TOOLS_CONTENT toolsContent,
+				       a.FILE_NAME fileName,
+				       a.FILE_MASK fileMask,
+				       a.IS_USE isUse,
+				       a.CREATE_DATE createDate,
+				       a.IS_DELIVERED isDelivered
+	  			from
+	  				 RFC_COMTNTOOLS a
+	  			where 1=1
+	  			<isNotEmpty prepend="AND" property="searchCondition" >
+				           $searchCondition$  LIKE concat ('%',#searchKeyword#,'%')
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="categoryId" >
+				         CATEGORY_ID  = #categoryId#
+				</isNotEmpty>
+				<isNotEmpty prepend="AND" property="isDelivered" >
+				         IS_DELIVERED  = #isDelivered#
+				</isNotEmpty>
+				 order by TOOLS_SID desc
+				 LIMIT #recordCountPerPage# OFFSET #firstIndex#
+	  </select>
+	  
+	   <select id="RFCTeachingDAO.getToolsInfo" parameterClass="long" resultClass="toolsVO"   cacheModel="RFCTeachingManageCache">
+	  			select 
+	  				   a.TOOLS_SID toolsSid,
+				       a.CATEGORY_ID categoryId,
+				       a.TOOLS_NAME toolsName,
+				       a.GAUGE gauge,
+				       a.UNIT unit,
+				       a.TOTAL_CNT totalCnt,
+				       a.TOOLS_CONTENT toolsContent,
+				       a.FILE_NAME fileName,
+				       a.FILE_MASK fileMask,
+				       a.IS_USE isUse,
+				       a.CREATE_DATE createDate,
+				       a.IS_DELIVERED isDelivered
+	  			from
+	  				 RFC_COMTNTOOLS a
+	  			where 
+	  				TOOLS_SID = #toolsSid#
+	  				
+	  </select>
+	  
+	  <insert id="RFCTeachingDAO.insertTools" parameterClass="toolsVO" >
+	  				insert into  RFC_COMTNTOOLS  ( 
+					  					TOOLS_SID,
+					  					CATEGORY_ID,
+					  					TOOLS_NAME,
+					  					GAUGE,
+					  					UNIT,
+					  					TOTAL_CNT,
+					  					TOOLS_CONTENT,
+					  					FILE_NAME,
+					  					FILE_MASK,
+					  					IS_USE,
+		  								CREATE_DATE ,
+		  								IS_DELIVERED
+	  								) values ( 
+					  					#toolsSid#,
+					  					#categoryId# ,
+					  					#toolsName# ,
+					  					#gauge# ,
+					  					#unit# , 
+					  					#totalCnt#, 
+					  					#toolsContent#,
+					  					#fileName# ,
+					  					#fileMask# ,
+					  					#isUse# ,
+					  					#createDate#,
+					  					#isDelivered#
+	  							   )
+	  </insert>
+	  
+	  <update id="RFCTeachingDAO.updateTools" parameterClass="toolsVO">
+	  					update 
+	  							RFC_COMTNTOOLS
+							set 
+								CATEGORY_ID = #categoryId#, 
+								TOOLS_NAME =#toolsName#  , 
+								GAUGE = #gauge#, 
+								UNIT =#unit# , 
+								TOTAL_CNT =#totalCnt# , 
+								TOOLS_CONTENT = #toolsContent#, 
+								FILE_NAME = #fileName#, 
+								FILE_MASK =#fileMask# , 
+								IS_USE = #isUse# ,
+								IS_DELIVERED=#isDelivered#
+						where 
+								TOOLS_SID =#toolsSid#
+         </update>
+         <delete id="RFCTeachingDAO.deleteTools" parameterClass="long">
+         				delete from RFC_COMTNTOOLS where TOOLS_SID =#toolsSid#
+         </delete>
+         
+         
+ 
+         
+         <!-- 장바구니 -->
+         <typeAlias  alias="toolsBasket"      type = "egovframework.rfc3.teachingtool.vo.ToolsBasket"/>
+         <insert id="RFCTeachingDAO.insertToolsBasket"  parameterClass="toolsBasket">
+         			insert into  RFC_COMTNTOOLS_BASKET (
+		         					 BAS_SID,
+		         					 TOOLS_SID,
+		         					 SESSION_KEY,
+		         					 ORDER_CNT,
+         				 			 REG_DATE 
+         				 			 )  values  (
+									#basSid# ,
+									#toolsSid# , 
+									#sessionKey#,
+									#orderCnt# , 
+									#regDate# 
+					        )
+         </insert>
+         
+         <update id="RFCTeachingDAO.updateToolsBasketOrderCnt" parameterClass="toolsBasket">
+         				update  RFC_COMTNTOOLS_BASKET
+							set  
+							   ORDER_CNT = #orderCnt#, 
+							   REG_DATE = #regDate# 
+							where
+							    BAS_SID =#basSid#
+         </update>
+         <update id="RFCTeachingDAO.updateRegDateToolsBasket" parameterClass="toolsBasket">
+         				   update  RFC_COMTNTOOLS_BASKET
+							set   REG_DATE = #regDate# 
+							where
+							    SESSION_KEY =#sessionKey#
+         </update>
+         
+         <delete id="RFCTeachingDAO.deleteToolsBasket" parameterClass="long">
+         			delete from  RFC_COMTNTOOLS_BASKET where  BAS_SID =#basSid#
+         </delete>
+         
+         <delete id="RFCTeachingDAO.deleteToolsBasketForsessionKey" parameterClass="String">
+         			delete from  RFC_COMTNTOOLS_BASKET where  SESSION_KEY =#sessionKey#
+         </delete>
+         
+         <delete id="RFCTeachingDAO.deleteToolsBasketForLastTime" parameterClass="toolsBasket">
+         			delete from  RFC_COMTNTOOLS_BASKET where  REG_DATE &lt;  #regDate#
+         </delete>
+         
+         <select id="RFCTeachingDAO.selectToolsBasketForSessionKey" parameterClass="String" resultClass="toolsBasket"   cacheModel="RFCTeachingManageCache">
+         			      select 
+         					   a.BAS_SID basSid ,
+						       a.TOOLS_SID  toolsSid,
+						       a.SESSION_KEY sessionKey,
+						       a.ORDER_CNT orderCnt,
+						       a.REG_DATE regDate
+						  from 
+						      RFC_COMTNTOOLS_BASKET a
+						  where
+						     SESSION_KEY =#sessionKey#
+						  order by REG_DATE desc
+         </select>
+         
+         <select id="RFCTeachingDAO.selectNotDeliverdCntForSessionKey" parameterClass="String" resultClass="int"   cacheModel="RFCTeachingManageCache">
+         			      select 
+         					  count(*) cnt
+						  from 
+						      RFC_COMTNTOOLS_BASKET a,
+						      RFC_COMTNTOOLS b
+						  where
+						  	 a.TOOLS_SID= b.TOOLS_SID and
+						  	 b.IS_DELIVERED='0' and
+						     SESSION_KEY =#sessionKey#
+         </select>
+         
+         <select id="RFCTeachingDAO.selectToolsBasketCntForToolsSid" parameterClass="long" resultClass="int"   cacheModel="RFCTeachingManageCache">
+         			      select 
+         					 ifnull(sum(ORDER_CNT),0) as totCnt
+						  from 
+						      RFC_COMTNTOOLS_BASKET a
+						  where
+						     TOOLS_SID =#toolsSid#
+         </select>
+         
+          <select id="RFCTeachingDAO.selectToolsBasketCntExtraForToolsSid" parameterClass="toolsBasket" resultClass="int"   cacheModel="RFCTeachingManageCache">
+         			      select 
+         					 ifnull(sum(ORDER_CNT),0) as totCnt
+						  from 
+						      RFC_COMTNTOOLS_BASKET a
+						  where
+						     TOOLS_SID =#toolsSid# and  SESSION_KEY != #sessionKey#
+         </select>
+         
+          <select id="RFCTeachingDAO.selectToolsBasketCntForToolsSidSessionKey" parameterClass="toolsBasket" resultClass="int"   cacheModel="RFCTeachingManageCache">
+         			      select 
+         						count(*) cnt
+						  from 
+						      RFC_COMTNTOOLS_BASKET
+						  where
+						     TOOLS_SID =#toolsSid# and  SESSION_KEY =#sessionKey#
+         </select>
+         
+         <update id="RFCTeachingDAO.updateToolsBasketOrderCntForToolsSidSessionKey" parameterClass="toolsBasket">
+         				update  RFC_COMTNTOOLS_BASKET
+							set  ORDER_CNT = ORDER_CNT+ #orderCnt#,
+							   REG_DATE = #regDate# 
+							where
+							    TOOLS_SID =#toolsSid# and  SESSION_KEY =#sessionKey#
+         </update>
+         
+         <select id="RFCTeachingDAO.selectToolsStatisListForDate"  parameterClass="toolsVO" resultClass="toolsVO" cacheModel="RFCTeachingManageCache">
+			  	SELECT 
+				    count(CATEGORY_ID) totCateCnt,
+					ifnull(sum(TOTAL_CNT),0) totCntSum
+			    FROM 
+				 	 RFC_COMTNTOOLS
+			    where
+					IS_USE='1'
+				    <isNotEmpty prepend="AND" property="searchYear" >
+				        date_format(CREATE_DATE,'%Y')  = #searchYear#
+				    </isNotEmpty>
+				    <isNotEmpty prepend="AND" property="searchMonth" >
+				        date_format(CREATE_DATE,'%m')  = #searchMonth#
+				    </isNotEmpty>
+					group by  CATEGORY_ID
+					having CATEGORY_ID=#categoryId#
+	  	</select>
+	  
+	 	<select id="RFCTeachingDAO.selectToolsItemCntForToolsSid" parameterClass="long" resultClass="int" cacheModel="RFCTeachingManageCache">
+         			      select 
+         					 TOTAL_CNT as totCnt
+						  from 
+						      RFC_COMTNTOOLS a
+						  where
+						     TOOLS_SID =#toolsSid#
+         </select>
+   </sqlMap>

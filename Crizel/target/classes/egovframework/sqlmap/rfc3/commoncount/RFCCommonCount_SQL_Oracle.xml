@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCCommonCount">
+	
+	<cacheModel type="${Globals.ibatis.default.cache}" id="RFCCommonCountCache" readOnly="true" serialize="false">
+		<flushInterval hours="24" />
+		<flushOnExecute statement="commonCountDAO.selectCountInsert"/>
+	</cacheModel>
+     
+	<typeAlias  alias="CommonCountVO"  type = "egovframework.rfc3.common.vo.CommonCountVO"/>
+	
+	<select id="commonCountDAO.selectCountTotCnt"  parameterClass="CommonCountVO" resultClass="int" >
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNCOMMON
+				<dynamic prepend="WHERE">
+		             <isNotEmpty prepend="AND"  property="count_write" >
+		          		   COUNT_WRITE   = #count_write#
+		            </isNotEmpty>
+		         </dynamic>
+	</select>
+	
+	<select id="commonCountDAO.selectCountList" parameterClass="CommonCountVO"  resultClass="CommonCountVO" >
+       	SELECT
+       			A.COUNT_ID			count_id,
+       			A.COUNT_TYPE		count_type,
+				A.COUNT_TITLE		count_title,
+				A.COUNT_WRITE		count_write,
+				A.COUNT_DATE		count_date,
+				A.COUNT_FIELD1	count_field1,
+				A.COUNT_FIELD2	count_field2,
+				A.COUNT_FIELD3	count_field3,
+				A.COUNT_FIELD4	count_field4,
+				A.COUNT_FIELD5	count_field5
+			FROM
+			    RFC_COMTNCOMMON A
+		    <dynamic prepend="WHERE">
+	             <isNotEmpty prepend="AND"  property="count_write" >
+	          		   COUNT_WRITE   = #count_write#
+	            </isNotEmpty>
+	         </dynamic>
+            ORDER BY COUNT_DATE  DESC      
+	</select>
+	
+	<insert id="commonCountDAO.selectCountInsert"  parameterClass="CommonCountVO">
+		INSERT 
+			INTO RFC_COMTNCOMMON 
+			(
+				COUNT_ID		,
+				COUNT_TYPE		,
+				COUNT_TITLE		,
+				COUNT_WRITE		,
+				COUNT_DATE		,
+				COUNT_FIELD1	,
+				COUNT_FIELD2	,
+				COUNT_FIELD3	,
+				COUNT_FIELD4	,
+				COUNT_FIELD5	
+			) 
+			VALUES 
+			( 
+				#count_id#,
+				#count_type#,
+				#count_title#,
+				#count_write#,
+				#count_date#,
+				#count_field1#,
+				#count_field2#,
+				#count_field3#,
+				#count_field4#,
+				#count_field5#
+			)
+	</insert>
+	
+</sqlMap>

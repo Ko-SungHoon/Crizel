@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.sso.vo">
+	<class name="SsoVO"	table="RFC_COMTNSSO">
+	  <cache usage="read-write"/>
+		<comment>현재 로그인 정보</comment>
+		<id name="series" type="string">
+			<column name="SERIES" length="64">
+			<comment>인증시리얼</comment>
+			</column>
+		</id>
+		<property name="userName" type="string">
+			<column name="USER_NAME" length="64">
+			<comment>접속자ID</comment>
+			</column>
+		</property>
+		<property name="token" type="string">
+			<column name="TOKEN" length="64">
+			<comment>인증 토큰</comment>
+			</column>
+		</property>
+		<property name="userIp" type="string">
+			<column name="USER_IP" length="25">
+			<comment>접속자IP</comment>
+			</column>
+		</property>
+		<property name="lastUsed"  type="timestamp">
+			<column name="LAST_USED">
+			<comment>마지막 접속 시간</comment>
+			</column>
+		</property>
+		<property name="userRealNm" type="string">
+			<column name="USER_REAL_NM" length="64">
+			<comment>접속자이름</comment>
+			</column>
+		</property>
+		
+	</class>
+</hibernate-mapping>

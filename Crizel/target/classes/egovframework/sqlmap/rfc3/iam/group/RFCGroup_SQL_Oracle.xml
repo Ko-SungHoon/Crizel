@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCGroup">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="groupVO" 			type = "egovframework.rfc3.iam.vo.GroupVO"/>
+     <typeAlias  alias="groupHierarchyVO" 	 type = "egovframework.rfc3.iam.vo.GroupHierarchyVO"/>
+     <typeAlias  alias="iamTree" 			type = "egovframework.rfc3.iam.vo.IamTree"/>
+      
+     <resultMap id="group" class="egovframework.rfc3.iam.vo.GroupVO">
+        <result property="sgroupId" column="sgroupId" />
+        <result property="sgroupNm" column="sgroupNm" />
+        <result property="groupId" column="groupId" />
+        <result property="groupNm" column="groupNm" />
+        <result property="groupDc" column="groupDc" />
+        <result property="createDate" column="createDate" />
+    </resultMap>
+    
+      <resultMap id="group2" class="egovframework.rfc3.iam.vo.GroupVO">
+        <result property="sgroupId" column="sgroupId" />
+        <result property="groupId" column="groupId" />
+        <result property="groupNm" column="groupNm" />
+        <result property="groupDc" column="groupDc" />
+    </resultMap>
+    
+     <resultMap id="groupHierarchy" class="egovframework.rfc3.iam.vo.GroupHierarchyVO">
+        <result property="parentGroupId" column="parentGroupId" />
+        <result property="childGroupId" column="childGroupId" />
+        <result property="createDate" column="createDate" />
+        <result property="modifyDate" column="modifyDate" />
+    </resultMap>
+    
+     <cacheModel type="${Globals.ibatis.default.cache}" id="RFCGroupCache" readOnly="true" serialize="false">
+	     	 <flushInterval hours="24" />
+	     	 <flushOnExecute statement="groupDAO.insertGroup"/>
+	     	 <flushOnExecute statement="groupDAO.updateGroup"/>
+	     	 <flushOnExecute statement="groupDAO.deleteGroup"/>
+	     	 <flushOnExecute statement="groupDAO.deleteGroupForSiteGroup"/>
+	     	 <property name="size" value="50"/>
+       </cacheModel>
+    
+    <select id="groupDAO.selectGroupListTotCnt"  parameterClass="groupVO" resultClass="java.lang.Integer"   cacheModel="RFCGroupCache">
+						SELECT
+							  count(*) totcnt
+						FROM
+					    RFC_COMTNGROUP A  INNER JOIN RFC_COMTNSITEGROUP B ON  A.SGROUP_ID = B.SGROUP_ID
+						WHERE  1=1    and  B.IS_USE='1'
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		   A.SGROUP_ID   LIKE  #sgroupId#
+			            </isNotEmpty>
+			             <isNotEmpty prepend="AND"  property="roleId" >
+			             		  A.GROUP_ID in 
+			             		              (
+				             		  			select
+				             		  				 SUBJECT_ID 
+				             		  			from  RFC_COMTNAUTHORITES where 
+				             		  			USER_TYPE='G'  and  ROLE_ID like  #roleId# 
+				             		  			<isNotEmpty prepend="AND" property="sgroupId" >
+									          		   SGROUP_ID   LIKE  #sgroupId#
+									           </isNotEmpty>
+			             		  			  )
+	             		 </isNotEmpty>
+	</select>
+	<select id="groupDAO.selectGroupList" parameterClass="groupVO"  resultMap="group"  cacheModel="RFCGroupCache">
+    SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+		(			         
+			         
+			         SELECT
+					       A.SGROUP_ID  sgroupId,
+					       (select  SGROUP_NM from  RFC_COMTNSITEGROUP where  SGROUP_ID =A.SGROUP_ID )  sgroupNm,
+					      A.GROUP_ID    groupId,
+					      A.GROUP_NM  groupNm,
+					      A.GROUP_DC  groupDc,
+					      A.CREATE_DATE createDate
+					FROM
+					    RFC_COMTNGROUP A  INNER JOIN RFC_COMTNSITEGROUP B ON  A.SGROUP_ID = B.SGROUP_ID
+						WHERE  1=1  and  B.IS_USE='1'
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND" property="sgroupId" >
+			          		   A.SGROUP_ID   LIKE  #sgroupId#
+			            </isNotEmpty>
+			             <isNotEmpty prepend="AND"  property="roleId" >
+			             		  A.GROUP_ID in 
+			             		              (
+				             		  			select
+				             		  				 SUBJECT_ID 
+				             		  			from  RFC_COMTNAUTHORITES where 
+				             		  			 USER_TYPE='G'   and  ROLE_ID like  #roleId# 
+				             		  			<isNotEmpty prepend="AND" property="sgroupId" >
+									          		   SGROUP_ID   LIKE  #sgroupId#
+									           </isNotEmpty>
+			             		  			  )
+	             		 </isNotEmpty>
+			             
+			            <isNotEmpty  property="orderField" >
+			            	  ORDER BY  $orderField$   $orderSort$
+			            </isNotEmpty>
+			            <isEmpty  property="orderField" >
+			             	ORDER BY A.GROUP_ID  DESC
+			             </isEmpty>
+             ) ALL_LIST
+	    )
+  WHERE  RNUM  &gt; #firstIndex#
+  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#			             
+	</select>
+
+	<select id="groupDAO.getGroupInfo"  parameterClass="groupVO"   resultClass="groupVO"  cacheModel="RFCGroupCache">
+			    select 
+			    	SGROUP_ID  sgroupId,
+					GROUP_ID  groupId,
+					GROUP_NM  groupNm,
+					GROUP_DC groupDc,
+					CREATE_DATE  createDate,
+					MODIFY_DATE modifyDate
+				from 
+					RFC_COMTNGROUP A
+				where 
+					GROUP_ID = #groupId#
+	</select>
+	
+    <select id="groupDAO.selectGroupListForSgroupId"     resultMap="group2"  cacheModel="RFCGroupCache">
+			    select 
+			    	SGROUP_ID  sgroupId,
+					GROUP_ID  groupId,
+					GROUP_NM  groupNm,
+					GROUP_DC groupDc
+				from 
+					RFC_COMTNGROUP
+				where 
+					SGROUP_ID = #sgroupId#
+				order by  GROUP_ID  desc
+	</select>
+	<select  id="groupDAO.selectRoleAdminGroupListForSgroupId"     resultMap="group2"  cacheModel="RFCGroupCache">
+		   select 
+		        SGROUP_ID  sgroupId,
+		        GROUP_ID  groupId,
+		        GROUP_NM  groupNm,
+		        GROUP_DC groupDc
+		    from 
+		        RFC_COMTNGROUP
+		    where 
+		        SGROUP_ID = #sgroupId#  and  ( GROUP_ID  in   (select SUBJECT_ID from  RFC_COMTNAUTHORITES  where   ROLE_ID ='ROLE_ADMIN' ))
+		    order by  GROUP_ID  desc
+	</select>
+	
+	<select id="groupDAO.getGroupHierarchiesForParentGroup"  parameterClass="java.lang.String"   resultMap="groupHierarchy"  cacheModel="RFCGroupCache">
+			   select 
+					PARENT_GROUP_ID  parentGroupId,
+					CHILD_GROUP_ID  childGroupId,
+					CREATE_DATE  createDate,
+					MODIFY_DATE  modifyDate
+				from 
+					RFC_COMTNGROUP_HIERARCHY
+				where 
+					CHILD_GROUP_ID =#groupId#
+				 order by  CREATE_DATE  asc
+	</select>
+
+	
+	<insert id="groupDAO.insertGroup"  parameterClass="groupVO">
+					INSERT INTO  RFC_COMTNGROUP
+						 (
+						 	SGROUP_ID,
+						 	GROUP_ID,
+						 	GROUP_NM,
+						 	GROUP_DC,
+						 	CREATE_DATE,
+						 	MODIFY_DATE)
+						VALUES 
+					  (
+						#sgroupId# ,
+						#groupId#,
+						#groupNm# ,
+						#groupDc# ,
+						#createDate#,
+						#modifyDate# )
+	</insert>
+	<update  id="groupDAO.updateGroup"  parameterClass="groupVO" >
+					UPDATE
+							   RFC_COMTNGROUP
+					  SET 	
+					  			SGROUP_ID =#sgroupId#,
+					            GROUP_NM=#groupNm#, 
+								GROUP_DC =#groupDc#,
+				  				MODIFY_DATE=#modifyDate#
+				  	  WHERE 
+				  				GROUP_ID = #groupId#
+	</update>
+	<delete id="groupDAO.deleteGroup"  parameterClass="groupVO" >
+					DELETE  FROM 
+							RFC_COMTNGROUP
+					WHERE  
+							GROUP_ID = #groupId#
+	</delete>
+	<delete id="groupDAO.deleteGroupForSiteGroup"  parameterClass="java.lang.String" >
+					DELETE  FROM 
+							RFC_COMTNGROUP
+					WHERE  
+							SGROUP_ID = #sgroupId#
+	</delete>
+	
+	  <!--  not use  -->
+	<select id="groupDAO.getRootNodeOfGroup"  parameterClass="java.lang.String"   resultClass="iamTree"  cacheModel="RFCGroupCache">
+			        SELECT
+							DISTINCT B.GROUP_ID	id,
+							B.GROUP_NM	title,
+							'closed'	state
+					FROM	
+							RFC_COMTNGROUP_HIERARCHY 	A
+					JOIN	
+							RFC_COMTNGROUP				B
+					ON	
+							A.CHILD_GROUP_ID	= B.GROUP_ID  AND  B.SGROUP_ID=#sgroupId#
+			WHERE	
+							A.CHILD_GROUP_ID  NOT IN 
+							(	SELECT	DISTINCT  PARENT_GROUP_ID   FROM	 RFC_COMTNGROUP_HIERARCHY )
+	</select>
+	
+	<!--  not use -->
+	<insert id="groupDAO.insertGroupHierarchies"  parameterClass="groupHierarchyVO"  >
+					INSERT INTO RFC_COMTNGROUP_HIERARCHY
+						 (
+						 	PARENT_GROUP_ID,
+						 	CHILD_GROUP_ID,
+						 	CREATE_DATE,
+						 	MODIFY_DATE)
+						VALUES 
+					  (
+						#parentGroupId# ,
+						#childGroupId# ,
+						#createDate#,
+						#modifyDate# )
+	</insert>
+	
+	<!--  not use -->
+	<update  id="groupDAO.updateGroupHierarchies"  parameterClass="groupHierarchyVO" >
+					UPDATE
+							   RFC_COMTNGROUP_HIERARCHY
+					  SET 	
+					            PARENT_GROUP_ID=#parentGroupId#, 
+				  				MODIFY_DATE=#modifyDate#
+				  	  WHERE 
+				  	  			CHILD_GROUP_ID =#childGroupId# 
+	</update>
+	
+	<!--  not use -->
+	<delete id="groupDAO.deleteGroupHierarchies" parameterClass="java.lang.String">
+					DELETE  FROM 
+							RFC_COMTNGROUP_HIERARCHY
+					WHERE  	
+							PARENT_GROUP_ID = #groupId#
+	</delete>
+	
+</sqlMap>

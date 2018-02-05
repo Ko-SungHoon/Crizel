@@ -1,0 +1,1012 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCReSearchManage">
+    <typeAlias  alias="reSearchVO"	  type = "egovframework.rfc3.research.vo.ReSearchVO"/>
+    <typeAlias  alias="reSearchFileVO"	 type = "egovframework.rfc3.research.vo.ReSearchFileVO"/>
+    <typeAlias  alias="reSearchLectureVO"	  type = "egovframework.rfc3.research.vo.ReSearchLectureVO"/>
+    <typeAlias  alias="reSearchApplyVO"	 type = "egovframework.rfc3.research.vo.ReSearchApplyVO"/>
+    <typeAlias  alias="reSearchApplyCareerVO"	 type = "egovframework.rfc3.research.vo.ReSearchApplyCareerVO"/>
+    <typeAlias  alias="surveyStatVO"	 type = "egovframework.rfc3.research.vo.SurveyStatVO"/>
+  
+    <cacheModel type="${Globals.ibatis.default.cache}" id="RFCReSearchManageCache" readOnly="true" serialize="false">
+      	<flushInterval hours="24" />
+      	<flushOnExecute statement="reSearchDAO.insertReSearch"/>
+      	<flushOnExecute statement="reSearchDAO.updateReSearch"/>
+      	<flushOnExecute statement="reSearchDAO.deleteReSearch"/>
+      	
+      	<flushOnExecute statement="reSearchDAO.insertReSearchFile"/>
+      	<flushOnExecute statement="reSearchDAO.deleteReSearchFile"/>
+      	
+      	<flushOnExecute statement="reSearchDAO.insertReSearchLecture"/>
+      	<flushOnExecute statement="reSearchDAO.updateReSearchLecture"/>
+      	<flushOnExecute statement="reSearchDAO.deleteReSearchLecture"/>
+      	
+      	<flushOnExecute statement="reSearchDAO.deleteReSearchFileAll"/>
+      	<flushOnExecute statement="reSearchDAO.deleteReSearchLectureAll"/>
+      	
+      	
+      	<flushOnExecute statement="reSearchDAO.deleteReSearchLectureAll"/>
+      	
+      	<flushOnExecute statement="reSearchDAO.insertApplyer"/>
+      	<flushOnExecute statement="reSearchDAO.updateApplyer"/>
+      	<flushOnExecute statement="reSearchDAO.updateApplyerFinishStatus"/>
+      	<flushOnExecute statement="reSearchDAO.deleteApplyer"/>
+      	<flushOnExecute statement="reSearchDAO.insertCareer"/>
+      	<flushOnExecute statement="reSearchDAO.updateCareer"/>
+      	<flushOnExecute statement="reSearchDAO.deleteCareer"/>
+      	<flushOnExecute statement="reSearchDAO.insertResearchSurvey"/>
+      	
+      	
+     
+      	
+     </cacheModel>
+     
+    <select id="reSearchDAO.selectReSearchListTotal"  parameterClass="reSearchVO" resultClass="int" cacheModel="RFCReSearchManageCache">
+    	SELECT
+    		count(*) totcnt
+    	FROM
+    		RFC_COMTN_RESEARCH
+    	WHERE 
+    	      1=1 
+    		<isNotEmpty prepend="AND" property="searchCondition" >
+          		     $searchCondition$  LIKE concat ('%',#searchKeyword#,'%')
+            </isNotEmpty>
+            <isEqual  prepend="AND"   property="isUse" compareValue="true">
+		                     	IS_USE='1'
+		     </isEqual>		
+           <isNotEmpty prepend="AND" property="reYear" >
+          		  substring(RE_SDATE,1,4)=#reYear#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="reGubun" >
+          		     RE_GUBUN  = #reGubun#
+            </isNotEmpty>
+             <isNotEmpty prepend="AND" property="reKind" >
+          		     RE_KIND  = #reKind#
+            </isNotEmpty>
+            
+  	</select>
+  	<select id="reSearchDAO.selectReSearchList"  parameterClass="reSearchVO" resultClass="reSearchVO" cacheModel="RFCReSearchManageCache">
+	<isEqual property="notPaging" compareValue="1">
+		SELECT  * 
+	  FROM (
+			SELECT ROWNUM RNUM, ALL_LIST.*  
+			FROM  
+			(
+	</isEqual>
+
+    	SELECT
+    	       a.RE_UNIQID  reUniqId,
+    	       a.RE_YEAR  reYear,
+    		   a.RE_GUBUN reGubun,
+		       a.RE_KIND reKind,
+		       a.RE_NAME reNm,
+		       a.RE_PREFIX_STR rePrefixStr, 
+		       a.RE_APPLY_SDATE reApplySdate,
+		       a.RE_APPLY_EDATE reApplyEdate,
+		       a.RE_SDATE reSdate,
+		       a.RE_EDATE reEdate,
+		       a.RE_TARGET_PEOPLE_NM reTargetPeopleNm,
+		       a.RE_TOTAL_TIME_CNT reTotalTimeCnt,
+		       a.RE_TOTAL_PEOPLE_CNT reTotalPeopleCnt,
+		       a.RE_PLACE_NM rePlaceNm,
+		       a.RE_MEMO reMemo,
+		       a.RE_APPLY_STATUS reApplyStatus,
+		       a.RE_PEOPLE_CNT_EXTRA rePeopleCntExtra,
+		       a.CREATE_DATE createDate,
+		       a.MODIFY_DATE modifyDate,
+		       a.IS_USE isUse,
+		       a.SURVEY_SKIN surveySkin,
+		       a.RE_APPLY_SHOUR reApplysHour,
+		       a.RE_APPLY_SMIN reApplysMin,
+		       a.START_NO startNo,
+		       a.RE_STATUS reStatus,
+		       a.RE_RELATION reRelation
+    	FROM
+    		RFC_COMTN_RESEARCH a
+    	WHERE 
+    	    1=1 
+    		<isNotEmpty prepend="AND" property="searchCondition" >
+          		      $searchCondition$  LIKE concat ('%',#searchKeyword#,'%')
+            </isNotEmpty>	
+            <isEqual  prepend="AND"   property="isUse" compareValue="true">
+		                     	IS_USE='1'
+		    </isEqual>
+           <isNotEmpty prepend="AND" property="reYear" >
+          		     substring(RE_SDATE,1,4)=#reYear#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="reGubun" >
+          		     RE_GUBUN  = #reGubun#
+            </isNotEmpty>
+             <isNotEmpty prepend="AND" property="reKind" >
+          		     RE_KIND  = #reKind#
+            </isNotEmpty>
+        	 <isNotEmpty  property="orderField" >
+			         ORDER BY  $orderField$   $orderSort$
+            </isNotEmpty>
+            <isEmpty  property="orderField" >
+             	    ORDER BY  RE_SDATE  DESC
+             </isEmpty>
+
+   	    	<isEqual property="notPaging" compareValue="1">
+        	   ) ALL_LIST
+					  )
+			  WHERE  RNUM  &gt; #firstIndex#
+			  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+    		</isEqual>
+   	    	
+  	</select>
+  	
+  	<select id="reSearchDAO.getReSearchInfo"  parameterClass="java.lang.String" resultClass="reSearchVO" cacheModel="RFCReSearchManageCache">
+    	SELECT
+    	       a.RE_UNIQID  reUniqId,
+    	       a.RE_YEAR  reYear,
+    		   a.RE_GUBUN reGubun,
+		       a.RE_KIND reKind,
+		       a.RE_NAME reNm,
+		       a.RE_PREFIX_STR rePrefixStr, 
+		       a.RE_APPLY_SDATE reApplySdate,
+		       a.RE_APPLY_EDATE reApplyEdate,
+		       a.RE_SDATE reSdate,
+		       a.RE_EDATE reEdate,
+		       a.RE_TARGET_PEOPLE_NM reTargetPeopleNm,
+		       a.RE_TOTAL_TIME_CNT reTotalTimeCnt,
+		       a.RE_TOTAL_PEOPLE_CNT reTotalPeopleCnt,
+		       a.RE_PLACE_NM rePlaceNm,
+		       a.RE_MEMO reMemo,
+		       a.RE_APPLY_STATUS reApplyStatus,
+		       a.RE_PEOPLE_CNT_EXTRA rePeopleCntExtra,
+		       a.CREATE_DATE createDate,
+		       a.MODIFY_DATE modifyDate,
+		       a.IS_USE isUse,
+		       a.SURVEY_SKIN surveySkin,
+		       a.RE_APPLY_SHOUR reApplysHour,
+		       a.RE_APPLY_SMIN reApplysMin,
+		       a.START_NO startNo,
+		       a.RE_STATUS reStatus,
+		       a.RE_RELATION reRelation
+    	FROM
+    		RFC_COMTN_RESEARCH a
+    	WHERE 
+    	     RE_UNIQID=#reUniqId#
+    </select>
+  	
+  	<insert id="reSearchDAO.insertReSearch"  parameterClass="reSearchVO" >
+			    	insert into RFC_COMTN_RESEARCH (
+			    		 RE_UNIQID,
+			    		 RE_YEAR,
+			    		 RE_GUBUN,
+			    		 RE_KIND,
+			    		 RE_NAME,
+			    		 RE_PREFIX_STR,
+			    		 RE_APPLY_SDATE,
+			    		 RE_APPLY_EDATE,
+			    		 RE_SDATE,
+			    		 RE_EDATE,
+			    		 RE_TARGET_PEOPLE_NM,
+			    		 RE_TOTAL_TIME_CNT,
+			    		 RE_TOTAL_PEOPLE_CNT,
+			    		 RE_PLACE_NM,
+			    		 RE_MEMO,
+			    		 RE_APPLY_STATUS,
+			    		 RE_PEOPLE_CNT_EXTRA,
+			    		 CREATE_DATE,
+			    		 MODIFY_DATE ,
+			    		 IS_USE,
+			    		 SURVEY_SKIN,
+			    		 RE_APPLY_SHOUR,
+			    		 RE_APPLY_SMIN,
+			    		 START_NO,
+			    		 RE_STATUS,
+			    		 RE_RELATION
+			    		) values (
+			    		#reUniqId# ,
+			    		#reYear#,
+			    		#reGubun# ,
+			    		#reKind# ,
+			    		#reNm# ,
+			    		#rePrefixStr# ,
+			    		#reApplySdate# ,
+			    		#reApplyEdate# ,
+			    		#reSdate#,
+			    		#reEdate# ,
+			    		#reTargetPeopleNm# ,
+			    		#reTotalTimeCnt# ,
+			    		#reTotalPeopleCnt# ,
+			    		#rePlaceNm# ,
+			    		#reMemo# ,
+			    		#reApplyStatus# ,
+			    		#rePeopleCntExtra# ,
+			    		#createDate# ,
+			    		#modifyDate# ,
+			    		#isUse#,
+			    		#surveySkin#,
+			    		#reApplysHour#,
+			    		#reApplysMin#,
+			    		#startNo#,
+			    		#reStatus#,
+			    		#reRelation#
+			    	 )
+  	</insert>
+  	
+  	<update id="reSearchDAO.updateReSearch"  parameterClass="reSearchVO" >
+    			update RFC_COMTN_RESEARCH
+						set 
+						RE_YEAR=#reYear#,
+						RE_GUBUN = #reGubun#, 
+						RE_KIND = #reKind#, 
+						RE_NAME = #reNm#, 
+						RE_PREFIX_STR = #rePrefixStr#, 
+						RE_APPLY_SDATE = #reApplySdate#, 
+						RE_APPLY_EDATE = #reApplyEdate#, 
+						RE_SDATE = #reSdate#, 
+						RE_EDATE = #reEdate#, 
+						RE_TARGET_PEOPLE_NM = #reTargetPeopleNm#, 
+						RE_TOTAL_TIME_CNT = #reTotalTimeCnt#, 
+						RE_TOTAL_PEOPLE_CNT = #reTotalPeopleCnt#, 
+						RE_PLACE_NM = #rePlaceNm#, 
+						RE_MEMO = #reMemo#, 
+						RE_APPLY_STATUS = #reApplyStatus#, 
+						RE_PEOPLE_CNT_EXTRA = #rePeopleCntExtra#, 
+						MODIFY_DATE = #modifyDate# ,
+						IS_USE=#isUse#,
+						SURVEY_SKIN=#surveySkin#,
+						RE_APPLY_SHOUR=#reApplysHour#,
+						RE_APPLY_SMIN=#reApplysMin#,
+						START_NO=#startNo#,
+						RE_STATUS=#reStatus#,
+						RE_RELATION=#reRelation#
+						
+				where  
+				       RE_UNIQID=#reUniqId#
+  	</update>  	
+  	<delete id="reSearchDAO.deleteReSearch"  parameterClass="java.lang.String" >
+			    	DELETE FROM
+			    	 	RFC_COMTN_RESEARCH
+			    	WHERE
+						RE_UNIQID = #reUniqId# 
+  	</delete>
+  	
+  	<select  id="reSearchDAO.selectReSearchFileList"  parameterClass="java.lang.String"   resultClass="reSearchFileVO" cacheModel="RFCReSearchManageCache">
+  					   select 
+  							   a.RE_FILE_SID  reFileSid,
+						       a.RE_UNIQID reUniqId,
+						       a.RE_FILE_NAME reFileName,
+						       a.RE_FILE_MASK reFileMask,
+						       a.RE_FILE_SIZE reFileSize,
+						       a.CREATE_DATE createDate
+						  from 
+						      RFC_COMTN_RESEARCHFILE a
+						   where
+						      RE_UNIQID=#reUniqId#   
+						      order by RE_FILE_SID  desc
+  	</select>
+  	
+  	<select  id="reSearchDAO.getReSearchFileInfo"  parameterClass="long"   resultClass="reSearchFileVO" cacheModel="RFCReSearchManageCache">
+  					   select 
+  							   a.RE_FILE_SID  reFileSid,
+						       a.RE_UNIQID reUniqId,
+						       a.RE_FILE_NAME reFileName,
+						       a.RE_FILE_MASK reFileMask,
+						       a.RE_FILE_SIZE reFileSize,
+						       a.CREATE_DATE createDate
+						  from 
+						      RFC_COMTN_RESEARCHFILE a
+						   where
+						      RE_FILE_SID=#reFileSid#   
+  	</select>
+  	<insert id="reSearchDAO.insertReSearchFile" parameterClass="reSearchFileVO">
+  						insert into RFC_COMTN_RESEARCHFILE( 
+  							RE_FILE_SID,
+  							RE_UNIQID,
+  							RE_FILE_NAME,
+  							RE_FILE_MASK,
+  							RE_FILE_SIZE,
+  							CREATE_DATE 
+  							) values (
+  							#reFileSid# ,
+  							#reUniqId# ,
+  							#reFileName# ,
+  							#reFileMask# ,
+  							#reFileSize# ,
+  							#createDate#  
+  							)
+  	</insert>
+  	
+  	<delete id="reSearchDAO.deleteReSearchFileAll" parameterClass="String">
+  						delete from RFC_COMTN_RESEARCHFILE where RE_UNIQID=#reUniqId#
+  	</delete>
+  	<delete id="reSearchDAO.deleteReSearchFile" parameterClass="long">
+  						delete from RFC_COMTN_RESEARCHFILE where RE_FILE_SID=#reFileSid#
+  	</delete>
+  	
+  	<select id="reSearchDAO.selectReSearchLectureList" parameterClass="String" resultClass="reSearchLectureVO" cacheModel="RFCReSearchManageCache">
+  					select 
+  						   a.LECTURE_SID  lectureSid,
+					       a.RE_UNIQID reUniqId,
+					       a.LECT_NAME lectName,
+					       a.INSTRUCTOR instructor,
+					       a.LECT_TIME lectTime,
+					       a.LECT_MINUTE lectMinute,
+					       a.RANGE_CODE rangeCode,
+					       a.CREATE_DATE createDate
+ 			        from 
+ 			        	RFC_COMTN_RESEARCHLECT a
+ 			        where 
+ 			           RE_UNIQID=#reUniqId# 
+ 			           order by LECTURE_SID  asc
+  	</select>
+  	<select id="reSearchDAO.getReSearchLectureInfo" parameterClass="long" resultClass="reSearchLectureVO" cacheModel="RFCReSearchManageCache">
+  					select 
+  						   a.LECTURE_SID  lectureSid,
+					       a.RE_UNIQID reUniqId,
+					       a.LECT_NAME lectName,
+					       a.INSTRUCTOR instructor,
+					       a.LECT_TIME lectTime,
+					       a.LECT_MINUTE lectMinute,
+					       a.RANGE_CODE rangeCode,
+					       a.CREATE_DATE createDate
+ 			        from 
+ 			        	RFC_COMTN_RESEARCHLECT a
+ 			        where 
+ 			           LECTURE_SID=#lectureSid# 
+  	</select>
+  	<insert id="reSearchDAO.insertReSearchLecture" parameterClass="reSearchLectureVO">
+  					insert into RFC_COMTN_RESEARCHLECT( 
+  						LECTURE_SID,
+  						RE_UNIQID,
+  						LECT_NAME,
+  						INSTRUCTOR,
+  						LECT_TIME,
+  						LECT_MINUTE,
+  						RANGE_CODE,
+  						CREATE_DATE 
+  					) values (
+  					#lectureSid# ,
+  					#reUniqId# ,
+  					#lectName# ,
+  					#instructor# ,
+  					#lectTime# ,
+  					#lectMinute# ,
+  					#rangeCode# ,
+  					#createDate#  )
+  					
+  	</insert>
+  	<update id="reSearchDAO.updateReSearchLecture" parameterClass="reSearchLectureVO" >
+  					update  RFC_COMTN_RESEARCHLECT
+							set  
+							LECT_NAME = #lectName#, 
+							INSTRUCTOR = #instructor#, 
+							LECT_TIME = #lectTime#, 
+							LECT_MINUTE = #lectMinute#, 
+							RANGE_CODE = #rangeCode# 
+						where
+						   LECTURE_SID=#lectureSid#
+  	</update>
+  	<delete id="reSearchDAO.deleteReSearchLectureAll" parameterClass="String">
+  					delete from RFC_COMTN_RESEARCHLECT  where  RE_UNIQID=#reUniqId#
+  	</delete>
+  	<delete id="reSearchDAO.deleteReSearchLecture" parameterClass="long">
+  					delete from RFC_COMTN_RESEARCHLECT  where  LECTURE_SID=#lectureSid#
+  	</delete>
+  	
+  	
+  	<select id="reSearchDAO.selectAppliedUserCnt" parameterClass="String" resultClass="int" cacheModel="RFCReSearchManageCache">
+  						select 
+  								count(*) totcnt
+  					     from 
+  					     		 RFC_COMTN_RESEARCHAPPLY
+  					      where 
+  					         RE_UNIQID=#reUniqId# and  (APLY_STATUS  ='0'  or  APLY_STATUS  ='1')
+  	</select>
+  	
+  	<select id="reSearchDAO.selectAppliedUserCnt1" parameterClass="String" resultClass="int" cacheModel="RFCReSearchManageCache">
+  						select 
+  								count(*) totcnt
+  					     from 
+  					     		 RFC_COMTN_RESEARCHAPPLY
+  					      where 
+  					         RE_UNIQID=#reUniqId# 
+  	</select>
+  	
+  	<select id="reSearchDAO.getMaxFinishNo" parameterClass="String" resultClass="String" cacheModel="RFCReSearchManageCache">
+  						select 
+  								FINISH_NO  finishNo
+  					     from 
+  					     		 RFC_COMTN_RESEARCHAPPLY
+  					      where 
+  					         RE_UNIQID=#reUniqId# and ( FINISH_NO !=''  or FINISH_NO is not null)
+  					       order by CAST(substring(FINISH_NO,LAST_INDEXOF(FINISH_NO,'-')+1) as SIGNED) desc  limit 1
+  	</select>
+  	
+  	<select id="reSearchDAO.isExistUserCnt" parameterClass="reSearchApplyVO" resultClass="int" cacheModel="RFCReSearchManageCache">
+  						 select 
+  								count(*) totcnt
+  					     from 
+  					     		 RFC_COMTN_RESEARCHAPPLY
+  					     where 
+  					         RE_UNIQID=#reUniqId# and USER_ID=#userId#
+  	</select>
+  	<select id="reSearchDAO.isExistFinishNo" parameterClass="reSearchApplyVO" resultClass="int" cacheModel="RFCReSearchManageCache">
+  						 select 
+  								count(*) totcnt
+  					     from 
+  					     		 RFC_COMTN_RESEARCHAPPLY
+  					     where 
+  					          ( FINISH_NO !='' or  FINISH_NO is not null ) and  FINISH_NO =#finishNo#
+  					       <isNotEmpty prepend="AND" property="aplySid" >
+				          		     APLY_SID  != #aplySid#
+				           </isNotEmpty>
+  	</select>
+  	
+  	<!-- select id="reSearchDAO.maxApplyNameNo" parameterClass="String" resultClass="int" cacheModel="RFCReSearchManageCache">
+  						 select 
+  						     ifnull(max(NAME_NO),0) as nameNo 
+  						 from 
+  						 	RFC_COMTN_RESEARCHAPPLY 
+  						 where
+  						 	RE_UNIQID=#reUniqId#
+  	</select-->
+  	
+  	<select id="reSearchDAO.selectApplyerListTotal"  parameterClass="reSearchApplyVO" resultClass="int" cacheModel="RFCReSearchManageCache">
+				    	SELECT
+				    			count(*) totcnt
+				    	FROM
+				    			RFC_COMTN_RESEARCHAPPLY
+				    	WHERE 
+				    	      1=1 
+				    		<isNotEmpty prepend="AND" property="searchCondition" >
+				          		     $searchCondition$  LIKE '%$searchKeyword$%'
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="reUniqId" >
+				          		     RE_UNIQID  = #reUniqId#
+				            </isNotEmpty>		
+				            <isNotEmpty prepend="AND" property="aplyAreaCd" >
+				          		     APLY_AREA_CD  = #aplyAreaCd#
+				            </isNotEmpty>
+				             <isNotEmpty prepend="AND" property="aplySchoolCd" >
+				          		     APLY_SCHOOL_CD  = #aplySchoolCd#
+				            </isNotEmpty>
+				             <isNotEmpty prepend="AND" property="isFinish" >
+				          		     IS_FINISH  = #isFinish#
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="isGunbun" >
+				          		     IS_GUNBUN  = #isGunbun#
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="aplyStatus" >
+				          		     APLY_STATUS  = #aplyStatus#
+				            </isNotEmpty>
+				            
+				            
+				          
+  	</select>
+  	<select id="reSearchDAO.selectApplyerList"  parameterClass="reSearchApplyVO" resultClass="reSearchApplyVO" cacheModel="RFCReSearchManageCache">
+	
+		SELECT  * 
+	  FROM (
+			SELECT ROWNUM RNUM, ALL_LIST.*  
+			FROM  
+			(
+				    	SELECT
+				    			   a.APLY_SID aplySid,
+							       a.RE_UNIQID reUniqId,
+							       a.USER_ID  userId,
+							       a.APLY_NM  aplyNm,
+							       a.APLY_BIRTHDAY  aplyBirthDay,
+							       a.APLY_SEX aplySex,
+							       a.APLY_EMAIL aplyEmail,
+							       a.APLY_HOME_TEL aplyHomeTel,
+							       a.APLY_HP aplyHp,
+							       a.APLY_ETC_MEMO aplyEtcMemo,
+							       a.APLY_FILE_NM aplyFileNm,
+							       a.APLY_FILE_MASK aplyFileMask,
+							       a.APLY_AREA_CD aplyAreaCd,
+							       a.APLY_SCHOOL_CD aplySchoolCd,
+							       a.APLY_SCHOOL_TEL aplySchoolTel,
+							       a.IS_FINISH isFinish,
+							       a.IS_GUNBUN  isGunbun,
+							       a.FINISH_NO finishNo,
+							       a.CREATE_DATE createDate,
+							       a.APLY_STATUS aplyStatus,
+							       a.NAME_NO nameNo,
+							       a.APLY_NO aplyNo,
+							       a.RE_RESULT reResult,
+							       a.TMP1 tmp1,
+							       a.TMP2 tmp2,
+							       a.TMP2 tmp3,
+							       a.TMP2 tmp4,
+							       a.TMP2 tmp5,
+							       a.TMP2 tmp6,
+							       a.TMP2 tmp7,
+							       a.TMP2 tmp8,
+							       a.TMP2 tmp9,
+							       a.TMP2 tmp10
+				    	FROM
+				    			RFC_COMTN_RESEARCHAPPLY a
+				    	WHERE 
+				    	      1=1 
+				    		<isNotEmpty prepend="AND" property="searchCondition" >
+				          		     $searchCondition$  LIKE '%$searchKeyword$%'
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="reUniqId" >
+				          		     RE_UNIQID  = #reUniqId#
+				            </isNotEmpty>		
+				            <isNotEmpty prepend="AND" property="aplyAreaCd" >
+				          		     APLY_AREA_CD  = #aplyAreaCd#
+				            </isNotEmpty>
+				             <isNotEmpty prepend="AND" property="aplySchoolCd" >
+				          		     APLY_SCHOOL_CD  = #aplySchoolCd#
+				            </isNotEmpty>
+				             <isNotEmpty prepend="AND" property="isFinish" >
+				          		     IS_FINISH  = #isFinish#
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="isGunbun" >
+				          		     IS_GUNBUN  = #isGunbun#
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="aplyStatus" >
+				          		     APLY_STATUS  = #aplyStatus#
+				            </isNotEmpty>
+				           
+				             <isNotEmpty  property="orderField" >
+							         ORDER BY  $orderField$   $orderSort$
+				            </isNotEmpty>
+				            <isEmpty  property="orderField" >
+				             	    ORDER BY  APLY_SID  DESC
+				             </isEmpty>
+				        	  ) ALL_LIST
+					  )
+			  WHERE  RNUM  &gt; #firstIndex#
+			  AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+  	</select>
+  	
+  	<select id="reSearchDAO.selectApplyerList1"  parameterClass="reSearchApplyVO" resultClass="reSearchApplyVO" cacheModel="RFCReSearchManageCache">
+				    	SELECT
+				    			   a.APLY_SID aplySid,
+							       a.RE_UNIQID reUniqId,
+							       a.USER_ID  userId,
+							       a.APLY_NM  aplyNm,
+							       a.APLY_BIRTHDAY  aplyBirthDay,
+							       a.APLY_SEX aplySex,
+							       a.APLY_EMAIL aplyEmail,
+							       a.APLY_HOME_TEL aplyHomeTel,
+							       a.APLY_HP aplyHp,
+							       a.APLY_ETC_MEMO aplyEtcMemo,
+							       a.APLY_FILE_NM aplyFileNm,
+							       a.APLY_FILE_MASK aplyFileMask,
+							       a.APLY_AREA_CD aplyAreaCd,
+							       a.APLY_SCHOOL_CD aplySchoolCd,
+							       a.APLY_SCHOOL_TEL aplySchoolTel,
+							       a.IS_FINISH isFinish,
+							       a.IS_GUNBUN  isGunbun,
+							       a.FINISH_NO finishNo,
+							       a.CREATE_DATE createDate,
+							       a.APLY_STATUS aplyStatus,
+							       a.NAME_NO nameNo,
+							       a.APLY_NO aplyNo,
+							       a.RE_RESULT reResult,
+							       a.TMP1 tmp1,
+							       a.TMP2 tmp2,
+							       a.TMP2 tmp3,
+							       a.TMP2 tmp4,
+							       a.TMP2 tmp5,
+							       a.TMP2 tmp6,
+							       a.TMP2 tmp7,
+							       a.TMP2 tmp8,
+							       a.TMP2 tmp9,
+							       a.TMP2 tmp10
+				    	FROM
+				    			RFC_COMTN_RESEARCHAPPLY a
+				    	WHERE 
+				    	      1=1 
+				    		<isNotEmpty prepend="AND" property="searchCondition" >
+				          		     $searchCondition$  LIKE '%$searchKeyword$%'
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="reUniqId" >
+				          		     RE_UNIQID  = #reUniqId#
+				            </isNotEmpty>		
+				            <isNotEmpty prepend="AND" property="aplyAreaCd" >
+				          		     APLY_AREA_CD  = #aplyAreaCd#
+				            </isNotEmpty>
+				             <isNotEmpty prepend="AND" property="aplySchoolCd" >
+				          		     APLY_SCHOOL_CD  = #aplySchoolCd#
+				            </isNotEmpty>
+				             <isNotEmpty prepend="AND" property="isFinish" >
+				          		     IS_FINISH  = #isFinish#
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="isGunbun" >
+				          		     IS_GUNBUN  = #isGunbun#
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="aplyStatus" >
+				          		     APLY_STATUS  = #aplyStatus#
+				            </isNotEmpty>
+				           
+				             <isNotEmpty  property="orderField" >
+							         ORDER BY  $orderField$   $orderSort$
+				            </isNotEmpty>
+				            <isEmpty  property="orderField" >
+				             	    ORDER BY  APLY_SID  DESC
+				             </isEmpty>
+  	</select>
+  	
+  	<select id="reSearchDAO.userSelectApplyerList"  parameterClass="reSearchApplyVO" resultClass="reSearchApplyVO" cacheModel="RFCReSearchManageCache">
+				    	SELECT
+				    			   a.APLY_SID aplySid,
+							       a.RE_UNIQID reUniqId,
+							       a.USER_ID  userId,
+							       a.APLY_NM  aplyNm,
+							       a.APLY_BIRTHDAY  aplyBirthDay,
+							       a.APLY_SEX aplySex,
+							       a.APLY_EMAIL aplyEmail,
+							       a.APLY_HOME_TEL aplyHomeTel,
+							       a.APLY_HP aplyHp,
+							       a.APLY_ETC_MEMO aplyEtcMemo,
+							       a.APLY_FILE_NM aplyFileNm,
+							       a.APLY_FILE_MASK aplyFileMask,
+							       a.APLY_AREA_CD aplyAreaCd,
+							       a.APLY_SCHOOL_CD aplySchoolCd,
+							       a.APLY_SCHOOL_TEL aplySchoolTel,
+							       a.IS_FINISH isFinish,
+							       a.IS_GUNBUN  isGunbun,
+							       a.FINISH_NO finishNo,
+							       a.CREATE_DATE createDate,
+							       a.APLY_STATUS aplyStatus,
+							       a.NAME_NO nameNo,
+							       a.APLY_NO aplyNo,
+							       a.RE_RESULT reResult,
+							       a.TMP1 tmp1,
+							       a.TMP2 tmp2,
+							       a.TMP2 tmp3,
+							       a.TMP2 tmp4,
+							       a.TMP2 tmp5,
+							       a.TMP2 tmp6,
+							       a.TMP2 tmp7,
+							       a.TMP2 tmp8,
+							       a.TMP2 tmp9,
+							       a.TMP2 tmp10
+				    	FROM
+				    			RFC_COMTN_RESEARCHAPPLY a
+				    	WHERE 
+				    	     	 1=1	and USER_ID =#userId#  and IS_GUNBUN=#isGunbun#
+				        ORDER BY  APLY_SID  DESC
+				           
+  	</select>
+  	
+  	<select id="reSearchDAO.getApplyerInfo"  parameterClass="long" resultClass="reSearchApplyVO" cacheModel="RFCReSearchManageCache">
+				    	SELECT
+				    			   a.APLY_SID aplySid,
+							       a.RE_UNIQID reUniqId,
+							       a.USER_ID  userId,
+							       a.APLY_NM  aplyNm,
+							       a.APLY_BIRTHDAY  aplyBirthDay,
+							       a.APLY_SEX aplySex,
+							       a.APLY_EMAIL aplyEmail,
+							       a.APLY_HOME_TEL aplyHomeTel,
+							       a.APLY_HP aplyHp,
+							       a.APLY_ETC_MEMO aplyEtcMemo,
+							       a.APLY_FILE_NM aplyFileNm,
+							       a.APLY_FILE_MASK aplyFileMask,
+							       a.APLY_AREA_CD aplyAreaCd,
+							       a.APLY_SCHOOL_CD aplySchoolCd,
+							       a.APLY_SCHOOL_TEL aplySchoolTel,
+							       a.IS_FINISH isFinish,
+							       a.IS_GUNBUN  isGunbun,
+							       a.FINISH_NO finishNo,
+							       a.CREATE_DATE createDate,
+							       a.APLY_STATUS aplyStatus,
+							       a.NAME_NO nameNo,
+							       a.APLY_NO aplyNo,
+							       a.RE_RESULT reResult,
+							       a.TMP1 tmp1,
+							       a.TMP2 tmp2,
+							       a.TMP2 tmp3,
+							       a.TMP2 tmp4,
+							       a.TMP2 tmp5,
+							       a.TMP2 tmp6,
+							       a.TMP2 tmp7,
+							       a.TMP2 tmp8,
+							       a.TMP2 tmp9,
+							       a.TMP2 tmp10
+				    	FROM
+				    			RFC_COMTN_RESEARCHAPPLY a
+				    	WHERE 
+				    	      APLY_SID=#aplySid#
+  	</select>
+  	<insert id="reSearchDAO.insertApplyer" parameterClass="reSearchApplyVO">
+  							insert into 
+  								RFC_COMTN_RESEARCHAPPLY( 
+  								APLY_SID,
+  								RE_UNIQID,
+  								USER_ID,
+  								APLY_NM,
+  								APLY_BIRTHDAY,
+  								APLY_SEX,
+  								APLY_EMAIL,
+  								APLY_HOME_TEL,
+  								APLY_HP,
+  								APLY_ETC_MEMO,
+  								APLY_FILE_NM,
+  								APLY_FILE_MASK,
+  								APLY_AREA_CD,
+  								APLY_SCHOOL_CD,
+  								APLY_SCHOOL_TEL,
+  								IS_FINISH,
+  								IS_GUNBUN,
+  								FINISH_NO,
+  								CREATE_DATE,
+  								APLY_STATUS,
+  								NAME_NO,
+  								APLY_NO,
+  								RE_RESULT,
+  								TMP1,
+  								TMP2,
+  								TMP3,
+  								TMP4,
+  								TMP5,
+  								TMP6,
+  								TMP7,
+  								TMP8,
+  								TMP9,
+  								TMP10
+  								 ) values (
+  								 #aplySid# ,
+  								 #reUniqId# ,
+  								 #userId# ,
+  								 #aplyNm# ,
+  								 #aplyBirthDay# , 
+  								 #aplySex#,
+  								 #aplyEmail# , 
+  								 #aplyHomeTel#,
+  								 #aplyHp# ,
+  								 #aplyEtcMemo# ,
+  								 #aplyFileNm# ,
+  								 #aplyFileMask# ,
+  								 #aplyAreaCd# ,
+  								 #aplySchoolCd# ,
+  								 #aplySchoolTel# ,
+  								 #isFinish# ,
+  								 #isGunbun# ,
+  								 #finishNo#,
+  								 #createDate# ,
+  								 #aplyStatus#,
+  								 #nameNo#,
+  								 #aplyNo#,
+  								 #reResult#,
+  								 #tmp1#,
+  								 #tmp2#,
+  								 #tmp3#,
+  								 #tmp4#,
+  								 #tmp5#,
+  								 #tmp6#,
+  								 #tmp7#,
+  								 #tmp8#,
+  								 #tmp9#,
+  								 #tmp10#)
+  	</insert>
+  	<update id="reSearchDAO.updateApplyer" parameterClass="reSearchApplyVO">
+  						update 
+  							RFC_COMTN_RESEARCHAPPLY
+									set 
+									<isEqual  property="isUser" compareValue="true" >
+										APLY_BIRTHDAY = #aplyBirthDay#, 
+										APLY_SEX = #aplySex#, 
+										APLY_EMAIL = #aplyEmail#, 
+										APLY_HOME_TEL = #aplyHomeTel#, 
+										APLY_HP = #aplyHp#, 
+										APLY_ETC_MEMO = #aplyEtcMemo#, 
+										APLY_FILE_NM = #aplyFileNm#, 
+										APLY_FILE_MASK = #aplyFileMask#, 
+										APLY_AREA_CD = #aplyAreaCd#, 
+										APLY_SCHOOL_CD = #aplySchoolCd#, 
+										APLY_SCHOOL_TEL = #aplySchoolTel#, 
+										APLY_NO=#aplyNo#,
+										RE_RESULT = #reResult#,
+										TMP1 = #tmp1#,
+										TMP2 = #tmp2#,
+										TMP3 = #tmp3#,
+										TMP4 = #tmp4#,
+										TMP5 = #tmp5#,
+										TMP6 = #tmp6#,
+										TMP7 = #tmp7#,
+										TMP8 = #tmp8#,
+										TMP9 = #tmp9#,
+										TMP10 = #tmp10#
+				           			 </isEqual>
+				           			 <isEqual  property="isUser" compareValue="false" >
+					          		    	RE_UNIQID = #reUniqId#, 
+											USER_ID = #userId#, 
+											APLY_NM = #aplyNm#, 
+											APLY_BIRTHDAY = #aplyBirthDay#, 
+											APLY_SEX = #aplySex#, 
+											APLY_EMAIL = #aplyEmail#, 
+											APLY_HOME_TEL = #aplyHomeTel#, 
+											APLY_HP = #aplyHp#, 
+											APLY_ETC_MEMO = #aplyEtcMemo#, 
+											APLY_FILE_NM = #aplyFileNm#, 
+											APLY_FILE_MASK = #aplyFileMask#, 
+											APLY_AREA_CD = #aplyAreaCd#, 
+											APLY_SCHOOL_CD = #aplySchoolCd#, 
+											APLY_SCHOOL_TEL = #aplySchoolTel#, 
+											IS_FINISH = #isFinish#,
+											IS_GUNBUN=#isGunbun#, 
+											FINISH_NO=#finishNo#,
+											APLY_STATUS=#aplyStatus#,
+											NAME_NO=#nameNo#,
+											APLY_NO=#aplyNo#,
+											RE_RESULT = #reResult#,
+											TMP1 = #tmp1#,
+											TMP2 = #tmp2#,
+											TMP3 = #tmp3#,
+											TMP4 = #tmp4#,
+											TMP5 = #tmp5#,
+											TMP6 = #tmp6#,
+											TMP7 = #tmp7#,
+											TMP8 = #tmp8#,
+											TMP9 = #tmp9#,
+											TMP10 = #tmp10#
+				           			 </isEqual>
+							where 
+									APLY_SID = #aplySid# 
+  	</update>
+  	
+  	<update id="reSearchDAO.updateApplyerFinishStatus"  parameterClass="reSearchApplyVO">
+  							update  RFC_COMTN_RESEARCHAPPLY  set  IS_FINISH=#isFinish#, FINISH_NO=#finishNo#  where  APLY_SID= #aplySid#
+  	</update>
+  	
+  	<delete id="reSearchDAO.deleteApplyer">
+  							delete from RFC_COMTN_RESEARCHAPPLY where  APLY_SID= #aplySid#
+  	</delete>
+  	
+  	<delete id="reSearchDAO.deleteApplyerForReUniqId" parameterClass="String">
+  							delete from RFC_COMTN_RESEARCHAPPLY where  RE_UNIQID= #reUniqId#
+  	</delete>
+  	
+  	<select id="reSearchDAO.selectCareerList" parameterClass="long"  resultClass="reSearchApplyCareerVO" cacheModel="RFCReSearchManageCache">
+  							select 
+  								   a.CAREER_SID careerSid,
+							       a.APLY_SID aplySid,
+							       a.RESEARCH_PERIOD reSearchPeriod ,
+							       a.RESEARCHNM reSearchNm,
+							       a.CREATE_DATE createDate
+							  from 
+							      RFC_COMTN_RESEARCHAPPLYCAL a
+							  where
+							     APLY_SID=#aplySid#
+							     order by CAREER_SID asc
+  	</select>
+  	<insert  id="reSearchDAO.insertCareer" parameterClass="reSearchApplyCareerVO">
+  							insert into RFC_COMTN_RESEARCHAPPLYCAL(
+  								 CAREER_SID,
+  								 APLY_SID,
+  								 RESEARCH_PERIOD,
+  								 RESEARCHNM,
+  								 CREATE_DATE )
+								values(
+									#careerSid# ,
+									#aplySid# ,
+									#reSearchPeriod# ,
+									#reSearchNm# , 
+									#createDate# )
+  	</insert>
+  	<update id="reSearchDAO.updateCareer" parameterClass="reSearchApplyCareerVO">
+  						update 
+  							RFC_COMTN_RESEARCHAPPLYCAL
+								set 
+								RESEARCH_PERIOD = #reSearchPeriod#, 
+								RESEARCHNM = #reSearchNm#, 
+						where 
+								CAREER_SID=#careerSid#
+  	</update>
+  	<delete id="reSearchDAO.deleteCareer" parameterClass="long">
+  					delete from  RFC_COMTN_RESEARCHAPPLYCAL where  APLY_SID=#aplySid#
+  	</delete>
+  	
+  	<select id="reSearchDAO.partInUserSurveyCnt" parameterClass="surveyStatVO" resultClass="int" cacheModel="RFCReSearchManageCache">
+			  			select
+			  				 count(*) as cnt 
+			  			from 
+			  			     RFC_COMTN_RESEARCHSURVEY
+			  			where  
+			  				RE_UNIQID=#reUniqId# and 
+			  				USER_ID=#userId#
+  	</select>
+  	<select id="reSearchDAO.isDupicateSurvey" parameterClass="surveyStatVO" resultClass="int" cacheModel="RFCReSearchManageCache">
+			  			select
+			  				 count(*) as cnt 
+			  			from 
+			  			     RFC_COMTN_RESEARCHSURVEY
+			  			where  
+			  				RE_UNIQID=#reUniqId# and 
+			  				USER_ID=#userId# and 
+			  				QUESTION_NUM=#questionNum#
+  	</select>
+  	 <select id="reSearchDAO.selectTotalReSearchUserCnt" parameterClass="surveyStatVO" resultClass="int" cacheModel="RFCReSearchManageCache">
+			  			   select
+								count(*) cnt
+							from
+							(
+								  select
+								       RE_UNIQID,
+								       USER_ID
+								  from 
+								      RFC_COMTN_RESEARCHSURVEY
+								  where  
+								     RE_UNIQID=#reUniqId#  
+								     
+								   <isNotEmpty prepend="AND" property="userId" >
+				          		     	USER_ID=#userId#
+				           		  </isNotEmpty>
+		
+								  group by RE_UNIQID,USER_ID
+							) dd
+  	</select>
+  	<select id="reSearchDAO.selectTotalQestionUserCnt" parameterClass="surveyStatVO" resultClass="int" cacheModel="RFCReSearchManageCache">
+			  			select
+			  				 count(*) as cnt 
+			  			from 
+			  			    RFC_COMTN_RESEARCHSURVEY
+			  			where  
+			  				RE_UNIQID=#reUniqId# and 
+			  				QUESTION_NUM=#questionNum#
+  	</select>
+  	
+  	<select id="reSearchDAO.selectTotalAnswerUserCntSum" parameterClass="surveyStatVO" resultClass="int" cacheModel="RFCReSearchManageCache">
+			  			select
+			  				 count(*) as cnt 
+			  			from 
+			  			    RFC_COMTN_RESEARCHSURVEY
+			  			where  
+			  				RE_UNIQID=#reUniqId# and 
+			  				QUESTION_NUM like concat (#questionNum#,'%') and
+			  				ANSWER_NUM =#answerNum#
+			  				
+  	</select>
+  	
+  	<select id="reSearchDAO.selectTotalAnswerUserCnt" parameterClass="surveyStatVO" resultClass="int" cacheModel="RFCReSearchManageCache">
+			  			select
+			  				 count(*) as cnt 
+			  			from 
+			  			    RFC_COMTN_RESEARCHSURVEY
+			  			where  
+			  				RE_UNIQID=#reUniqId# and 
+			  				QUESTION_NUM=#questionNum# and
+			  				ANSWER_NUM =#answerNum#
+			  				
+  	</select>
+  	<select id="reSearchDAO.selectAnswerTextList" parameterClass="surveyStatVO" resultClass="surveyStatVO" cacheModel="RFCReSearchManageCache">
+			  			select
+			  				ANSWER_TEXT  answerText,
+			  				USER_ID  userId,
+			  				REG_DATE regDate
+			  			from 
+			  			    RFC_COMTN_RESEARCHSURVEY
+			  			where  
+			  				RE_UNIQID=#reUniqId# and 
+			  				QUESTION_NUM=#questionNum# 
+  	</select>
+  	<insert id="reSearchDAO.insertResearchSurvey" parameterClass="surveyStatVO" >
+  						insert into RFC_COMTN_RESEARCHSURVEY
+  							( 
+  							RE_UNIQID,
+  							USER_ID,
+  							QUESTION_NUM,
+  							ANSWER_NUM,
+  							ANSWER_TEXT,
+  							REG_DATE
+  							 ) values(
+  							 	 #reUniqId#, 
+  							 	 #userId#,
+  							 	 #questionNum# ,
+  							 	 #answerNum# ,
+  							 	 #answerText# , 
+  							 	 #regDate# )
+  	</insert>
+
+	<update id="reSearchDAO.updateTraineeNumAdd" parameterClass="reSearchApplyVO">
+		UPDATE
+			RFC_COMTN_RESEARCHAPPLY
+		SET
+			NAME_NO = #nameNo#
+		WHERE
+			APLY_SID = #aplySid#
+	</update>
+  	
+  </sqlMap>

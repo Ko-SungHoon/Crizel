@@ -1,0 +1,587 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCQuestionManage">
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="questionVO"	 type = "egovframework.rfc3.question.vo.QuestionVO"/>
+    <typeAlias  alias="anQuestionVO"	 type = "egovframework.rfc3.question.vo.AnQuestionVO"/>
+    <typeAlias  alias="anQuestionItemVO"	 type = "egovframework.rfc3.question.vo.AnQuestionItemVO"/>
+    <typeAlias  alias="questionUserInfoVO"	 type = "egovframework.rfc3.question.vo.QuestionUserInfoVO"/>
+     <typeAlias  alias="questionResultVO"	 type = "egovframework.rfc3.question.vo.QuestionResultVO"/>
+    
+    <cacheModel type="${Globals.ibatis.default.cache}" id="RFCQuestionManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      <flushOnExecute statement="questionDAO.insertQuestion" />
+      <flushOnExecute statement="questionDAO.updateQuestion" />
+      <flushOnExecute statement="questionDAO.updateQuestionAnswerCount" />
+      <flushOnExecute statement="questionDAO.deleteQuestion" />      
+      <flushOnExecute statement="questionDAO.insertAnQuestion" />
+      <flushOnExecute statement="questionDAO.updateAnQuestion" />
+      <flushOnExecute statement="questionDAO.updateAnQuestionOrder" />
+      <flushOnExecute statement="questionDAO.deleteAnQuestion" />
+      <flushOnExecute statement="questionDAO.insertAnQuestionItem" />
+      <flushOnExecute statement="questionDAO.updateAnQuestionItem" />
+      <flushOnExecute statement="questionDAO.deleteAnQuestionItem" />
+      <flushOnExecute statement="questionDAO.insertQuestionUserInfo" />
+     </cacheModel>
+    
+    <select id="questionDAO.selectQuestionListTotal"  parameterClass="questionVO" resultClass="int" cacheModel="RFCQuestionManageCache">
+    	SELECT
+    		count(*) totcnt
+    	FROM
+    		RFC_COMTNQUESTION
+    	WHERE
+    		1=1 AND QUESTION_TYPE = #questionType#
+    		<isNotEmpty prepend="AND" property="searchCondition" >
+          		     $searchCondition$  LIKE '%$searchKeyword$%'
+            </isNotEmpty>		
+           <isNotEmpty prepend="AND" property="sgroupId" >
+          		     SGROUP_ID  = #sgroupId#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="domainId" >
+                    DOMAIN_ID  = #domainId#
+             </isNotEmpty> 
+             <isEmpty  property="domainId" >
+                	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+                  	   DOMAIN_ID in ( $myDomainList$ )
+       			</isEqual>
+            </isEmpty>
+            <isNotEmpty prepend="AND" property="userId" >
+          		     USER_ID  = #userId#
+            </isNotEmpty>
+    </select>
+    
+    <select id="questionDAO.selectQuestionList"  parameterClass="questionVO" resultClass="questionVO" cacheModel="RFCQuestionManageCache">
+    	SELECT
+    		QUESTION_SID questionSid,
+			SGROUP_ID sgroupId,
+			DOMAIN_ID domainId,
+			SKIN_ID skinId,
+			QUESTION_TYPE questionType,
+			QUESTION_TITLE questionTitle,
+			QUESTION_CONTENT questionContent,
+			START_DATE startDate,
+			END_DATE endDate,
+			QUESTION_USE_FL questionUseFl,
+			QUESTION_OPEN_FL questionOpenFl,
+			ANSWER_DUPLICATE_FL answerDuplicateFl,
+			ANSWER_COUNT answerCount,
+			LOT_AREA lotArea,
+			LOT_PERCENT lotPercent,
+			LOT_COUNT lotCount,
+			RESULT_OPEN_FL resultOpenFl,
+			USER_ID userId,
+			REGISTER_DATE register_dt
+    	FROM
+    		RFC_COMTNQUESTION
+    	WHERE
+    		1=1 AND QUESTION_TYPE = #questionType#
+    		<isNotEmpty prepend="AND" property="searchCondition" >
+          		     $searchCondition$  LIKE '%$searchKeyword$%'
+            </isNotEmpty>		
+           <isNotEmpty prepend="AND" property="sgroupId" >
+          		     SGROUP_ID  = #sgroupId#
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="domainId" >
+                    DOMAIN_ID  = #domainId#
+             </isNotEmpty> 
+             <isEmpty  property="domainId" >
+                	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+                  	   DOMAIN_ID in ( $myDomainList$ )
+       			</isEqual>
+            </isEmpty>
+            <isNotEmpty prepend="AND" property="userId" >
+          		     USER_ID  = #userId#
+            </isNotEmpty>
+        ORDER BY QUESTION_SID DESC
+   		LIMIT #recordCountPerPage# OFFSET #firstIndex#
+    </select>
+    <select id="questionDAO.getQuestion"  parameterClass="questionVO" resultClass="questionVO" cacheModel="RFCQuestionManageCache">
+    	SELECT
+    		A.QUESTION_SID questionSid,
+			A.SGROUP_ID sgroupId,
+			A.DOMAIN_ID domainId,
+			A.SKIN_ID skinId,
+			A.QUESTION_TYPE questionType,
+			A.QUESTION_TITLE questionTitle,
+			A.QUESTION_CONTENT questionContent,
+			A.START_DATE startDate,
+			A.END_DATE endDate,
+			A.QUESTION_USE_FL questionUseFl,
+			A.QUESTION_OPEN_FL questionOpenFl,
+			A.ANSWER_DUPLICATE_FL answerDuplicateFl,
+			A.ANSWER_COUNT answerCount,
+			A.LOT_AREA lotArea,
+			A.LOT_PERCENT lotPercent,
+			A.LOT_COUNT lotCount,
+			A.RESULT_OPEN_FL resultOpenFl,
+			A.USER_ID userId,
+			(select count(*) from RFC_COMTNANQUESTION where QUESTION_SID=A.QUESTION_SID) anQuestionCount,
+			A.REGISTER_DATE register_dt
+    	FROM
+    		RFC_COMTNQUESTION A 
+    	WHERE
+    		A.QUESTION_SID = #questionSid#    		
+    </select>
+    <insert id="questionDAO.insertQuestion"  parameterClass="questionVO" >
+    	INSERT INTO RFC_COMTNQUESTION
+    	(
+    		QUESTION_SID,
+			SGROUP_ID,
+			DOMAIN_ID,
+			SKIN_ID,
+			QUESTION_TYPE,
+			QUESTION_TITLE,
+			QUESTION_CONTENT,
+			START_DATE,
+			END_DATE,
+			QUESTION_USE_FL,
+			QUESTION_OPEN_FL,
+			ANSWER_DUPLICATE_FL,
+			ANSWER_COUNT,
+			LOT_AREA,
+			LOT_PERCENT,
+			LOT_COUNT,
+			RESULT_OPEN_FL,
+			USER_ID,
+			REGISTER_DATE
+		)
+		VALUES
+		(
+			#questionSid#,
+			#sgroupId#,
+			#domainId#,
+			#skinId#,
+			#questionType#,
+			#questionTitle#,
+			#questionContent#,
+			#startDate#,
+			#endDate#,
+			#questionUseFl#,
+			#questionOpenFl#,
+			#answerDuplicateFl#,
+			#answerCount#,
+			#lotArea#,
+			#lotPercent#,
+			#lotCount#,
+			#resultOpenFl#,
+			#userId#,
+			#register_dt#
+		)
+    </insert>
+    <update id="questionDAO.updateQuestion"  parameterClass="questionVO" >
+    	UPDATE RFC_COMTNQUESTION
+    	SET
+			SGROUP_ID=#sgroupId#,
+			DOMAIN_ID=#domainId#,
+			SKIN_ID=#skinId#,
+			QUESTION_TITLE=#questionTitle#,
+			QUESTION_CONTENT=#questionContent#,
+			START_DATE=#startDate#,
+			END_DATE=#endDate#,
+			<isNotEmpty property="lotArea" >
+				LOT_AREA=#lotArea#,
+			</isNotEmpty>
+			<isNotEmpty property="lotPercent" >
+				LOT_PERCENT=#lotPercent#,
+			</isNotEmpty>
+			<isNotEmpty property="lotCount" >
+				LOT_COUNT=#lotCount#,
+			</isNotEmpty>
+			QUESTION_USE_FL=#questionUseFl#,
+			QUESTION_OPEN_FL=#questionOpenFl#,
+			ANSWER_DUPLICATE_FL=#answerDuplicateFl#,
+			RESULT_OPEN_FL = #resultOpenFl#
+    	WHERE
+    		QUESTION_SID = #questionSid#    		
+    </update>
+    
+    <update id="questionDAO.updateQuestionAnswerCount"  parameterClass="questionVO" >
+    	UPDATE RFC_COMTNQUESTION
+    	SET
+			ANSWER_COUNT = ANSWER_COUNT + 1
+    	WHERE
+    		QUESTION_SID = #questionSid#    		
+    </update>
+    <delete id="questionDAO.deleteQuestion"  parameterClass="questionVO" >
+    	DELETE FROM RFC_COMTNQUESTION
+    	WHERE
+    		QUESTION_SID = #questionSid#
+    </delete>
+    
+    <select id="questionDAO.selectAnQuestionList"  parameterClass="questionVO" resultClass="anQuestionVO" cacheModel="RFCQuestionManageCache">
+    	SELECT
+    		ANQUESTION_SID anQuestionSid,
+			QUESTION_SID questionSid,
+			STATIS_STANDARD statisStandard,
+			QUESTION_TEXT questionText,
+			QUESTION_HINT questionHint,
+			ORDER_NUM orderNum,
+			HEAD_CONTENT headContent,
+			ITEM_TYPE itemType,
+			GROUP_IDX groupIdx,
+			GROUP_ORDER groupOrder,
+			QUESTION_NUM questionNum
+    	FROM
+    		RFC_COMTNANQUESTION
+    	WHERE
+    		QUESTION_SID = #questionSid#
+  		ORDER BY ORDER_NUM ASC,GROUP_IDX ASC,GROUP_ORDER ASC
+    </select>
+    
+    <select id="questionDAO.getAnQuestion"  parameterClass="anQuestionVO" resultClass="anQuestionVO" cacheModel="RFCQuestionManageCache">
+    	SELECT
+    		ANQUESTION_SID anQuestionSid,
+			QUESTION_SID questionSid,
+			STATIS_STANDARD statisStandard,
+			QUESTION_TEXT questionText,
+			QUESTION_HINT questionHint,
+			ORDER_NUM orderNum,
+			HEAD_CONTENT headContent,
+			ITEM_TYPE itemType,
+			GROUP_IDX groupIdx,
+			GROUP_ORDER groupOrder,
+			QUESTION_NUM questionNum
+    	FROM
+    		RFC_COMTNANQUESTION
+    	WHERE
+    		QUESTION_SID = #questionSid# AND ANQUESTION_SID = #anQuestionSid#
+    </select>
+    
+    <insert id="questionDAO.insertAnQuestion"  parameterClass="anQuestionVO" >
+    	INSERT INTO RFC_COMTNANQUESTION
+    	(
+    		ANQUESTION_SID,
+			QUESTION_SID,
+			STATIS_STANDARD,
+			QUESTION_TEXT,
+			QUESTION_HINT,
+			ORDER_NUM,
+			HEAD_CONTENT,
+			ITEM_TYPE,
+			GROUP_IDX,
+			GROUP_ORDER,
+			QUESTION_NUM
+		)
+		VALUES
+		(
+			#anQuestionSid#,
+			#questionSid#,
+			#statisStandard#,
+			#questionText#,
+			#questionHint#,
+			#orderNum#,
+			#headContent#,
+			#itemType#,
+			#groupIdx#,
+			#groupOrder#,
+			#questionNum#
+		)
+    </insert>
+    <update id="questionDAO.updateAnQuestion"  parameterClass="anQuestionVO" >
+    	UPDATE RFC_COMTNANQUESTION
+    	SET
+			STATIS_STANDARD=#statisStandard#,
+			QUESTION_TEXT=#questionText#,
+			QUESTION_HINT=#questionHint#,
+			ORDER_NUM=#orderNum#,
+			HEAD_CONTENT=#headContent#,
+			ITEM_TYPE=#itemType#,
+			GROUP_ORDER = #groupOrder#,
+			QUESTION_NUM = #questionNum#
+    	WHERE
+    		QUESTION_SID = #questionSid# AND ANQUESTION_SID = #anQuestionSid#
+    </update>
+    
+    <update id="questionDAO.updateAnQuestionOrder"  parameterClass="anQuestionVO" >
+    	UPDATE RFC_COMTNANQUESTION
+    	SET			
+			ORDER_NUM=#orderNum#			
+    	WHERE
+    		QUESTION_SID = #questionSid# AND GROUP_IDX = #groupIdx#
+    </update>
+    
+    <delete id="questionDAO.deleteAnQuestion"  parameterClass="anQuestionVO" >
+    	DELETE FROM RFC_COMTNANQUESTION
+    	WHERE
+    		QUESTION_SID = #questionSid#
+    		<isNotEmpty property="anQuestionSid" >
+	    		<isNotEqual  property="anQuestionSid" prepend="AND"  compareValue="0">
+	    			ANQUESTION_SID = #anQuestionSid#
+	    		</isNotEqual>
+	    	</isNotEmpty>
+    </delete>
+  
+    
+    <select id="questionDAO.selectAnQuestionItemList"  parameterClass="anQuestionVO" resultClass="anQuestionItemVO" cacheModel="RFCQuestionManageCache">
+    	SELECT
+    		ITEM.ITEMQUESTION_SID itemQuestionSid,
+			ITEM.QUESTION_SID questionSid,
+			ITEM.ANQUESTION_SID anQuestionSid,
+			ITEM.ITEM_TEXT itemText,
+			ITEM.ITEM_ANSWER itemAnswer,
+			ITEM.ITEM_IDX itemIdx,
+			ITEM.LINK_SID linkSid,
+            QUE.QUESTION_TEXT questionText
+    	FROM
+    		RFC_COMTNANQUESTIONITEM ITEM
+            LEFT OUTER JOIN RFC_COMTNANQUESTION QUE
+            ON ITEM.LINK_SID = QUE.ANQUESTION_SID
+    	WHERE
+    		ITEM.QUESTION_SID = #questionSid# AND ITEM.ANQUESTION_SID = #anQuestionSid#
+    	ORDER BY
+    		ITEM.ITEM_IDX ASC
+    </select>
+    <insert id="questionDAO.insertAnQuestionItem"  parameterClass="anQuestionItemVO" >
+    	INSERT INTO RFC_COMTNANQUESTIONITEM
+    	(
+    		ITEMQUESTION_SID,
+			QUESTION_SID,
+			ANQUESTION_SID,
+			ITEM_TEXT,
+			ITEM_ANSWER,
+			ITEM_IDX,
+			LINK_SID
+		)
+		VALUES
+		(
+			#itemQuestionSid#,
+			#questionSid#,
+			#anQuestionSid#,
+			#itemText#,
+			#itemAnswer#,
+			#itemIdx#,
+			#linkSid#
+		)
+    </insert>
+    <update id="questionDAO.updateAnQuestionItem"  parameterClass="anQuestionItemVO" >
+    	UPDATE RFC_COMTNANQUESTIONITEM
+    	SET			
+			ITEM_TEXT=#itemText#,
+			ITEM_ANSWER=#itemAnswer#,
+			ITEM_IDX=#itemIdx#,
+			LINK_SID=#linkSid#
+    	WHERE
+    		QUESTION_SID = #questionSid# AND ANQUESTION_SID = #anQuestionSid# AND ITEMQUESTION_SID = #itemQuestionSid#
+    </update>
+    <delete id="questionDAO.deleteAnQuestionItem"  parameterClass="anQuestionVO" >
+    	DELETE FROM RFC_COMTNANQUESTIONITEM
+    	WHERE
+    		QUESTION_SID = #questionSid#
+    		<isNotEmpty property="anQuestionSid" >
+	    		<isNotEqual  property="anQuestionSid" prepend="AND"  compareValue="0">
+	    			ANQUESTION_SID = #anQuestionSid#
+	    		</isNotEqual>
+	    	</isNotEmpty>
+    		<isNotEmpty property="itemDelete" prepend="AND" >
+    			(
+	    		<iterate property="itemDelete" conjunction="OR">
+	    			ITEMQUESTION_SID = #itemDelete[]#
+	    		</iterate>
+	    		) 
+	    	</isNotEmpty>
+    </delete>
+    
+    <select id="questionDAO.selectQuestionUserInfoListTotal" parameterClass="questionUserInfoVO" resultClass="int" cacheModel="RFCQuestionManageCache">
+    	SELECT
+    		count(*) totcnt
+    	FROM
+    		RFC_COMTNQUESTIONUSERINFO
+    	WHERE
+    		QUESTION_SID = #questionSid#
+    		<isNotEmpty prepend="AND" property="searchCondition" >
+          		     $searchCondition$  LIKE '%$searchKeyword$%'
+            </isNotEmpty>	
+    </select>
+    
+    <select id="questionDAO.selectQuestionUserInfoList" parameterClass="questionUserInfoVO" resultClass="questionUserInfoVO" cacheModel="RFCQuestionManageCache">
+    	SELECT
+    		USERINFO_SID userInfoSid,
+			QUESTION_SID questionSid,
+			USER_NAME userName,
+			USER_REG_NO userRegNo,
+			USER_ZIPCODE userZipCode,
+			USER_ADDRESS userAddress,
+			USER_CEL userCel,
+			USER_EMAIL userEmail,
+			QUESTION_YEAR questionYear,
+			MAILING_LINK mailingLink,
+			QUESTION_DATE questionDate,
+			REGISTER_DATE register_dt	
+    	FROM
+    		RFC_COMTNQUESTIONUSERINFO
+    	WHERE    	
+    		QUESTION_SID = #questionSid#
+    		<isNotEmpty prepend="AND" property="searchCondition" >
+          		     $searchCondition$  LIKE '%$searchKeyword$%'
+            </isNotEmpty>
+        ORDER BY USERINFO_SID DESC
+   		LIMIT #recordCountPerPage# OFFSET #firstIndex#
+    </select>
+    
+    <select id="questionDAO.selectQuestionEventLotList" parameterClass="questionUserInfoVO" resultClass="questionUserInfoVO" cacheModel="RFCQuestionManageCache">
+    	SELECT
+    		USERINFO_SID userInfoSid,
+			QUESTION_SID questionSid,
+			USER_NAME userName,
+			USER_REG_NO userRegNo,
+			USER_ZIPCODE userZipCode,
+			USER_ADDRESS userAddress,
+			USER_CEL userCel,
+			USER_EMAIL userEmail,
+			QUESTION_YEAR questionYear,
+			MAILING_LINK mailingLink,
+			QUESTION_DATE questionDate,
+			REGISTER_DATE register_dt	
+    	FROM
+    		RFC_COMTNQUESTIONUSERINFO
+    	WHERE    	
+    		QUESTION_SID = #questionSid#
+    		<isNotEmpty prepend="AND" property="searchCondition" >
+          		     $searchCondition$  LIKE '%$searchKeyword$%'
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="userAddress" >
+            	<isEqual  property="isEqual" compareValue="true">
+          		     USER_ADDRESS  LIKE '%$userAddress$%'
+          		</isEqual>
+          		<isEqual  property="isEqual" compareValue="false">
+          		     USER_ADDRESS  NOT LIKE '%$userAddress$%'
+          		</isEqual>
+            </isNotEmpty>
+            <isNotEmpty prepend="AND" property="questionYear" >
+          		     QUESTION_YEAR  = #questionYear#
+            </isNotEmpty>
+        ORDER BY USERINFO_SID DESC
+    </select>
+    
+    <select id="questionDAO.selectQuestionEventLotTotal" parameterClass="questionUserInfoVO" resultClass="egovMap" cacheModel="RFCQuestionManageCache">
+    	SELECT
+			(
+				SELECT 
+					count(*) 
+				FROM 
+					RFC_COMTNQUESTIONUSERINFO 
+				WHERE 
+					QUESTION_SID = #questionSid# 
+					AND QUESTION_DATE = #questionDate#
+					<isNotEmpty prepend="AND" property="searchCondition" >
+		          		     $searchCondition$  LIKE '%$searchKeyword$%'
+		            </isNotEmpty>
+					<isNotEmpty prepend="AND" property="userAddress" >
+		            	<isEqual  property="isEqual" compareValue="true">
+		          		     USER_ADDRESS  LIKE '%$userAddress$%'
+		          		</isEqual>
+		          		<isEqual  property="isEqual" compareValue="false">
+		          		     USER_ADDRESS  NOT LIKE '%$userAddress$%'
+		          		</isEqual>
+		            </isNotEmpty>
+			) value1,
+			(
+				SELECT 
+					count(*) 
+				FROM 
+					RFC_COMTNQUESTIONUSERINFO 
+				WHERE 
+					QUESTION_SID = #questionSid# 
+					AND QUESTION_DATE != #questionDate#
+					<isNotEmpty prepend="AND" property="searchCondition" >
+		          		     $searchCondition$  LIKE '%$searchKeyword$%'
+		            </isNotEmpty>
+					<isNotEmpty prepend="AND" property="userAddress" >
+		            	<isEqual  property="isEqual" compareValue="true">
+		          		     USER_ADDRESS  LIKE '%$userAddress$%'
+		          		</isEqual>
+		          		<isEqual  property="isEqual" compareValue="false">
+		          		     USER_ADDRESS  NOT LIKE '%$userAddress$%'
+		          		</isEqual>
+		            </isNotEmpty>
+			)  value2
+		FROM
+			RFC_COMTNQUESTIONUSERINFO			
+		LIMIT 1 OFFSET 0	
+    </select>
+    
+    <insert id="questionDAO.insertQuestionUserInfo"  parameterClass="questionUserInfoVO" >
+    	INSERT INTO RFC_COMTNQUESTIONUSERINFO
+    	(
+    		USERINFO_SID,
+			QUESTION_SID,
+			USER_NAME,
+			USER_REG_NO,
+			USER_ZIPCODE,
+			USER_ADDRESS,
+			USER_CEL,
+			USER_EMAIL,
+			QUESTION_YEAR,
+			MAILING_LINK,
+			QUESTION_DATE,
+			REGISTER_DATE
+		)
+		VALUES
+		(
+			#userInfoSid#,			
+			#questionSid#,    		
+			#userName#,
+			#userRegNo#,
+			#userZipCode#,
+			#userAddress#,
+			#userCel#,
+			#userEmail#,
+			#questionYear#,
+			#mailingLink#,
+			#questionDate#,
+			#register_dt#
+		)
+    </insert>
+    <select id="questionDAO.selectQuestionUserList" parameterClass="questionVO" resultClass="questionResultVO" cacheModel="RFCQuestionManageCache">
+		SELECT 
+			RESULT.USERINFO_SID userInfoSid, 
+			INFO.USER_NAME userName, 
+			INFO.USER_REG_NO userRegNo, 
+			ANQUESTION_SID anQuestionSid, 
+			ITEMQUESTION_SID itemQuestionSid, 
+			SUBJECT_ANSWER subjectAnswer
+		FROM 
+			RFC_COMTNQUESTIONUSERINFO INFO , 
+			RFC_COMTNQUESTIONRESULT RESULT 
+		WHERE 
+			INFO.USERINFO_SID = RESULT.USERINFO_SID
+			AND INFO.QUESTION_SID = #questionSid#		
+		ORDER BY RESULT.USERINFO_SID ASC
+    </select>
+    
+    <select id="questionDAO.selectResultUserResult"  parameterClass="anQuestionItemVO" resultClass="questionResultVO" cacheModel="RFCQuestionManageCache">
+    	SELECT
+    		RESULT.RESULT_SID resultSid,
+    		INFO.USER_NAME userName, 
+    		INFO.USER_REG_NO userRegNo, 
+    		RESULT.USERINFO_SID userInfoSid,    		
+			RESULT.QUESTION_SID questionSid,
+			RESULT.ANQUESTION_SID anQuestionSid,
+			RESULT.ITEMQUESTION_SID itemQuestionSid,
+			RESULT.SUBJECT_ANSWER subjectAnswer,
+			RESULT.REGISTER_DATE register_dt
+    	FROM
+    		RFC_COMTNQUESTIONUSERINFO INFO , 
+			RFC_COMTNQUESTIONRESULT RESULT 
+		WHERE 
+			INFO.USERINFO_SID = RESULT.USERINFO_SID AND
+    		RESULT.QUESTION_SID = #questionSid# AND RESULT.ANQUESTION_SID = #anQuestionSid# AND RESULT.ITEMQUESTION_SID = #itemQuestionSid#
+    	ORDER BY
+    		RESULT.REGISTER_DATE ASC    		    		
+    </select>
+    
+    <select id="questionDAO.selectResultUserResultExcel"  parameterClass="questionResultVO" resultClass="questionResultVO" cacheModel="RFCQuestionManageCache">
+		    	    select A.SUBJECT_ANSWER subjectAnswer,
+				        B.USER_NAME userName,
+				        B.USER_REG_NO userRegNo,
+				        C.ITEM_TYPE itemType,
+				        D.ITEM_TEXT itemText
+				   from RFC_COMTNQUESTIONRESULT A INNER JOIN RFC_COMTNQUESTIONUSERINFO B ON A.USERINFO_SID=B.USERINFO_SID INNER JOIN RFC_COMTNANQUESTION C ON A.ANQUESTION_SID=C.ANQUESTION_SID INNER JOIN RFC_COMTNANQUESTIONITEM D ON A.ITEMQUESTION_SID=D.ITEMQUESTION_SID
+				  where A.QUESTION_SID=#questionSid#
+				  order by A.USERINFO_SID ASC,
+				        C.ORDER_NUM ASC,
+				        A.ANQUESTION_SID ASC
+    </select>
+    
+    
+</sqlMap>

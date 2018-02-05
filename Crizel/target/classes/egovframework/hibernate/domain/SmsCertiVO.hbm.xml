@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.openapi30.vo">
+	<class name="SmsCertiVO"	table="RFC_COMTNSMSCERTI">
+	  <cache usage="read-write"/>
+	  <comment>SMS 발송 테이블</comment>
+		 <composite-id>
+			<key-property name="id" type="string" length="64">
+				<column name="ID">
+					<comment>SMS 고유ID</comment>
+				</column>
+			</key-property>
+			<key-property name="certiNum" type="int"  length="6">
+				<column name="CERTI_NUM">
+					<comment>SMS 식별번호</comment>
+				</column>
+			</key-property>
+		</composite-id>
+		<property name="requestTime" type="timestamp" >
+			<column name="REQUEST_TIME">
+				<comment>SMS 요청일</comment>
+			</column>
+		</property>
+	</class>
+</hibernate-mapping>

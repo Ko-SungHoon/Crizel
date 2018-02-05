@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCSnsCommentManage">
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="snsCommentVO"	 type = "egovframework.rfc3.sns.vo.SnsCommentVO"/>
+    
+    <cacheModel type="${Globals.ibatis.default.cache}" id="RFCSnsCommentManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+		<flushOnExecute statement="snsCommentDAO.insertSnsComment"/>
+		<flushOnExecute statement="snsCommentDAO.updateSnsCommentReply"/>
+		<flushOnExecute statement="snsCommentDAO.deleteSnsComment"/>
+     </cacheModel>
+     
+     <select id="snsCommentDAO.selectSnsComentCount" parameterClass="String"  resultClass="int" cacheModel="RFCSnsCommentManageCache">
+			       	SELECT
+		       			count(*) totcnt
+					FROM
+					    RFC_SNS_COMMENT
+					WHERE 
+					   CATEGORY_ID = #categoryId#							
+	</select>
+	
+	<select id="snsCommentDAO.selectSnsComentReplyCount" parameterClass="snsCommentVO"  resultClass="int" cacheModel="RFCSnsCommentManageCache">
+			       	SELECT
+		       			count(*) totcnt
+					FROM
+					    RFC_SNS_COMMENT
+					WHERE 
+					   CATEGORY_ID=#categoryId#  and DATA_IDX=#dataIdx# and DATA_REF &lt; #dataRef# and DATA_DEP &gt; #dataDep#		
+
+	</select>
+	
+	<select id="snsCommentDAO.selectSnsCommentList" parameterClass="String"  resultClass="snsCommentVO" cacheModel="RFCSnsCommentManageCache">
+			       	select  
+			       	           a.SNS_CMT_SID as snsCmtSid,
+						       a.CATEGORY_ID as categoryId ,
+						       a.DATA_IDX as dataIdx,
+						       a.DATA_REF as dataRef,
+						       a.DATA_DEP as dataDep,
+						       a.SNS_USER_ID as snsUserId,
+						       a.SNS_USER_NICK_NM as snsUserNickNm,
+						       a.SNS_USER_IP as snsUserIp,
+						       a.SNS_TYPE as snsType,
+						       a.SNS_PROFILE_IMG_URL as snsProfileImgUrl,
+						       a.SNS_PROFILE_URL snsProfileUrl,
+						       a.SNS_CONTENT as snsContent,
+						       a.IMG_FILE_NAME as imgFileName,
+						       a.IMG_FILE_MASK as imgFileMask,
+						       a.IMG_FILE_SIZE as imgFileSize,
+						       a.SNS_REG_DATE as snsRegDate
+						  from
+						       RFC_SNS_COMMENT a
+						  WHERE 
+						   CATEGORY_ID = #categoryId#	
+						  ORDER BY DATA_IDX DESC, DATA_REF DESC, DATA_DEP ASC		
+	</select>
+	
+	<select id="snsCommentDAO.getSnsCommentInfo" parameterClass="long"  resultClass="snsCommentVO" cacheModel="RFCSnsCommentManageCache">
+			       select  
+			       	           a.SNS_CMT_SID as snsCmtSid,
+						       a.CATEGORY_ID as categoryId ,
+						       a.DATA_IDX as dataIdx,
+						       a.DATA_REF as dataRef,
+						       a.DATA_DEP as dataDep,
+						       a.SNS_USER_ID as snsUserId,
+						       a.SNS_USER_NICK_NM as snsUserNickNm,
+						       a.SNS_USER_IP as snsUserIp,
+						       a.SNS_TYPE as snsType,
+						       a.SNS_PROFILE_IMG_URL as snsProfileImgUrl,
+						       a.SNS_PROFILE_URL snsProfileUrl,
+						       a.SNS_CONTENT as snsContent,
+						       a.IMG_FILE_NAME as imgFileName,
+						       a.IMG_FILE_MASK as imgFileMask,
+						       a.IMG_FILE_SIZE as imgFileSize,
+						       a.SNS_REG_DATE as snsRegDate
+						  from
+						       RFC_SNS_COMMENT a
+						  WHERE 
+						      SNS_CMT_SID=#snsCmtSid#
+							
+	</select>
+     <select id="snsCommentDAO.getSnsCommentIdx" parameterClass="String"  resultClass="int" cacheModel="RFCSnsCommentManageCache">
+			       	  SELECT
+							decode(MAX(DATA_IDX),null,0,MAX(DATA_IDX))+1 dataIdx
+						FROM
+						    RFC_SNS_COMMENT						
+						WHERE  CATEGORY_ID = #categoryId#
+	</select>
+     <insert id="snsCommentDAO.insertSnsComment"  parameterClass="snsCommentVO">
+					INSERT 
+							  INTO RFC_SNS_COMMENT
+							       ( 
+							         SNS_CMT_SID,
+							         CATEGORY_ID,
+							         DATA_IDX,
+							         DATA_REF,
+							         DATA_DEP,
+							         SNS_USER_ID,
+							         SNS_USER_NICK_NM,
+							         SNS_USER_IP,
+							         SNS_TYPE,
+							         SNS_PROFILE_IMG_URL,
+							         SNS_PROFILE_URL,
+							         SNS_CONTENT,
+							         IMG_FILE_NAME,
+							         IMG_FILE_MASK,
+							         IMG_FILE_SIZE,
+							         SNS_REG_DATE 
+							       ) 
+							       VALUES
+							       ( 
+							       #snsCmtSid#, 
+							       #categoryId#  , 
+							       #dataIdx#  , 
+							       #dataRef# , 
+							       #dataDep#  , 
+							       #snsUserId#  , 
+							       #snsUserNickNm#  , 
+							       #snsUserIp#  , 
+							       #snsType# , 
+							       #snsProfileImgUrl#  , 
+							       #snsProfileUrl#,
+							       #snsContent# , 
+							       #imgFileName#  , 
+							       #imgFileMask#  , 
+							       #imgFileSize#  , 
+							       #snsRegDate#
+							       ) 
+	</insert>	
+	
+	<update id="snsCommentDAO.updateSnsCommentReply"  parameterClass="snsCommentVO">
+					UPDATE RFC_SNS_COMMENT 
+			       	SET			       	
+			       		DATA_REF = DATA_REF - 1
+					WHERE CATEGORY_ID = #categoryId# AND DATA_IDX=#dataIdx# AND  DATA_DEP != 1 AND #dataRef# >= DATA_REF 
+	</update>
+
+	<delete id="snsCommentDAO.deleteSnsComment"  parameterClass="long">
+					DELETE  FROM RFC_SNS_COMMENT
+					WHERE
+					 SNS_CMT_SID=#snsCmtSid#		
+	</delete>
+</sqlMap>

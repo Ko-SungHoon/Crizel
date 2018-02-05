@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.iam.vo">
+	<class name="DomainVO"	table="RFC_COMTNDOMAIN">
+	  <cache usage="read-write"/>
+	  <comment>도메인 정보 테이블</comment>
+	    <id name="domainId" type="string"  >
+			<column name="DOMAIN_ID" length="30" >
+				<comment>도메인 고유ID</comment>
+            </column>
+		</id>
+		<property name="sgroupId" type="string" not-null="true" >
+			<column name="SGROUP_ID" length="30"   >
+			 	<comment>사이트그룹 고유ID</comment>
+			 </column>
+		</property>
+	    <property name="domain" type="string" >
+			<column name="DOMAIN" length="50"   >
+				<comment>호스트명</comment>
+			</column>
+		</property>
+		<property name="port" type="string" >
+			<column name="PORT" length="10"   >
+				<comment>포트번호</comment>
+			</column>
+		</property>
+		<property name="domainNm" type="string" >
+			<column name="DOMAIN_NM" length="50"   >
+				<comment>사이트명</comment>
+			</column>
+		</property>
+		<property name="contextPath" type="string" >
+			<column name="CONTEXT_PATH" length="50"   >
+				<comment>가상경로</comment>
+			</column>
+		</property>
+		<property name="isUse" type="yes_no" >
+			<column name="IS_USE"  length="1"  default="'1'"  >
+			<comment>사용여부</comment>
+			</column>
+		</property>
+		<property name="isAutoCt" type="yes_no" >
+			<column name="IS_AUTO_CT"  length="1"  default="'1'"  >
+			<comment>도메인고유ID 자동생성여부</comment>
+			</column>
+		</property>
+		<property name="isSsoLogin" type="string">
+			<column name="IS_SSO_LOGIN" length="10" default="'true'" >
+			<comment>자동로그인여부</comment>
+			</column>
+		</property>
+		 <property name="isSecure" type="string">
+			<column name="IS_SECURE" length="10" default="'false'" >
+			<comment>https여부</comment>
+			</column>
+		</property>
+		<property name="isLoginHttps" type="string">
+			<column name="IS_LOGIN_HTTPS" length="10" default="'false'" >
+			<comment>로그인 https 여부</comment>
+			</column>
+		</property>
+		 <property name="securePort" type="string" >
+			<column name="SECURE_PORT" length="10"   >
+			<comment>https포트번호</comment>
+			</column>
+		</property>
+		<property name="imagePath" type="string">
+			<column name="IMAGE_PATH" length="255" default="''" >
+			<comment>이미지 가상경로</comment>
+			</column>
+		</property>
+		<property name="isSearch" type="string">
+			<column name="IS_SEARCH" length="10" default="'true'" >
+			<comment>통합검색여부</comment>
+			</column>
+		</property>
+		<property name="endTagUse" type="string">
+			<column name="END_TAG_USE" length="10" default="'true'" >
+			<comment>img,css앤드태그여부</comment>
+			</column>
+		</property>
+		<property name="boardFilerGroupIdx" type="string" >
+			<column name="BOARD_FILER_GROUP_IDX" length="10" >
+			<comment>개인정보필터 솔루션연계번호</comment>
+			</column>
+		</property>
+		<property name="docServiceId" type="string" >
+			<column name="DOC_SERVICE_ID" length="64" >
+			<comment>문서뷰어 예계 번호</comment>
+			</column>
+		</property>
+		<property name="docServiceUse" type="yes_no">
+			<column name="DOC_SERVICE_USE" length="1"  default="'0'">
+			<comment>문서뷰어 사용여부</comment>
+			</column>
+		</property>
+		<property name="wssRatio" type="int" >
+			<column name="WSS_RATIO" length="4" default="0" >
+			<comment>웹접근 준수율</comment>
+			</column>
+		</property>
+		<property name="createDate"  type="timestamp"  insert="true" update="false">
+			<column name="CREATE_DATE"    >
+			<comment>등록일</comment>
+			</column>
+		</property>
+		<property name="modifyDate"  type="timestamp"  insert="false" update="true">
+			<column name="MODIFY_DATE"    >
+			<comment>수정일</comment>
+			</column>
+		</property>
+		
+		<property name="subContextPath" type="string" >
+			<column name="SUB_CONTEXT_PATH" length="50"   >
+			<comment>서브 도메인명</comment>
+			</column>
+		</property>
+		
+		<property name="domainBack" type="string" >
+			<column name="DOMAIN_BACK" length="50"   >
+			<comment>실제 도메인 정보</comment>
+			</column>
+		</property>
+				
+		<property name="subContextPathIs" type="string" >
+			<column name="SUB_CONTEXT_PATH_IS" length="1" default="'0'" >
+			<comment>서브 도메인 사용여부</comment>
+			</column>
+		</property>		
+		
+		
+		
+		
+		
+		
+		
+		<!-- 임시페이지 설정컬럼 -->
+		<property name="tempPagesUseIs" type="yes_no" >
+			<column name="TEMP_PAGES_USE_IS"  length="1"  default="'0'"  >
+			<comment>임시페이지 사용여부</comment>
+			</column>
+		</property>
+
+		<property name="openPerStart" type="string" >
+			<column name="OPEN_PER_START" length="12"   >
+				<comment>임시페이지 오픈시작</comment>
+			</column>
+		</property>
+
+		<property name="openPerEnd" type="string" >
+			<column name="OPEN_PER_END" length="12"   >
+				<comment>임시페이지 오픈종료</comment>
+			</column>
+		</property>
+
+		<property name="skinSelectNum" type="string" >
+			<column name="SKIN_SELECT_NUM" length="2"   >
+				<comment>선택스킨번호</comment>
+			</column>
+		</property>
+
+		<property name="skinContent1" type="text" >
+			<column name="SKIN_CONTENT_1" length="1073741824"   >
+				<comment>스킨코딩내용1</comment>
+			</column>
+		</property>
+
+		<property name="skinContent2" type="text" >
+			<column name="SKIN_CONTENT_2" length="1073741824"   >
+				<comment>스킨코딩내용2</comment>
+			</column>
+		</property>
+
+		<property name="skinContent3" type="text" >
+			<column name="SKIN_CONTENT_3" length="1073741824"   >
+				<comment>스킨코딩내용3</comment>
+			</column>
+		</property>
+
+		<property name="skinContent4" type="text" >
+			<column name="SKIN_CONTENT_4" length="1073741824"   >
+				<comment>스킨코딩내용4</comment>
+			</column>
+		</property>
+
+		<property name="skinContent5" type="text" >
+			<column name="SKIN_CONTENT_5" length="1073741824"   >
+				<comment>스킨코딩내용5</comment>
+			</column>
+		</property>
+		<!-- 임시페이지 설정컬럼 -->
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+				
+	</class>
+	
+	<class name="DomainAdminVO"	table="RFC_COMTNDOMAIN_ADMIN">
+	  <cache usage="read-write"/>
+	  <comment>도메인 관리자 정보 테이블</comment>
+	  <composite-id>
+			<key-property name="sgroupId"  type="string">
+				<column name="SGROUP_ID" length="30">
+            		<comment>그룹아이디 일련번호</comment>
+            	</column>
+			</key-property>
+			
+			<key-property name="domainId"  type="string">
+				<column name="DOMAIN_ID" length="30">
+            		<comment>그룹아이디 일련번호</comment>
+            	</column>
+			</key-property>
+			
+			<key-property name="userId"  type="string">
+				<column name="USER_ID" length="64">
+            		<comment>그룹아이디 일련번호</comment>
+            	</column>
+			</key-property>
+			
+		</composite-id>
+		<property name="createDate"  type="timestamp"  insert="true" update="false">
+			<column name="CREATE_DATE"    >
+			<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+</hibernate-mapping>

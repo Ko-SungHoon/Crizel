@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCLayoutBakup">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="layoutBackUpVO" type = "egovframework.rfc3.layout.vo.LayoutBackUpVO"/>
+      
+     <resultMap id="layoutbackup" class="egovframework.rfc3.layout.vo.LayoutBackUpVO">
+		<result property="layoutBpSid" column="layoutBpSid" />
+        <result property="layoutSid" column="layoutSid" />
+        <result property="sgroupId" column="sgroupId" />
+        <result property="domainId" column="domainId" />       
+        <result property="layoutNm" column="layoutNm" />       
+        <result property="engName" column="engName" />    
+        <result property="layoutContent" column="layoutContent"/>
+        <result property="regDate" column="regDate"/>
+        <result property="contsFlag" column="contsFlag"/>
+        <result property="userId" column="userId"/>
+        <result property="isRestore" column="isRestore"/>
+        <result property="restoreDate" column="restoreDate"/>
+        
+    </resultMap>
+  
+       <cacheModel type="${Globals.ibatis.default.cache}" id="RFCLayoutBakupCache" readOnly="true" serialize="false">
+     	     <flushInterval hours="24" />
+     		<flushOnExecute statement="LayoutDAO.insertBackUpLayout"/>
+     		<flushOnExecute statement="LayoutDAO.updateLayoutBackUp"/>
+     		<flushOnExecute statement="LayoutDAO.updateLayoutBackUpReset"/>
+     </cacheModel>     
+<!--		
+			LAYOUT_SID							layoutSid
+ 			SGROUP_ID							sgroupId
+			DOMAIN_ID								domainId
+    		LAYOUT_NM							layoutNm
+			LAYOUT_CONTENT				layoutContent
+			EDITOR_IS_USE					editorIsUse
+			LAYOUT_SORT_IX					layoutSortIx	
+			LAYOUT_IS_SKIN_APPLY		layoutIsSkinApply
+			REG_DATE								regDate
+			IS_DEFAULT							isDefault
+-->
+
+
+ <select id="LayoutDAO.selectLayoutBackUpTotCnt"  parameterClass="layoutBackUpVO" resultClass="int" cacheModel="RFCLayoutBakupCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNLAYOUT_BACKUP_TB
+						
+						<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId" >
+				          		   SGROUP_ID   = #sgroupId#
+				            </isNotEmpty>
+			           		 <isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            	</isNotEmpty>	
+			            	<isEmpty  property="domainId" >
+		          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     	</isEqual>
+			            	</isEmpty>	    
+			           		
+				         </dynamic>
+				       
+	</select>
+	
+
+	<select id="LayoutDAO.selectLayoutBackUpList" parameterClass="layoutBackUpVO"  resultMap="layoutbackup" cacheModel="RFCLayoutBakupCache">
+			          SELECT 
+								LAYOUT_BP_SID		layoutBpSid,
+								LAYOUT_SID			layoutSid,
+								SGROUP_ID			sgroupId,
+								DOMAIN_ID			domainId,
+								LAYOUT_NM			layoutNm,
+								ENG_NAME			engName,
+								LAYOUT_CONTENT		layoutContent,
+								REG_DATE			regDate,
+								CONTS_FLAG			contsFlag,
+								USER_ID				userId,
+								IS_RESTORE			isRestore,
+								RESTORE_DATE		restoreDate
+					FROM  RFC_COMTNLAYOUT_BACKUP_TB
+					<dynamic  prepend="WHERE">
+					
+			            	<isNotEqual property="layoutSid" prepend="AND" compareValue="0">
+			          		   	LAYOUT_SID   = #layoutSid#
+			            	</isNotEqual>
+			            	<isNotEmpty prepend="AND"  property="contsFlag" >
+			          		   CONTS_FLAG   = #contsFlag#
+			            </isNotEmpty>
+			       </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+		              	LIMIT #recordCountPerPage#
+        
+	</select>	
+	
+	<select id="LayoutDAO.selectLayoutBackUpVO" parameterClass="layoutBackUpVO"  resultMap="layoutbackup" cacheModel="RFCLayoutBakupCache">
+			          SELECT 
+								LAYOUT_BP_SID		layoutBpSid,
+								LAYOUT_SID			layoutSid,
+								SGROUP_ID			sgroupId,
+								DOMAIN_ID			domainId,
+								LAYOUT_NM			layoutNm,
+								ENG_NAME			engName,
+								LAYOUT_CONTENT		layoutContent,
+								REG_DATE			regDate,
+								CONTS_FLAG			contsFlag,
+								USER_ID				userId,
+								IS_RESTORE			isRestore,
+								RESTORE_DATE		restoreDate
+					FROM  RFC_COMTNLAYOUT_BACKUP_TB
+					
+					<dynamic  prepend="WHERE">
+					
+							<isNotEmpty prepend="AND"  property="layoutBpSid" >
+			          		   	LAYOUT_BP_SID   = #layoutBpSid#
+			            	</isNotEmpty>
+						
+						<isNotEmpty prepend="AND"  property="sgroupId" >
+			          		   SGROUP_ID   = #sgroupId#
+			            </isNotEmpty>
+			           	<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            </isNotEmpty>	
+			            <isEmpty  property="domainId" >
+		          		     <isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     </isEqual>
+			            </isEmpty>	   
+			             <isNotEmpty prepend="AND"  property="layoutContent" >
+			          		   LAYOUT_CONTENT   LIKE  '%$layoutContent$%'
+			            </isNotEmpty>
+			       </dynamic>
+	</select>	
+	
+	
+	<insert id="LayoutDAO.insertBackUpLayout" parameterClass="layoutBackUpVO">
+				INSERT INTO 
+				  	RFC_COMTNLAYOUT_BACKUP_TB  (
+							LAYOUT_BP_SID,
+							LAYOUT_SID,
+							SGROUP_ID,
+							DOMAIN_ID,
+							LAYOUT_NM,
+							ENG_NAME,
+							LAYOUT_CONTENT,
+							REG_DATE,
+							CONTS_FLAG,
+							USER_ID,
+							IS_RESTORE,
+							RESTORE_DATE	
+				) VALUES (
+							#layoutBpSid#,  
+							#layoutSid#,    
+							#sgroupId#,     
+							#domainId#,     
+							#layoutNm#,   
+							#engName#,  
+							#layoutContent#,
+							#regDate#,      
+							#contsFlag#,    
+							#userId#,       
+							#isRestore#,    
+							#restoreDate#   
+				)
+	</insert>
+	
+	<update id="LayoutDAO.updateLayoutBackUp" parameterClass="layoutBackUpVO" >
+		UPDATE RFC_COMTNLAYOUT_BACKUP_TB SET
+					IS_RESTORE		=	#isRestore#,
+					RESTORE_DATE	=	#restoreDate#
+		WHERE
+					LAYOUT_BP_SID =	#layoutBpSid#
+	</update>
+	
+	<update id="LayoutDAO.updateLayoutBackUpReset" parameterClass="layoutBackUpVO" >
+		UPDATE RFC_COMTNLAYOUT_BACKUP_TB SET
+					IS_RESTORE		=	'no',
+					RESTORE_DATE	=	null
+		WHERE
+					LAYOUT_SID = #layoutSid#
+		AND
+					LAYOUT_BP_SID != #layoutBpSid#
+					
+	</update>
+</sqlMap>

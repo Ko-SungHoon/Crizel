@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCMenuCounterManage">
+	
+	<cacheModel type="${Globals.ibatis.default.cache}" id="RFCMenuCounterManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="menuGradeDAO.insertMenuGrade"/>
+      	<flushOnExecute statement="menuGradeDAO.deleteMenuGrade"/>      	
+     </cacheModel>
+     
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="menuCounterVO"	 type = "egovframework.rfc3.menu.vo.MenuCounterVO"/>
+    
+    <select id="menuCounterDAO.selectMenuCounterTotal" parameterClass="menuCounterVO"  resultClass="int">
+		SELECT
+			COUNT(*) totcnt
+		FROM
+			RFC_COMTHMENUCOUNTER
+		WHERE
+			MENU_CD = #menuCd#
+			<isNotEmpty prepend="AND"  property="start_dt">
+				REGISTER_DATE>= #start_dt#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND"  property="end_dt">
+				REGISTER_DATE &lt;= #end_dt#
+			</isNotEmpty>
+			<isNotEmpty prepend="AND"  property="userName">
+				USER_NAME = #userName#
+			</isNotEmpty>
+			
+			<isNotEmpty prepend="AND"  property="userId">
+							USER_ID = #userId#
+			</isNotEmpty>
+						
+	</select>
+	
+	<select id="menuCounterDAO.selectMenuCounter" parameterClass="menuCounterVO"  resultClass="menuCounterVO">
+		SELECT  * 
+	    FROM (
+			SELECT ROWNUM RNUM, ALL_LIST.*  
+			FROM  
+				(
+					SELECT
+						COUNTER_SID counterSid,
+						USER_ID userId,
+						USER_IP userIp,
+						USER_NAME userName,
+						MENU_CD menuCd,
+						REGISTER_DATE register_dt
+					FROM
+						RFC_COMTHMENUCOUNTER
+					WHERE
+						MENU_CD = #menuCd#
+						<isNotEmpty prepend="AND"  property="start_dt">
+							REGISTER_DATE>= #start_dt#
+						</isNotEmpty>
+						<isNotEmpty prepend="AND"  property="end_dt">
+							REGISTER_DATE &lt;= #end_dt#
+						</isNotEmpty>
+						<isNotEmpty prepend="AND"  property="userName">
+							USER_NAME = #userName#
+						</isNotEmpty>
+						
+						<isNotEmpty prepend="AND"  property="userId">
+							USER_ID = #userId#
+						</isNotEmpty>
+						
+					ORDER BY REGISTER_DATE DESC
+				) ALL_LIST
+		)
+		WHERE  RNUM  &gt; #firstIndex#
+		AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>
+           
+    <insert id="menuCounterDAO.insertMenuCounter" parameterClass="menuCounterVO"  >
+			       	INSERT INTO RFC_COMTHMENUCOUNTER
+			       	(
+			       		COUNTER_SID,
+						USER_ID,
+						USER_IP,
+						USER_NAME,
+						MENU_CD,
+						REGISTER_DATE
+			       	)
+			       	VALUES
+			       	(
+			       		#counterSid#,
+						#userId#,
+						#userIp#,
+						#userName#,
+						#menuCd#,
+						#register_dt#
+			       	)			       	
+	</insert>	
+</sqlMap>

@@ -1,0 +1,253 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//iBATIS.com//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="RFCStat">
+
+	<typeAlias  alias="statVO" type="egovframework.rfc3.login.vo.StatVO"/>
+	
+	<select id="StatDAO.selectVisitCounterDomainList"  parameterClass="statVO"   resultClass="statVO">
+		   SELECT
+			      A.DOMAIN_ID  domainId,
+			      A.DOMAIN_NM  domainNm
+			FROM
+				RFC_COMTNDOMAIN A
+			WHERE A.IS_USE ='1' 
+			 <isNotEmpty prepend="AND" property="sgroupId" >
+          		     SGROUP_ID  = #sgroupId#
+             </isNotEmpty>
+             <isNotEmpty prepend="AND" property="domainId" >
+                      DOMAIN_ID  = #domainId#
+             </isNotEmpty> 
+             <isEmpty  property="domainId" >
+                   	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+                     	   DOMAIN_ID in ( $myDomainList$ )
+          			</isEqual>
+              </isEmpty> 
+			ORDER BY A.DOMAIN_ID ASC
+			
+	</select>
+	
+	<select id="StatDAO.selectVisitCouterMainCnt"  parameterClass="statVO"   resultClass="java.lang.Integer">
+		   SELECT
+			    COUNT(B.DOMAIN_ID) cnt
+			FROM
+				RFC_COMTNDOMAIN A
+				left OUTER JOIN 
+				RFC_COMTHVISITCOUNTER B
+				ON A.DOMAIN_ID = B.DOMAIN_ID
+			WHERE A.IS_USE ='1' AND A.DOMAIN_ID=#domainId#
+			
+			<isGreaterThan prepend="AND" property="startDate"  compareValue="0">
+			     (   
+			      CAST(date_format(B.ACCESS_DATE,'%Y%m%d') AS signed) &gt;= #startDate#
+			      and 
+			      CAST(date_format(B.ACCESS_DATE,'%Y%m%d') AS signed) &lt;=  #endDate#
+			      )
+		      </isGreaterThan>
+				
+				GROUP BY  A.DOMAIN_ID,A.DOMAIN_NM, A.SUB_CONTEXT_PATH,A.DOMAIN
+				ORDER BY A.DOMAIN_ID ASC
+			
+	</select>
+
+	
+	<select id="StatDAO.selectBoardDataCounterCnt"  parameterClass="statVO"   resultClass="statVO">
+		   SELECT
+			  (SELECT DOMAIN_NM FROM RFC_COMTNDOMAIN WHERE DOMAIN_ID = A.DOMAIN_ID) domainNm,
+			  A.BOARD_TITLE boardTitle,
+			  A.DOMAIN_ID  domainId,
+			  COUNT(B.DATA_SID) cnt
+			FROM
+				RFC_COMTNBBS A
+					left OUTER JOIN 
+				RFC_COMTNBBSDATA B
+					ON A.BOARD_ID = B.BOARD_ID
+			WHERE  
+			    B.DATA_STATUS='N' AND B.DELETE_STATUS='N'
+			<isGreaterThan prepend="AND" property="startDate"  compareValue="0">
+			      (   
+			      CAST(date_format(B.REGISTER_DATE,'%Y%m%d') AS signed) &gt;= #startDate#
+			      and 
+			      CAST(date_format(B.REGISTER_DATE,'%Y%m%d') AS signed) &lt;=  #endDate#
+			      )
+		      </isGreaterThan>
+		      
+			GROUP BY  A.BOARD_TITLE,A.DOMAIN_ID
+			ORDER BY  COUNT(B.DATA_SID) DESC
+			
+	</select>
+	
+	<select id="StatDAO.selectBoardDataMainCounterCnt"  parameterClass="statVO"   resultClass="statVO">
+	SELECT
+		  domainNm,
+		  boardTitle,
+		  boardId,
+		  ifnull(SUM(curCnt),0) curCnt,
+		  ifnull(SUM(before7DayCnt),0) before7DayCnt,
+		  ifnull(SUM(before30DayCnt),0) before30DayCnt,
+		  ifnull(SUM(allCnt),0) allCnt
+		FROM
+		(
+		SELECT
+		            (SELECT DOMAIN_NM FROM RFC_COMTNDOMAIN WHERE DOMAIN_ID = A.DOMAIN_ID) domainNm,
+					  A.BOARD_TITLE boardTitle,
+					  A.DOMAIN_ID  domainId,
+		              A.BOARD_ID  boardId,
+		              CASE WHEN     CAST(date_format(B.REGISTER_DATE,'%Y%m%d') AS signed)  &gt;=  CAST(date_format(now(),'%Y%m%d') AS signed)  and  CAST(date_format(B.REGISTER_DATE,'%Y%m%d') AS signed)   &lt;=  CAST(date_format(now(),'%Y%m%d') AS signed)  THEN   COUNT(B.DATA_SID)
+		              ELSE 0 END curCnt,
+		              CASE WHEN     CAST(date_format(B.REGISTER_DATE,'%Y%m%d') AS signed)  &gt;=  CAST(date_format(now() - INTERVAL 7 DAY,'%Y%m%d') AS signed)  and  CAST(date_format(B.REGISTER_DATE,'%Y%m%d') AS signed)  &lt;=    CAST(date_format(now(),'%Y%m%d') AS signed)  THEN   COUNT(B.DATA_SID)
+		              ELSE 0 END before7DayCnt,
+		              CASE WHEN     CAST(date_format(B.REGISTER_DATE,'%Y%m%d') AS signed)  &gt;=  CAST(date_format(now() - INTERVAL 30 DAY,'%Y%m%d') AS signed)  and  CAST(date_format(B.REGISTER_DATE,'%Y%m%d') AS signed)   &lt;=    CAST(date_format(now(),'%Y%m%d') AS signed)  THEN   COUNT(B.DATA_SID)
+		              ELSE 0 END before30DayCnt,
+		              CASE WHEN     CAST(date_format(B.REGISTER_DATE,'%Y%m%d') AS signed)  &gt;=  0 and  CAST(date_format(B.REGISTER_DATE,'%Y%m%d') AS signed)  &lt;=  CAST(date_format(now(),'%Y%m%d') AS signed)  THEN   COUNT(B.DATA_SID)
+		              ELSE 0 END allCnt
+		              
+					FROM
+						RFC_COMTNBBS A left OUTER JOIN  RFC_COMTNBBSDATA B
+						ON A.BOARD_ID = B.BOARD_ID
+					WHERE  
+					    B.DATA_STATUS='N' AND B.DELETE_STATUS='N'
+					 <isNotEmpty property="exceptBoardIdArr" >
+				            <iterate prepend="AND A.BOARD_ID not in " property="exceptBoardIdArr" open="(" close=")" conjunction=",">
+				            	#exceptBoardIdArr[]#
+				            </iterate>
+			         </isNotEmpty>
+			         
+		         	 <isNotEmpty prepend="AND" property="searchCondition" >
+		          		     $searchCondition$  LIKE  concat('%',#searchKeyword#,'%')
+		             </isNotEmpty>		
+		             <isNotEmpty prepend="AND" property="sgroupId" >
+		          		     SGROUP_ID  = #sgroupId#
+		             </isNotEmpty>
+		             <isNotEmpty prepend="AND" property="domainId" >
+	                       DOMAIN_ID  = #domainId#
+	                 </isNotEmpty> 
+	                 <isEmpty  property="domainId" >
+	                   	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+	                     	   DOMAIN_ID in ( $myDomainList$ )
+	          			</isEqual>
+	                 </isEmpty> 
+					GROUP BY  A.BOARD_TITLE, A.DOMAIN_ID, B.REGISTER_DATE,A.BOARD_ID
+					ORDER BY  curCnt  DESC 
+		            ) dd
+		GROUP BY domainNm, boardTitle,boardId
+		ORDER BY curCnt desc
+		LIMIT 100
+
+
+	</select>
+	
+	<select id="StatDAO.selectBoardDataStatListCnt"  parameterClass="statVO"   resultClass="int">
+			       SELECT
+					   count(A.BOARD_ID) as cnt
+					FROM
+						RFC_COMTNBBS A
+					where 1=1
+					<isNotEmpty property="exceptBoardIdArr" >
+				            <iterate prepend="AND A.BOARD_ID not in " property="exceptBoardIdArr" open="(" close=")" conjunction=",">
+				            	#exceptBoardIdArr[]#
+				            </iterate>
+			         </isNotEmpty>
+			         
+		         	 <isNotEmpty prepend="AND" property="searchCondition" >
+		          		     $searchCondition$  LIKE '%' || #searchKeyword# || '%'
+		             </isNotEmpty>		
+		             <isNotEmpty prepend="AND" property="sgroupId" >
+		          		     SGROUP_ID  = #sgroupId#
+		             </isNotEmpty>
+		             <isNotEmpty prepend="AND" property="domainId" >
+	                       DOMAIN_ID  = #domainId#
+	                 </isNotEmpty> 
+	                <isEmpty  property="domainId" >
+	                   	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+	                     	   DOMAIN_ID in ( $myDomainList$ )
+	          			</isEqual>
+	                 </isEmpty> 	          
+	</select>
+	
+	<select id="StatDAO.selectBoardDataStatList"  parameterClass="statVO"   resultClass="statVO">
+	
+	  
+			     SELECT
+					  (SELECT DOMAIN_NM FROM RFC_COMTNDOMAIN WHERE DOMAIN_ID = A.DOMAIN_ID) domainNm,
+					  A.BOARD_TITLE boardTitle,
+					  A.BOARD_Id boardId, 
+					  A.DOMAIN_ID  domainId,
+		              (SELECT COUNT(DATA_SID) FROM RFC_COMTNBBSDATA WHERE BOARD_ID=A.BOARD_ID
+		               <isGreaterThan prepend="AND" property="startDate"  compareValue="0">
+				        (  CAST(date_format(REGISTER_DATE,'%Y%m%d') AS signed) &gt;= #startDate# )
+			           </isGreaterThan>
+			           <isGreaterThan prepend="AND" property="endDate"  compareValue="0">
+				        (  CAST(date_format(REGISTER_DATE,'%Y%m%d') AS signed) &lt;=  #endDate# )
+			           </isGreaterThan>
+			        
+			           ) allCnt,
+		              (SELECT COUNT(DATA_SID) FROM RFC_COMTNBBSDATA WHERE BOARD_ID=A.BOARD_ID AND DATA_NOTICE='0' AND DATA_STATUS='N' AND DELETE_STATUS='N'
+		               <isGreaterThan prepend="AND" property="startDate"  compareValue="0">
+				        ( CAST(date_format(REGISTER_DATE,'%Y%m%d') AS signed) &gt;= #startDate# )
+			           </isGreaterThan>
+			           <isGreaterThan prepend="AND" property="endDate"  compareValue="0">
+				        (  CAST(date_format(REGISTER_DATE,'%Y%m%d') AS signed) &lt;=  #endDate# )
+			           </isGreaterThan>
+		              ) normalCnt,
+		              (SELECT COUNT(DATA_SID) FROM RFC_COMTNBBSDATA WHERE BOARD_ID=A.BOARD_ID AND DATA_NOTICE='1' AND DATA_STATUS='N' AND DELETE_STATUS='N' 
+		               <isGreaterThan prepend="AND" property="startDate"  compareValue="0">
+				        ( CAST(date_format(REGISTER_DATE,'%Y%m%d') AS signed) &gt;= #startDate# )
+			           </isGreaterThan>
+			           <isGreaterThan prepend="AND" property="endDate"  compareValue="0">
+				        (  CAST(date_format(REGISTER_DATE,'%Y%m%d') AS signed) &lt;=  #endDate# )
+			           </isGreaterThan>
+		              
+		              ) noticeCnt,
+		              (SELECT COUNT(DATA_SID) FROM RFC_COMTNBBSDATA WHERE BOARD_ID=A.BOARD_ID AND DATA_STATUS IN ('F','T') AND DELETE_STATUS='N' 
+		               <isGreaterThan prepend="AND" property="startDate"  compareValue="0">
+				        ( CAST(date_format(REGISTER_DATE,'%Y%m%d') AS signed) &gt;= #startDate# )
+			           </isGreaterThan>
+			           <isGreaterThan prepend="AND" property="endDate"  compareValue="0">
+				        (  CAST(date_format(REGISTER_DATE,'%Y%m%d') AS signed) &lt;=  #endDate# )
+			           </isGreaterThan>
+		              
+		              ) denyCnt,
+		              (SELECT COUNT(DATA_SID) FROM RFC_COMTNBBSDATA WHERE BOARD_ID=A.BOARD_ID  AND DELETE_STATUS ='D' 
+		               <isGreaterThan prepend="AND" property="startDate"  compareValue="0">
+				        ( CAST(date_format(REGISTER_DATE,'%Y%m%d') AS signed) &gt;= #startDate# )
+			           </isGreaterThan>
+			           <isGreaterThan prepend="AND" property="endDate"  compareValue="0">
+				        (  CAST(date_format(REGISTER_DATE,'%Y%m%d') AS signed) &lt;=  #endDate# )
+			           </isGreaterThan>
+		              ) delCnt
+					FROM
+						RFC_COMTNBBS A
+					where 1=1
+					 <isNotEmpty property="exceptBoardIdArr" >
+				            <iterate prepend="AND A.BOARD_ID not in " property="exceptBoardIdArr" open="(" close=")" conjunction=",">
+				            	#exceptBoardIdArr[]#
+				            </iterate>
+			          </isNotEmpty>
+			          <isNotEmpty prepend="AND" property="searchCondition" >
+		          		     $searchCondition$  LIKE  concat('%', #searchKeyword#,'%')
+		             </isNotEmpty>		
+		             <isNotEmpty prepend="AND" property="sgroupId" >
+		          		     SGROUP_ID  = #sgroupId#
+		             </isNotEmpty>
+		             <isNotEmpty prepend="AND" property="domainId" >
+	                       DOMAIN_ID  = #domainId#
+	                 </isNotEmpty> 
+	                <isEmpty  property="domainId" >
+	                   	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+	                     	   DOMAIN_ID in ( $myDomainList$ )
+	          			</isEqual>
+	                 </isEmpty> 	    
+		            ORDER BY  A.DOMAIN_ID ASC, A.BOARD_TITLE ASC 
+		
+				  <isEqual property="isPaging" compareValue="true">    
+					LIMIT #recordCountPerPage# OFFSET #firstIndex#
+				 </isEqual>
+	
+	</select>
+		
+		
+	
+	
+
+</sqlMap>

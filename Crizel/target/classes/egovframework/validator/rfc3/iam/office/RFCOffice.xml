@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE form-validation PUBLIC 
+    "-//Apache Software Foundation//DTD Commons Validator Rules Configuration 1.1//EN" 
+    "http://jakarta.apache.org/commons/dtds/validator_1_1.dtd">
+
+<form-validation>
+
+    <formset>
+
+	     <form name="officeVO"> 
+		     
+			     <field property="sgroupId" depends="required">
+		        		<arg0 key="사이트 그룹 " resource="false"/>
+				</field>
+				<field property="officeCd" depends="required">
+		        		<arg0 key="1차 조직도 " resource="false"/>
+				</field>
+				<field property="officeCd2" depends="required">
+		        		<arg0 key="2차 조직도 " resource="false"/>
+				</field>
+				<field property="officeCd3" depends="required">
+		        		<arg0 key="3차 조직도 " resource="false"/>
+				</field>
+				<field property="officeCd4" depends="required">
+		        		<arg0 key="4차 조직도 " resource="false"/>
+				</field>
+			     
+			     <field property="officeNm" depends="required, maxlength">
+		                <arg0 key="조직이름" resource="false"/>
+		                <arg1 key="50" resource="false"/>
+		                <var>
+		                <var-name>maxlength</var-name>
+		                <var-value>50</var-value>
+		                </var>
+		        </field>
+		        
+				<field property="officeDp" depends="required, maxlength, integer">
+		                <arg0 key="조직차수" resource="false"/>
+		                <arg1 key="3" resource="false"/>
+		                <var>
+		                <var-name>maxlength</var-name>
+		                <var-value>3</var-value>
+		                </var>
+		         </field>
+				
+		</form>
+		
+		<form name="officePartVO"> 
+			     <field property="sgroupId" depends="required">
+		        		<arg0 key="사이트 그룹 " resource="false"/>
+				</field>
+				<field property="officeCd" depends="required">
+		        		<arg0 key="1차 조직도 " resource="false"/>
+				</field>
+		</form>
+    </formset>
+
+</form-validation>
+
+
+
+

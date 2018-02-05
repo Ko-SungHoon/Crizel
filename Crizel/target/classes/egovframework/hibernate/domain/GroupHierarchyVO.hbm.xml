@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.iam.vo">
+	<class name="GroupHierarchyVO"	table="RFC_COMTNGROUP_HIERARCHY">
+	  <cache usage="read-write"/>
+	  <comment>그룹 히스토리 정보</comment>
+		<composite-id>
+			<key-property name="parentGroupId" type="string">
+				<column name="PARENT_GROUP_ID" length="30">
+            		<comment>부모 그룹 아이디</comment>
+            	</column>
+			</key-property>
+			<key-property name="childGroupId"  type="string">
+				<column name="CHILD_GROUP_ID" length="30">
+            		<comment>자식 부모 아이디</comment>
+            	</column>
+			</key-property>
+		</composite-id>
+		<property name="createDate"  type="timestamp"  insert="true" update="false">
+			<column name="CREATE_DATE" >
+				<comment>등록일자</comment>
+			</column>
+		</property>
+		<property name="modifyDate"  type="timestamp"  insert="false" update="true">
+			<column name="MODIFY_DATE">
+				<comment>수정일자</comment>
+			</column>
+		</property>		
+	</class>
+</hibernate-mapping>

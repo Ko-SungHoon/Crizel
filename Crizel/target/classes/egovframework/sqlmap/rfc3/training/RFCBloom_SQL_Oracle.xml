@@ -1,0 +1,2101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCBLoom">
+	<typeAlias  alias="bloomVO"      type = "egovframework.rfc3.training.vo.BloomVO"/>
+	<typeAlias  alias="bloomTimeVO"      type = "egovframework.rfc3.training.vo.BloomTimeVO"/>
+	<typeAlias  alias="bloomOptionVO"      type = "egovframework.rfc3.training.vo.BloomOptionVO"/>
+	<typeAlias  alias="bloomDcVO"      type = "egovframework.rfc3.training.vo.BloomDcVO"/>
+	<typeAlias  alias="bloomHoliDayVO"      type = "egovframework.rfc3.training.vo.BloomHoliDayVO"/>
+	<typeAlias  alias="bloomOrderVO"      type = "egovframework.rfc3.training.vo.BloomOrderVO"/>
+	<typeAlias  alias="bloomOrderOptionVO"      type = "egovframework.rfc3.training.vo.BloomOrderOptionVO"/>
+	<typeAlias  alias="bloomFileVO"      type = "egovframework.rfc3.training.vo.BloomFileVO"/>
+	<typeAlias  alias="bloomSalesVO"      type = "egovframework.rfc3.training.vo.BloomSalesVO"/>
+	
+	
+	
+	<select id="bloomDAO.selectRloomTotal"  parameterClass="bloomVO" resultClass="int">
+			SELECT
+				COUNT(*) totcnt
+			FROM
+				RFC_TB_BLOOM
+			WHERE 
+				VC_DELETE_YN = 'N'
+			<isNotEmpty prepend="AND" property="searchCondition" >
+          		     $searchCondition$  LIKE '%$searchKeyword$%'
+            </isNotEmpty>	
+            <isNotEmpty prepend="AND" property="vcUseYn" >
+          		     VC_USE_YN  = #vcUseYn#
+            </isNotEmpty>
+	</select>
+	
+  	<select id="bloomDAO.selectRloom"  parameterClass="bloomVO"  resultClass="bloomVO" >
+	SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+				(
+					SELECT 
+						  I_IDX				idexNo,
+						  VC_NAME			vcName,
+						  VC_USE_YN			vcUseYn,
+						  I_PRICE			vcPrice,
+						  VC_REGUSER		vcReguser,
+						  DT_REGDATE		dtRegdate,
+						  VC_REGIP			vcRegip,
+						  DT_UPDATE			dtUpdate,
+						  VC_UPIP			vcUpip,
+						  VC_UPUSER			vcUpuser,
+						  VC_DCUSE_YN		vcDcuseYn,
+						  VC_OPUSE_YN		vcOpuseYn,
+						  I_WEEK_PRICE		vcWeekPrice,
+						  VC_DELETE_YN		vcDeleteYn,
+						  I_RESERVE_MONTH	vcReserveMonth,
+						  I_RESERVE_DATE	vcReserveDate
+					FROM RFC_TB_BLOOM 
+					WHERE 
+						 VC_DELETE_YN = 'N' 
+						<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			            </isNotEmpty>	
+			            <isNotEmpty prepend="AND" property="vcUseYn" >
+			          		     VC_USE_YN  = #vcUseYn#
+			            </isNotEmpty>	
+					ORDER BY I_IDX desc         
+				) ALL_LIST	  
+				WHERE 1=1 
+			)
+		  	
+		  	WHERE  RNUM  &gt; #firstIndex#
+ 			AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>
+	
+	<select id="bloomDAO.viewRloom"  parameterClass="bloomVO"  resultClass="bloomVO" >
+					SELECT 
+						  I_IDX				idexNo,
+						  VC_NAME			vcName,
+						  VC_USE_YN			vcUseYn,
+						  I_PRICE			vcPrice,
+						  VC_REGUSER		vcReguser,
+						  DT_REGDATE		dtRegdate,
+						  VC_REGIP			vcRegip,
+						  DT_UPDATE			dtUpdate,
+						  VC_UPIP			vcUpip,
+						  VC_UPUSER			vcUpuser,
+						  VC_DCUSE_YN		vcDcuseYn,
+						  VC_OPUSE_YN		vcOpuseYn,
+						  I_WEEK_PRICE		vcWeekPrice,
+						  VC_DELETE_YN		vcDeleteYn,
+						  I_RESERVE_MONTH	vcReserveMonth,
+						  I_RESERVE_DATE	vcReserveDate
+					FROM RFC_TB_BLOOM 
+					WHERE 
+						 I_IDX=#idexNo#
+						
+	</select>	
+	
+	<select id="bloomDAO.viewRloomVO"  parameterClass="long"  resultClass="bloomVO" >
+					SELECT 
+						  I_IDX				idexNo,
+						  VC_NAME			vcName,
+						  VC_USE_YN			vcUseYn,
+						  I_PRICE			vcPrice,
+						  VC_REGUSER		vcReguser,
+						  DT_REGDATE		dtRegdate,
+						  VC_REGIP			vcRegip,
+						  DT_UPDATE			dtUpdate,
+						  VC_UPIP			vcUpip,
+						  VC_UPUSER			vcUpuser,
+						  VC_DCUSE_YN		vcDcuseYn,
+						  VC_OPUSE_YN		vcOpuseYn,
+						  I_WEEK_PRICE		vcWeekPrice,
+						  VC_DELETE_YN		vcDeleteYn,
+						  I_RESERVE_MONTH	vcReserveMonth,
+						  I_RESERVE_DATE	vcReserveDate
+					FROM RFC_TB_BLOOM 
+					WHERE 
+						 I_IDX=#idexNo#
+						
+	</select>
+	
+	
+	<select id="bloomDAO.viewRloomList"  parameterClass="bloomVO"  resultClass="bloomVO" >
+					SELECT
+						A.I_IDX				idexNo,
+						A.VC_NAME			vcName,
+						A.VC_USE_YN			vcUseYn,
+						A.I_PRICE			vcPrice,
+						A.VC_REGUSER		vcReguser,
+						A.DT_REGDATE		dtRegdate,
+						A.VC_REGIP			vcRegip,
+						A.DT_UPDATE			dtUpdate,
+						A.VC_UPIP			vcUpip,
+						A.VC_UPUSER			vcUpuser,
+						A.VC_DCUSE_YN		vcDcuseYn,
+						A.VC_OPUSE_YN		vcOpuseYn,
+						A.I_WEEK_PRICE		vcWeekPrice,
+						A.VC_DELETE_YN		vcDeleteYn,
+						A.I_RESERVE_MONTH	vcReserveMonth,
+						A.I_RESERVE_DATE	vcReserveDate,
+						B.STREED_ADD		   streetAdd,
+	                    B.DEFAULT_ADD			defaultAdd,   
+	                    B.DETAIL_ADD			detailAdd,
+	                    B.MAP_X				mapX,
+	                    B.MAP_Y				mapY,
+	                    B.DETAIL_CONTENTS		detailContents
+					FROM RFC_TB_BLOOM A 
+                    LEFT OUTER JOIN RFC_TB_BLOOMDETAIL B
+					ON A.I_IDX = B.I_IDX   
+					WHERE 					
+						VC_DELETE_YN = 'N' 
+					ORDER BY A.VC_NAME ASC
+	</select>	
+	
+	<insert id="bloomDAO.insertRloom"  parameterClass="bloomVO">
+		<selectKey resultClass="java.lang.Long" keyProperty="idexNo">
+			select NVL(max(i_idx),0)+1 AS I_IDX  from RFC_TB_BLOOM
+		</selectKey>
+		
+		<![CDATA[
+					INSERT INTO RFC_TB_BLOOM
+						( 
+						I_IDX			,
+					  	VC_NAME			,
+					  	I_PRICE			,
+					  	I_WEEK_PRICE	,
+					  	I_RESERVE_MONTH	,
+					  	VC_REGUSER		,
+					  	DT_REGDATE		,
+					  	VC_REGIP		,
+					  	DT_UPDATE		,
+					  	VC_UPIP			,
+					  	VC_UPUSER		
+						)
+					VALUES (
+						#idexNo#,
+		  				#vcName# ,
+		  				#vcPrice# ,
+		  				#vcWeekPrice# ,
+		  				#vcReserveMonth# ,
+		  				#vcReguser# ,
+		  				sysdate ,
+		  				#vcRegip# ,
+		  				sysdate ,
+		  				#vcUpip# ,
+		  				#vcUpuser#	
+					)
+		]]>
+	</insert>
+	
+	<update  id="bloomDAO.updateRloom"  parameterClass="bloomVO" >
+					UPDATE  RFC_TB_BLOOM SET
+						  VC_NAME			=#vcName#,
+						  VC_USE_YN			=#vcUseYn#,
+						  I_PRICE			=#vcPrice#,
+						  VC_REGUSER		=#vcReguser#,
+						  DT_UPDATE			=sysdate,
+						  VC_UPIP			=#vcUpip#,
+						  VC_UPUSER			=#vcUpuser#,
+						  I_WEEK_PRICE		=#vcWeekPrice#,
+						  I_RESERVE_MONTH	=#vcReserveMonth#,
+						  I_RESERVE_DATE	=#vcReserveDate#
+						
+					WHERE
+						I_IDX = #idexNo#
+	</update>
+	
+	<update  id="bloomDAO.deleteRloom"  parameterClass="bloomVO" >
+					UPDATE
+						RFC_TB_BLOOM
+					SET 
+						VC_DELETE_YN = 'Y',
+						VC_UPIP =#vcUpip#,
+						DT_UPDATE =sysdate,
+						VC_UPUSER =#vcUpuser#
+					WHERE
+						I_IDX = #idexNo#	
+	</update>
+	
+	<update  id="bloomDAO.updateRloomYn"  parameterClass="bloomVO" >
+					UPDATE
+						RFC_TB_BLOOM
+					SET 
+						VC_USE_YN = #vcUseYn#
+						
+					WHERE
+						I_IDX = #idexNo#	
+	</update>
+	
+	
+	<select id="bloomDAO.selectTbloomTime"  parameterClass="long"  resultClass="bloomTimeVO" >
+		SELECT 
+			I_IDX 			idexSeq,    
+			I_B_IDX 		idexNo,         
+			VC_TIME_START	vcTimeStart,    
+			VC_TIME_END		vcTimeEnd,  
+			I_PRICE			vcPrice,          
+			VC_REGUSER		vcReguser,       
+			DT_REGDATE		dtRegdate,       
+			VC_REGIP		vcRegip,         
+			VC_UPUSER		vcUpuser,        
+			DT_UPDATE		dtUpdate,        
+			VC_UPIP			vcUpip,          
+			VC_USE_YN		vcUseYn,        
+			I_ORDER			vcOrder,          
+			VC_SESSION_TP	vcSessionTp
+		FROM RFC_TB_BLOOMTIME
+		WHERE
+			I_B_IDX = #idexNo#
+		ORDER BY VC_SESSION_TP , I_ORDER
+	</select>
+	
+		<select id="bloomDAO.selectTbloomTimeVo"  parameterClass="long"  resultClass="bloomTimeVO" >
+		SELECT 
+			I_IDX 			idexSeq,    
+			I_B_IDX 		idexNo,         
+			VC_TIME_START	vcTimeStart,    
+			VC_TIME_END		vcTimeEnd,  
+			I_PRICE			vcPrice,          
+			VC_REGUSER		vcReguser,       
+			DT_REGDATE		dtRegdate,       
+			VC_REGIP		vcRegip,         
+			VC_UPUSER		vcUpuser,        
+			DT_UPDATE		dtUpdate,        
+			VC_UPIP			vcUpip,          
+			VC_USE_YN		vcUseYn,        
+			I_ORDER			vcOrder,          
+			VC_SESSION_TP	vcSessionTp
+		FROM RFC_TB_BLOOMTIME
+		WHERE
+			I_IDX = #idexSeq#
+	</select>
+	
+	<select id="bloomDAO.selectTbloomOption"  parameterClass="long"  resultClass="bloomOptionVO" >
+		SELECT
+			I_IDX			idexSeq,                   
+			I_B_IDX			idexNo,                 
+			VC_OPNAME		vcOpname,               
+			I_PRICE			vcPrice,                 
+			VC_USE_YN		vcUseYn,               
+			VC_REGUSER		vcReguser,              
+			DT_REGDATE		dtRegdate,              
+			VC_REGIP		vcRegip,                
+			VC_UPUSER		vcUpuser,               
+			DT_UPDATE		dtUpdate,               
+			VC_UPIP			vcUpip,                 
+			VC_CNT_TP		vcCntTp,               
+			I_ORDER			vcOrder,                 
+			I_ADD_EA		vcAddea,                
+			VC_ADD_BUHO		vcAddBuho,             
+			I_ADD_PRICE		vcAddPrice,             
+			VC_OP_NONRI_ADD		vcOpNonriAdd,         
+			VC_OP_NONRI_ADD_PRICE	vcOpNonriAddPrice,   
+			VC_NONRI_TP		vcNonriTp,             
+			VC_OP_BASIC_TP		vcOpBasicTp
+		FROM RFC_TB_BLOOM_OPTION
+		WHERE
+			I_B_IDX = #idexNo#
+		ORDER BY I_ORDER
+	</select>
+	<select id="bloomDAO.selectTbloomDc"  parameterClass="long"  resultClass="bloomDcVO" >
+		SELECT 
+			I_IDX		idexSeq,
+			I_B_IDX		idexNo, 
+			VC_USE_YN	vcUseYn, 
+			VC_DCNAME	vcDcname, 
+			I_DCPERCENT	vcDcpercent, 
+			VC_REGUSER	vcReguser, 
+			DT_REGDATE	dtRegdate, 
+			VC_REGIP	vcRegip, 
+			VC_UPUSER	vcUpuser, 
+			DT_UPDATE	dtUpdate,
+			VC_UPIP		vcUpip, 
+			I_ORDER		vcOrder, 
+			VC_ETC_YN	vcEtcYn, 
+			VC_DC_ALT	vcDcAlt
+		FROM RFC_TB_BLOOM_DC
+		WHERE
+			I_B_IDX = #idexNo#
+		ORDER BY I_ORDER
+	</select>
+	
+	
+	<insert id="bloomDAO.insertTbloomTime"  parameterClass="bloomTimeVO" >
+		INSERT INTO RFC_TB_BLOOMTIME 
+		(
+			I_IDX 			,    
+			I_B_IDX 		,         
+			VC_TIME_START	,    
+			VC_TIME_END		,  
+			I_PRICE			,          
+			VC_REGUSER		,       
+			DT_REGDATE		,       
+			VC_REGIP		,         
+			VC_UPUSER		,        
+			DT_UPDATE		,        
+			VC_UPIP			,                  
+			I_ORDER			,          
+			VC_SESSION_TP	
+		 )VALUES(
+			(select nvl(max(i_idx),0) + 1 as no from RFC_TB_BLOOMTIME),    
+			#idexNo#,         
+			#vcTimeStart#,    
+			#vcTimeEnd#,  
+			#vcPrice#,          
+			#vcReguser#,       
+			sysdate,
+			#vcRegip#,         
+			#vcUpuser#,        
+			sysdate,        
+			#vcUpip#,                  
+			(select nvl(max(i_order),0) + 1 as no from RFC_TB_BLOOMTIME where I_B_IDX = #idexNo#),          
+			#vcSessionTp#
+		 )
+	</insert>
+	
+	
+	<update  id="bloomDAO.updateTbloomTime"  parameterClass="bloomTimeVO" >
+					UPDATE
+						RFC_TB_BLOOMTIME
+					SET 
+					<isEqual property="mode" compareValue="UP">
+						I_ORDER = (#vcOrder# - 1),
+						VC_UPIP = #vcUpip#,
+						DT_UPDATE = sysdate,
+						VC_UPUSER =#vcUpuser#
+					</isEqual>
+					<isEqual property="mode" compareValue="DOWN">
+						I_ORDER = (#vcOrder# + 1),
+						VC_UPIP = #vcUpip#,
+						DT_UPDATE = sysdate,
+						VC_UPUSER =#vcUpuser#
+					</isEqual>
+						
+					WHERE
+						I_IDX = #idexSeq#	
+	</update>
+	
+		<update  id="bloomDAO.updateAllTbloomTime"  parameterClass="bloomTimeVO" >
+					UPDATE
+						RFC_TB_BLOOMTIME
+					SET 
+					<isEqual property="mode" compareValue="UP">
+						I_ORDER = (#vcOrder# + 1),
+						VC_UPIP = #vcUpip#,
+						DT_UPDATE = sysdate,
+						VC_UPUSER =#vcUpuser#
+					</isEqual>
+					<isEqual property="mode" compareValue="DOWN">
+						I_ORDER = (#vcOrder# - 1),
+						VC_UPIP = #vcUpip#,
+						DT_UPDATE = sysdate,
+						VC_UPUSER =#vcUpuser#
+					</isEqual>
+						
+					WHERE
+						I_IDX &lt;&gt; #idexSeq#	
+					<isEqual prepend="AND" property="mode" compareValue="UP">	
+						I_ORDER = (#vcOrder# - 1)
+					</isEqual>
+					<isEqual prepend="AND" property="mode" compareValue="DOWN">
+						I_ORDER = (#vcOrder# + 1)
+					</isEqual>
+	</update>
+	
+	<delete  id="bloomDAO.deleteTbloomTime"  parameterClass="long" >
+					DELETE FROM
+						RFC_TB_BLOOMTIME
+					WHERE
+					 I_IDX = #idexSeq#
+	</delete>
+	
+	<update  id="bloomDAO.updateTbloomTimeHide"  parameterClass="bloomTimeVO" >
+					UPDATE
+						RFC_TB_BLOOMTIME
+					SET 
+						VC_USE_YN = #vcUseYn#,
+						VC_UPIP = #vcUpip#,
+						DT_UPDATE = sysdate,
+						VC_UPUSER =#vcUpuser#
+					WHERE
+						I_IDX = #idexSeq#	
+	</update>
+	
+	<insert id="bloomDAO.insertTbloomOption"  parameterClass="bloomOptionVO" >
+		INSERT INTO RFC_TB_BLOOM_OPTION
+		(
+			I_IDX,					         
+			I_B_IDX,					      
+			VC_OPNAME,				      
+			I_PRICE,					       		     
+			VC_REGUSER,				      
+			DT_REGDATE,				      
+			VC_REGIP,				      
+			VC_UPUSER,				      
+			DT_UPDATE,				      
+			VC_UPIP,					      
+			VC_CNT_TP,				     
+			I_ORDER,					       				      
+			VC_OP_NONRI_ADD,			    
+			VC_OP_NONRI_ADD_PRICE,	   
+			VC_NONRI_TP,				     
+			VC_OP_BASIC_TP
+			<isEqual property="vcCntTp" compareValue="Y">	
+				,I_ADD_EA  
+				,VC_ADD_BUHO    
+				,I_ADD_PRICE 
+			</isEqual>
+						
+		)VALUES(
+			(select nvl(max(I_IDX),0) + 1 as no from RFC_TB_BLOOM_OPTION),          
+			#idexNo#,          
+			#vcOpname#,         
+			#vcPrice#,                   
+			#vcReguser#,        
+			sysdate,        
+			#vcRegip#,          
+			#vcUpuser#,         
+			sysdate,         
+			#vcUpip#,           
+			#vcCntTp#,          
+			(select nvl(max(I_ORDER),0) + 1 as no from RFC_TB_BLOOM_OPTION where i_b_idx = #idexNo#),                 
+			#vcOpNonriAdd#,     
+			#vcOpNonriAddPrice#,
+			#vcNonriTp#,        
+			#vcOpBasicTp#
+			<isEqual property="vcCntTp" compareValue="Y">	
+				,#vcAddea#   
+				,#vcAddBuho#     
+				,#vcAddPrice# 
+			</isEqual>     
+		)
+	</insert>
+	
+	<delete id="bloomDAO.deleteTbloomOption"  parameterClass="long" >
+		DELETE FROM RFC_TB_BLOOM_OPTION
+		WHERE
+			I_IDX = #idexSeq#
+	</delete>
+	
+	<update id="bloomDAO.updateTbloomOption"  parameterClass="bloomOptionVO">
+		UPDATE
+			RFC_TB_BLOOM_OPTION
+		SET 
+		<isEqual property="mode" compareValue="UP">
+			I_ORDER=(#vcOrder# -1),
+		</isEqual>
+		<isEqual property="mode" compareValue="DOWN">
+			I_ORDER=(#vcOrder# +1), 
+		</isEqual>
+			VC_UPIP=#vcUpip#,  
+			DT_UPDATE=sysdate,  
+			VC_UPUSER=#vcUpuser#
+		WHERE
+			I_IDX = #idexSeq#
+		
+	</update>
+	
+	<update id="bloomDAO.updateAllTbloomOption"  parameterClass="bloomOptionVO">
+		UPDATE
+			RFC_TB_BLOOM_OPTION
+		SET 
+		<isEqual property="mode" compareValue="UP">
+			I_ORDER=(#vcOrder# +1),
+		</isEqual>
+		<isEqual property="mode" compareValue="DOWN">
+			I_ORDER=(#vcOrder# -1), 
+		</isEqual>
+			VC_UPIP=#vcUpip#, 
+			DT_UPDATE=sysdate,
+			VC_UPUSER=#vcUpuser#
+		WHERE
+			I_IDX &lt;&gt; #idexSeq#	
+		<isEqual prepend="AND" property="mode" compareValue="UP">
+			I_ORDER=(#vcOrder# -1)
+		</isEqual>
+		<isEqual prepend="AND" property="mode" compareValue="DOWN">
+			I_ORDER=(#vcOrder# +1)
+		</isEqual>
+	</update>
+	
+	<update id="bloomDAO.updateTbloomOptionHide"  parameterClass="bloomOptionVO">
+		UPDATE
+			RFC_TB_BLOOM_OPTION
+		SET 
+			VC_USE_YN = #vcUseYn#, 
+			VC_UPIP = #vcUpip#, 
+			DT_UPDATE = sysdate,    
+			VC_UPUSER = #vcUpuser#
+		WHERE
+		   I_IDX = #idexSeq#	
+	</update>
+	
+	<update id="bloomDAO.updateTbloomOptionCntTp"  parameterClass="bloomOptionVO">
+		UPDATE
+			RFC_TB_BLOOM_OPTION
+		SET 
+			VC_CNT_TP = #vcCntTp#,
+			VC_UPIP = #vcUpip#,    
+			DT_UPDATE = sysdate,  
+			VC_UPUSER = #vcUpuser#
+		WHERE
+			I_IDX = #idexSeq#	
+	</update>
+	
+	
+	
+	<!--  -->
+	<insert id="bloomDAO.insertTbloomDc"  parameterClass="bloomDcVO" >
+		INSERT INTO RFC_TB_BLOOM_DC
+		(
+			I_IDX,		
+			I_B_IDX,		
+			VC_DCNAME,	
+			I_DCPERCENT,	
+			VC_REGUSER,	
+			DT_REGDATE,	
+			VC_REGIP,	
+			VC_UPUSER,	
+			DT_UPDATE,	
+			VC_UPIP,		
+			I_ORDER,		
+			VC_DC_ALT	
+		)VALUES(
+			(select nvl(max(i_idx),0) + 1 as no from RFC_TB_BLOOM_DC),     
+			#idexNo#,      
+			#vcDcname#,    
+			#vcDcpercent#, 
+			#vcReguser#,   
+			sysdate,   
+			#vcRegip#,     
+			#vcUpuser#,    
+			sysdate,    
+			#vcUpip#,      
+			(select nvl(max(i_order),0) + 1 as no from RFC_TB_BLOOM_DC where i_b_idx = #idexNo#),         
+			#vcDcAlt#
+		)      
+	</insert>
+	
+	<delete  id="bloomDAO.deleteTbloomDc"  parameterClass="long" >
+					DELETE FROM
+						RFC_TB_BLOOM_DC
+					WHERE
+					 I_IDX = #idexSeq#
+	</delete>
+	
+	<update id="bloomDAO.updateTbloomDcHide"  parameterClass="bloomDcVO">
+		UPDATE
+			RFC_TB_BLOOM_DC
+		SET 
+			VC_USE_YN = #vcUseYn#, 
+			VC_UPIP = #vcUpip#, 
+			DT_UPDATE = sysdate,
+			VC_UPUSER = #vcUpuser# 
+		WHERE
+		   I_IDX = #idexSeq#	
+	</update>
+	
+	<update id="bloomDAO.updateTbloomDcOrder"  parameterClass="bloomDcVO">
+		UPDATE
+			RFC_TB_BLOOM_DC
+		SET 
+		<isEqual property="mode" compareValue="UP">
+			I_ORDER=(#vcOrder# -1),
+		</isEqual>
+		<isEqual property="mode" compareValue="DOWN">
+			I_ORDER=(#vcOrder# +1), 
+		</isEqual>
+			VC_UPIP=#vcUpip#,  
+			DT_UPDATE=sysdate,  
+			VC_UPUSER=#vcUpuser#
+		WHERE
+			I_IDX = #idexSeq#
+		
+	</update>
+	
+	<update id="bloomDAO.updateAllTbloomDcOrder"  parameterClass="bloomDcVO">
+		UPDATE
+			RFC_TB_BLOOM_DC
+		SET 
+		<isEqual property="mode" compareValue="UP">
+			I_ORDER=(#vcOrder# +1),
+		</isEqual>
+		<isEqual property="mode" compareValue="DOWN">
+			I_ORDER=(#vcOrder# -1), 
+		</isEqual>
+			VC_UPIP=#vcUpip#, 
+			DT_UPDATE=sysdate,
+			VC_UPUSER=#vcUpuser#
+		WHERE
+			I_IDX &lt;&gt; #idexSeq#	
+		<isEqual prepend="AND" property="mode" compareValue="UP">
+			I_ORDER=(#vcOrder# -1)
+		</isEqual>
+		<isEqual prepend="AND" property="mode" compareValue="DOWN">
+			I_ORDER=(#vcOrder# +1)
+		</isEqual>
+	</update>
+	
+	<update id="bloomDAO.updateTbloomDcEtc"  parameterClass="bloomDcVO">
+		UPDATE
+			RFC_TB_BLOOM_DC
+		SET 
+		
+			VC_ETC_YN = #vcEtcYn#,
+			VC_UPIP = #vcUpip#, 
+			DT_UPDATE = sysdate,
+			VC_UPUSER = #vcUpuser# 
+		WHERE
+		   I_IDX = #idexSeq#	
+	</update>
+	
+	<select id="bloomDAO.viewHoliDay"    resultClass="bloomVO" >
+		SELECT 
+			  I_IDX				idexNo,
+			  VC_NAME			vcName,
+			  VC_USE_YN			vcUseYn,
+			  I_PRICE			vcPrice,
+			  VC_REGUSER		vcReguser,
+			  DT_REGDATE		dtRegdate,
+			  VC_REGIP			vcRegip,
+			  DT_UPDATE			dtUpdate,
+			  VC_UPIP			vcUpip,
+			  VC_UPUSER			vcUpuser,
+			  VC_DCUSE_YN		vcDcuseYn,
+			  VC_OPUSE_YN		vcOpuseYn,
+			  I_WEEK_PRICE		vcWeekPrice,
+			  VC_DELETE_YN		vcDeleteYn,
+			  I_RESERVE_MONTH	vcReserveMonth,
+			  I_RESERVE_DATE	vcReserveDate
+		FROM RFC_TB_BLOOM 
+		WHERE 
+			 VC_DELETE_YN = 'N' 
+		AND  VC_USE_YN = 'Y'
+		ORDER BY I_IDX ASC
+	</select>
+	
+	<select id="bloomDAO.selectHoliDayCount"  parameterClass="bloomHoliDayVO" resultClass="int">
+			SELECT
+				COUNT(*) totcnt
+			FROM
+				RFC_TB_HOLIDAY
+			WHERE 1=1
+			<!-- OK -->
+		             <isNotEmpty prepend="AND" property="vcSDate">
+						to_number(replace(vc_s_date,'-','')) &gt;= to_number(replace(#vcSDate#,'-',''))
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="vcEDate">
+						to_number(replace(vc_e_date,'-','')) &lt;= to_number(replace(#vcEDate#,'-',''))
+					</isNotEmpty>
+		            <isNotEmpty prepend="AND" property="srch_bloom_name" >
+		          		<!--  replace(vc_bloom_name,' ','') in (#srch_bloom_name#)-->
+		          		vc_bloom_name LIKE #srch_bloom_name#
+		            </isNotEmpty>
+		            <isNotEmpty property="srch_holiday_nameArr" >
+			            <iterate prepend="AND vc_holiday_tp in " property="srch_holiday_nameArr" open="(" close=")" conjunction=",">
+			            	#srch_holiday_nameArr[]#
+			            </iterate>
+		            </isNotEmpty>
+		            <isNotEmpty prepend="AND" property="srch_alt" >
+		          		vc_alt  LIKE '%$srch_alt$%'
+		            </isNotEmpty>
+		            <!-- OK -->
+            
+            
+			
+	</select>
+	
+	<select id="bloomDAO.selectHoliDayList"  parameterClass="bloomHoliDayVO"  resultClass="bloomHoliDayVO" >
+	SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+				(
+					SELECT 
+						I_IDX						idexSeq,
+						VC_YEAR						vcYear,
+						VC_MONTH					vcMonth,
+						VC_DAY						vcDay,
+						VC_ALT						vcAlt,
+						DT_REGDATE					dtRegDate,
+						VC_REGUSER					vcRegUser,
+						VC_REGIP					vcRegIp,
+						VC_HOLIDAY_TP				vcHoliDayTp,
+						VC_BLOOM_IDX				vcBloomIdx,
+						VC_BLOOM_NAME				vcBloomName,
+						VC_HOLIDAY_TIME_NAME		vcHoliDayTimeName,
+						VC_HOLIDAY_TIME_IDX			vcHoliDayTimeIdx,
+						VC_S_DATE					vcSDate,
+						VC_E_DATE					vcEDate,
+						VC_BLOOM_IDX_DATA			vcBloomIdxData,
+						VC_BLOOM_NAME_DATA			vcBloomNameData,
+						VC_HOLIDAY_TIME_NAME_DATA	vcHoliDayTimeNameData,
+						VC_HOLIDAY_TIME_IDX_DATA	vc_HoliDayTimeIdxData
+					FROM RFC_TB_HOLIDAY
+				    WHERE 1=1 
+				   
+					
+					
+		            
+		            <!-- OK -->
+		            <isNotEmpty prepend="AND" property="vcSDate">
+						to_number(replace(vc_s_date,'-','')) &gt;= to_number(replace(#vcSDate#,'-',''))
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="vcEDate">
+						to_number(replace(vc_e_date,'-','')) &lt;= to_number(replace(#vcEDate#,'-',''))
+					</isNotEmpty>
+		            <isNotEmpty prepend="AND" property="srch_bloom_name" >
+		          		<!--  replace(vc_bloom_name,' ','') in (#srch_bloom_name#)-->
+		          		vc_bloom_name LIKE #srch_bloom_name#
+		            </isNotEmpty>
+		            <isNotEmpty property="srch_holiday_nameArr" >
+			            <iterate prepend="AND vc_holiday_tp in " property="srch_holiday_nameArr" open="(" close=")" conjunction=",">
+			            	#srch_holiday_nameArr[]#
+			            </iterate>
+		            </isNotEmpty>
+		            <isNotEmpty prepend="AND" property="srch_alt" >
+		          		vc_alt  LIKE '%$srch_alt$%'
+		            </isNotEmpty>
+		            <!-- OK -->
+		            
+		            
+					ORDER BY I_IDX DESC       
+				) ALL_LIST	  
+				
+			)
+		  	
+		  	WHERE  RNUM  &gt; #firstIndex#
+ 			AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>
+	<insert id="bloomDAO.insertHoliDay"  parameterClass="bloomHoliDayVO">
+		INSERT INTO RFC_TB_HOLIDAY
+		(
+			I_IDX,						
+			VC_YEAR,						
+			VC_MONTH,					
+			VC_DAY,						
+			VC_ALT,						
+			DT_REGDATE,					
+			VC_REGUSER,					
+			VC_REGIP,					
+			VC_HOLIDAY_TP,				
+			VC_BLOOM_IDX,				
+			VC_BLOOM_NAME,				
+			VC_HOLIDAY_TIME_NAME,		
+			VC_HOLIDAY_TIME_IDX,			
+			VC_S_DATE,					
+			VC_E_DATE					
+		)VALUES(
+			(select nvl(max(i_idx),0) + 1 as no from RFC_TB_HOLIDAY),                        
+			#vcYear#,                         
+			#vcMonth#,                        
+			#vcDay#,                          
+			#vcAlt#,                          
+			sysdate,                      
+			#vcRegUser#,                      
+			#vcRegIp#,                        
+			#vcHoliDayTp#,                    
+			#vcBloomIdx#,                     
+			#vcBloomName#,                    
+			#vcHoliDayTimeName#,
+			#vcHoliDayTimeIdx#,
+			#vcSDate#,
+			#vcEDate#
+		)
+	</insert>
+	<delete  id="bloomDAO.deleteHoliDayList"  parameterClass="long" >
+					DELETE FROM
+						RFC_TB_HOLIDAY
+					WHERE
+					 I_IDX = #idexSeq#
+	</delete>
+	
+	<select id="bloomDAO.selectOrderTotal"  parameterClass="bloomOrderVO" resultClass="int">
+			SELECT
+				COUNT(*) totcnt
+			FROM
+				RFC_TB_ORDER
+			WHERE 1=1
+			<isNotEmpty prepend="AND" property="srch_bloom_name" >
+          		<!--  replace(vc_bloom_name,' ','') in (#srch_bloom_name#)-->
+          		vc_bloom_name LIKE #srch_bloom_name#
+            </isNotEmpty>
+            
+            
+            <isNotEmpty prepend="AND" property="srchdateS">
+				to_number(replace(vc_order_date,'-','')) &gt;= to_number(replace(#srchdateS#,'-',''))
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="srchdateE">
+				to_number(replace(vc_order_date,'-','')) &lt;= to_number(replace(#srchdateE#,'-',''))
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="searchCondition" >
+        		$searchCondition$  LIKE '%$searchKeyword$%'
+         	</isNotEmpty>
+         	<isNotEmpty prepend="AND" property="vcState" >
+		        VC_STATE = #vcState#
+		    </isNotEmpty>
+            
+	</select>
+	
+	<select id="bloomDAO.selectOrderList"  parameterClass="bloomOrderVO"  resultClass="bloomOrderVO" >
+	
+	  <isEqual property="isPaging" compareValue="yes">
+	 
+		SELECT  * 
+    	FROM (
+			SELECT ROWNUM RNUM, ALL_LIST.*  
+				FROM  
+					(
+	  </isEqual>		
+					
+					SELECT 
+						I_IDX						idexSeq
+						,VC_ORDER_NO				vcOrderNo
+						,VC_ORDER_NAME				vcOrderName
+						,VC_ORDER_ADDR1				vcOrderAddr1
+						,VC_ORDER_ADDR2				vcOrderAddr2
+						,VC_ORDER_ZIP1				vcOrderZip1
+						,VC_ORDER_ZIP2				vcOrderZip2
+						,VC_ORDER_PHONE1			vcOrderPhone1
+						,VC_ORDER_PHONE2			vcOrderPhone2
+						,VC_ORDER_PHONE3			vcOrderPhone3
+						,VC_ORDER_DATE				vcOrderDate
+						,VC_STATE					vcState
+						,VC_BLOOM_NAME				vcBloomName
+						,I_BLOOM_IDX				iBloomIdx
+						,I_BLOOM_PRICE				iBloomPrice
+						,VC_BLOOM_TIME_START		vcBloomTimeStart
+						,VC_BLOOM_TIME_END			vcBloomTimeEnd
+						,I_BLOOM_TIME_IDX			iBloomTimeIdx
+						,I_BLOOM_TIME_PRICE			iBloomTimePrice
+						,VC_BLOOM_DC_NAME			vcBloomDcName
+						,I_BLOOM_DC_IDX				iBloomDcIdx
+						,I_BLOOM_DC_PERCENT			iBloomDcPercent
+						,I_OPTION_CNT				iOptionCnt
+						,I_TOTAL_OPTION_PRICE		iTotalOptionPrice
+						,I_TOTAL_PRICE				iTotalPrice
+						,VC_REGUSER					vcRegUser
+						,DT_REGDATE					dtRegDate
+						,VC_REGIP					vcRegIp
+						,VC_UPUSER					vcUpUser
+						,DT_UPDATE					dtUpDate
+						,VC_UPIP					vcUpIp
+						,VC_DC_COMMENT				vcDcComment
+						,INI_UID					iniUid
+						,INI_OID					iniOid
+						,INI_GOODNAME				iniGoodName
+						,INI_CURRENCY				iniCurrenCy
+						,INI_MID					iniMid
+						,INI_ENCTYPE				iniEncType
+						,INI_RN						iniRn
+						,INI_PRICE					iniPrice
+						,INI_PAYMETHOD				iniPayMethod
+						,INI_ENCRYPTED				iniEncrypted
+						,INI_SESSIONKEY				iniSessionKey
+						,INI_BUYERNAME				iniBuyerName
+						,INI_CARDCODE				iniCardCode
+						,INI_PARENTEMAIL			iniParenteMail
+						,INI_RECVNAME				iniRecvName
+						,INI_RECVTEL				iniRecvTel
+						,INI_RECVADDR				iniRecvAddr
+						,INI_RECVPOSTNUM			iniRecvPostnum
+						,INI_RECVMSG				iniRecvMsg
+						,INI_JOINCARD				iniJoinCard
+						,INI_JOINEXPIRE				iniJoinexPire
+						,INI_ID_CUSTOMER			iniIdcuStomer
+						,INI_REGDATE				iniRegDate
+						,INI_FAIL_CNT				iniFailCnt
+						,INI_FAIL_DATE				iniFailDate
+						,INI_ERR_URL				iniErrUrl
+						,INI_SUCC_URL				iniSuccUrl
+						,VC_CANCEL_MENT				vcCancelMent
+						,VC_CANCEL_BANK_USERNAME	vcCancelBankusername
+						,VC_CANCEL_BANK_NO			vcCancelBankno
+						,VC_CANCEL_BANK_NAME		vcCancelBankname
+						,VC_SMS_FLAG				vcSmsFlag
+						,I_BLOOM_WEEK_PRICE			iBloomweekPrice
+						,VC_MYG_ID					vcMygId
+						,VC_MYG_NO					vcMygNo
+						,INI_RESULT_MSG				iniResultMsg
+						,VC_ORDER_MENT				vcOrderMent
+						,VC_ADMIN_STATE				vcAdminState
+						,I_ADD_TOTAL_PRICE			iAddtotalPrice
+						,INI_VACT_REGNUM			iniVactregnum
+						,INI_VACT_BANKCODE			iniVactbankCode
+						,INI_VACT_BANKNAME			iniVactbankName
+						,INI_VACT_INPUTNAME			iniVactinputName
+						,INI_VACT_DATE				iniVactDate
+						,INI_VACT_NAME				iniVactName
+						,INI_VACT_NUM				iniVactnum
+						,INI_VACT_TID				iniVacttId
+						,I_INWON_CHECK				iInwonCheck
+						,VC_LIFE_WORLD_TYPE			vcLifeworldType
+						,VC_BLOOM_AGREE				vcBloomAgree
+						,VC_NOTCAN_MSG				vcNotcanMsg
+						,VC_ZIP						vcZip
+					FROM  RFC_TB_ORDER
+					WHERE 1=1
+					<isNotEmpty prepend="AND" property="srch_bloom_name" >
+		          		<!--  replace(vc_bloom_name,' ','') in (#srch_bloom_name#)-->
+		          		vc_bloom_name LIKE #srch_bloom_name#
+		            </isNotEmpty>
+		            
+		            
+		            <isNotEmpty prepend="AND" property="srchdateS">
+						to_number(replace(vc_order_date,'-','')) &gt;= to_number(replace(#srchdateS#,'-',''))
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="srchdateE">
+						to_number(replace(vc_order_date,'-','')) &lt;= to_number(replace(#srchdateE#,'-',''))
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="searchCondition" >
+          		    	$searchCondition$  LIKE '%$searchKeyword$%'
+           			 </isNotEmpty>
+           			 <isNotEmpty prepend="AND" property="vcState" >
+		          		VC_STATE = #vcState#
+		             </isNotEmpty>
+					
+					ORDER BY I_IDX DESC  
+					   
+					   
+		  <isEqual property="isPaging" compareValue="yes">			  
+					) ALL_LIST	  
+				WHERE 1=1 
+			)
+		  	
+		  	WHERE  RNUM  &gt; #firstIndex#
+ 			AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+ 		  </isEqual>
+	</select>
+	
+	
+	<select id="bloomDAO.selectOrderView"  parameterClass="bloomOrderVO"  resultClass="bloomOrderVO" >
+			SELECT 
+				I_IDX						idexSeq
+				,VC_ORDER_NO				vcOrderNo
+				,VC_ORDER_NAME				vcOrderName
+				,VC_ORDER_ADDR1				vcOrderAddr1
+				,VC_ORDER_ADDR2				vcOrderAddr2
+				,VC_ORDER_ZIP1				vcOrderZip1
+				,VC_ORDER_ZIP2				vcOrderZip2
+				,VC_ORDER_PHONE1			vcOrderPhone1
+				,VC_ORDER_PHONE2			vcOrderPhone2
+				,VC_ORDER_PHONE3			vcOrderPhone3
+				,VC_ORDER_DATE				vcOrderDate
+				,VC_STATE					vcState
+				,VC_BLOOM_NAME				vcBloomName
+				,I_BLOOM_IDX				iBloomIdx
+				,I_BLOOM_PRICE				iBloomPrice
+				,VC_BLOOM_TIME_START		vcBloomTimeStart
+				,VC_BLOOM_TIME_END			vcBloomTimeEnd
+				,I_BLOOM_TIME_IDX			iBloomTimeIdx
+				,I_BLOOM_TIME_PRICE			iBloomTimePrice
+				,VC_BLOOM_DC_NAME			vcBloomDcName
+				,I_BLOOM_DC_IDX				iBloomDcIdx
+				,I_BLOOM_DC_PERCENT			iBloomDcPercent
+				,I_OPTION_CNT				iOptionCnt
+				,I_TOTAL_OPTION_PRICE		iTotalOptionPrice
+				,I_TOTAL_PRICE				iTotalPrice
+				,VC_REGUSER					vcRegUser
+				,DT_REGDATE					dtRegDate
+				,VC_REGIP					vcRegIp
+				,VC_UPUSER					vcUpUser
+				,DT_UPDATE					dtUpDate
+				,VC_UPIP					vcUpIp
+				,VC_DC_COMMENT				vcDcComment
+				,INI_UID					iniUid
+				,INI_OID					iniOid
+				,INI_GOODNAME				iniGoodName
+				,INI_CURRENCY				iniCurrenCy
+				,INI_MID					iniMid
+				,INI_ENCTYPE				iniEncType
+				,INI_RN						iniRn
+				,INI_PRICE					iniPrice
+				,INI_PAYMETHOD				iniPayMethod
+				,INI_ENCRYPTED				iniEncrypted
+				,INI_SESSIONKEY				iniSessionKey
+				,INI_BUYERNAME				iniBuyerName
+				,INI_CARDCODE				iniCardCode
+				,INI_PARENTEMAIL			iniParenteMail
+				,INI_RECVNAME				iniRecvName
+				,INI_RECVTEL				iniRecvTel
+				,INI_RECVADDR				iniRecvAddr
+				,INI_RECVPOSTNUM			iniRecvPostnum
+				,INI_RECVMSG				iniRecvMsg
+				,INI_JOINCARD				iniJoinCard
+				,INI_JOINEXPIRE				iniJoinexPire
+				,INI_ID_CUSTOMER			iniIdcuStomer
+				,INI_REGDATE				iniRegDate
+				,INI_FAIL_CNT				iniFailCnt
+				,INI_FAIL_DATE				iniFailDate
+				,INI_ERR_URL				iniErrUrl
+				,INI_SUCC_URL				iniSuccUrl
+				,VC_CANCEL_MENT				vcCancelMent
+				,VC_CANCEL_BANK_USERNAME	vcCancelBankusername
+				,VC_CANCEL_BANK_NO			vcCancelBankno
+				,VC_CANCEL_BANK_NAME		vcCancelBankname
+				,VC_SMS_FLAG				vcSmsFlag
+				,I_BLOOM_WEEK_PRICE			iBloomweekPrice
+				,VC_MYG_ID					vcMygId
+				,VC_MYG_NO					vcMygNo
+				,INI_RESULT_MSG				iniResultMsg
+				,VC_ORDER_MENT				vcOrderMent
+				,VC_ADMIN_STATE				vcAdminState
+				,I_ADD_TOTAL_PRICE			iAddtotalPrice
+				,INI_VACT_REGNUM			iniVactregnum
+				,INI_VACT_BANKCODE			iniVactbankCode
+				,INI_VACT_BANKNAME			iniVactbankName
+				,INI_VACT_INPUTNAME			iniVactinputName
+				,INI_VACT_DATE				iniVactDate
+				,INI_VACT_NAME				iniVactName
+				,INI_VACT_NUM				iniVactnum
+				,INI_VACT_TID				iniVacttId
+				,I_INWON_CHECK				iInwonCheck
+				,VC_LIFE_WORLD_TYPE			vcLifeworldType
+				,VC_BLOOM_AGREE				vcBloomAgree
+				,VC_NOTCAN_MSG				vcNotcanMsg
+				,VC_ZIP						vcZip
+			FROM  RFC_TB_ORDER
+			WHERE 
+				  I_IDX = #idexSeq#		
+	</select>
+	
+	<select id="bloomDAO.selectOrderOption"  parameterClass="bloomOrderOptionVO"  resultClass="bloomOrderOptionVO" >
+		SELECT 
+			I_IDX			idexSeq,
+			VC_ORDER_NO		vcOrderNo,
+			VC_OPNAME		vcOpName,
+			I_OP_IDX		iopidx,
+			I_OP_CNT		iopcnt,
+			I_OP_PRICE		iopprice,
+			VC_USE_TY		vcUsety,
+			VC_REGUSER		vcReguser,
+			VC_REGIP		vcRegip,
+			DT_REGDATE		dtRegdate,
+			VC_UPUSER		vcUpuser,
+			VC_UPIP			vcUpip,
+			DT_UPDATE		dtUpdate,
+			I_ADD_EA		iaddea,
+			VC_ADD_BUHO		vcAddbuho,
+			I_ADD_PRICE		iaddprice
+		FROM RFC_TB_OPTION
+		WHERE
+			VC_USE_TY = 'Y'
+		AND
+			VC_ORDER_NO = #vcOrderNo#
+		
+		ORDER BY I_IDX DESC
+		
+	</select>	
+	
+	<update id="bloomDAO.updateOrderView"  parameterClass="bloomOrderVO">
+		UPDATE
+			RFC_TB_ORDER
+		SET 
+			I_ADD_TOTAL_PRICE = #iAddtotalPrice#,
+			VC_UPIP	= #vcUpIp#,
+			DT_UPDATE = sysdate,
+			
+			VC_UPUSER = #vcUpUser#
+		WHERE
+			VC_ORDER_NO = #vcOrderNo#
+	</update>
+	
+	<update id="bloomDAO.orderCancel"  parameterClass="bloomOrderVO">
+		UPDATE
+			RFC_TB_ORDER
+		SET 
+			vc_order_no = concat(vc_order_no,#vcOrderNo#),
+			vc_admin_state = 'C',
+			vc_upip = #vcUpIp#,
+			dt_update = sysdate,
+			vc_upuser = #vcUpUser#
+		WHERE
+			i_idx = #idexSeq#
+	</update>
+	
+	
+	<update id="bloomDAO.orderCompleteAct"  parameterClass="bloomOrderVO">
+		UPDATE
+			RFC_TB_ORDER
+		SET 
+			VC_STATE = #vcState#,
+			VC_SMS_FLAG = #vcSmsFlag#,
+								 
+			<isNotEmpty property="vcOrderNo" >
+			VC_ORDER_NO	= concat(VC_ORDER_NO,#vcOrderNo#),
+			</isNotEmpty>
+			vc_upip = #vcUpIp#,
+			dt_update = sysdate,
+			vc_upuser = #vcUpUser#
+		WHERE
+			i_idx = #idexSeq#
+	</update>
+	
+	<update id="bloomDAO.orderCancelAct"  parameterClass="bloomOrderVO">
+		UPDATE
+			RFC_TB_ORDER
+		SET 
+			VC_STATE = #vcState#,
+			VC_UPIP = #vcUpIp#,
+			DT_UPDATE = sysdate,
+			VC_UPUSER = #vcUpUser#,
+			VC_NOTCAN_MSG = #vcNotcanMsg#
+			
+		WHERE
+			i_idx = #idexSeq#
+	</update>
+	<insert id="bloomDAO.insertRloomfile"  parameterClass="bloomFileVO">
+		INSERT INTO RFC_TB_BLOOM_FILE
+		(
+			FILE_SID,	
+			BLOOM_SID,	
+			BLOOM_ID,	
+			FILE_NAME,	
+			FILE_MASK,	
+			FILE_MEMO,	
+			FILE_SIZE,	
+			FILE_ID,		
+			REGISTER_DT
+		)VALUES(
+			(select nvl(max(FILE_SID),0) + 1 as FILE_SID from RFC_TB_BLOOM_FILE),  
+			#bloomSid#,	
+			#bloomId#,		
+			#fileName#,	
+			#fileMask#,	
+			#fileMemo#,	
+			#fileSize#,	
+			#fileId#,		
+			sysdate
+		)
+	</insert>
+	
+	<select id="bloomDAO.selectRloomfile"  parameterClass="bloomFileVO"  resultClass="bloomFileVO" >
+		SELECT 
+			FILE_SID	fileSid,
+			BLOOM_SID	bloomSid,			 
+			BLOOM_ID	bloomId,	 
+			FILE_NAME	fileName,		 
+			FILE_MASK	fileMask,		 
+			FILE_MEMO	fileMemo,		 
+			FILE_SIZE	fileSize,		 
+			FILE_ID		fileId,		 
+			REGISTER_DT	registerDt
+		FROM RFC_TB_BLOOM_FILE
+		WHERE
+			BLOOM_SID = #bloomSid#
+		<isNotEmpty prepend="AND" property="fileId" >
+		    FILE_ID=#fileId#
+ 		</isNotEmpty>
+	</select>	
+	
+	<delete  id="bloomDAO.deleteRloomfile"  parameterClass="long" >
+					DELETE FROM
+						RFC_TB_BLOOM_FILE
+					WHERE
+					 FILE_SID =	#fileSid#
+	</delete>
+	
+	<delete id="bloomDAO.deleteRloomMainfile"  parameterClass="bloomFileVO">
+		DELETE FROM RFC_TB_BLOOM_FILE
+		WHERE
+			BLOOM_SID = #bloomSid#
+		AND
+			FILE_ID	 = 'true'
+	</delete>
+	
+	
+	<select id="bloomDAO.selectUserHoliDayList"  parameterClass="bloomHoliDayVO"  resultClass="bloomHoliDayVO" >
+		SELECT 
+			I_IDX						idexSeq,
+			VC_YEAR						vcYear,
+			VC_MONTH					vcMonth,
+			VC_DAY						vcDay,
+			VC_ALT						vcAlt,
+			DT_REGDATE					dtRegDate,
+			VC_REGUSER					vcRegUser,
+			VC_REGIP					vcRegIp,
+			VC_HOLIDAY_TP				vcHoliDayTp,
+			VC_BLOOM_IDX				vcBloomIdx,
+			VC_BLOOM_NAME				vcBloomName,
+			VC_HOLIDAY_TIME_NAME		vcHoliDayTimeName,
+			VC_HOLIDAY_TIME_IDX			vcHoliDayTimeIdx,
+			VC_S_DATE					vcSDate,
+			VC_E_DATE					vcEDate,
+			VC_BLOOM_IDX_DATA			vcBloomIdxData,
+			VC_BLOOM_NAME_DATA			vcBloomNameData,
+			VC_HOLIDAY_TIME_NAME_DATA	vcHoliDayTimeNameData,
+			VC_HOLIDAY_TIME_IDX_DATA	vc_HoliDayTimeIdxData
+		FROM RFC_TB_HOLIDAY
+		WHERE
+			VC_YEAR = #vcYear# 
+		AND 
+			VC_MONTH = #vcMonth#
+		AND 
+			VC_BLOOM_IDX in (#vcBloomIdx#,'A')
+		ORDER BY VC_HOLIDAY_TP ASC
+	</select>
+	
+	<select id="bloomDAO.selectUserTbloomTime"  parameterClass="bloomTimeVO"  resultClass="bloomTimeVO" >
+		SELECT 
+			I_IDX 			idexSeq,    
+			I_B_IDX 		idexNo,         
+			VC_TIME_START	vcTimeStart,    
+			VC_TIME_END		vcTimeEnd,  
+			I_PRICE			vcPrice,          
+			VC_REGUSER		vcReguser,       
+			DT_REGDATE		dtRegdate,       
+			VC_REGIP		vcRegip,         
+			VC_UPUSER		vcUpuser,        
+			DT_UPDATE		dtUpdate,        
+			VC_UPIP			vcUpip,          
+			VC_USE_YN		vcUseYn,        
+			I_ORDER			vcOrder,          
+			VC_SESSION_TP	vcSessionTp
+		FROM RFC_TB_BLOOMTIME
+		WHERE
+			VC_USE_YN = 'Y' 
+		and 
+			VC_SESSION_TP = #vcSessionTp#
+		and 
+			I_B_IDX =#idexNo#
+		ORDER BY I_ORDER
+	</select>
+	
+	<select id="bloomDAO.userOrderList"  parameterClass="bloomOrderVO"  resultClass="bloomOrderVO" >
+		SELECT 
+			b.I_IDX						idexSeq,
+			b.VC_STATE					vcState,
+			b.VC_ORDER_DATE				vcOrderdate,
+			b.I_BLOOM_TIME_IDX			iBloomtimeidx
+		FROM RFC_TB_BLOOMTIME a, RFC_TB_ORDER b
+		
+		WHERE a.I_IDX (+ ) = b.I_BLOOM_TIME_IDX
+		AND b.VC_STATE not in('OC','OFC','ACS','AFCS','SCS','TC','C','AC')
+		AND VC_ADMIN_STATE is null
+		AND a.I_B_IDX = #idexNo#
+	</select>
+	
+	<select id="bloomDAO.reserveOrderCnt"  parameterClass="bloomOrderVO" resultClass="int">
+			SELECT 
+				COUNT(i_idx) AS cnt 
+			FROM RFC_TB_ORDER
+			WHERE
+			vc_order_no = #keyCode#
+	</select>
+	
+	<insert id="bloomDAO.insertReserveOrder"  parameterClass="bloomOrderVO">
+		INSERT INTO RFC_TB_ORDER
+		(
+			I_IDX						
+			,VC_ORDER_NO				
+			,VC_ORDER_NAME				
+			,VC_ORDER_ADDR1				
+			,VC_ORDER_ZIP1				
+			,VC_ORDER_ZIP2				
+			,VC_ORDER_PHONE1			
+			,VC_ORDER_PHONE2			
+			,VC_ORDER_PHONE3			
+			,VC_ORDER_DATE				
+			,VC_STATE					
+			,VC_BLOOM_NAME				
+			,I_BLOOM_IDX				
+			,I_BLOOM_PRICE				
+			,VC_BLOOM_TIME_START		
+			,VC_BLOOM_TIME_END			
+			,I_BLOOM_TIME_IDX			
+			,I_BLOOM_TIME_PRICE			
+			,I_TOTAL_PRICE				
+			,VC_REGUSER					
+			,DT_REGDATE					
+			,VC_REGIP					
+			,VC_UPUSER					
+			,DT_UPDATE					
+			,VC_UPIP					
+			,I_BLOOM_WEEK_PRICE			
+			,VC_ORDER_MENT				
+			,I_INWON_CHECK				
+			,VC_LIFE_WORLD_TYPE			
+			,VC_ZIP						
+		)VALUES(
+			(select nvl(max(i_idx),0) + 1 as no from RFC_TB_ORDER)     
+			,#vcOrderNo#       
+			,#vcOrderName#     
+			,#vcOrderAddr1#    
+			,#vcOrderZip1#     
+			,#vcOrderZip2#     
+			,#vcOrderPhone1#   
+			,#vcOrderPhone2#   
+			,#vcOrderPhone3#   
+			,#vcOrderDate#     
+			,#vcState#         
+			,#vcBloomName#     
+			,#iBloomIdx#       
+			,#iBloomPrice#     
+			,#vcBloomTimeStart#
+			,#vcBloomTimeEnd#  
+			,#iBloomTimeIdx#   
+			,#iBloomTimePrice# 
+			,#iTotalPrice#     
+			,#vcRegUser#       
+			,sysdate       
+			,#vcRegIp#         
+			,#vcUpUser#        
+			,sysdate        
+			,#vcUpIp#          
+			,#iBloomweekPrice# 
+			,#vcOrderMent#     
+			,#iInwonCheck#
+			,#vcLifeworldType# 
+			,#vcZip#
+		)
+	</insert>
+	
+	<select id="bloomDAO.reserveOrderListCnt"  parameterClass="bloomOrderVO" resultClass="int">
+			SELECT
+				COUNT(*) totcnt
+			FROM
+				RFC_TB_ORDER
+			WHERE 
+			 
+				VC_REGUSER = #vcRegUser#
+			<isNotEmpty prepend="AND" property="reserveWhere">
+				$reserveWhere$
+			</isNotEmpty>
+	</select>
+	
+	<select id="bloomDAO.reserveOrderList"  parameterClass="bloomOrderVO"  resultClass="bloomOrderVO" >
+			SELECT  * 
+		     FROM (
+				SELECT ROWNUM RNUM, ALL_LIST.*  
+				FROM  
+						(
+							SELECT 
+								I_IDX						idexSeq
+								,VC_ORDER_NO				vcOrderNo
+								,VC_ORDER_NAME				vcOrderName
+								,VC_ORDER_ADDR1				vcOrderAddr1
+								,VC_ORDER_ADDR2				vcOrderAddr2
+								,VC_ORDER_ZIP1				vcOrderZip1
+								,VC_ORDER_ZIP2				vcOrderZip2
+								,VC_ORDER_PHONE1			vcOrderPhone1
+								,VC_ORDER_PHONE2			vcOrderPhone2
+								,VC_ORDER_PHONE3			vcOrderPhone3
+								,VC_ORDER_DATE				vcOrderDate
+								,VC_STATE					vcState
+								,VC_BLOOM_NAME				vcBloomName
+								,I_BLOOM_IDX				iBloomIdx
+								,I_BLOOM_PRICE				iBloomPrice
+								,VC_BLOOM_TIME_START		vcBloomTimeStart
+								,VC_BLOOM_TIME_END			vcBloomTimeEnd
+								,I_BLOOM_TIME_IDX			iBloomTimeIdx
+								,I_BLOOM_TIME_PRICE			iBloomTimePrice
+								,VC_BLOOM_DC_NAME			vcBloomDcName
+								,I_BLOOM_DC_IDX				iBloomDcIdx
+								,I_BLOOM_DC_PERCENT			iBloomDcPercent
+								,I_OPTION_CNT				iOptionCnt
+								,I_TOTAL_OPTION_PRICE		iTotalOptionPrice
+								,I_TOTAL_PRICE				iTotalPrice
+								,VC_REGUSER					vcRegUser
+								,DT_REGDATE					dtRegDate
+								,VC_REGIP					vcRegIp
+								,VC_UPUSER					vcUpUser
+								,DT_UPDATE					dtUpDate
+								,VC_UPIP					vcUpIp
+								,VC_DC_COMMENT				vcDcComment
+								,INI_UID					iniUid
+								,INI_OID					iniOid
+								,INI_GOODNAME				iniGoodName
+								,INI_CURRENCY				iniCurrenCy
+								,INI_MID					iniMid
+								,INI_ENCTYPE				iniEncType
+								,INI_RN						iniRn
+								,INI_PRICE					iniPrice
+								,INI_PAYMETHOD				iniPayMethod
+								,INI_ENCRYPTED				iniEncrypted
+								,INI_SESSIONKEY				iniSessionKey
+								,INI_BUYERNAME				iniBuyerName
+								,INI_CARDCODE				iniCardCode
+								,INI_PARENTEMAIL			iniParenteMail
+								,INI_RECVNAME				iniRecvName
+								,INI_RECVTEL				iniRecvTel
+								,INI_RECVADDR				iniRecvAddr
+								,INI_RECVPOSTNUM			iniRecvPostnum
+								,INI_RECVMSG				iniRecvMsg
+								,INI_JOINCARD				iniJoinCard
+								,INI_JOINEXPIRE				iniJoinexPire
+								,INI_ID_CUSTOMER			iniIdcuStomer
+								,INI_REGDATE				iniRegDate
+								,INI_FAIL_CNT				iniFailCnt
+								,INI_FAIL_DATE				iniFailDate
+								,INI_ERR_URL				iniErrUrl
+								,INI_SUCC_URL				iniSuccUrl
+								,VC_CANCEL_MENT				vcCancelMent
+								,VC_CANCEL_BANK_USERNAME	vcCancelBankusername
+								,VC_CANCEL_BANK_NO			vcCancelBankno
+								,VC_CANCEL_BANK_NAME		vcCancelBankname
+								,VC_SMS_FLAG				vcSmsFlag
+								,I_BLOOM_WEEK_PRICE			iBloomweekPrice
+								,VC_MYG_ID					vcMygId
+								,VC_MYG_NO					vcMygNo
+								,INI_RESULT_MSG				iniResultMsg
+								,VC_ORDER_MENT				vcOrderMent
+								,VC_ADMIN_STATE				vcAdminState
+								,I_ADD_TOTAL_PRICE			iAddtotalPrice
+								,INI_VACT_REGNUM			iniVactregnum
+								,INI_VACT_BANKCODE			iniVactbankCode
+								,INI_VACT_BANKNAME			iniVactbankName
+								,INI_VACT_INPUTNAME			iniVactinputName
+								,INI_VACT_DATE				iniVactDate
+								,INI_VACT_NAME				iniVactName
+								,INI_VACT_NUM				iniVactnum
+								,INI_VACT_TID				iniVacttId
+								,I_INWON_CHECK				iInwonCheck
+								,VC_LIFE_WORLD_TYPE			vcLifeworldType
+								,VC_BLOOM_AGREE				vcBloomAgree
+								,VC_NOTCAN_MSG				vcNotcanMsg
+								,VC_ZIP						vcZip
+							FROM  RFC_TB_ORDER
+							WHERE
+								VC_REGUSER = #vcRegUser#
+							<isNotEmpty prepend="AND" property="reserveWhere">
+							$reserveWhere$
+							</isNotEmpty>
+							ORDER BY DT_UPDATE desc  
+						) ALL_LIST	  
+					WHERE 1=1 
+				)
+		  	WHERE  RNUM  &gt; #firstIndex#
+ 			AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>
+	
+	
+	<select id="bloomDAO.selectOrderBloomOptionList"  parameterClass="bloomOptionVO"  resultClass="bloomOptionVO" >
+		SELECT
+			I_IDX			idexSeq,                   
+			I_B_IDX			idexNo,                 
+			VC_OPNAME		vcOpname,               
+			I_PRICE			vcPrice,                 
+			VC_USE_YN		vcUseYn,               
+			VC_REGUSER		vcReguser,              
+			DT_REGDATE		dtRegdate,              
+			VC_REGIP		vcRegip,                
+			VC_UPUSER		vcUpuser,               
+			DT_UPDATE		dtUpdate,               
+			VC_UPIP			vcUpip,                 
+			VC_CNT_TP		vcCntTp,               
+			I_ORDER			vcOrder,                 
+			I_ADD_EA		vcAddea,                
+			VC_ADD_BUHO		vcAddBuho,             
+			I_ADD_PRICE		vcAddPrice,             
+			VC_OP_NONRI_ADD		vcOpNonriAdd,         
+			VC_OP_NONRI_ADD_PRICE	vcOpNonriAddPrice,   
+			VC_NONRI_TP		vcNonriTp,             
+			VC_OP_BASIC_TP		vcOpBasicTp
+		FROM RFC_TB_BLOOM_OPTION
+		WHERE
+			VC_USE_YN = 'Y' 
+		AND 
+			I_B_IDX = #idexNo#
+		<isNotEmpty prepend="AND" property="optionWhere" >
+          	$optionWhere$
+        </isNotEmpty>
+		ORDER BY I_ORDER ASC
+	</select>
+	
+	<select id="bloomDAO.selectReserveTbloomDc"  parameterClass="bloomDcVO"  resultClass="bloomDcVO" >
+		SELECT 
+			I_IDX		idexSeq,
+			I_B_IDX		idexNo, 
+			VC_USE_YN	vcUseYn, 
+			VC_DCNAME	vcDcname, 
+			I_DCPERCENT	vcDcpercent, 
+			VC_REGUSER	vcReguser, 
+			DT_REGDATE	dtRegdate, 
+			VC_REGIP	vcRegip, 
+			VC_UPUSER	vcUpuser, 
+			DT_UPDATE	dtUpdate,
+			VC_UPIP		vcUpip, 
+			I_ORDER		vcOrder, 
+			VC_ETC_YN	vcEtcYn, 
+			VC_DC_ALT	vcDcAlt
+		FROM RFC_TB_BLOOM_DC
+		WHERE
+			VC_USE_YN = 'Y'
+		AND
+			I_B_IDX = #idexNo#
+		ORDER BY I_ORDER ASC
+	</select>
+	
+	<update id="bloomDAO.updateReserveCancel"  parameterClass="bloomOrderVO">
+		UPDATE
+			RFC_TB_ORDER
+		SET 
+			VC_STATE = #vcState#,
+			
+			VC_ORDER_NO = #vcOrderNo#,
+			VC_UPIP = #vcUpIp#,
+			DT_UPDATE = sysdate,
+			VC_UPUSER = #vcUpUser#,
+			VC_CANCEL_MENT = #vcCancelMent#,
+			VC_CANCEL_BANK_USERNAME = #vcCancelBankusername#,
+			VC_CANCEL_BANK_NO = #vcCancelBankno#,
+			VC_CANCEL_BANK_NAME = #vcCancelBankname#
+		WHERE
+		 	I_IDX = #idexSeq#
+	</update>
+	
+	<!--  tb_bloom_order_option - RFC_TB_OPTION -->
+	<update id="bloomDAO.reserveOrderOpUpdate"  parameterClass="bloomOrderVO">
+		UPDATE RFC_TB_OPTION SET 
+			VC_USE_TY = 'N',
+			VC_UPIP = #vcUpIp#,
+			DT_UPDATE = sysdate,
+			VC_UPUSER = #vcUpUser#
+		WHERE  
+			VC_ORDER_NO = #vcOrderNo#
+	</update>
+	
+	<insert id="bloomDAO.reserveOrderOpInsert"  parameterClass="bloomOrderVO"  >
+	
+		INSERT INTO RFC_TB_OPTION
+		(
+			I_IDX,
+			VC_ORDER_NO,
+			VC_OPNAME, 
+			I_OP_IDX,
+			I_OP_CNT,
+			I_OP_PRICE, 
+			I_ADD_EA,
+			VC_ADD_BUHO,
+			I_ADD_PRICE, 
+			VC_USE_TY,
+			VC_REGUSER,
+			VC_REGIP, 
+			DT_REGDATE,
+			VC_UPUSER,
+			VC_UPIP, 
+			DT_UPDATE
+		)values(
+			(select nvl(max(i_idx),0) + 1 as no from RFC_TB_OPTION)
+			,#vcOrderNo#
+			,#vcOpName#
+			,#iopidx#
+			,#iopcnt#
+			,#iopprice#
+			,#vcAddea#
+			,#vcAddBuho#
+			,#vcAddPrice#
+			,'Y'
+			,#vcRegUser#
+			,#vcRegIp#
+			,sysdate
+			,#vcUpUser#
+			,#vcUpIp#
+			,sysdate
+		)
+	</insert>
+	
+	<update id="bloomDAO.reserveOrderUpdate"  parameterClass="bloomOrderVO">
+	UPDATE RFC_TB_ORDER SET
+		VC_ORDER_PHONE1 = #vcOrderPhone1#
+		,VC_ORDER_PHONE2 = #vcOrderPhone2#
+		,VC_ORDER_PHONE3 = #vcOrderPhone3#
+		,VC_STATE = 'OF'
+		,VC_BLOOM_DC_NAME = #vcDcname#
+		,I_BLOOM_DC_IDX = #iBloomDcIdx#
+		,I_BLOOM_DC_PERCENT = #dcPrecent#
+		,VC_DC_COMMENT = #dcContent#
+		,I_OPTION_CNT = #iOptionCnt#
+		,I_TOTAL_OPTION_PRICE = #iTotalOptionPrice#
+		,I_TOTAL_PRICE = #iTotalPrice#
+		,VC_UPIP = #vcUpIp#
+		,DT_UPDATE=sysdate
+		,VC_UPUSER = #vcUpUser#
+		,VC_BLOOM_AGREE = #bloomAgree#
+	WHERE
+	VC_ORDER_NO = #vcOrderNo#
+	</update>
+	
+	<select id="bloomDAO.reserveOrderBankCnt"  parameterClass="bloomOrderVO"  resultClass="int">
+		SELECT 
+			COUNT(*) totcnt
+		FROM  RFC_TB_ORDER
+		WHERE 
+			VC_ORDER_NO = #vcOrderNo#
+		AND 
+			VC_STATE in ('A','AVB')
+	</select>
+	
+	<select id="bloomDAO.reserveOrderBank"  parameterClass="bloomOrderVO"  resultClass="bloomOrderVO" >
+		SELECT 
+			I_IDX						idexSeq
+			,VC_ORDER_NO				vcOrderNo
+			,VC_ORDER_NAME				vcOrderName
+			,VC_ORDER_ADDR1				vcOrderAddr1
+			,VC_ORDER_ADDR2				vcOrderAddr2
+			,VC_ORDER_ZIP1				vcOrderZip1
+			,VC_ORDER_ZIP2				vcOrderZip2
+			,VC_ORDER_PHONE1			vcOrderPhone1
+			,VC_ORDER_PHONE2			vcOrderPhone2
+			,VC_ORDER_PHONE3			vcOrderPhone3
+			,VC_ORDER_DATE				vcOrderDate
+			,VC_STATE					vcState
+			,VC_BLOOM_NAME				vcBloomName
+			,I_BLOOM_IDX				iBloomIdx
+			,I_BLOOM_PRICE				iBloomPrice
+			,VC_BLOOM_TIME_START		vcBloomTimeStart
+			,VC_BLOOM_TIME_END			vcBloomTimeEnd
+			,I_BLOOM_TIME_IDX			iBloomTimeIdx
+			,I_BLOOM_TIME_PRICE			iBloomTimePrice
+			,VC_BLOOM_DC_NAME			vcBloomDcName
+			,I_BLOOM_DC_IDX				iBloomDcIdx
+			,I_BLOOM_DC_PERCENT			iBloomDcPercent
+			,I_OPTION_CNT				iOptionCnt
+			,I_TOTAL_OPTION_PRICE		iTotalOptionPrice
+			,I_TOTAL_PRICE				iTotalPrice
+			,VC_REGUSER					vcRegUser
+			,DT_REGDATE					dtRegDate
+			,VC_REGIP					vcRegIp
+			,VC_UPUSER					vcUpUser
+			,DT_UPDATE					dtUpDate
+			,VC_UPIP					vcUpIp
+			,VC_DC_COMMENT				vcDcComment
+			,INI_UID					iniUid
+			,INI_OID					iniOid
+			,INI_GOODNAME				iniGoodName
+			,INI_CURRENCY				iniCurrenCy
+			,INI_MID					iniMid
+			,INI_ENCTYPE				iniEncType
+			,INI_RN						iniRn
+			,INI_PRICE					iniPrice
+			,INI_PAYMETHOD				iniPayMethod
+			,INI_ENCRYPTED				iniEncrypted
+			,INI_SESSIONKEY				iniSessionKey
+			,INI_BUYERNAME				iniBuyerName
+			,INI_CARDCODE				iniCardCode
+			,INI_PARENTEMAIL			iniParenteMail
+			,INI_RECVNAME				iniRecvName
+			,INI_RECVTEL				iniRecvTel
+			,INI_RECVADDR				iniRecvAddr
+			,INI_RECVPOSTNUM			iniRecvPostnum
+			,INI_RECVMSG				iniRecvMsg
+			,INI_JOINCARD				iniJoinCard
+			,INI_JOINEXPIRE				iniJoinexPire
+			,INI_ID_CUSTOMER			iniIdcuStomer
+			,INI_REGDATE				iniRegDate
+			,INI_FAIL_CNT				iniFailCnt
+			,INI_FAIL_DATE				iniFailDate
+			,INI_ERR_URL				iniErrUrl
+			,INI_SUCC_URL				iniSuccUrl
+			,VC_CANCEL_MENT				vcCancelMent
+			,VC_CANCEL_BANK_USERNAME	vcCancelBankusername
+			,VC_CANCEL_BANK_NO			vcCancelBankno
+			,VC_CANCEL_BANK_NAME		vcCancelBankname
+			,VC_SMS_FLAG				vcSmsFlag
+			,I_BLOOM_WEEK_PRICE			iBloomweekPrice
+			,VC_MYG_ID					vcMygId
+			,VC_MYG_NO					vcMygNo
+			,INI_RESULT_MSG				iniResultMsg
+			,VC_ORDER_MENT				vcOrderMent
+			,VC_ADMIN_STATE				vcAdminState
+			,I_ADD_TOTAL_PRICE			iAddtotalPrice
+			,INI_VACT_REGNUM			iniVactregnum
+			,INI_VACT_BANKCODE			iniVactbankCode
+			,INI_VACT_BANKNAME			iniVactbankName
+			,INI_VACT_INPUTNAME			iniVactinputName
+			,INI_VACT_DATE				iniVactDate
+			,INI_VACT_NAME				iniVactName
+			,INI_VACT_NUM				iniVactnum
+			,INI_VACT_TID				iniVacttId
+			,I_INWON_CHECK				iInwonCheck
+			,VC_LIFE_WORLD_TYPE			vcLifeworldType
+			,VC_BLOOM_AGREE				vcBloomAgree
+			,VC_NOTCAN_MSG				vcNotcanMsg
+			,VC_ZIP						vcZip
+		FROM  RFC_TB_ORDER
+		WHERE 
+			VC_ORDER_NO = #vcOrderNo#
+		AND 
+			VC_STATE in ('A','AVB')
+	</select>
+	
+	<update id="bloomDAO.reserveOrderBankSuccess"  parameterClass="bloomOrderVO">
+	UPDATE RFC_TB_ORDER SET
+		VC_UPIP					= #vcUpIp#,
+		VC_STATE				= #vcState#,
+		DT_UPDATE				= sysdate,
+		VC_UPUSER				= #vcUpUser#,
+		INI_UID					= #iniUid#,
+		INI_OID					= #iniOid#,
+		INI_GOODNAME			= #iniGoodName#,
+		INI_CURRENCY			= #iniCurrenCy#,
+		INI_MID					= #iniMid#,
+		INI_ENCTYPE				= #iniEncType#,
+		INI_RN					= #iniRn#,
+		INI_PRICE				= #iniPrice#,
+		INI_PAYMETHOD			= #iniPayMethod#,
+		INI_SESSIONKEY			= #iniSessionKey#,
+		INI_BUYERNAME			= #iniBuyerName#,
+		INI_CARDCODE			= #iniCardCode#,
+		INI_PARENTEMAIL			= #iniParenteMail#,
+		INI_RECVNAME			= #iniRecvName#,
+		INI_RECVTEL				= #iniRecvTel#,
+		INI_RECVADDR			= #iniRecvAddr#,
+		INI_RECVPOSTNUM			= #iniRecvPostnum#,
+		INI_RECVMSG				= #iniRecvMsg#,
+		INI_JOINCARD			= #iniJoinCard#,
+		INI_JOINEXPIRE			= #iniJoinexPire#,
+		INI_ID_CUSTOMER			= #iniIdcuStomer#,
+		INI_REGDATE				= #iniRegDate#,
+		INI_VACT_REGNUM			= #iniVactregnum#,
+		INI_VACT_NUM			= #iniVactnum#,
+		INI_VACT_BANKCODE		= #iniVactbankCode#,
+		INI_VACT_BANKNAME		= #iniVactbankName#,
+		INI_VACT_INPUTNAME		= #iniVactinputName#,
+		INI_VACT_DATE			= #iniVactDate#,
+		INI_VACT_NAME			= #iniVactName#
+		<isEqual property="succtp" compareValue="succ">
+			,INI_SUCC_URL			= #iniSuccUrl#
+			,INI_ERR_URL			= #iniErrUrl#
+		</isEqual>
+		<isEqual property="succtp" compareValue="fail">
+			,INI_FAIL_CNT			= (INI_FAIL_CNT + 1) 
+			,INI_FAIL_DATE			= sysdate
+			,INI_ERR_URL				= #iniErrUrl#
+		</isEqual>	  
+	WHERE
+		VC_ORDER_NO = #vcOrderNo#
+	AND 
+		VC_STATE in ('A','AVB')
+	</update>	
+	
+	<select id="bloomDAO.selectHoliDaytime"  parameterClass="long"  resultClass="bloomTimeVO" >
+		SELECT 
+			I_IDX 			idexSeq,    
+			I_B_IDX 		idexNo,         
+			VC_TIME_START	vcTimeStart,    
+			VC_TIME_END		vcTimeEnd,  
+			I_PRICE			vcPrice,          
+			VC_REGUSER		vcReguser,       
+			DT_REGDATE		dtRegdate,       
+			VC_REGIP		vcRegip,         
+			VC_UPUSER		vcUpuser,        
+			DT_UPDATE		dtUpdate,        
+			VC_UPIP			vcUpip,          
+			VC_USE_YN		vcUseYn,        
+			I_ORDER			vcOrder,          
+			VC_SESSION_TP	vcSessionTp
+		FROM RFC_TB_BLOOMTIME
+		WHERE
+			VC_USE_YN = 'Y'
+		AND
+			I_B_IDX = #idexNo#
+		ORDER BY I_ORDER DESC
+	</select>
+	
+	<select id="bloomDAO.selectBloomDetail"  parameterClass="bloomVO"  resultClass="bloomVO">
+		SELECT 
+    		I_IDX              idexNo,   
+    		VC_NAME            vcName, 
+    		STREED_ADD		   streetAdd,
+    		DEFAULT_ADD			defaultAdd,   
+    		DETAIL_ADD			detailAdd,
+    		MAP_X				mapX,
+    		MAP_Y				mapY,
+    		DETAIL_CONTENTS		detailContents
+		FROM 
+		RFC_TB_BLOOMDETAIL
+		WHERE
+		I_IDX = #idexNo#
+	</select>
+	<insert id="bloomDAO.insertBloomDetail"  parameterClass="bloomVO">
+		insert into RFC_TB_BLOOMDETAIL
+		(
+			I_IDX           ,   
+    		VC_NAME         , 
+    		STREED_ADD		,
+    		DEFAULT_ADD		,   
+    		DETAIL_ADD		,
+    		MAP_X			,
+    		MAP_Y			,
+    		DETAIL_CONTENTS		
+		)
+		values
+		(
+         	#idexNo#,   
+         	#vcName#, 
+			#streetAdd#,
+			#defaultAdd#,   
+			#detailAdd#,
+			#mapX#,
+			#mapY#,
+			#detailContents#
+		)
+	</insert>
+	<update id="bloomDAO.updateBloomDetail"  parameterClass="bloomVO">
+		UPDATE	RFC_TB_BLOOMDETAIL SET
+    		VC_NAME			= #vcName#,
+    		STREED_ADD		= #streetAdd#,
+    		DEFAULT_ADD		= #defaultAdd#,   
+    		DETAIL_ADD		= #detailAdd#,
+    		MAP_X			= #mapX#,
+    		MAP_Y			= #mapY#,
+    		DETAIL_CONTENTS	= #detailContents#
+		WHERE
+		I_IDX = #idexNo#
+	</update>
+	
+	<delete id="bloomDAO.deleteBloomDetail"  parameterClass="bloomVO">
+		DELETE FROM RFC_TB_BLOOMDETAIL
+		WHERE
+			I_IDX = #idexNo#
+	</delete>
+	 
+	
+	<select id="bloomDAO.deleteBloomDetailCnt"  parameterClass="long" resultClass="int">
+			SELECT
+				COUNT(*) totcnt
+			FROM
+				RFC_TB_BLOOMDETAIL
+			WHERE 
+				I_IDX = #idexNo#
+	</select>
+	
+	<select id="bloomDAO.selectSalesTotal"  parameterClass="bloomSalesVO" resultClass="int">
+			SELECT
+				COUNT(*) totcnt
+			FROM
+				TB_BLOOM_SALES
+			WHERE 1 = 1 	
+			<isNotEmpty prepend="AND" property="idexNo" >
+			    I_BLOOM_IDX  = #idexNo#
+			</isNotEmpty>	
+			        
+			<isNotEmpty prepend="AND" property="searchCondition" >
+				$searchCondition$  LIKE '%$searchKeyword$%'
+			</isNotEmpty>	
+			
+			<isNotEmpty  property="vcSDate">
+				<isNotEmpty  property="vcEDate">
+				
+				<isEqual property="dateType" compareValue="vc_order_date">	
+				 AND to_number(VC_ORDER_DATE) &gt;= to_number($vcSDate$) 
+                  	 AND to_number(VC_ORDER_DATE) &lt;= to_number($vcEDate$) 
+				</isEqual>
+				<isEqual property="dateType" compareValue="ini_regdate"> 
+                  	 AND to_number(to_char(INI_REGDATE,'YYYYMMDD')) &gt;= to_number($vcSDate$)
+     					 AND to_number(to_char(INI_REGDATE,'YYYYMMDD')) &lt;= to_number($vcEDate$)
+				</isEqual>
+				</isNotEmpty>
+			</isNotEmpty>
+			<isNotEmpty prepend="AND" property="search_src" >
+	          		    VC_STATE IN ($search_src$)
+	        </isNotEmpty>
+	</select>
+	
+  	<select id="bloomDAO.selectSales"  parameterClass="bloomSalesVO"  resultClass="bloomSalesVO" >
+	SELECT  * 
+     FROM (
+		SELECT ROWNUM RNUM, ALL_LIST.*  
+		FROM  
+				(
+					SELECT 
+					  	I_IDX					i_idx	,
+						VC_ORDER_NO				vc_orderno	,
+						VC_ORDER_NAME			vc_ordername	,
+						VC_ORDER_ADDR1			vc_orderaddr1	,
+						VC_ORDER_ADDR2			vc_orderaddr2	,
+						VC_ORDER_ZIP1			vc_orderzip1	,
+						VC_ORDER_ZIP2			vc_orderzip2	,
+						VC_ORDER_PHONE1			vc_orderphone1	,
+						VC_ORDER_PHONE2			vc_orderphone2	,
+						VC_ORDER_PHONE3			vc_orderphone3	,
+						VC_ORDER_DATE			vc_orderdate	,
+						VC_STATE				vc_state,
+						VC_BLOOM_NAME			vc_bloomname,
+						NVL(I_BLOOM_IDX,0)				i_bloomidx	,
+						NVL(I_BLOOM_PRICE,0)			i_bloomprice,
+						VC_BLOOM_TIME_START		vc_bloomtimestart	,
+						VC_BLOOM_TIME_END		vc_bloomtimeend	,
+						NVL(I_BLOOM_TIME_IDX,0)		i_bloomtimeidx	,
+						NVL(I_BLOOM_TIME_PRICE,0)		i_bloomtimeprice	,
+						VC_BLOOM_DC_NAME		vc_bloomdcname	,
+						NVL(I_BLOOM_DC_IDX,0)			i_bloomdcidx	,
+						NVL(I_BLOOM_DC_PERCENT,0)		i_bloomdcpercent	,
+						NVL(I_OPTION_CNT,0)			i_optioncnt	,
+						NVL(I_TOTAL_OPTION_PRICE,0)	i_totaloptionprice	,
+						NVL(I_TOTAL_PRICE,0)			i_totalprice	,
+						VC_REGUSER				vc_reguser	,
+						DT_REGDATE				dt_regdate	,
+						VC_REGIP				vc_regip	,
+						VC_UPUSER				vc_upuser	,
+						DT_UPDATE				dt_update	,
+						VC_UPIP					vc_upip	,
+						VC_DC_COMMENT			vc_dccomment	,
+						INI_UID					ini_uid	,
+						INI_OID					ini_oid	,
+						INI_GOODNAME			ini_goodname	,
+						INI_CURRENCY			ini_currency	,
+						INI_MID					ini_mid	,
+						INI_ENCTYPE				ini_enctype	,
+						INI_RN					ini_rn	,
+						INI_PRICE				ini_price	,
+						INI_PAYMETHOD			ini_paymethod	,
+						INI_ENCRYPTED			ini_encrypted	,
+						INI_SESSIONKEY			ini_sessionkey	,
+						INI_BUYERNAME			ini_buyername	,
+						INI_CARDCODE			ini_cardcode	,
+						INI_PARENTEMAIL			ini_parentemail	,
+						INI_RECVNAME			ini_recvname	,
+						INI_RECVTEL				ini_recvtel	,
+						INI_RECVADDR			ini_recvaddr	,
+						INI_RECVPOSTNUM			ini_recvpostnum	,
+						INI_RECVMSG				ini_recvmsg	,
+						INI_JOINCARD			ini_joincard	,
+						INI_JOINEXPIRE			ini_joinexpire	,
+						INI_ID_CUSTOMER			ini_idcustomer	,
+						INI_REGDATE				ini_regdate	,
+						NVL(INI_FAIL_CNT,0)			ini_failcnt	,
+						INI_FAIL_DATE			ini_faildate	,
+						INI_ERR_URL				ini_errurl	,
+						INI_SUCC_URL			ini_succurl	,
+						VC_CANCEL_MENT			vc_cancelment	,
+						VC_CANCEL_BANK_USERNAME	vc_cancelbankusername	,
+						VC_CANCEL_BANK_NO		vc_cancelbankno	,
+						VC_CANCEL_BANK_NAME		vc_cancelbankname	,
+						VC_SMS_FLAG				vc_smsflag	,
+						VC_FLAG_TYPE			vc_flagtype,	
+						NVL(I_INWON_CHECK,0)			i_inwon_check
+						
+					FROM TB_BLOOM_SALES 
+					WHERE 1 = 1 
+					
+					<isNotEmpty prepend="AND" property="idexNo" >
+			          		     I_BLOOM_IDX  = #idexNo#
+			        </isNotEmpty>	
+					<isNotEmpty prepend="AND" property="searchCondition" >
+			          		     $searchCondition$  LIKE '%$searchKeyword$%'
+			        </isNotEmpty>	
+					
+					<isNotEmpty  property="vcSDate">
+						<isNotEmpty  property="vcEDate">
+						
+						<isEqual property="dateType" compareValue="vc_order_date">	
+						 AND to_number(VC_ORDER_DATE) &gt;= to_number($vcSDate$) 
+                    	 AND to_number(VC_ORDER_DATE) &lt;= to_number($vcEDate$) 
+						</isEqual>
+						<isEqual property="dateType" compareValue="ini_regdate"> 
+                    	 AND to_number(to_char(INI_REGDATE,'YYYYMMDD')) &gt;= to_number($vcSDate$)
+       					 AND to_number(to_char(INI_REGDATE,'YYYYMMDD')) &lt;= to_number($vcEDate$)
+						</isEqual>
+						</isNotEmpty>
+					</isNotEmpty>
+					<isNotEmpty prepend="AND" property="search_src" >
+			          		    VC_STATE IN ($search_src$)
+			        </isNotEmpty>	
+					     
+				) ALL_LIST	  
+				WHERE 1=1 
+			)
+		  	
+		  	WHERE  RNUM  &gt; #firstIndex#
+ 			AND  RNUM &lt;= #firstIndex# + #recordCountPerPage#
+	</select>
+	
+	
+	<select id="bloomDAO.selectAllSales"  parameterClass="bloomSalesVO"  resultClass="bloomSalesVO" >
+		SELECT 
+		  	I_IDX					i_idx	,
+			VC_ORDER_NO				vc_orderno	,
+			VC_ORDER_NAME			vc_ordername	,
+			VC_ORDER_ADDR1			vc_orderaddr1	,
+			VC_ORDER_ADDR2			vc_orderaddr2	,
+			VC_ORDER_ZIP1			vc_orderzip1	,
+			VC_ORDER_ZIP2			vc_orderzip2	,
+			VC_ORDER_PHONE1			vc_orderphone1	,
+			VC_ORDER_PHONE2			vc_orderphone2	,
+			VC_ORDER_PHONE3			vc_orderphone3	,
+			VC_ORDER_DATE			vc_orderdate	,
+			VC_STATE				vc_state,
+			VC_BLOOM_NAME			vc_bloomname,
+			NVL(I_BLOOM_IDX,0)				i_bloomidx	,
+			NVL(I_BLOOM_PRICE,0)			i_bloomprice,
+			VC_BLOOM_TIME_START		vc_bloomtimestart	,
+			VC_BLOOM_TIME_END		vc_bloomtimeend	,
+			NVL(I_BLOOM_TIME_IDX,0)		i_bloomtimeidx	,
+			NVL(I_BLOOM_TIME_PRICE,0)		i_bloomtimeprice	,
+			VC_BLOOM_DC_NAME		vc_bloomdcname	,
+			NVL(I_BLOOM_DC_IDX,0)			i_bloomdcidx	,
+			NVL(I_BLOOM_DC_PERCENT,0)		i_bloomdcpercent	,
+			NVL(I_OPTION_CNT,0)			i_optioncnt	,
+			NVL(I_TOTAL_OPTION_PRICE,0)	i_totaloptionprice	,
+			NVL(I_TOTAL_PRICE,0)			i_totalprice	,
+			VC_REGUSER				vc_reguser	,
+			DT_REGDATE				dt_regdate	,
+			VC_REGIP				vc_regip	,
+			VC_UPUSER				vc_upuser	,
+			DT_UPDATE				dt_update	,
+			VC_UPIP					vc_upip	,
+			VC_DC_COMMENT			vc_dccomment	,
+			INI_UID					ini_uid	,
+			INI_OID					ini_oid	,
+			INI_GOODNAME			ini_goodname	,
+			INI_CURRENCY			ini_currency	,
+			INI_MID					ini_mid	,
+			INI_ENCTYPE				ini_enctype	,
+			INI_RN					ini_rn	,
+			INI_PRICE				ini_price	,
+			INI_PAYMETHOD			ini_paymethod	,
+			INI_ENCRYPTED			ini_encrypted	,
+			INI_SESSIONKEY			ini_sessionkey	,
+			INI_BUYERNAME			ini_buyername	,
+			INI_CARDCODE			ini_cardcode	,
+			INI_PARENTEMAIL			ini_parentemail	,
+			INI_RECVNAME			ini_recvname	,
+			INI_RECVTEL				ini_recvtel	,
+			INI_RECVADDR			ini_recvaddr	,
+			INI_RECVPOSTNUM			ini_recvpostnum	,
+			INI_RECVMSG				ini_recvmsg	,
+			INI_JOINCARD			ini_joincard	,
+			INI_JOINEXPIRE			ini_joinexpire	,
+			INI_ID_CUSTOMER			ini_idcustomer	,
+			INI_REGDATE				ini_regdate	,
+			NVL(INI_FAIL_CNT,0)			ini_failcnt	,
+			INI_FAIL_DATE			ini_faildate	,
+			INI_ERR_URL				ini_errurl	,
+			INI_SUCC_URL			ini_succurl	,
+			VC_CANCEL_MENT			vc_cancelment	,
+			VC_CANCEL_BANK_USERNAME	vc_cancelbankusername	,
+			VC_CANCEL_BANK_NO		vc_cancelbankno	,
+			VC_CANCEL_BANK_NAME		vc_cancelbankname	,
+			VC_SMS_FLAG				vc_smsflag	,
+			VC_FLAG_TYPE			vc_flagtype,	
+			NVL(I_INWON_CHECK,0)			i_inwon_check
+			
+		FROM TB_BLOOM_SALES 
+		WHERE 1 = 1 
+		
+		<isNotEmpty prepend="AND" property="idexNo" >
+          		     I_BLOOM_IDX  = #idexNo#
+        </isNotEmpty>	
+		<isNotEmpty prepend="AND" property="searchCondition" >
+          		     $searchCondition$  LIKE '%$searchKeyword$%'
+        </isNotEmpty>	
+		
+		<isNotEmpty  property="vcSDate">
+			<isNotEmpty  property="vcEDate">
+			
+			<isEqual property="dateType" compareValue="vc_order_date">	
+			 AND to_number(VC_ORDER_DATE) &gt;= to_number($vcSDate$) 
+                 	 AND to_number(VC_ORDER_DATE) &lt;= to_number($vcEDate$) 
+			</isEqual>
+			<isEqual property="dateType" compareValue="ini_regdate"> 
+                 	 AND to_number(to_char(INI_REGDATE,'YYYYMMDD')) &gt;= to_number($vcSDate$)
+    					 AND to_number(to_char(INI_REGDATE,'YYYYMMDD')) &lt;= to_number($vcEDate$)
+			</isEqual>
+			</isNotEmpty>
+		</isNotEmpty>
+		<isNotEmpty prepend="AND" property="search_src" >
+          		    VC_STATE IN ($search_src$)
+        </isNotEmpty>	
+	</select>
+</sqlMap>

@@ -1,0 +1,2070 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.board.vo">
+	<class name="BoardVO"	table="RFC_COMTNBBS">
+	  <cache usage="read-write"/>
+	  <comment>게시판 기본정보 테이블</comment>
+	    <composite-id>
+			<key-property name="boardSid"  type="long">
+				<column name="BOARD_SID">
+            		<comment>게시판 일련번호</comment>
+            	</column>
+			</key-property>
+			
+			<key-property name="boardId" type="string"  length="64" >
+				<column name="BOARD_ID">
+            		<comment>게시판 식별코드</comment>
+            	</column>
+			</key-property>		
+		</composite-id>
+		<property name="sgroupId" type="string"  not-null="true" >
+			<column name="SGROUP_ID" length="30">
+				<comment>사이트그룹 ID</comment>
+			</column>
+		</property>
+		<property name="domainId" type="string"  not-null="true" >
+			<column name="DOMAIN_ID" length="30">
+				<comment>도메인 코드</comment>
+			</column>
+		</property>
+		<property name="boardTitle" type="string" >
+			<column name="BOARD_TITLE" length="255">
+				<comment>게시판(국문) 이름</comment>
+			</column>
+		</property>
+		<property name="engName" type="string" >
+			<column name="ENG_NAME" length="100">
+				<comment>게시판(영문) 이름</comment>
+			</column>
+		</property>
+		<property name="boardSummary" type="text" >
+			<column name="BOARD_SUMMARY" length="1073741824">
+				<comment>게시판 요약정보</comment>
+			</column>
+		</property>
+		<property name="skinId" type="string" >
+			<column name="SKIN_ID" length="64">
+				<comment>게시판 스킨코드</comment>
+			</column>
+		</property>
+		<property name="actionId" type="string" >
+			<column name="ACTION_ID" length="64">
+				<comment>게시판 엑션(스킨)코드</comment>
+			</column>
+		</property>
+		<property name="skinTop" type="text" >
+			<column name="SKIN_TOP" length="1073741824">
+				<comment>게시판상단 내용</comment>
+			</column>
+		</property>
+		<property name="skinBottom" type="text" >
+			<column name="SKIN_BOTTOM" length="1073741824">
+				<comment>게시판하단 내용</comment>
+			</column>
+		</property>
+		<property name="orderByString" type="string" >
+			<column name="ORDERBY_STRING" length="255"  >
+				<comment>게시글 정렬코드</comment>
+			</column>
+		</property>
+		<property name="boardCel" type="int" >
+			<column name="BOARD_CEL" length="2" default="1">
+				<comment>게시글 열 갯수</comment>
+			</column>
+		</property>
+		<property name="boardRow" type="int" >
+			<column name="BOARD_ROW" length="2" default="10" >
+				<comment>게시글 행 갯수</comment>
+			</column>
+		</property>
+		<property name="boardPageBlock" type="int" >
+			<column name="BOARD_PAGE_BLOCK" length="2" default="10" >
+				<comment>게시글 페이징 갯수</comment>
+			</column>
+		</property>
+		<property name="boardNoticeFl" type="yes_no" >
+			<column name="BOARD_NOTICE_FL" length="1" default="0">
+				<comment>공지글 사용여부</comment>
+			</column>
+		</property>
+		<property name="boardSecretFl" type="yes_no" >
+			<column name="BOARD_SECRET_FL" length="1" default="0"  >
+				<comment>비밀글 사용여부</comment>
+			</column>
+		</property>
+		<property name="boardDateIsUseFl" type="yes_no" >
+			<column name="BOARD_DATE_ISUSE_FL" length="1" default="0" >
+				<comment>공지기간 사용여부</comment>
+			</column>
+		</property>
+		<property name="boardEditorFl" type="yes_no" >
+			<column name="BOARD_EDITOR_FL" length="1" default="1"  >
+				<comment>편집기 사용여부</comment>
+			</column>
+		</property>
+		<property name="boardDataTagFl" type="yes_no" >
+			<column name="BOARD_DATA_TAG_FL" length="1" default="0" >
+				<comment>HTML 사용여부</comment>
+			</column>
+		</property>
+		<property name="boardFileModuleFl" type="yes_no" >
+			<column name="BOARD_FILE_MODULE_FL" length="1" default="1"  >
+				<comment>업로드 사용여부</comment>
+			</column>
+		</property>
+		<property name="boardFileSize" type="int" >
+			<column name="BOARD_FILE_SIZE" length="4" default="10" >
+				<comment>업로드 최대용량</comment>
+			</column>
+		</property>
+		<property name="boardFileCnt" type="int" >
+			<column name="BOARD_FILE_CNT" length="4"  default="5">
+				<comment>업로드 최대파일갯수</comment>
+			</column>
+		</property>
+		<property name="boardFileExtList" type="string" >
+			<column name="BOARD_FILE_EXT_LIST" length="255"  >
+				<comment>업로드 비/허용 확장자</comment>
+			</column>
+		</property>
+		<property name="boardFileMemoFl" type="yes_no" >
+			<column name="BOARD_FILE_MEMO_FL" length="1" default="0">
+				<comment>첨부파일 메모사용여부</comment>
+			</column>
+		</property>
+		<property name="boardCommentFl" type="yes_no" >
+			<column name="BOARD_COMMENT_FL" length="1" default="0"  >
+				<comment>댓글 사용여부</comment>
+			</column>
+		</property>
+		<property name="captchaIsUse" type="yes_no" >
+			<column name="CAPTCHA_IS_USE" length="1" default="0"  >
+				<comment>자동글차단 사용여부</comment>
+			</column>
+		</property>
+		<property name="listPrivateFl" type="string" >
+			<column name="LIST_PRIVATE_FL" length="1" default="'N'"  >
+				<comment>본인/민원글 사용여부</comment>
+			</column>
+		</property>
+		<property name="listReplyFl" type="yes_no" >
+			<column name="LIST_REPLY_FL" length="1" default="1">
+				<comment>답변글 출력여부</comment>
+			</column>
+		</property>
+		<property name="listViewFl" type="yes_no" >
+			<column name="LIST_VIEW_FL" length="1" default="0"  >
+				<comment>글보기 출력여부</comment>
+			</column>
+		</property>
+		<property name="listOfficeFl" type="yes_no" >
+			<column name="LIST_OFFICE_FL" length="1" default="0"  >
+				<comment>부서글 보기여부</comment>
+			</column>
+		</property>
+		
+		<property name="writeBtnViewFl" type="string" >
+			<column name="WRITE_BTN_VIEW_FL" length="2" default="'A'"  >
+				<comment>등록버튼 출력여부</comment>
+			</column>
+		</property>
+		<property name="replyBtnViewFl" type="string" >
+			<column name="REPLY_BTN_VIEW_FL" length="2" default="'A'"  >
+				<comment>답변버튼 출력여부</comment>
+			</column>
+		</property>
+		<property name="updateBtnViewFl" type="string" >
+			<column name="UPDATE_BTN_VIEW_FL" length="2" default="'A'"  >
+				<comment>수정버튼 출력여부</comment>
+			</column>
+		</property>
+		<property name="deleteBtnViewFl" type="string" >
+			<column name="DELETE_BTN_VIEW_FL" length="2" default="'A'"  >
+				<comment>삭제버튼 출력여부</comment>
+			</column>
+		</property>
+		<property name="updateOfficeFl" type="yes_no" >
+			<column name="UPDATE_OFFICE_FL" length="1" default="0"  >
+				<comment>부서수정 권한위임여부</comment>
+			</column>
+		</property>
+		<property name="deleteOfficeFl" type="yes_no" >
+			<column name="DELETE_OFFICE_FL" length="1" default="0"  >
+				<comment>부서삭제 권한위임여부</comment>
+			</column>
+		</property>
+		<property name="dataDeleteFl" type="yes_no" >
+			<column name="DATA_DELETE_FL" length="1" default="0"  >
+				<comment>삭제정책 사용여부</comment>
+			</column>
+		</property>
+		<property name="deleteTitle" type="string" >
+			<column name="DELETE_TITLE" length="255"  >
+				<comment>삭제정책 변경제목</comment>
+			</column>
+		</property>
+		<property name="deleteContent" type="string" >
+			<column name="DELETE_CONTENT" length="512"  >
+				<comment>삭제정책 변경내용</comment>
+			</column>
+		</property>
+		<property name="writeAlert" type="string" >
+			<column name="WRITE_ALERT" length="512">
+			<comment>게시글 등록알림글</comment>
+			</column>
+		</property>
+		<property name="dataTitleLength" type="int" >
+			<column name="DATA_TITLE_LENGTH" length="4" default="20" >
+				<comment>게시글 출력길이</comment>
+			</column>
+		</property>		
+		<property name="newiconIntervalTime" type="int" >
+			<column name="NEWICON_INTERVAL_TIME" length="4"  default="24">
+				<comment>새글 아이콘 출력기간</comment>
+			</column>
+		</property>		
+		<property name="boardDeleteFl" type="yes_no">
+			<column name="BOARD_DELETE_FL" length="1" default="0"  >
+				<comment>게시판 삭제여부</comment>
+			</column>
+		</property>
+		<property name="itemList" type="text" >
+			<column name="ITEM_LIST" length="1073741824">
+				<comment>게시글 목록보기 필드항목</comment>
+			</column>
+		</property>
+		<property name="itemView" type="text" >
+			<column name="ITEM_VIEW" length="1073741824">
+				<comment>게시글 상세보기 필드항목</comment>
+			</column>
+		</property>
+		<property name="itemWrite" type="text" >
+			<column name="ITEM_WRITE" length="1073741824">
+				<comment>게시글 등록/수정 필드항목</comment>
+			</column>
+		</property>
+		<property name="writeAfterAct" type="string" >
+			<column name="WRITE_AFTER_ACT" length="16" default="'LIST'">
+				<comment>글쓰기 이동 ACTION</comment>
+			</column>
+		</property>
+		<property name="writeAfterUrl" type="text" >
+			<column name="WRITE_AFTER_URL" length="1073741824">
+				<comment>글쓰기 이동 URL</comment>
+			</column>
+		</property>
+		<property name="updateAfterAct" type="string" >
+			<column name="UPDATE_AFTER_ACT" length="16" default="'VIEW'">
+				<comment>글수정 이동 ACTION</comment>
+			</column>
+		</property>
+		<property name="updateAfterUrl" type="text" >
+			<column name="UPDATE_AFTER_URL" length="1073741824">
+				<comment>글수정 이동 URL</comment>
+			</column>
+		</property>
+		<property name="deleteAfterAct" type="string" >
+			<column name="DELETE_AFTER_ACT" length="16" default="'LIST'">
+				<comment>글삭제 이동 ACTION</comment>
+			</column>
+		</property>
+		<property name="deleteAfterUrl" type="text" >
+			<column name="DELETE_AFTER_URL" length="1073741824">
+				<comment>글삭제 이동 URL</comment>
+			</column>
+		</property>
+		<property name="dataPattern" type="string" >
+			<column name="DATA_PATTERN" length="64" default="'yy.MM.dd'">
+				<comment>날짜 출력패턴</comment>
+			</column>
+		</property>
+		<property name="category1ViewFl" type="yes_no">
+			<column name="CATEGORY1_VIEW_FL" length="1" default="0"  >
+				<comment>카테고리1 출력여부</comment>
+			</column>
+		</property>
+		<property name="category2ViewFl" type="yes_no">
+			<column name="CATEGORY2_VIEW_FL" length="1" default="0"  >
+				<comment>카테고리2 출력여부</comment>
+			</column>
+		</property>
+		<property name="category3ViewFl" type="yes_no">
+			<column name="CATEGORY3_VIEW_FL" length="1" default="0"  >
+				<comment>카테고리3 출력여부</comment>
+			</column>
+		</property>
+		<property name="publicCategoryFl" type="string">
+			<column name="PUBLIC_CATEGORY_FL" length="1" default="'N'"  >
+				<comment>공통 카테고리 사용여부</comment>
+			</column>
+		</property>
+		<property name="docStreamFl" type="string">
+			<column name="DOC_STREAM_FL" length="16" default="'NONE'"  >
+				<comment>문서변화 사용여부</comment>
+			</column>
+		</property>
+		<property name="cclViewFl" type="yes_no">
+			<column name="CCL_VIEW_FL" length="1" default="0"  >
+				<comment>저작권관리 사용여부</comment>
+			</column>
+		</property>
+		
+		<property name="modify_dt" type="timestamp" >
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+		<!--  
+		<property name="searchIsUse" type="yes_no" >
+			<column name="SEARCH_IS_USE" length="1" default="0"  />
+		</property>
+		-->
+		<property name="deleteTitleUser" type="string" >
+			<column name="DELETE_TITLE_USER" length="255"  >
+				<comment>삭제알림 변경제목(사용자)</comment>
+			</column>
+		</property>
+
+		<property name="deleteContentUser" type="text" >
+			<column name="DELETE_CONTENT_USER" length="1073741824">
+				<comment>삭제알림 변경내용(사용자)</comment>
+			</column>
+		</property>
+		
+		<property name="dataDeleteFlUser" type="yes_no" >
+			<column name="DATA_DELETE_FL_USER" length="1" default="0"  >
+				<comment>게시글 삭제정책 사용여부</comment>
+			</column>
+		</property>
+		
+		<property name="smsIsUse" type="string" >
+			<column name="SMS_IS_USE" length="1" default="'N'"  >
+				<comment>SMS (사용자)발송여부</comment>
+			</column>
+		</property>
+		
+		<property name="smsIsManager" type="string" >
+			<column name="SMS_IS_MANAGER" length="1" default="'N'"  >
+				<comment>SMS (관리자)발송여부</comment>
+			</column>
+		</property>
+		<property name="boardNoticeDateCheck" type="yes_no" >
+			<column name="BOARD_NOTICE_DATECHECK" length="1" default="0"  >
+				<comment>공지기간 초기화여부</comment>
+			</column>
+		</property>
+		<property name="bbsOfficepartFl" type="yes_no">
+			<column name="BOARD_OFFICEPART_FL" length="1" default="0"  >
+				<comment>부서출력 여부</comment>
+			</column>
+			
+		</property>
+	</class>
+	<class name="BoardEtcVO"	table="RFC_COMTNBBSETC">
+	  <cache usage="read-write"/>
+	  <comment>게시판 환경설정 테이블</comment>
+	    <id name="boardId" type="string"  length="64" >
+				<column name="BOARD_ID">
+            		<comment>게시판 식별코드</comment>
+            	</column>
+		</id>    
+		<property name="thumbnailFl" type="yes_no" >
+			<column name="THUMBNAIL_FL" length="1" default="0" >
+				<comment>썸네일 생성여부</comment>
+			</column>
+		</property>
+		<property name="thumbnailWidth" type="int" >
+			<column name="THUMBNAIL_WIDTH" length="4" default="0" >
+				<comment>썸네일 넓이</comment>
+			</column>
+		</property>
+		<property name="thumbnailHeight" type="int" >
+			<column name="THUMBNAIL_HEIGHT" length="4" default="0" >
+				<comment>썸네일 높이</comment>
+			</column>
+		</property>
+		<property name="thumbnailScale" type="string" >
+			<column name="THUMBNAIL_SCALE" length="1" >
+				<comment>썸네일 비율유형</comment>
+			</column>
+		</property>
+		<property name="boardSearchFl" type="yes_no" >
+			<column name="BOARD_SEARCH_FL" length="1" default="0" >
+				<comment>통합검색 검색여부</comment>
+			</column>
+		</property>
+		<property name="boardRssFl" type="yes_no" >
+			<column name="BOARD_RSS_FL" length="1" default="0" >
+				<comment>게시판RSS 사용여부</comment>
+			</column>
+		</property>
+		<property name="protectReplyCnt" type="int" >
+			<column name="PROTECT_REPLY_CNT" length="2" default="0" >
+				<comment>원본글 보호갯수</comment>
+			</column>
+		</property>
+		<property name="boardAdminFilterFl" type="yes_no" >
+			<column name="BOARD_ADMIN_FILTER_FL" length="1" default="0" >
+				<comment>관리자 인증 게제여부</comment>
+			</column>
+		</property>
+		<property name="boardCleanerFl" type="yes_no" >
+			<column name="BOARD_CLEANER_FL" length="1" default="0" >
+				<comment>정보보호 프로그램 연동여부</comment>
+			</column>
+		</property>
+		<property name="juminFilterFl" type="yes_no" >
+			<column name="JUMIN_FILTER_FL" length="1" default="0" >
+				<comment>주민번호 필터 여부</comment>
+			</column>
+		</property>
+		<property name="foreignFilterFl" type="yes_no" >
+			<column name="FOREIGN_FILTER_FL" length="1" default="0" >
+				<comment>외국인 등록번호 필터 여부</comment>
+			</column>
+		</property>
+		<property name="corpnumFilterFl" type="yes_no" >
+			<column name="CORPNUM_FILTER_FL" length="1" default="0" >
+				<comment>법인등록번호 필터 여부</comment>
+			</column>
+		</property>
+		<property name="biznumFilterFl" type="yes_no" >
+			<column name="BIZNUM_FILTER_FL" length="1" default="0" >
+				<comment>사업자 번호 필터 여부</comment>
+			</column>
+		</property>
+		<property name="phoneFilterFl" type="yes_no" >
+			<column name="PHONE_FILTER_FL" length="1" default="0" >
+				<comment>전화번호 필터 여부</comment>
+			</column>
+		</property>
+		<property name="mobileFilterFl" type="yes_no" >
+			<column name="MOBILE_FILTER_FL" length="1" default="0" >
+				<comment>휴대전화번호 필터 여부</comment>
+			</column>
+		</property>
+		<property name="emailFilterFl" type="yes_no" >
+			<column name="EMAIL_FILTER_FL" length="1" default="0" >
+				<comment>이메일 필터 여부</comment>
+			</column>
+		</property>
+		<property name="homepageFilterFl" type="yes_no" >
+			<column name="HOMEPAGE_FILTER_FL" length="1" default="0" >
+				<comment>홈페이지 필터여부</comment>
+			</column>
+		</property>
+		<property name="extensionFilterFl" type="yes_no" >
+			<column name="EXTENSION_FILTER_FL" length="1" default="0" >
+				<comment>확장필드 필터여부</comment>
+			</column>
+		</property>
+		<property name="filterText" type="text" >
+			<column name="FILTER_TEXT" length="1073741824">
+				<comment>온라인 필터 여부</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="BoardExtensionVO"	table="RFC_COMTCBBSEXT">
+	  <cache usage="read-write"/>
+	  <comment>게시판 확장필드 테이블</comment>
+	 	 <composite-id>
+			<key-property name="boardId" type="string" length="64">
+				<column name="BOARD_ID">
+         			<comment>게시판 식별코드</comment>
+          		</column>
+			</key-property>
+			
+			<key-property name="extensionKey" type="string"  length="255" >
+				<column name="EXTENSION_KEY">
+         			<comment>확장필드 키</comment>
+          		</column>
+			</key-property>					
+		</composite-id>
+
+	 	<property name="extensionType" type="string" >
+			<column name="EXTENSION_TYPE" length="10" default="'I'">
+				<comment>확장필드 입력타입</comment>
+			</column>
+		</property>
+		<property name="extensionDefault" type="string" >
+			<column name="EXTENSION_DEFAULT" length="255">
+				<comment>확장필드 기본값</comment>
+			</column>
+		</property>
+		<property name="extensionDesc" type="string" >
+			<column name="EXTENSION_DESC" length="255">
+				<comment>확장필드 설명</comment>
+			</column>
+		</property>
+		<property name="extensionPattern" type="string" >
+			<column name="EXTENSION_PATTERN" length="255">
+				<comment>확장팰드 패턴</comment>
+			</column>
+		</property>
+		<property name="extensionMethod" type="string" >
+			<column name="EXTENSION_METHOD" length="255">
+				<comment>확장필드 메서드</comment>
+			</column>
+		</property>
+		<property name="fieldIsUse" type="yes_no" >
+			<column name="FIELD_IS_USE" length="1" default="1">
+				<comment>확장필드 사용여부</comment>
+			</column>
+		</property>
+		<property name="extensionSortIdx" type="int" >
+			<column name="EXTENSION_SORT_IDX" length="2" default="20">
+				<comment>확장필드 순서</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="BoardExtensionDataVO"	table="RFC_COMTNBBSEXTDATA">
+	  <cache usage="read-write"/>
+	  <comment>게시판 확장필드DATA 테이블</comment>
+	 	 <composite-id>	 	 	
+			<key-property name="boardId" type="string" length="64">
+				<column name="BOARD_ID">
+         			<comment>게시판 식별코드</comment>
+          		</column>
+			</key-property>
+			
+			<key-property name="dataSid"  type="long">
+				<column name="DATA_SID">
+         			<comment>게시글 일련번호</comment>
+          		</column>
+			</key-property>
+			
+			<key-property name="extensionKey"   type="string" length="255">
+				<column name="EXTENSION_KEY">
+         			<comment>확장필드 키</comment>
+          		</column>
+			</key-property>
+		</composite-id>
+	 	<property name="extensionValue" type="text" >
+			<column name="EXTENSION_VALUE" >
+				<comment>확장필드 값</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="BoardCategoryVO"	table="RFC_COMTCBBSCATE">
+	  <cache usage="read-write"/>
+	  <comment>게시판 카테고리 테이블</comment>
+	 	 <composite-id>
+			<key-property name="boardId"   type="string" length="64">
+				<column name="BOARD_ID">
+         			<comment>게시판 코드</comment>
+          		</column>
+			</key-property>
+			<key-property name="categoryCode"  type="string"  length="255" >
+				<column name="CATEGORY_CODE">
+         			<comment>카테고리 코드</comment>
+          		</column>
+			</key-property>					
+			<key-property name="categoryDepth"  type="int"  length="1" >
+				<column name="CATEGORY_DEPTH">
+         			<comment>카테고리 차수</comment>
+          		</column>
+			</key-property>
+		</composite-id>
+		<property name="categoryName" type="string" >
+			<column name="CATEGORY_NAME" length="255">
+				<comment>카테고리 제목</comment>
+			</column>
+		</property>
+	 	<property name="categorySortIdx" type="int" >
+			<column name="CATEGORY_SORT_IDX" length="2" default="20">
+				<comment>카테고리 순서</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="BoardSkinVO"	table="RFC_COMTNBBSSKIN">
+	  <cache usage="read-write"/>
+	  <comment>게시판 스킨관리 테이블</comment>
+	 	<id name="bbsSkinId" type="long" >
+				<column name="BBS_SKIN_ID">
+            		<comment>스킨 일련번호</comment>
+            	</column>
+		</id>
+	 	
+	 	<property name="skinId" type="string" not-null="true" >
+			<column name="SKIN_ID" length="64">
+				<comment>스킨 식별ID</comment>
+			</column>
+		</property>
+	 	<property name="sgroupId" type="string"  not-null="true" >
+			<column name="SGROUP_ID" length="30">
+				<comment>사이트그룹 ID</comment>
+			</column>
+		</property>
+		<property name="domainId" type="string"  not-null="true" >
+			<column name="DOMAIN_ID" length="30">
+				<comment>도메인그룹 ID</comment>
+			</column>
+		</property>
+		<property name="boardId" type="string" >
+			<column name="BOARD_ID" length="64">
+				<comment>게시판 식별코드</comment>
+			</column>
+		</property>
+		<property name="skinName" type="string" >
+			<column name="SKIN_NAME" length="255">
+				<comment>스킨(국문) 타이틀</comment>
+			</column>
+		</property>		
+		<property name="engName" type="string" >
+			<column name="ENG_NAME" length="100">
+				<comment>스킨(영문) 타이틀</comment>
+			</column>
+		</property>
+	 	<property name="skinDesc" type="text" >
+			<column name="SKIN_DESC" length="1073741824">
+				<comment>스킨 설명</comment>
+			</column>
+		</property>
+		<property name="skinType" type="string" >
+			<column name="SKIN_TYPE" length="16" default="'board'">
+				<comment>스킨종류</comment>
+			</column>
+		</property>
+		<property name="skinList" type="text" >
+			<column name="SKIN_LIST" length="1073741824">
+				<comment>목록 스킨</comment>
+			</column>
+		</property>
+		<property name="skinWrite" type="text" >
+			<column name="SKIN_WRITE" length="1073741824">
+				<comment>등록 스킨</comment>
+			</column>
+		</property>
+		<property name="skinView" type="text" >
+			<column name="SKIN_VIEW" length="1073741824">
+				<comment>보기 스킨</comment>
+			</column>
+		</property>
+		<property name="skinDemoImg" type="string" >
+			<column name="SKIN_DEMO_IMG" length="255">
+				<comment>스킨 미리보기 이미지</comment>
+			</column>
+		</property>
+		<property name="skinHead" type="text" >
+			<column name="SKIN_HEAD" length="1073741824">
+				<comment>스킨 공통상단</comment>
+			</column>
+		</property>
+		<property name="skinFooter" type="text" >
+			<column name="SKIN_FOOTER" length="1073741824">
+				<comment>스킨 공통하단</comment>
+			</column>
+		</property>
+		<property name="modify_dt" type="timestamp" >
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+	<class name="BoardSkinEtcVO"	table="RFC_COMTNBBSSKINETC">
+	  <cache usage="read-write"/>
+	  <comment>게시판 스킨환경정보 테이블</comment>
+	 	<id name="skinId" type="string"   length="64" >
+				<column name="SKIN_ID">
+            		<comment>스킨 식별ID</comment>
+            	</column>
+		</id>	
+	 	<property name="btnList" type="string" >
+			<column name="BTN_LIST" length="255">
+				<comment>목록버튼 경로</comment>
+			</column>
+		</property>		
+		<property name="btnWrite" type="string" >
+			<column name="BTN_WRITE" length="255">
+				<comment>등록버튼 경로</comment>
+			</column>
+		</property>
+		<property name="btnReply" type="string" >
+			<column name="BTN_REPLY" length="255">
+				<comment>답변버튼 경로</comment>
+			</column>
+		</property>
+		<property name="btnModify" type="string" >
+			<column name="BTN_MODIFY" length="255">
+				<comment>수정버튼 경로</comment>
+			</column>
+		</property>
+		<property name="btnDelete" type="string" >
+			<column name="BTN_DELETE" length="255">
+				<comment>삭제버튼 경로</comment>
+			</column>
+		</property>
+		<property name="btnConfirm" type="string" >
+			<column name="BTN_CONFIRM" length="255">
+				<comment>확인버튼 경로</comment>
+			</column>
+		</property>
+		<property name="btnCancel" type="string" >
+			<column name="BTN_CANCEL" length="255">
+				<comment>취소버튼 경로</comment>
+			</column>
+		</property>
+		<property name="iconPrevBlock" type="string" >
+			<column name="ICON_PREV_BLOCK" length="255">
+				<comment>시작 페이지 아이콘 경로</comment>
+			</column>
+		</property>
+		<property name="iconNextBlock" type="string" >
+			<column name="ICON_NEXT_BLOCK" length="255">
+				<comment>마지막 페이지 아이콘 경로</comment>
+			</column>
+		</property>
+		<property name="iconPrev" type="string" >
+			<column name="ICON_PREV" length="255">
+				<comment>이전블력 경로</comment>
+			</column>
+		</property>
+		<property name="iconNext" type="string" >
+			<column name="ICON_NEXT" length="255">
+				<comment>다음블럭 경로</comment>
+			</column>
+		</property>
+		<property name="iconFile" type="string" >
+			<column name="ICON_FILE" length="255">
+				<comment>첨부파일 아이콘 경로</comment>
+			</column>
+		</property>
+		<property name="iconNew" type="string" >
+			<column name="ICON_NEW" length="255">
+				<comment>새글 아이콘 경로</comment>
+			</column>
+		</property>
+		<property name="iconReply" type="string" >
+			<column name="ICON_REPLY" length="255">
+				<comment>답변 아이콘 경로</comment>
+			</column>
+		</property>
+		
+		<property name="convertIcon" type="string" >
+			<column name="CONVERT_ICON" length="255">
+				<comment>문서변환 아이콘 경로</comment>
+			</column>
+		</property>
+		<property name="htmlViewer" type="string" >
+			<column name="HTML_VIEWER" length="255">
+				<comment>전용뷰어 아이콘 경로</comment>
+			</column>
+		</property>
+		<property name="mobileViewer" type="string" >
+			<column name="MOBILE_VIEWER" length="255">
+				<comment>모바일뷰어 아이콘 경로</comment>
+			</column>
+		</property>
+		
+		<property name="emptyMessage" type="string" >
+			<column name="EMPTY_MESSAGE" length="255">
+				<comment>게시글 출력내용</comment>
+			</column>
+		</property>
+		<property name="pageCss" type="string" >
+			<column name="PAGE_CSS" length="255">
+				<comment>페이징 CSS</comment>
+			</column>
+		</property>
+		<property name="pageTag" type="string" >
+			<column name="PAGE_TAG" length="255">
+				<comment>페이징 태그</comment>
+			</column>
+		</property>
+		<property name="pageNowCss" type="string" >
+			<column name="PAGE_NOW_CSS" length="255">
+				<comment>페이지 태그 CSS</comment>
+			</column>
+		</property>
+		<property name="passwordUrl" type="string" >
+			<column name="PASSWORD_URL" length="255">
+				<comment>패스워드 입력 URL</comment>
+			</column>
+		</property>		
+		<property name="passwordTarget" type="string" >
+			<column name="PASSWORD_TARGET" length="16">
+				<comment>패스워드 출력위치</comment>
+			</column>
+		</property>		
+		<property name="passwordWidth" type="int" >
+			<column name="PASSWORD_WIDTH" default="0">
+				<comment>패스워드 팝업넓이</comment>
+			</column>
+		</property>
+		<property name="passwordHeight" type="int" >
+			<column name="PASSWORD_HEIGHT"  default="0">
+				<comment>패스워드 팝업높이</comment>
+			</column>
+		</property>
+	</class>
+	<class name="BoardDataVO"	table="RFC_COMTNBBSDATA">
+	  <cache usage="read-write"/>	
+		<comment>게시판 게시글 테이블</comment>
+		<id name="dataSid" type="long">
+            <column name="DATA_SID">
+            	<comment>게시글 일련번호</comment>
+            </column>
+        </id>
+		
+		<property name="boardId" type="string"  not-null="true" >
+			<column name="BOARD_ID" length="64">
+				<comment>게시판 식별코드</comment>
+			</column>
+		</property>
+		<property name="boardSid" type="long"  not-null="true" >
+			<column name="BOARD_SID" length="20" default="0">
+				<comment>게시판 일련번호</comment>
+			</column>
+		</property>
+		<property name="dataIdx" type="int" >
+			<column name="DATA_IDX">
+				<comment>게시글 순서</comment>
+			</column>
+		</property>
+		<property name="dataRef" type="int" >
+			<column name="DATA_REF"  default="0">
+				<comment>답변 여부</comment>
+			</column>
+		</property>
+		<property name="dataDep" type="int" >
+			<column name="DATA_DEP" default="1">
+				<comment>답변차수</comment>
+			</column>
+		</property>
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+				<comment>아이디</comment>
+			</column>
+		</property>
+		<property name="userPw" type="string" >
+			<column name="USER_PW" length="255">
+				<comment>패스워드(암호화)</comment>
+			</column>
+		</property>
+		<property name="userNick" type="string" >
+			<column name="USER_NICK" length="64">
+				<comment>별명</comment>
+			</column>
+		</property>
+		<property name="userIcon" type="string" >
+			<column name="USER_ICON" length="128">
+				<comment>아이콘</comment>
+			</column>
+		</property>
+		<property name="userLevel" type="int" >
+			<column name="USER_LEVEL" >
+				<comment>작성자 레벨</comment>
+			</column>
+		</property>
+		<property name="userIp" type="string" >
+			<column name="USER_IP" length="64">
+				<comment>아이피</comment>
+			</column>
+		</property>
+		<property name="userEmail" type="string" >
+			<column name="USER_EMAIL" length="128">
+				<comment>이메일</comment>
+			</column>
+		</property>
+		<property name="userHomepage" type="string" >
+			<column name="USER_HOMEPAGE" length="128">
+				<comment>홈페이지</comment>
+			</column>
+		</property>
+		<property name="userTel" type="string" >
+			<column name="USER_TEL" length="64">
+				<comment>전화번호</comment>
+			</column>
+		</property>
+		<property name="userCel" type="string" >
+			<column name="USER_CEL" length="64">
+				<comment>휴대전화번호</comment>
+			</column>
+		</property>
+		<property name="userZipcode" type="string" >
+			<column name="USER_ZIPCODE" length="64">
+				<comment>번지</comment>
+			</column>
+		</property>
+		<property name="userAddress" type="string" >
+			<column name="USER_ADDRESS" length="512">
+				<comment>주소</comment>
+			</column>
+		</property>
+		<property name="userDetailAddr" type="string" >
+			<column name="USER_DETAILADDR" length="512">
+				<comment>상세주소</comment>
+			</column>
+		</property>
+		<property name="userJumin1" type="string" >
+			<column name="USER_JUMIN1" length="64">
+				<comment>(임시필드)</comment>
+			</column>
+		</property>
+		<property name="userJumin2" type="string" >
+			<column name="USER_JUMIN2" length="64">
+				<comment>(임시필드)</comment>
+			</column>
+		</property>
+		<property name="dataTitle" type="string" >
+			<column name="DATA_TITLE" length="255">
+				<comment>게시글 제목</comment>
+			</column>
+		</property>
+		<property name="dataContent" type="text" >
+			<column name="DATA_CONTENT" length="1073741824">
+				<comment>게시글 내용</comment>
+			</column>
+		</property>
+		<property name="backupDataTitle" type="string" >
+			<column name="BACKUP_DATA_TITLE" length="255">
+				<comment>게시글 제목(백업)</comment>
+			</column>
+		</property>
+		<property name="backupDataContent" type="text" >
+			<column name="BACKUP_DATA_CONTENT" length="1073741824">
+				<comment>게시글 내용(백업)</comment>
+			</column>
+		</property>
+		<property name="backupUserNick" type="string" >
+			<column name="BACKUP_USER_NICK" length="64">
+				<comment>작성자 별명(백업)</comment>
+			</column>
+		</property>
+		<property name="dataNotice" type="yes_no" >
+			<column name="DATA_NOTICE" default="0">
+				<comment>공지글 여부</comment>
+			</column>
+		</property>
+		<property name="dataSecret" type="yes_no" >
+			<column name="DATA_SECRET"  default="0">
+				<comment>비밀글여부</comment>
+			</column>
+		</property>
+		<property name="answerStatus" type="string" >
+			<column name="ANSWER_STATUS"  length="1" default="'N'">
+				<comment>게시글 답변여부</comment>
+			</column>
+		</property>
+		<property name="dataStatus" type="string" >
+			<column name="DATA_STATUS" length="1" default="'N'">
+				<comment>게시글 상태(차단)</comment>
+			</column>
+		</property>
+		<property name="deleteStatus" type="string" >
+			<column name="DELETE_STATUS" length="1" default="'N'">
+				<comment>게시글 삭제여부</comment>
+			</column>
+		</property>
+		<property name="tagName" type="string" >
+			<column name="TAG_NAME" length="255">
+				<comment>게시글 태그</comment>
+			</column>
+		</property>
+		<property name="tagId" type="string" >
+			<column name="TAG_ID" length="16">
+				<comment>게시글 태그 ID</comment>
+			</column>
+		</property>
+		<property name="viewCount" type="int" >
+			<column name="VIEW_COUNT" default="0">
+				<comment>조회수</comment>
+			</column>
+		</property>
+		<property name="filterContent" type="text" >
+			<column name="FILTER_CONTENT" length="1073741824">
+				<comment>게시글 차단 내용</comment>
+			</column>
+		</property>
+		<property name="startDate" type="date" >
+			<column name="START_DATE" >
+				<comment>게시글출력 시작일</comment>
+			</column>
+		</property>
+		<property name="endDate" type="date" >
+			<column name="END_DATE" >
+				<comment>게시글출력 종료일</comment>
+			</column>
+		</property>
+		<property name="scheduleIterate" type="string" >
+			<column name="SCHEDULE_ITERATE" length="2" default="'O'">
+				<comment>행사일정 반복출력 여부</comment>
+			</column>
+		</property>		
+		<property name="categoryCode1" type="string" >
+			<column name="CATEGORY_CODE1" length="255">
+				<comment>카테고리1차</comment>
+			</column>
+		</property>
+		<property name="categoryCode2" type="string" >
+			<column name="CATEGORY_CODE2" length="255">
+				<comment>카테고리2차</comment>
+			</column>
+		</property>
+		<property name="categoryCode3" type="string" >
+			<column name="CATEGORY_CODE3" length="255">
+				<comment>카테고리3차</comment>
+			</column>
+		</property>
+		<property name="tmpField1" type="string" >
+			<column name="TMP_FIELD1" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="tmpField2" type="string" >
+			<column name="TMP_FIELD2" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="tmpField3" type="string" >
+			<column name="TMP_FIELD3" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="tmpField4" type="string" >
+			<column name="TMP_FIELD4" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="tmpField5" type="string" >
+			<column name="TMP_FIELD5" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="tmpField6" type="string" >
+			<column name="TMP_FIELD6" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="tmpField7" type="string" >
+			<column name="TMP_FIELD7" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="tmpField8" type="string" >
+			<column name="TMP_FIELD8" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="tmpField9" type="string" >
+			<column name="TMP_FIELD9" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="tmpField10" type="string" >
+			<column name="TMP_FIELD10" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		
+		
+		<property name="tmpField11" type="string" >
+			<column name="TMP_FIELD11" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField12" type="string" >
+			<column name="TMP_FIELD12" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField13" type="string" >
+			<column name="TMP_FIELD13" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField14" type="string" >
+			<column name="TMP_FIELD14" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField15" type="string" >
+			<column name="TMP_FIELD15" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField16" type="string" >
+			<column name="TMP_FIELD16" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField17" type="string" >
+			<column name="TMP_FIELD17" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField18" type="string" >
+			<column name="TMP_FIELD18" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField19" type="string" >
+			<column name="TMP_FIELD19" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField20" type="string" >
+			<column name="TMP_FIELD20" length="512">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="payMent" type="string" >
+			<column name="PAY_MENT" length="512">
+				<comment>지불코드</comment>
+			</column>
+		</property>
+		
+		
+		<property name="pcode" type="string" >
+			<column name="PCODE" length="20">
+				<comment>부서코드</comment>
+			</column>
+		</property>
+		<property name="adminReplyNotice" type="string" >
+			<column name="ADMIN_REPLY_NOTICE" length="1">
+				<comment>민원게시판 알림사용유무</comment>
+			</column>
+		</property>		
+		<property name="starPoint" type="int" >
+			<column name="STAR_POINT" default="0">
+				<comment>별점 포인트</comment>
+			</column>
+		</property>
+		<property name="cclIsWriter" type="yes_no" >
+			<column name="CCL_IS_WRITER" length="1" default="0">
+				<comment>저작권 사용여부</comment>
+			</column>
+		</property>
+		<property name="cclIsPay" type="yes_no" >
+			<column name="CCL_IS_PAY" length="1" default="0">
+				<comment>저작권 상업적 사용여부</comment>
+			</column>
+		</property>
+		<property name="cclIsModify" type="yes_no" >
+			<column name="CCL_IS_MODIFY" length="1" default="0">
+				<comment>저작권 수정여부</comment>
+			</column>
+		</property>
+		<property name="modify_dt" type="timestamp" >
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE">
+				<comment>등록일</comment>
+			</column>
+		</property>
+		<property name="deleteId" type="string" >
+			<column name="DELETE_ID" length="64">
+				<comment>삭제자 아이디</comment>
+			</column>
+		</property>
+		<property name="deleteName" type="string" >
+			<column name="DELETE_NAME" length="64">
+				<comment>삭제자 이름</comment>
+			</column>
+		</property>
+		<property name="delete_date" type="timestamp" >
+			<column name="DELETE_DATE">
+				<comment>삭제일</comment>
+			</column>
+		</property>
+		
+	</class>
+	<!-- 생성용으로만 사용 -->
+	<class name="BoardDataBackupVO"	table="RFC_COMTHBBSDATABAK">
+	  <cache usage="read-write"/>	
+	  <comment>게시판 게시글 백업 테이블</comment>
+	  
+		<id name="dataBackupSid" type="long">
+            <column name="DATA_BACKUP_SID">
+            	<comment>일련번호</comment>
+            </column>
+        </id>
+		
+		<property name="dataSid" type="long"  not-null="true" >
+			<column name="DATA_SID" length="20" default="0">
+				<comment>게시글 일련번호</comment>
+			</column>
+		</property>
+		<property name="actionType" type="string" >
+			<column name="ACTION_TYPE" length="32">
+				<comment>삭제유형</comment>
+			</column>
+		</property>
+		<property name="boardId" type="string"  not-null="true" >
+			<column name="BOARD_ID" length="64">
+				<comment>게시판 식별코드</comment>
+			</column>
+		</property>
+		<property name="boardSid" type="long" >
+			<column name="BOARD_SID" length="20" default="0">
+				<comment>게시판 일련번호</comment>
+			</column>
+		</property>
+		<property name="dataIdx" type="int" >
+			<column name="DATA_IDX">
+				<comment>게시글 순서</comment>
+			</column>
+		</property>
+		<property name="dataRef" type="int" >
+			<column name="DATA_REF"  default="0">
+				<comment>답변여부</comment>
+			</column>
+		</property>
+		<property name="dataDep" type="int" >
+			<column name="DATA_DEP" default="1">
+				<comment>답변순서</comment>
+			</column>
+		</property>
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+				<comment>아이디</comment>
+			</column>
+		</property>
+		<property name="userPw" type="string" >
+			<column name="USER_PW" length="255">
+				<comment>패스워드(암호화)</comment>
+			</column>
+		</property>
+		<property name="userNick" type="string" >
+			<column name="USER_NICK" length="64">
+				<comment>별명</comment>
+			</column>
+		</property>
+		<property name="userIcon" type="string" >
+			<column name="USER_ICON" length="128">
+				<comment>작성자 아이콘</comment>
+			</column>
+		</property>
+		<property name="userLevel" type="int" >
+			<column name="USER_LEVEL" >
+				<comment>레벨</comment>
+			</column>
+		</property>
+		<property name="userIp" type="string" >
+			<column name="USER_IP" length="64">
+				<comment>아이피</comment>
+			</column>
+		</property>
+		<property name="userEmail" type="string" >
+			<column name="USER_EMAIL" length="128">
+				<comment>이메일</comment>
+			</column>
+		</property>
+		<property name="userHomepage" type="string" >
+			<column name="USER_HOMEPAGE" length="128">
+				<comment>홈페이지 URL</comment>
+			</column>
+		</property>
+		<property name="userTel" type="string" >
+			<column name="USER_TEL" length="255">
+				<comment>전화번호</comment>
+			</column>
+		</property>
+		<property name="userCel" type="string" >
+			<column name="USER_CEL" length="255">
+				<comment>휴대폰 번호</comment>
+			</column>
+		</property>
+		<property name="userZipcode" type="string" >
+			<column name="USER_ZIPCODE" length="32">
+				<comment>번지</comment>
+			</column>
+		</property>
+		<property name="userAddress" type="string" >
+			<column name="USER_ADDRESS" length="255">
+				<comment>주소</comment>
+			</column>
+		</property>
+		<property name="userDetailAddr" type="string" >
+			<column name="USER_DETAILADDR" length="255">
+				<comment>상세주소</comment>
+			</column>
+		</property>
+		<property name="userJumin1" type="string" >
+			<column name="USER_JUMIN1" length="32">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="userJumin2" type="string" >
+			<column name="USER_JUMIN2" length="32">
+				<comment>임시필드</comment>
+			</column>
+		</property>
+		<property name="dataTitle" type="string" >
+			<column name="DATA_TITLE" length="255">
+				<comment>게시글 제목</comment>
+			</column>
+		</property>
+		<property name="dataContent" type="text" >
+			<column name="DATA_CONTENT" length="1073741824">
+				<comment>게시글 내용</comment>
+			</column>
+		</property>
+		<property name="backupDataTitle" type="string" >
+			<column name="BACKUP_DATA_TITLE" length="255">
+				<comment>게시글 제목(백업)</comment>
+			</column>
+		</property>
+		<property name="backupDataContent" type="text" >
+			<column name="BACKUP_DATA_CONTENT" length="1073741824">
+				<comment>게시글 내용(백업)</comment>
+			</column>
+		</property>
+		<property name="backupUserNick" type="string" >
+			<column name="BACKUP_USER_NICK" length="64">
+				<comment>별명(백업)</comment>
+			</column>
+		</property>
+		<property name="dataNotice" type="yes_no" >
+			<column name="DATA_NOTICE" default="0">
+				<comment>공지여부</comment>
+			</column>
+		</property>
+		<property name="dataSecret" type="yes_no" >
+			<column name="DATA_SECRET"  default="0">
+				<comment>비밀글여부</comment>
+			</column>
+		</property>
+		<property name="answerStatus" type="yes_no" >
+			<column name="ANSWER_STATUS"  default="0">
+				<comment>답변여부</comment>
+			</column>
+		</property>
+		<property name="dataStatus" type="string" >
+			<column name="DATA_STATUS" length="1" default="'N'">
+				<comment>게시물 상태(차단)</comment>
+			</column>
+		</property>
+		<property name="deleteStatus" type="string" >
+			<column name="DELETE_STATUS" length="1" default="'N'">
+				<comment>삭제여부</comment>
+			</column>
+		</property>
+		<property name="tagName" type="string" >
+			<column name="TAG_NAME" length="255">
+				<comment>태그이름</comment>
+			</column>
+		</property>
+		<property name="tagId" type="string" >
+			<column name="TAG_ID" length="16">
+				<comment>태그아이디</comment>
+			</column>
+		</property>
+		<property name="viewCount" type="int" >
+			<column name="VIEW_COUNT" default="0">
+				<comment>조회수</comment>
+			</column>
+		</property>
+		<property name="filterContent" type="text" >
+			<column name="FILTER_CONTENT" length="1073741824">
+				<comment>게시글 차단 내용</comment>
+			</column>
+		</property>
+		<property name="startDate" type="date" >
+			<column name="START_DATE" >
+				<comment>게시글 시작일</comment>
+			</column>
+		</property>
+		<property name="endDate" type="date" >
+			<column name="END_DATE" >
+				<comment>게시글 종료일</comment>
+			</column>
+		</property>
+		<property name="categoryCode1" type="string" >
+			<column name="CATEGORY_CODE1" length="255">
+				<comment>카테고리1</comment>
+			</column>
+		</property>
+		<property name="categoryCode2" type="string" >
+			<column name="CATEGORY_CODE2" length="255">
+				<comment>카테고리2</comment>
+			</column>
+		</property>
+		<property name="categoryCode3" type="string" >
+			<column name="CATEGORY_CODE3" length="255">
+				<comment>카테고리3</comment>
+			</column>
+		</property>
+		<property name="tmpField1" type="string" >
+			<column name="TMP_FIELD1" length="512">
+				<comment>확장필드</comment>
+			</column>
+		</property>
+		<property name="tmpField2" type="string" >
+			<column name="TMP_FIELD2" length="512">
+				<comment>확장필드</comment>
+			</column>
+		</property>
+		<property name="tmpField3" type="string" >
+			<column name="TMP_FIELD3" length="512">
+				<comment>확장필드</comment>
+			</column>
+		</property>
+		<property name="tmpField4" type="string" >
+			<column name="TMP_FIELD4" length="512">
+				<comment>확장필드</comment>
+			</column>
+		</property>
+		<property name="tmpField5" type="string" >
+			<column name="TMP_FIELD5" length="512">
+				<comment>확장필드</comment>
+			</column>
+		</property>
+		<property name="tmpField6" type="string" >
+			<column name="TMP_FIELD6" length="512">
+				<comment>확장필드</comment>
+			</column>
+		</property>
+		<property name="tmpField7" type="string" >
+			<column name="TMP_FIELD7" length="512">
+				<comment>확장필드</comment>
+			</column>
+		</property>
+		<property name="tmpField8" type="string" >
+			<column name="TMP_FIELD8" length="512">
+				<comment>확장필드</comment>
+			</column>
+		</property>
+		<property name="tmpField9" type="string" >
+			<column name="TMP_FIELD9" length="512">
+				<comment>확장필드</comment>
+			</column>
+		</property>
+		<property name="tmpField10" type="string" >
+			<column name="TMP_FIELD10" length="512">
+				<comment>확장필드</comment>
+			</column>
+		</property>
+		<property name="pcode" type="string" >
+			<column name="PCODE" length="20">
+				<comment>부서코드</comment>
+			</column>
+		</property>
+		<property name="starPoint" type="int" >
+			<column name="STAR_POINT" default="0">
+				<comment>별점포인트</comment>
+			</column>
+		</property>
+		<property name="cclIsWriter" type="yes_no" >
+			<column name="CCL_IS_WRITER" length="1" default="0" >
+			<comment>저작권 사용여부</comment>
+			</column>
+		</property>
+		<property name="cclIsPay" type="yes_no" >
+			<column name="CCL_IS_PAY" length="1" default="0" >
+				<comment>저작권 상업적 사용여부</comment>
+			</column>
+		</property>
+		<property name="cclIsModify" type="yes_no" >
+			<column name="CCL_IS_MODIFY" length="1" default="0" >
+				<comment>저작권 수정여부</comment>
+			</column>
+		</property>
+		<property name="modify_dt" type="timestamp" >
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE">
+				<comment>등록일</comment>
+			</column>
+		</property>
+		<property name="delete_dt" type="timestamp" >
+			<column name="DELETE_DATE">
+				<comment>삭제일</comment>
+			</column>
+		</property>
+		<property name="restore_dt" type="timestamp" >
+			<column name="RESTORE_DATE" >
+				<comment>복구일</comment>
+			</column>
+		</property>
+	</class>
+	<class name="BoardFileVO"	table="RFC_COMTNBBSFILE">
+	  <cache usage="read-write"/>	
+	  
+	  <comment>게시판 파일 테이블</comment>
+	  
+		<id name="fileSid" type="long">
+            <column name="FILE_SID">
+            	<comment>파일 일련번호</comment>
+            </column>
+        </id>
+		
+		<property name="dataSid" type="long"  not-null="true" >
+			<column name="DATA_SID" length="20" default="0">
+				<comment>게시글 일련번호</comment>
+			</column>
+		</property>
+		<property name="boardId" type="string"  not-null="true" >
+			<column name="BOARD_ID" length="64"> 
+				<comment>게시판 식별코드</comment>
+			</column>
+		</property>
+		<property name="boardSid" type="long" >
+			<column name="BOARD_SID" length="20" default="0">
+				<comment>게시판 일련번호</comment>
+			</column>
+		</property>
+		<property name="fileName" type="string" >
+			<column name="FILE_NAME" length="255">
+				<comment>파일명</comment>
+			</column>
+		</property>
+		<property name="fileMask" type="string" >
+			<column name="FILE_MASK" length="255">
+				<comment>파일명(변환)</comment>
+			</column>
+		</property>
+		<property name="fileMemo" type="string" >
+			<column name="FILE_MEMO" length="255">
+				<comment>등록파일 메모</comment>
+			</column>
+		</property>
+		<property name="fileSize" type="string" >
+			<column name="FILE_SIZE" length="64">
+				<comment>파일사이즈</comment>
+			</column>
+		</property>
+		<property name="fileStatus" type="string" >
+			<column name="FILE_STATUS" length="1" default="'N'">
+				<comment>파일상태(차단)</comment>
+			</column>
+		</property>
+		<property name="fileDelStatus" type="string" >
+			<column name="FILE_DEL_STATUS" length="1" default="'N'">
+				<comment>파일삭제여부</comment>
+			</column>
+		</property>
+		<property name="fileId" type="string" >
+			<column name="FILE_ID" length="64" default="''">
+				<comment>파일 식별코드</comment>
+			</column>
+		</property>
+		<property name="downloadCnt" type="int" >
+			<column name="DOWNLOAD_CNT" length="11" default="0">
+				<comment>다운로드 조회수</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DT">
+				<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="CommentVO" table="RFC_COMTNBBSCOMMENT">
+	  <cache usage="read-write"/>	
+		<comment>코멘트 테이블</comment>
+	  
+		<id name="commentSid" type="long">
+            <column name="COMMENT_SID">
+            	<comment>코멘트 일련번호</comment>
+            </column>
+        </id>
+		
+		<property name="dataSid" type="long"  not-null="true" >
+			<column name="DATA_SID" length="20" default="0">
+				<comment>게시글 일련번호</comment>
+			</column>
+		</property>
+		<property name="boardId" type="string"  not-null="true" >
+			<column name="BOARD_ID" length="64">
+				<comment>게시판 식별코드</comment>
+			</column>
+		</property>
+		<property name="boardSid" type="long" >
+			<column name="BOARD_SID" length="20" default="0">
+				<comment>게시판 일련번호</comment>
+			</column>
+		</property>
+		
+		<property name="dataIdx" type="int" >
+			<column name="DATA_IDX" default="0">
+				<comment>게시글 순서</comment>
+			</column>
+		</property>
+		<property name="dataRef" type="int" >
+			<column name="DATA_REF" default="0">
+				<comment>답변여부</comment>
+			</column>
+		</property>
+		<property name="dataDep" type="int" >
+			<column name="DATA_DEP" default="1">
+				<comment>답변순서</comment>
+			</column>
+		</property>
+		
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+				<comment>아이디</comment>
+			</column>
+		</property>
+		<property name="userNick" type="string" >
+			<column name="USER_NICK" length="64">
+				<comment>별명(이름)</comment>
+			</column>
+		</property>
+		<property name="userPw" type="string" >
+			<column name="USER_PW" length="255">
+				<comment>패스워드(암호화)</comment>
+			</column>
+		</property>
+		<property name="starPoint" type="int" >
+			<column name="STAR_POINT" default="0">
+				<comment>별점포인트</comment>
+			</column>
+		</property>
+		<property name="commentTitle" type="string" >
+			<column name="COMMENT_TITLE" length="255">
+				<comment>코멘트 제목</comment>
+			</column>
+		</property>
+		<property name="commentStatus" type="string" >
+			<column name="COMMENT_STATUS" length="1" default="'N'">
+				<comment>코멘트 상태(차단)</comment>
+			</column>
+		</property>
+		<property name="userIp" type="string" >
+			<column name="USER_IP" length="16">
+				<comment>아이피</comment>
+			</column>
+		</property>
+		
+		<property name="fileName" type="string" >
+			<column name="FILE_NAME" length="255">
+				<comment>파일명</comment>
+			</column>
+		</property>
+		<property name="fileMask" type="string" >
+			<column name="FILE_MASK" length="255">
+				<comment>파일명(변환)</comment>
+			</column>
+		</property>
+		<property name="fileSize" type="string" >
+			<column name="FILE_SIZE" length="64">
+				<comment>파일 사이즈</comment>
+			</column>
+		</property>
+		
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DT">
+				<comment>등록</comment>
+			</column>
+		</property>
+	</class>
+	<class name="BoardSkinHistoryVO"	table="RFC_COMTHBBSSKINBAK">
+	  <cache usage="read-write"/>	  
+	  <comment>게시판 스킨이력 테이블</comment>
+		<id name="backupSid" type="long">
+            <column name="BACKUP_SID">
+            	<comment>코멘트 일련번호</comment>
+            </column>
+        </id>
+        
+		<property name="backupType" type="string" >
+			<column name="BACKUP_TYPE" length="16"  >
+				<comment>백업항목</comment>
+			</column>
+		</property>
+		<property name="backupId" type="string"  not-null="true" >
+			<column name="BACKUP_ID" length="64" >
+				<comment>백업 식별아이디</comment>
+			</column>
+		</property>
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64"  >
+				<comment>아이디</comment>
+			</column>
+		</property>
+		<property name="backupArea" type="string" >
+			<column name="BACKUP_AREA" length="16"  >
+				<comment>스킨위치</comment>
+			</column>
+		</property>
+		<property name="backupContent" type="text" >
+			<column name="BACKUP_CONTENT" length="1073741824" >
+				<comment>스킨내용</comment>
+			</column>
+		</property>
+		<property name="modify_dt" type="timestamp" >
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="restore_dt" type="timestamp" >
+			<column name="RESTORE_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+		<property name="restoreFl" type="yes_no" >
+			<column name="RESTORE_FL" default="0"  >
+				<comment>복구여부</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="BoardActionVO"	table="RFC_COMTNBBSACT">
+	  <cache usage="read-write"/>
+	 
+	  <comment>게시판 엑션스킨 테이블</comment>
+		<id name="actionId" type="string" length="64">
+            <column name="ACTION_ID">
+            	<comment>게션 고유번호</comment>
+            </column>
+        </id>
+        
+	 	
+	 	<property name="sgroupId" type="string" not-null="true" >
+			<column name="SGROUP_ID" length="30">
+				<comment>사이트 식별코드</comment>
+			</column>
+		</property>
+		<property name="domainId" type="string" not-null="true" >
+			<column name="DOMAIN_ID" length="30">
+				<comment>도메인 식별코드</comment>
+			</column>
+		</property>
+		<property name="actionName" type="string" >
+			<column name="ACTION_NAME" length="255">
+				<comment>엑션스킨 제목</comment>
+			</column>
+		</property>		
+	 	<property name="actionDesc" type="text" >
+			<column name="ACTION_DESC" length="1073741824">
+				<comment>엑션스킨 설명</comment>
+			</column>
+		</property>
+		<property name="actionSkin" type="text" >
+			<column name="ACTION_SKIN" length="1073741824">
+				<comment>엑션 내용</comment>
+			</column>
+		</property>
+		<property name="actionDeleteStatus" type="string">
+			<column name="ACTION_DELETE_STATUS" length="1" default="'N'"  >
+				<comment>삭제여부</comment>
+			</column>
+		</property>
+		<property name="modify_dt" type="timestamp" >
+			<column name="MODIFY_DATE" >
+				<comment>수정일</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+	<class name="BoardHistoryVO"	table="RFC_COMTHBBSLOG">
+	  <cache usage="read-write"/>
+	   <comment>게시판 로그 테이블</comment>
+		<id name="logId" type="long" >
+            <column name="LOG_ID">
+            	<comment>로그 고유번호</comment>
+            </column>
+        </id>
+        
+	 	<property name="boardId" type="string"  not-null="true" >
+			<column name="BOARD_ID" length="64">
+				<comment>게시판 식별코드</comment>
+			</column>
+		</property>
+		<property name="boardSid" type="long" >
+			<column name="BOARD_SID" >
+				<comment>게시판 일련번호</comment>
+			</column>
+		</property>
+		<property name="dataSid" type="long" not-null="true" >
+			<column name="DATA_SID" >
+				<comment>게시글 일련번호</comment>
+			</column>
+		</property>
+		<property name="actionType" type="string" >
+			<column name="ACTION_TYPE" length="32">
+				<comment>내용</comment>
+			</column>
+		</property>		
+		<property name="dataTitle" type="string" >
+			<column name="DATA_TITLE" length="255">
+				<comment>게시글 제목</comment>
+			</column>
+		</property>	
+		<property name="wrtieId" type="string" >
+			<column name="WRITE_ID" length="64">
+				<comment>게시자 아이디</comment>
+			</column>
+		</property>
+		<property name="wrtieName" type="string" >
+			<column name="WRITE_NAME" length="64">
+				<comment>게시자 이름</comment>
+			</column>
+		</property>	
+	 	<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+				<comment>수정자 아이디</comment>
+			</column>
+		</property>
+		<property name="userName" type="string" >
+			<column name="USER_NAME" length="64">
+				<comment>수정자 이름</comment>
+			</column>
+		</property>
+		<property name="userIp" type="string">
+			<column name="USER_IP" length="32">
+				<comment>아이피</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+	<class name="BoardReplyVO"	table="RFC_COMTNBBSREPLY">
+	  <cache usage="read-write"/>
+	   <comment>민원답변부서관리 테이블</comment>
+		<id name="replySid" type="long">
+            <column name="REPLY_SID">
+            	<comment>답변부서 고유번호</comment>
+            </column>
+        </id>
+        
+	 	
+	 	<property name="boardId" type="string"  not-null="true" >
+			<column name="BOARD_ID" length="64">
+				<comment>게시판 식별코드</comment>
+			</column>
+		</property>
+		<property name="boardSid" type="long" >
+			<column name="BOARD_SID" >
+				<comment>게시판 일련번호</comment>
+			</column>
+		</property>
+		<property name="dataSid" type="long"  not-null="true" >
+			<column name="DATA_SID" >
+				<comment>게시글 일련번호</comment>
+			</column>
+		</property>
+		<property name="pcode" type="string" >
+			<column name="PCODE" length="16">
+				<comment>부서코드</comment>
+			</column>
+		</property>
+		<property name="officeIsReg" type="string" >
+			<column name="OFFICE_IS_REG" length="1">
+				<comment>답변부서 지정여부</comment>
+			</column>
+		</property>
+		<property name="officeRegDp" type="int" >
+			<column name="OFFICE_REG_DP" >
+				<comment>답변부서 순서</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+		
+		
+		<property name="procTime" type="string" >
+			<column name="PROC_TIME" length="12"/>
+		</property>
+		<property name="extension" type="string" >
+			<column name="EXTENSION" length="1" default="'0'"/>
+		</property>
+		<property name="reforExtension" type="string" >
+			<column name="REFOR_EXTENSION" length="255"/>
+		</property>
+		
+		
+		
+		
+		
+		
+	</class>
+	
+	<class name="DownloadHistoryVO"	table="RFC_COMTHDOWNLOG">
+	  <cache usage="read-write"/>
+	  <comment>다운로드 이력 테이블</comment>
+		<id name="logId" type="long" >
+            <column name="LOG_ID">
+            	<comment>다운로드 고유번호</comment>
+            </column>
+        </id>
+     	
+	 	<property name="boardId" type="string"  not-null="true" >
+			<column name="BOARD_ID" length="64">
+				<comment>게시판 식별코드</comment>
+			</column>
+		</property>
+		<property name="boardSid" type="long" not-null="true" >
+			<column name="BOARD_SID" >
+				<comment>게시판 고유번호</comment>
+			</column>
+		</property>
+		<property name="dataSid" type="long" not-null="true" >
+			<column name="DATA_SID" >
+				<comment>게시글 고유번호</comment>
+			</column>
+		</property>
+		<property name="fileSid" type="long"  not-null="true" >
+			<column name="FILE_SID" >
+				<comment>파일 고유번호</comment>
+			</column>
+		</property>
+	 	<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+				<comment>아이디</comment>
+			</column>
+		</property>
+		<property name="userName" type="string" >
+			<column name="USER_NAME" length="64">
+				<comment>이름</comment>
+			</column>
+		</property>
+		<property name="userIp" type="string">
+			<column name="USER_IP" length="32">
+				<comment>아이피</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="BoardDataLikeVO"	table="RFC_COMTNBBSLIKE">
+	  <cache usage="read-write"/>
+	  <comment>게시글  의견 테이블</comment>
+		<id name="likeSid" type="long" >
+            <column name="LIKE_SID">
+            	<comment>링크 일련번호</comment>
+            </column>
+        </id>
+	 	<property name="boardId" type="string"  not-null="true" >
+			<column name="BOARD_ID" length="64">
+				<comment>게시판 식별코드</comment>
+			</column>
+		</property>
+		<property name="boardSid" type="long" not-null="true" >
+			<column name="BOARD_SID" >
+				<comment>게시판 일련번호</comment>
+			</column>
+		</property>
+		<property name="dataSid" type="long" not-null="true" >
+			<column name="DATA_SID" >
+				<comment>게시글 일련번호</comment>
+			</column>
+		</property>
+	 	<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+				<comment>사용자 아이디</comment>
+			</column>
+		</property>
+		<property name="userName" type="string" >
+			<column name="USER_NAME" length="64">
+				<comment>사용자 이름</comment>
+			</column>
+		</property>
+		<property name="checkType" type="string">
+			<column name="CHECK_TYPE" length="5">
+				<comment>체크상태</comment>
+			</column>
+		</property>
+		<property name="userIp" type="string">
+			<column name="USER_IP" length="32">
+				<comment>아이피</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+	
+	<class name="CommentLikeVO"	table="RFC_COMTNBBSCOMMENTLIKE">
+	  <cache usage="read-write"/>
+	  
+	  <comment>코멘트 링크 테이블</comment>
+		<id name="commentLikeSid" type="long" >
+            <column name="COMMENTLIKE_SID">
+            	<comment>링크 일련번호</comment>
+            </column>
+        </id>
+        
+ 
+	 	<property name="boardId" type="string"  not-null="true" >
+			<column name="BOARD_ID" length="64">
+				<comment>게시판 식별코드</comment>
+			</column>
+		</property>
+		<property name="boardSid" type="long" not-null="true" >
+			<column name="BOARD_SID" >
+				<comment>게시판 일련번호</comment>
+			</column>
+		</property>
+		<property name="commentSid" type="long" not-null="true" >
+			<column name="COMMENT_SID" >
+				<comment>코멘트 일련번호</comment>
+			</column>
+		</property>
+	 	<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+				<comment>아이디</comment>
+			</column>
+		</property>
+		<property name="userName" type="string" >
+			<column name="USER_NAME" length="64">
+				<comment>이름</comment>
+			</column>
+		</property>
+		<property name="checkType" type="string">
+			<column name="CHECK_TYPE" length="5">
+				<comment>코멘트 상태</comment>
+			</column>
+		</property>
+		<property name="userIp" type="string">
+			<column name="USER_IP" length="32">
+				<comment>아이피</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+				<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+</hibernate-mapping>

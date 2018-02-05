@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCMenuGradeManage">
+	
+	<cacheModel type="MEMORY" id="RFCMenuGradeManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="menuGradeDAO.insertMenuGrade"/>
+      	<flushOnExecute statement="menuGradeDAO.deleteMenuGrade"/>      	
+		<property name="reference-type" value="SOFT"/>
+     </cacheModel>
+     
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="menuGradeVO"	 type = "egovframework.rfc3.menu.vo.MenuGradeVO"/>
+    <typeAlias  alias="menuVO"	 type = "egovframework.rfc3.menu.vo.MenuVO"/>
+    
+    <select id="menuGradeDAO.selectMenuGrade"  parameterClass="menuGradeVO" resultClass="menuGradeVO" cacheModel="RFCMenuGradeManageCache">
+			    	SELECT
+			    		GRADE_SID gradeSid,
+						USER_ID userId,
+						USER_IP userIp,
+						USER_NAME userName,
+						MENU_CD menuCd,
+						MENU_GRADE_COUNT menuGradeCount,
+						MENU_GRADE_MEMO menuGradeMemo,
+						REGISTER_DATE register_dt
+			    	FROM RFC_COMTSMENUGRADE
+			    	WHERE
+			    		MENU_CD = #menuCd#
+			    	ORDER BY
+			    		MENU_GRADE_COUNT DESC
+    </select>
+    
+    <select id="menuGradeDAO.selectMenuGradeTopTen" parameterClass="menuVO" resultClass="menuVO" cacheModel="RFCMenuGradeManageCache">
+			    	SELECT 
+							MENU_SID								menuSid,
+							MENU_CD								menuCd,	
+							MENU_NM								menuNm,	
+							MENU_PARENT_CD				menuParentCd,
+							MENU_SORT_IX						menuSortIx,
+							MENU_IS_USE						menuIsUse,
+							MENU_DP								menuDp,
+							SGROUP_ID							sgroupId,
+							DOMAIN_ID								domainId,
+							OFFICE_NM							officeNm,
+							LAYOUT_SID							layoutSid,
+							PCODE									pcode,
+							MENU_CONTENTS_SID		menuContentsSid,
+							MENU_LEFT_OUTIMG			menuLeftOutimg,
+							MENU_LEFT_OVERIMG		menuLeftOverimg,
+							MENU_LEFT_CURIMG			menuLeftCurimg,
+							MENU_LEFT_TOPIMG			menuLeftTopimg,
+							MENU_INTRO_IMG					menuIntroImg,
+							MENU_TG								menuTg,
+							MENU_BOARD_GB				menuBoardGb,
+							MENU_BOARD_PERIOD		menuBoardPeriod,
+							MENU_BOARD1_CATE			menuBoard1Cate,
+							MENU_BOARD2_CATE			menuBoard2Cate,
+							MENU_BOARD3_CATE			menuBoard3Cate,
+							MENU_ORDER_FIELD			menuOrderField,
+							MENU_ORDER_SORT			menuOrderSort,
+							BOARD_PCODE					boardPcode,
+							MENU_IS_SATIS						menuIsSatis,
+							MENU_IS_BOARD1_CATE	menuIsBoard1Cate,
+							MENU_IS_BOARD2_CATE	menuIsBoard2Cate,	
+							MENU_IS_BOARD3_CATE	menuIsBoard3Cate,		
+							MENU_IS_FIX1_CATE			menuIsFix1Cate,
+							MENU_IS_FIX2_CATE			menuIsFix2Cate,		
+							MENU_IS_FIX3_CATE			menuIsFix3Cate,		
+							MENU_IS_RETURN_PAGE	menuIsReturnPage,	
+							MENU_LOGIN_APPLY			menuLoginApply,	
+							MENU_IS_SKIN_APPLY			menuIsSkinApply	,	
+							CATEGORY_CODE1				categoryCode1,	
+							CATEGORY_CODE2				categoryCode2,		
+							CATEGORY_CODE3				categoryCode3,		
+							MENU_IS_LEFT_PRINT			menuIsLeftPrint,		
+							MENU_TG_OPTION				menuTgOption,		
+							OFFICE_PT_SID					officePtSid,		
+							MENU_HELP							menuHelp,		
+							CATE_CD								cateCd,			
+							CATE1_CD								cate1Cd,			
+							CATE2_CD								cate2Cd,			
+							CATE3_CD								cate3Cd,
+							(SELECT CONTENTS_TYPE FROM RFC_COMTNCONTENTS WHERE CONTENTS_SID = A.MENU_CONTENTS_SID  )	contentsType,
+							(SELECT CONTENTS_LINK_URL FROM RFC_COMTNCONTENTS WHERE CONTENTS_SID = A.MENU_CONTENTS_SID  ) contentsLinkUrl,
+							now()										contentsModiDate,
+							SKIN_ID									skinId
+																																						
+					FROM  RFC_COMTNMENU A
+					<dynamic prepend="WHERE">
+						<isNotEmpty prepend="AND"  property="sgroupId" >
+			          		   SGROUP_ID   = #sgroupId#
+			            </isNotEmpty>
+		           		<isNotEmpty prepend="AND" property="domainId" >
+		          		    			 DOMAIN_ID  = #domainId#
+		            	</isNotEmpty>	
+		            	<isEmpty  property="domainId" >
+	          		    	<isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+					            		    DOMAIN_ID in ( $myDomainList$ )
+					     	</isEqual>
+		            	</isEmpty>	    
+			         </dynamic>
+					ORDER BY
+						(SELECT count(MENU_CD) FROM RFC_COMTSMENUGRADE WHERE MENU_CD = A.MENU_CD ) DESC
+					LIMIT 0, 10;
+    </select>
+    
+    <insert id="menuGradeDAO.insertMenuGrade" parameterClass="menuGradeVO"  >
+			       	INSERT INTO RFC_COMTSMENUGRADE
+			       	(
+			       		GRADE_SID,
+						USER_ID,
+						USER_IP,
+						USER_NAME,
+						MENU_CD,
+						MENU_GRADE_COUNT,
+						MENU_GRADE_MEMO,
+						REGISTER_DATE
+			       	)
+			       	VALUES
+			       	(
+			       		#gradeSid#,
+						#userId#,
+						#userIp#,
+						#userName#,
+						#menuCd#,
+						#menuGradeCount#,
+						#menuGradeMemo#,
+						#register_dt#
+			       	)			       	
+	</insert>
+	<delete id="menuGradeDAO.deleteMenuGrade" parameterClass="menuGradeVO"  >
+			       	DELETE FROM RFC_COMTSMENUGRADE
+			       	WHERE
+			       		GRADE_SID = #gradeSid#									       	
+	</delete>
+</sqlMap>

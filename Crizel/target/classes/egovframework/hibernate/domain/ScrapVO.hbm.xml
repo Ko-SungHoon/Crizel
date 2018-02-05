@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.scrap.vo">
+	<class name="ScrapVO"	table="RFC_COMTNSCRAP">
+		<cache usage="read-write"/>
+		<comment>스크랩 테이블</comment>
+		<id name="scrapSid"  type="long">
+			<column name="SCRAP_SID" >
+				<comment>스크랩 고유ID</comment>
+			</column>
+		</id>
+		<property name="sgroupId" type="string"  not-null="true">
+			<column name="SGROUP_ID" length="30"  >
+			<comment>사이트 그룹ID</comment>
+			</column>
+		</property>
+		<property name="domainId" type="string"  not-null="true">
+			<column name="DOMAIN_ID" length="30"  >
+			<comment>도메인ID</comment>
+			</column>
+		</property>
+		<property name="userId" type="string"  not-null="true">
+			<column name="USER_ID" length="64">
+			<comment>등록자ID</comment>
+			</column>
+		</property>
+		<property name="scrapDirSid" type="long" >
+			<column name="SCRAP_DIR_SID" length="20" default="0">
+			<comment>스크랩 디렉토리 고유ID</comment>
+			</column>
+		</property>
+		<property name="scrapTitle" type="string" >
+			<column name="SCRAP_TITLE" length="255"  >
+			<comment>스크랩 제목</comment>
+			</column>
+		</property>
+		<property name="scrapUrl" type="text" >
+			<column name="SCRAP_URL" length="1073741824"  >
+			<comment>스크랩 원본 주소</comment>
+			</column>
+		</property>		
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+			<comment>등록일</comment>
+			</column>
+		</property>	
+	</class>
+	
+	<class name="ScrapDirectoryVO"	table="RFC_COMTNSCRAPDIR">
+		<cache usage="read-write"/>
+		<comment>스크랩 디렉토리 테이블</comment>
+		<id name="scrapDirSid"  type="long" >
+			<column name="SCRAP_DIR_SID"  >
+				<comment>스크랩 디렉토리 고유ID</comment>
+			</column>
+		</id>
+		<property name="sgroupId" type="string" >
+			<column name="SGROUP_ID" length="30"  >
+			<comment>사이트 그룹ID</comment>
+			</column>
+		</property>
+		<property name="domainId" type="string" >
+			<column name="DOMAIN_ID" length="30"  >
+			<comment>도메인ID</comment>
+			</column>
+		</property>
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+			<comment>등록자ID</comment>
+			</column>
+		</property>
+		<property name="scrapDirName" type="string" >
+			<column name="SCRAP_DIR_NAME" length="255"  >
+			<comment>폴더이름</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE" >
+			<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+</hibernate-mapping>

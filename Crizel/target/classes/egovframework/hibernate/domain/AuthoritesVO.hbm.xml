@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.iam.vo">
+	<class name="AuthoritesVO"	table="RFC_COMTNAUTHORITES">
+	  <cache usage="read-write"/>
+	  <comment>로그인 접속권한 테이블</comment>
+		<composite-id>
+			<key-property name="sgroupId" type="string"  length="30" >
+				<column name="SGROUP_ID">
+					<comment>사이트 그룹 ID</comment>
+				</column>
+			</key-property>    
+			<key-property name="roleId" type="string"  length="30" >
+				<column name="ROLE_ID">
+					<comment>권한 코드</comment>
+				</column>
+			</key-property>    
+			<key-property name="subjectId" type="string"  length="30" >
+				<column name="SUBJECT_ID">
+					<comment>권한 대상 ID</comment>
+				</column>
+			</key-property>    
+		</composite-id>
+		<property name="userType" type="string" >
+			<column name="USER_TYPE" length="1" >
+				<comment>권한 대상 타입</comment>
+			</column>
+		</property>
+		<property name="createDate"  type="timestamp"  insert="true" update="false">
+			<column name="CREATE_DATE" >
+				<comment>권한 등록일자</comment>
+			</column>
+		</property>
+		<property name="modifyDate"  type="timestamp"  insert="false" update="true">
+			<column name="MODIFY_DATE" >
+				<comment>권한 수정일자</comment>
+			</column>
+		</property>		
+	</class>
+</hibernate-mapping>

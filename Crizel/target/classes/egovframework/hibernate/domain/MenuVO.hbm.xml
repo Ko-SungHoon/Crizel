@@ -1,0 +1,655 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.menu.vo">
+	<class name="MenuVO" table="RFC_COMTNMENU">
+		<cache usage="read-write"/>
+		<comment>메뉴관리 테이블</comment>
+		<id name="menuSid" type="long" >
+			<column name="MENU_SID">
+			<comment>메뉴고유 ID</comment>
+			</column>
+		</id>
+		<property name="menuCd" type="string"  not-null="true">
+			<column name="MENU_CD" length="22" unique="true" >
+			<comment>메뉴코드</comment>
+			</column>
+		</property>
+		<property name="menuNm" type="string" >
+			<column name="MENU_NM" length="100" >
+			<comment>메뉴이름</comment>
+			</column>
+		</property>
+		<property name="engName" type="string" >
+			<column name="ENG_NAME" length="100" >
+			<comment>메뉴영문이름</comment>
+			</column>
+		</property>
+		
+		<property name="menuParentCd" type="string" >
+			<column name="MENU_PARENT_CD" length="22" default="0" >
+			<comment>메뉴부모코드</comment>
+			</column>
+		</property>
+		<property name="menuSortIx" type="int" >
+			<column name="MENU_SORT_IX" length="5" default="10" >
+			<comment>메뉴정렬순서</comment>
+			</column>
+		</property>
+
+		<property name="menuIsUse" type="yes_no" >
+			<column name="MENU_IS_USE" length="1" default="0" >
+			<comment>메뉴사용여부</comment>
+			</column>
+		</property>
+		<property name="menuDp"  type="int" >
+			<column name="MENU_DP" length="5" >
+			<comment>메뉴차수</comment>
+			</column>
+		</property>
+
+		<property name="sgroupId" type="string"  not-null="true">
+			<column name="SGROUP_ID" length="30"  >
+			<comment>사이트 그룹 ID</comment>
+			</column>
+		</property>
+		
+		<property name="domainId" type="string"  not-null="true">
+			<column name="DOMAIN_ID" length="30"  >
+			<comment>도메인 그룹 ID</comment>
+			</column>
+		</property>
+		
+		<property name="officeNm" type="string" >
+			<column name="OFFICE_NM" length="30" >
+			<comment>담당부서이름</comment>
+			</column>
+		</property>
+		
+		<property name="layoutSid"  type="long" >
+			<column name="LAYOUT_SID" default="0" >
+			<comment>레이아웃 ID</comment>
+			</column>
+		</property>
+
+		<property name="pcode"  type="string" >
+			<column name="PCODE" length="16" >
+			<comment>조칙 코드</comment>
+			</column>
+		</property>
+		<property name="pcode2"  type="string" >
+			<column name="PCODE2" length="16" >
+			<comment>조칙 코드2</comment>
+			</column>
+		</property>
+		<property name="pcode3"  type="string" >
+			<column name="PCODE3" length="16" >
+			<comment>조칙 코드3</comment>
+			</column>
+		</property>
+		<property name="pcode4"  type="string" >
+			<column name="PCODE4" length="16" >
+			<comment>조칙 코드4</comment>
+			</column>
+		</property>
+
+		<property name="menuContentsSid"  type="long" >
+			<column name="MENU_CONTENTS_SID" >
+			<comment>컨텐츠 번호</comment>
+			</column>
+		</property>
+
+		<property name="menuLeftOutimg"  type="string" >
+			<column name="MENU_LEFT_OUTIMG" length="255" >
+			<comment>메뉴 마우스 OUT 이미지</comment>
+			</column>
+		</property>
+		<property name="menuLeftOverimg"  type="string" >
+			<column name="MENU_LEFT_OVERIMG" length="255" >
+			<comment>메뉴 마우스 OVER 이미지</comment>
+			</column>
+		</property>
+		<property name="menuLeftCurimg"  type="string" >
+			<column name="MENU_LEFT_CURIMG" length="255" >
+			<comment>현재 선택된 메뉴 이미지</comment>
+			</column>
+		</property>
+		<property name="menuLeftTopimg"  type="string" >
+			<column name="MENU_LEFT_TOPIMG" length="255" >
+			<comment>메뉴 상단 대표 이미지</comment>
+			</column>
+		</property>
+		<property name="menuIntroImg"  type="text" >
+			<column name="MENU_INTRO_IMG"  length="1073741824"  >
+			<comment>현제 메뉴그룹 인트로 이미지</comment>
+			</column>
+		</property>
+
+
+		<property name="menuTg"  type="string" >
+			<column name="MENU_TG" length="10" >
+			<comment>메뉴 출력 위치</comment>
+			</column>
+		</property>
+		<property name="menuBoardGb"  type="string" >
+			<column name="MENU_BOARD_GB" length="10" >
+			<comment>출력기준(게시판일경우)</comment>
+			</column>
+		</property>
+		
+		<property name="menuSearchOffice"  type="yes_no" >
+			<column name="MENU_SEARCH_OFFICE" length="1" default="0" >
+			<comment>부서메뉴 검색 허용 여부</comment>
+			</column>
+		</property>
+		
+		<property name="menuBoard1Cate"  type="string" >
+			<column name="MENU_BOARD1_CATE" length="20" >
+			<comment>게시판 1차 카테고리</comment>
+			</column>
+		</property>
+		<property name="menuBoard2Cate"  type="string" >
+			<column name="MENU_BOARD2_CATE" length="20" >
+			<comment>게시판 2차 카테고리</comment>
+			</column>
+		</property>
+		<property name="menuBoard3Cate"  type="string" >
+			<column name="MENU_BOARD3_CATE" length="20" >
+			<comment>게시판 3차 카테고리</comment>
+			</column>
+		</property>
+
+		<property name="menuOrderField"  type="string" >
+			<column name="MENU_ORDER_FIELD" length="255" >
+			<comment>게시판 정렬 필드</comment>
+			</column>
+		</property>
+
+		<property name="menuOrderSort"  type="string" >
+			<column name="MENU_ORDER_SORT" length="255" >
+			<comment>게시판 정렬 방법</comment>
+			</column>
+		</property>
+
+		<property name="boardPcode"  type="string" >
+			<column name="BOARD_PCODE" length="16" >
+			<comment>출력부서코드</comment>
+			</column>
+		</property>
+		<property name="menuIsSatis"  type="yes_no" >
+			<column name="MENU_IS_SATIS" length="1" default="0" >
+			<comment>만족도사용여부</comment>
+			</column>
+		</property>
+		<property name="menuIsBoard1Cate"  type="yes_no" >
+			<column name="MENU_IS_BOARD1_CATE" length="1" default="0" >
+			<comment>게시판 1차 카테고리 출력여부</comment>
+			</column>
+		</property>
+		<property name="menuIsBoard2Cate"  type="yes_no" >
+			<column name="MENU_IS_BOARD2_CATE" length="1" default="0" >
+			<comment>게시판 2차 카테고리 출력여부</comment>
+			</column>
+		</property>
+		<property name="menuIsBoard3Cate"  type="yes_no" >
+			<column name="MENU_IS_BOARD3_CATE" length="1" default="0" >
+			<comment>게시판 3차 카테고리 출력여부</comment>
+			</column>
+		</property>		
+		<property name="menuBoardCel"  type="int" >
+			<column name="MENU_BOARD_CEL" default="0" >
+			<comment>게시판 세로줄 수</comment>
+			</column>
+		</property>		
+		<property name="menuBoardRow"  type="int" >
+			<column name="MENU_BOARD_ROW" default="0" >
+			<comment>게시판 가로줄 수</comment>
+			</column>
+		</property>		
+		<property name="menuBoardPageBlock"  type="int" >
+			<column name="MENU_BOARD_PAGE_BLOCK" default="0" >
+			<comment>게시판 한페이지에 나올 게시물수</comment>
+			</column>
+		</property>		
+		<property name="menuIsFix1Cate"  type="yes_no" >
+			<column name="MENU_IS_FIX1_CATE" length="1" default="0" >
+			<comment>게시판 1차 카테고리 고정여부</comment>
+			</column>
+		</property>
+		<property name="menuIsFix2Cate"  type="yes_no" >
+			<column name="MENU_IS_FIX2_CATE" length="1" default="0" >
+			<comment>게시판 2차 카테고리 고정여부</comment>
+			</column>
+		</property>
+		<property name="menuIsFix3Cate"  type="yes_no" >
+			<column name="MENU_IS_FIX3_CATE" length="1" default="0" >
+			<comment>게시판 3차 카테고리 고정여부</comment>
+			</column>
+		</property>
+
+		<property name="menuIsReturnPage"  type="yes_no" >
+			<column name="MENU_IS_RETURN_PAGE" length="1" default="0" >
+			<comment>자동 리턴페이지</comment>
+			</column>
+		</property>
+		<property name="menuLoginApply"  type="string" >
+			<column name="MENU_LOGIN_APPLY" length="10"  >
+			<comment>로그인 연동 여부</comment>
+			</column>
+		</property>
+		<property name="menuIsSkinApply"  type="yes_no" >
+			<column name="MENU_IS_SKIN_APPLY" length="1" default="0" >
+			<comment>게시판 스킨 사용여부</comment>
+			</column>
+		</property>
+
+		<property name="categoryCode1" type="string" >
+			<column name="CATEGORY_CODE1" length="64" >
+			<comment>게시판 1차 카테고리</comment>
+			</column>
+		</property>
+		<property name="categoryCode2" type="string" >
+			<column name="CATEGORY_CODE2" length="64" >
+			<comment>게시판 2차 카테고리</comment>
+			</column>
+		</property>
+		<property name="categoryCode3" type="string" >
+			<column name="CATEGORY_CODE3" length="64" >
+			<comment>게시판 3차 카테고리</comment>
+			</column>
+		</property>
+		<property name="menuIsLeftPrint"  type="yes_no" >
+			<column name="MENU_IS_LEFT_PRINT" length="1" default="1" >
+			<comment>왼쪽 메뉴 출력 여부</comment>
+			</column>
+		</property>
+		<property name="menuTgOption"  type="string" >
+			<column name="MENU_TG_OPTION" length="255" >
+			<comment>메뉴새창태그</comment>
+			</column>
+		</property>
+		<property name="officePtSid"  type="long" >
+			<column name="OFFICE_PT_SID" default="0" >
+			<comment>담당자 코드1</comment>
+			</column>
+		</property>
+		<property name="officePtSid2"  type="long" >
+			<column name="OFFICE_PT_SID2" default="0" >
+			<comment>담당자 코드2</comment>
+			</column>
+		</property>
+		<property name="officePtSid3"  type="long" >
+			<column name="OFFICE_PT_SID3" default="0" >
+			<comment>담당자 코드3</comment>
+			</column>
+		</property>
+		<property name="officePtSid4"  type="long" >
+			<column name="OFFICE_PT_SID4" default="0" >
+			<comment>담당자 코드4</comment>
+			</column>
+		</property>
+		<property name="menuHelp"  type="string" >
+			<column name="MENU_HELP" length="255" >
+			<comment>메뉴 설명</comment>
+			</column>
+		</property>
+		<property name="cateCd" type="string">
+			<column name="CATE_CD" length="64" >
+			<comment>1차 공통코드</comment>
+			</column>
+		</property>
+		<property name="cate1Cd" type="string">
+			<column name="CATE1_CD" length="64" >
+			<comment>2차 공통코드</comment>
+			</column>
+		</property>
+		<property name="cate2Cd" type="string">
+			<column name="CATE2_CD" length="64" >
+			<comment>3차 공통코드</comment>
+			</column>
+		</property>
+		<property name="cate3Cd" type="string">
+			<column name="CATE3_CD" length="64" >
+			<comment>4차 공통코드</comment>
+			</column>
+		</property>
+		<property name="skinId" type="string" >
+			<column name="SKIN_ID" length="64"  >
+			<comment>스킨 ID</comment>
+			</column>
+		</property>
+		<property name="menuIsIndex" type="yes_no" >
+			<column name="MENU_IS_INDEX" length="1" default="1" >
+			<comment>검색 로봇 혀용 여부</comment>
+			</column>
+		</property>
+		<property name="cclIsWriter" type="yes_no" >
+			<column name="CCL_IS_WRITER" length="1" default="0" >
+			<comment>CCL 저작자 표시여부</comment>
+			</column>
+		</property>
+		<property name="cclIsPay" type="yes_no" >
+			<column name="CCL_IS_PAY" length="1" default="0" >
+			<comment>CCL 비영리목적 이용가능 여부</comment>
+			</column>
+		</property>
+		<property name="cclIsModify" type="yes_no" >
+			<column name="CCL_IS_MODIFY" length="1" default="0" >
+			<comment>CCL 변경 가능 여부</comment>
+			</column>
+		</property>
+		<property name="otherIsBoardId" type="yes_no" >
+			<column name="OTHER_IS_BOARDID" length="1" default="1" >
+			<comment>다른 게시판 사용 여부</comment>
+			</column>
+		</property>
+		<property name="menuSearchOfficeCheck"  type="yes_no" >
+			<column name="MENU_SEARCH_OFFICECHECK" length="1" default="0" >
+			<comment>하위 부서 출력 여부</comment>
+			</column>
+		</property>
+		<property name="menuBoardPeriod"  type="string" >
+			<column name="MENU_BOARD_PERIOD" length="10" >
+			<comment>게시물 탐색 제한기한</comment>
+			</column>
+		</property>
+		<property name="customerAdminView"  type="string">
+			<column name="CUSTOMER_ADMIN_VIEW" length="10" >
+			<comment>관리자 설정 보기 페이지</comment>
+			</column>
+		</property>
+		<property name="officeTel" type="string" >
+			<column name="OFFICE_TEL" length="20"  >
+			<comment>담당부서 연락처</comment>
+			</column>
+		</property>
+		<property name="officeTelIs" type="string" >
+			<column name="OFFICE_TEL_IS" length="1" default="'0'">
+			<comment>담당부서 연락처 사용유무</comment>
+			</column>
+		</property>
+		<property name="tmpField1" type="string" >
+			<column name="TMP_FIELD1" length="512">
+			<comment>임시필드01</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField2" type="string" >
+			<column name="TMP_FIELD2" length="512">
+			<comment>임시필드02</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField3" type="string" >
+			<column name="TMP_FIELD3" length="512">
+			<comment>임시필드03</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField4" type="string" >
+			<column name="TMP_FIELD4" length="512">
+			<comment>임시필드04</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField5" type="string" >
+			<column name="TMP_FIELD5" length="512">
+			<comment>임시필드05</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField6" type="string" >
+			<column name="TMP_FIELD6" length="512">
+			<comment>임시필드06</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField7" type="string" >
+			<column name="TMP_FIELD7" length="512">
+			<comment>임시필드07</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField8" type="string" >
+			<column name="TMP_FIELD8" length="512">
+			<comment>임시필드08</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField9" type="string" >
+			<column name="TMP_FIELD9" length="512">
+			<comment>임시필드09</comment>
+			</column>
+		</property>
+		
+		<property name="tmpField10" type="string" >
+			<column name="TMP_FIELD10" length="512">
+			<comment>임시필드10</comment>
+			</column>
+		</property>
+		<property name="tmpField11" type="string" >
+			<column name="TMP_FIELD11" length="512">
+			<comment>임시필드11</comment>
+			</column>
+		</property>
+		<property name="tmpField12" type="string" >
+			<column name="TMP_FIELD12" length="512">
+			<comment>임시필드12</comment>
+			</column>
+		</property>
+		<property name="tmpField13" type="string" >
+			<column name="TMP_FIELD13" length="512">
+			<comment>임시필드13</comment>
+			</column>
+		</property>
+		<property name="tmpField14" type="string" >
+			<column name="TMP_FIELD14" length="512">
+			<comment>임시필드14</comment>
+			</column>
+		</property>
+		<property name="tmpField15" type="string" >
+			<column name="TMP_FIELD15" length="512">
+			<comment>임시필드15</comment>
+			</column>
+		</property>
+		<property name="tmpField16" type="string" >
+			<column name="TMP_FIELD16" length="512">
+			<comment>임시필드16</comment>
+			</column>
+		</property>
+		<property name="tmpField17" type="string" >
+			<column name="TMP_FIELD17" length="512">
+			<comment>임시필드17</comment>
+			</column>
+		</property>
+		<property name="tmpField18" type="string" >
+			<column name="TMP_FIELD18" length="512">
+			<comment>임시필드18</comment>
+			</column>
+		</property>
+		<property name="tmpField19" type="string" >
+			<column name="TMP_FIELD19" length="512">
+			<comment>임시필드19</comment>
+			</column>
+		</property>
+		<property name="tmpField20" type="string" >
+			<column name="TMP_FIELD20" length="512">
+			<comment>임시필드20</comment>
+			</column>
+		</property>
+		<property name="searchTagrgetFL" type="string" >
+			<column name="SEARCH_TAGRGET_FL" length="1" default="'Y'">
+			<comment>통합검색여부</comment>
+			</column>
+		</property>
+		
+		
+	</class>
+
+	<class name="MenuUserVO" table="RFC_COMTNMENU_USER">
+		<cache usage="read-write"/>
+		<comment>사용자 메뉴 관리</comment>
+		<id name="menuUserSid"  type="long" >
+			<column name="MENU_USER_SID" >
+			<comment>사용자 메뉴 고유 ID</comment>
+			</column>
+		</id>
+		<property name="menuUserCd" type="string" >
+			<column name="MENU_USER_CD" length="255" >
+			<comment>사용자 메뉴 공유 코드</comment>
+			</column>
+		</property>
+		<property name="sgroupId" type="string" >
+			<column name="SGROUP_ID" length="30"  >
+			<comment>사이트 그룹 ID</comment>
+			</column>
+		</property>
+		
+		<property name="domainId" type="string" >
+			<column name="DOMAIN_ID" length="30"  >
+			<comment>도메인 그룹 ID</comment>
+			</column>
+		</property>
+		<property name="parentMenuUserCd" type="string" >
+			<column name="PARENT_MENU_USER_CD" length="255" >
+			<comment>사용자 부모 메뉴 코드</comment>
+			</column>
+		</property>
+		<property name="menuTitle" type="string" >
+			<column name="MENU_TITLE" length="255"  >
+			<comment>사용자 메뉴 이름</comment>
+			</column>
+		</property>
+		<property name="menuUrl" type="string" >
+			<column name="MENU_URL" length="255"  >
+			<comment>사용자 메뉴 URl</comment>
+			</column>
+		</property>
+		<property name="userId" type="text" >
+			<column name="USER_ID"  length="1073741824" >
+			<comment>사용자 ID</comment>
+			</column>
+		</property>
+		<property name="menuSortDp" type="int" >
+			<column name="MENU_SORT_DP" >
+			<comment>사용자 메뉴 차수</comment>
+			</column>
+		</property>
+		<property name="menuStatus" type="string" >
+			<column name="MENU_STATUS" length="1" default="'N'" >
+			<comment>사용자 메뉴 사용 여부</comment>
+			</column>
+		</property>
+
+	</class>
+	
+	<class name="MenuGradeVO" table="RFC_COMTSMENUGRADE">
+		<cache usage="read-write"/>
+			<comment>메뉴 만족도 테이블</comment>
+		<id name="gradeSid"  type="long" >
+			<column name="GRADE_SID">
+			<comment>만족도 고유 ID</comment>
+			</column>
+		</id>
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+			<comment>사용자 ID</comment>
+			</column>
+		</property>
+		<property name="userIp" type="string" >
+			<column name="USER_IP" length="64">
+			<comment>사용자 IP</comment>
+			</column>
+		</property>
+		<property name="userName" type="string" >
+			<column name="USER_NAME" length="64">
+			<comment>사용자 이름</comment>
+			</column>
+		</property>
+		<property name="menuCd" type="string" >
+			<column name="MENU_CD" length="22" >
+			<comment>메뉴 코드</comment>
+			</column>
+		</property>
+		<property name="menuGradeCount" type="int" >
+			<column name="MENU_GRADE_COUNT" length="2" default="0" >
+			<comment>만족도 점수</comment>
+			</column>
+		</property>
+		<property name="menuGradeMemo" type="string" >
+			<column name="MENU_GRADE_MEMO" length="255">
+			<comment>만족도 메뉴</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE">
+			<comment>등록일</comment>
+			</column>
+		</property>
+	</class>
+
+	<!--  
+	<class name="MenuAutoVO" table="RFC_COMTNMENUAUTO">
+		<cache usage="read-write"/>
+		<comment>메뉴자동생성 테이블</comment>
+		<id name="menuSid"  type="long" >
+			<column name="MENU_SID">
+			<comment>고유 ID</comment>
+			</column>
+		</id>
+		<property name="deptcode" type="string" >
+			<column name="DEPT_CODE" length="64">
+			<comment>메뉴코드</comment>
+			</column>
+		</property>
+		<property name="menunm" type="string" not-null="true"  >
+			<column name="MENU_NM" length="255" >
+			<comment>메뉴제목</comment>
+			</column>
+		</property>
+		<property name="menutype" type="string" not-null="true"  >
+			<column name="MENU_TYPE" length="64" >
+			<comment>타입</comment>
+			</column>
+		</property>
+	</class>
+	-->
+	
+	<class name="MenuCounterVO" table="RFC_COMTHMENUCOUNTER">
+		<cache usage="read-write"/>
+		<comment>메뉴접속 통계 테이블</comment>
+		<id name="counterSid" type="long" >
+			<column name="COUNTER_SID">
+				<comment>메뉴접속 고유 ID</comment>
+			</column>
+		</id>
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="64">
+			<comment>접속자 ID</comment>
+			</column>
+		</property>
+		<property name="userIp" type="string" >
+			<column name="USER_IP" length="64">
+			<comment>접속자 IP</comment>
+			</column>
+		</property>
+		<property name="userName" type="string" >
+			<column name="USER_NAME" length="64">
+			<comment>접속자 이름</comment>
+			</column>
+		</property>
+		<property name="menuCd" type="string" not-null="true"  >
+			<column name="MENU_CD" length="22" >
+			<comment>접속 메뉴 코드</comment>
+			</column>
+		</property>
+		<property name="register_dt" type="timestamp" >
+			<column name="REGISTER_DATE">
+			<comment>접속일</comment>
+			</column>
+		</property>
+	</class>
+	
+</hibernate-mapping>

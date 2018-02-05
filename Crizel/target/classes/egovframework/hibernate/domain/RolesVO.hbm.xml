@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.iam.vo">
+	<class name="RolesVO"	table="RFC_COMTNROLES">
+	  <cache usage="read-write"/>
+	    <comment>권한 롤정보 테이블</comment>
+		<id name="roleId"  type="string"  >
+            <column name="ROLE_ID">
+				<comment>권한ID</comment>
+            </column>
+        </id> 
+		<property name="roleNm" type="string" >
+			<column name="ROLE_NM" length="50"  >
+				<comment>권한이름</comment>
+			</column>
+		</property>
+		<property name="roleDc" type="string" >
+			<column name="ROLE_DC" length="100" > 
+				 <comment>권한설명</comment>
+			</column>
+		</property>
+		<property name="depth" type="int" >
+			<column name="DEPTH"   > 
+				<comment>권한정렬순서</comment>
+			</column>
+		</property>
+		<property name="createDate"  type="timestamp"  insert="true" update="false">
+			<column name="CREATE_DATE"   > 
+				<comment>등록일</comment>
+			</column>
+		</property>
+		<property name="modifyDate"  type="timestamp"  insert="false" update="true">
+			<column name="MODIFY_DATE"   > 
+				 <comment>수정일</comment>
+			</column>
+		</property>		
+	</class>
+</hibernate-mapping>

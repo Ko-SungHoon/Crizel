@@ -1,0 +1,527 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCContents">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="contentsVO" type = "egovframework.rfc3.contents.vo.ContentsVO"/>
+     <typeAlias  alias="menuGradeVO"	 type = "egovframework.rfc3.menu.vo.MenuGradeVO"/>
+      
+     <cacheModel type="${Globals.ibatis.default.cache}" id="RFCContentsCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="ContentsDAO.insertContentstList"/>
+      	<flushOnExecute statement="ContentsDAO.updateContents"/>
+      	<flushOnExecute statement="ContentsDAO.deleteContents"/>
+      	<flushOnExecute statement="ContentsDAO.deleteAllContentsToDomain"/>
+      	<flushOnExecute statement="ContentsDAO.updateContentLinkDate"/>
+     </cacheModel>
+     
+     
+     <resultMap id="contents" class="egovframework.rfc3.contents.vo.ContentsVO">
+		<result property="contentsSid" column="contentsSid" /> 
+		<result property="sgroupId" column="sgroupId" /> 
+		<result property="domainId" column="domainId" /> 
+		<result property="menuCd" column="menuCd" /> 
+		<result property="layoutSid" column="layoutSid" /> 
+		<result property="contentsLinkSid" column="contentsLinkSid" /> 
+		<result property="contentsLinkName" column="contentsLinkName" />
+		<result property="contentsType" column="contentsType" /> 
+		<result property="contentsStyle" column="contentsStyle" /> 
+		<result property="contentsTitle" column="contentsTitle" /> 
+		<result property="engName" column="engName" /> 
+		<result property="contentsTitleImg" column="contentsTitleImg" /> 
+		<result property="contentsContent" column="contentsContent" /> 
+		<result property="contentsBoardUrl" column="contentsBoardUrl" /> 
+		<result property="contentsBoardId" column="contentsBoardId" /> 
+		<result property="contentsLinkUrl" column="contentsLinkUrl" /> 
+		<result property="editorIsUse" column="editorIsUse" /> 
+		<result property="isSkinApply" column="isSkinApply" /> 
+		<result property="contentsRegDate" column="contentsRegDate" /> 
+		<result property="contentsModiDate" column="contentsModiDate" /> 
+		<result property="contentsTitleImgDesc" column="contentsTitleImgDesc" /> 
+		<result property="mobileContents" column="mobileContents" /> 
+		<result property="mobileIsUse" column="mobileIsUse" /> 
+		
+    </resultMap>
+    
+    
+     <select id="ContentsDAO.selectContentsTotCnt"  parameterClass="ContentsVO" resultClass="int" cacheModel="RFCContentsCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNCONTENTS
+						
+						<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="sgroupId" >
+			          		   SGROUP_ID   = #sgroupId#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND"  property="searchType" >
+			          		  CONTENTS_TYPE  =  #searchType#
+			           	</isNotEmpty>
+			           	<isNotEmpty prepend="AND"  property="searchStyle" >
+			          		  CONTENTS_STYLE  =  #searchStyle#
+			           	</isNotEmpty>
+			            <isGreaterThan prepend="AND"  property="contentsSid" compareValue="0">
+						          		 CONTENTS_SID   = #contentsSid#
+					     </isGreaterThan>
+			            <isNotEmpty prepend="AND"  property="searchCondition" >
+			          		   $searchCondition$  LIKE  '%$searchKeyword$%'
+			           	</isNotEmpty>
+			           	<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            </isNotEmpty>	
+			            <isEmpty  property="domainId" >
+		          		     <isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     </isEqual>
+			            </isEmpty>   
+			           		
+				         </dynamic>
+				       
+	</select>
+	
+
+	<select id="ContentsDAO.selectContentstList" parameterClass="ContentsVO"  resultMap="contents" cacheModel="RFCContentsCache">
+			          SELECT 
+								CONTENTS_SID								contentsSid,
+								SGROUP_ID										sgroupId,								
+								DOMAIN_ID											domainId,										
+								MENU_CD											menuCd,
+								LAYOUT_SID										layoutSid,
+								CONTENTS_LINK_SID						contentsLinkSid,
+								''															contentsLinkName,
+								CONTENTS_TYPE								contentsType,
+								CONTENTS_STYLE							contentsStyle,
+								CONTENTS_TITLE							contentsTitle,
+								ENG_NAME									engName,
+								CONTENTS_TITLE_IMG					contentsTitleImg,
+								CONTENTS_CONTENT					contentsContent,
+								CONTENTS_BOARD_URL				contentsBoardUrl,
+								CONTENTS_BOARDID						contentsBoardId,
+								CONTENTS_LINK_URL						contentsLinkUrl,
+								EDITOR_IS_USE								editorIsUse,
+								IS_SKIN_APPLY									isSkinApply,
+								CONTENTS_REG_DATE					contentsRegDate,
+								CONTENTS_MODI_DATE					contentsModiDate,
+								CONTENTS_TITLE_IMG_DESC		contentsTitleImgDesc,
+								MOBILE_CONTENTS							mobileContents,
+								MOBILE_IS_USE								mobileIsUse
+																																						
+					FROM  RFC_COMTNCONTENTS
+					<dynamic  prepend="WHERE">
+						<isNotEmpty prepend="AND"  property="sgroupId" >
+			          		   SGROUP_ID   = #sgroupId#
+			            </isNotEmpty>
+			            <isNotEmpty prepend="AND"  property="searchType" >
+			          		  CONTENTS_TYPE  =  #searchType#
+			           	</isNotEmpty>
+			           	<isNotEmpty prepend="AND"  property="searchStyle" >
+			          		  CONTENTS_STYLE  =  #searchStyle#
+			           	</isNotEmpty>
+			           <isGreaterThan prepend="AND"  property="contentsSid" compareValue="0">
+						          		 CONTENTS_SID   = #contentsSid#
+					     </isGreaterThan>
+			            <isNotEmpty prepend="AND"  property="searchCondition" >
+			          		   $searchCondition$  LIKE  '%$searchKeyword$%'
+			           	</isNotEmpty>
+			           	<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            </isNotEmpty>	
+			            <isEmpty  property="domainId" >
+		          		     <isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     </isEqual>
+			            </isEmpty>   
+			       </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+		              	LIMIT #recordCountPerPage# OFFSET #firstIndex#
+        
+	</select>	
+	
+		<insert id="ContentsDAO.insertContentstList" parameterClass="contentsVO">
+				INSERT INTO 
+				  	RFC_COMTNCONTENTS  (
+						CONTENTS_SID,
+						SGROUP_ID,								
+						DOMAIN_ID,										
+						MENU_CD,
+						LAYOUT_SID,
+						CONTENTS_LINK_SID,
+						CONTENTS_TYPE	,
+						CONTENTS_STYLE,
+						CONTENTS_TITLE,
+						ENG_NAME,
+						CONTENTS_TITLE_IMG,
+						CONTENTS_CONTENT,
+						CONTENTS_BOARD_URL,
+						CONTENTS_BOARDID,
+						CONTENTS_LINK_URL,
+						EDITOR_IS_USE,
+						IS_SKIN_APPLY,
+						CONTENTS_REG_DATE,
+						CONTENTS_MODI_DATE	,
+						CONTENTS_TITLE_IMG_DESC,
+						MOBILE_CONTENTS	,
+						MOBILE_IS_USE								
+				) VALUES (
+						#contentsSid#,
+						#sgroupId#,								
+						#domainId#,										
+						#menuCd#,
+						#layoutSid#,
+						#contentsLinkSid#,
+						#contentsType#,
+						#contentsStyle#,
+						#contentsTitle#,
+						#engName#,
+						#contentsTitleImg#,
+						#contentsContent#,
+						#contentsBoardUrl#,
+						#contentsBoardId#,
+						#contentsLinkUrl#,
+						#editorIsUse#,
+						$isSkinApply$,
+						#contentsRegDate#,
+						#contentsModiDate#,
+						#contentsTitleImgDesc#,
+						#mobileContents#,
+						$mobileIsUse$
+				)
+	</insert>
+	
+	     <update id="ContentsDAO.updateContents" parameterClass="contentsVO">
+     	UPDATE
+     					RFC_COMTNCONTENTS
+     	SET
+						    	SGROUP_ID=#sgroupId#,								
+								DOMAIN_ID	=#domainId#,										
+								MENU_CD=#menuCd#,
+								LAYOUT_SID=#layoutSid#,
+								CONTENTS_LINK_SID=#contentsLinkSid#,
+								CONTENTS_TYPE	=#contentsType#,
+								CONTENTS_STYLE=#contentsStyle#,
+								CONTENTS_TITLE=#contentsTitle#,
+								ENG_NAME  =#engName#,
+								CONTENTS_TITLE_IMG=#contentsTitleImg#,
+								CONTENTS_CONTENT=#contentsContent#,
+								CONTENTS_BOARD_URL=#contentsBoardUrl#,
+								CONTENTS_BOARDID=#contentsBoardId#,
+								CONTENTS_LINK_URL=#contentsLinkUrl#,
+								EDITOR_IS_USE=#editorIsUse#,
+								IS_SKIN_APPLY=$isSkinApply$,
+								CONTENTS_MODI_DATE=#contentsModiDate#,
+								CONTENTS_TITLE_IMG_DESC=#contentsTitleImgDesc#,
+								MOBILE_CONTENTS	=#mobileContents#,
+								MOBILE_IS_USE=$mobileIsUse$
+		WHERE
+							CONTENTS_SID = #contentsSid#
+     					
+     </update>
+	
+	<select id="ContentsDAO.viewContentstList" parameterClass="ContentsVO"  resultMap="contents" cacheModel="RFCContentsCache">
+			          SELECT 
+								CONTENTS_SID								contentsSid,
+								SGROUP_ID										sgroupId,								
+								DOMAIN_ID											domainId,										
+								MENU_CD											menuCd,
+								LAYOUT_SID										layoutSid,
+								CONTENTS_LINK_SID						contentsLinkSid,
+								(
+									SELECT
+										CONTENTS_TITLE 
+									FROM 
+										RFC_COMTNCONTENTS 
+									WHERE 
+										CONTENTS_SID =
+																		(
+																			SELECT
+																				CONTENTS_LINK_SID
+																			 FROM
+																			 	 RFC_COMTNCONTENTS
+																			 WHERE 
+																			 	CONTENTS_SID   = #contentsSid#
+																		 )
+								)	contentsLinkName,
+								CONTENTS_TYPE								contentsType,
+								CONTENTS_STYLE							contentsStyle,
+								CONTENTS_TITLE							contentsTitle,
+								ENG_NAME									engName,
+								CONTENTS_TITLE_IMG					contentsTitleImg,
+								CONTENTS_CONTENT					contentsContent,
+								CONTENTS_BOARD_URL				contentsBoardUrl,
+								CONTENTS_BOARDID						contentsBoardId,
+								CONTENTS_LINK_URL						contentsLinkUrl,
+								EDITOR_IS_USE								editorIsUse,
+								IS_SKIN_APPLY									isSkinApply,
+								CONTENTS_REG_DATE					contentsRegDate,
+								CONTENTS_MODI_DATE					contentsModiDate,
+								CONTENTS_TITLE_IMG_DESC		contentsTitleImgDesc,
+								MOBILE_CONTENTS							mobileContents,
+								MOBILE_IS_USE								mobileIsUse
+																																						
+					FROM  RFC_COMTNCONTENTS
+					<dynamic  prepend="WHERE">
+						<isNotEmpty prepend="AND"  property="sgroupId" >
+			          		   SGROUP_ID   = #sgroupId#
+			            </isNotEmpty>
+			           	<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            </isNotEmpty>	
+			            <isEmpty  property="domainId" >
+		          		     <isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     </isEqual>
+			            </isEmpty>
+			             <isNotEqual property="contentsSid" prepend="AND"  compareValue="0">
+				          		   CONTENTS_SID   = #contentsSid#
+				         </isNotEqual>
+			            
+			       </dynamic>
+	</select>	
+	
+	<select id="ContentsDAO.viewContentstVO" parameterClass="ContentsVO"  resultMap="contents" cacheModel="RFCContentsCache">
+			          SELECT 
+								CONTENTS_SID								contentsSid,
+								SGROUP_ID										sgroupId,								
+								DOMAIN_ID											domainId,										
+								MENU_CD											menuCd,
+								LAYOUT_SID										layoutSid,
+								CONTENTS_LINK_SID						contentsLinkSid,
+								(
+									SELECT
+										CONTENTS_TITLE 
+									FROM 
+										RFC_COMTNCONTENTS 
+									WHERE 
+										CONTENTS_SID =
+																		(
+																			SELECT
+																				CONTENTS_LINK_SID
+																			 FROM
+																			 	 RFC_COMTNCONTENTS
+																			 WHERE 
+																			 	CONTENTS_SID   = #contentsSid#
+																		 )
+								)	contentsLinkName,
+								CONTENTS_TYPE								contentsType,
+								CONTENTS_STYLE							contentsStyle,
+								CONTENTS_TITLE							contentsTitle,
+								ENG_NAME									engName,
+								CONTENTS_TITLE_IMG					contentsTitleImg,
+								CONTENTS_CONTENT					contentsContent,
+								CONTENTS_BOARD_URL				contentsBoardUrl,
+								CONTENTS_BOARDID						contentsBoardId,
+								CONTENTS_LINK_URL						contentsLinkUrl,
+								EDITOR_IS_USE								editorIsUse,
+								IS_SKIN_APPLY									isSkinApply,
+								CONTENTS_REG_DATE					contentsRegDate,
+								CONTENTS_MODI_DATE					contentsModiDate,
+								CONTENTS_TITLE_IMG_DESC		contentsTitleImgDesc,
+								MOBILE_CONTENTS							mobileContents,
+								MOBILE_IS_USE								mobileIsUse
+																																						
+					FROM  RFC_COMTNCONTENTS
+					WHERE
+					
+						 CONTENTS_SID   = #contentsSid#
+						 
+						<isNotEmpty prepend="AND"  property="sgroupId" >
+			          		   SGROUP_ID   = #sgroupId#
+			            </isNotEmpty>
+			           	<isNotEmpty prepend="AND" property="domainId" >
+			          		    			 DOMAIN_ID  = #domainId#
+			            </isNotEmpty>	
+			            <isEmpty  property="domainId" >
+		          		     <isEqual  prepend="AND"   property="isDomainAdmin" compareValue="true">
+						            		    DOMAIN_ID in ( $myDomainList$ )
+						     </isEqual>
+			            </isEmpty> 
+			           
+	</select>	
+	
+	<delete id="ContentsDAO.deleteContents" parameterClass="contentsVO" >
+		DELETE  FROM RFC_COMTNCONTENTS
+					WHERE  CONTENTS_SID=#contentsSid#
+	</delete>
+	
+	<delete id="ContentsDAO.deleteAllContentsToDomain" parameterClass="String" >
+		DELETE  FROM RFC_COMTNCONTENTS
+					WHERE  DOMAIN_ID=#domainId#
+	</delete>
+	
+	<update id="ContentsDAO.updateContentLinkDate" parameterClass="contentsVO">
+     	UPDATE
+     					RFC_COMTNCONTENTS
+     	SET
+						CONTENTS_MODI_DATE=#contentsModiDate#
+		WHERE
+						CONTENTS_SID=#contentsLinkSid#
+     					
+     </update>
+     
+     <select id="ContentsDAO.ContentstVO" parameterClass="ContentsVO"  resultMap="contents"  cacheModel="RFCContentsCache">
+			          SELECT 
+								CONTENTS_SID								contentsSid,
+								SGROUP_ID										sgroupId,								
+								DOMAIN_ID											domainId,										
+								MENU_CD											menuCd,
+								LAYOUT_SID										layoutSid,
+								CONTENTS_LINK_SID						contentsLinkSid,
+								(
+									SELECT
+										CONTENTS_TITLE 
+									FROM 
+										RFC_COMTNCONTENTS 
+									WHERE 
+										CONTENTS_SID =
+																		(
+																			SELECT
+																				CONTENTS_LINK_SID
+																			 FROM
+																			 	 RFC_COMTNCONTENTS
+																			 WHERE 
+																			 	CONTENTS_SID   = #contentsSid#
+																		 )
+								)	contentsLinkName,
+								CONTENTS_TYPE								contentsType,
+								CONTENTS_STYLE							contentsStyle,
+								CONTENTS_TITLE							contentsTitle,
+								ENG_NAME									engName,
+								CONTENTS_TITLE_IMG					contentsTitleImg,
+								CONTENTS_CONTENT					contentsContent,
+								CONTENTS_BOARD_URL				contentsBoardUrl,
+								CONTENTS_BOARDID						contentsBoardId,
+								CONTENTS_LINK_URL						contentsLinkUrl,
+								EDITOR_IS_USE								editorIsUse,
+								IS_SKIN_APPLY									isSkinApply,
+								CONTENTS_REG_DATE					contentsRegDate,
+								CONTENTS_MODI_DATE					contentsModiDate,
+								CONTENTS_TITLE_IMG_DESC		contentsTitleImgDesc,
+								MOBILE_CONTENTS							mobileContents,
+								MOBILE_IS_USE								mobileIsUse
+																																						
+					FROM  RFC_COMTNCONTENTS
+					WHERE
+						SGROUP_ID = #sgroupId#
+					AND
+						DOMAIN_ID = #domainId#
+					AND
+						CONTENTS_TYPE = #contentsType#
+					AND
+						CONTENTS_STYLE = #contentsStyle#
+					
+	</select>	
+	
+	     <select id="ContentsDAO.selectContentsMainCnt"  parameterClass="ContentsVO" resultClass="int"  cacheModel="RFCContentsCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNCONTENTS
+						WHERE
+						 	SGROUP_ID   = #sgroupId#
+						 AND
+						 	DOMAIN_ID  = #domainId#
+						 AND
+						 	CONTENTS_TYPE  =  #contentsType#
+						 AND
+						 	CONTENTS_STYLE  =  #contentsStyle#
+		</select>
+		
+		 <select id="ContentsDAO.selectContentsUpdeteMainCnt"  parameterClass="ContentsVO" resultClass="int"  cacheModel="RFCContentsCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNCONTENTS
+						WHERE
+						 	SGROUP_ID   = #sgroupId#
+						 AND
+						 	DOMAIN_ID  = #domainId#
+						 AND
+						 	CONTENTS_TYPE  =  #contentsType#
+						 AND
+						 	CONTENTS_STYLE  =  #contentsStyle#
+						 AND
+						 	 CONTENTS_SID   != #contentsSid#
+		</select>
+	
+	<select id="ContentsDAO.ContentstBackUoVO" parameterClass="ContentsVO"  resultMap="contents"  cacheModel="RFCContentsCache">
+			          SELECT 
+								CONTENTS_SID								contentsSid,
+								SGROUP_ID										sgroupId,								
+								DOMAIN_ID											domainId,										
+								MENU_CD											menuCd,
+								LAYOUT_SID										layoutSid,
+								CONTENTS_LINK_SID						contentsLinkSid,
+								(
+									SELECT
+										CONTENTS_TITLE 
+									FROM 
+										RFC_COMTNCONTENTS 
+									WHERE 
+										CONTENTS_SID =
+																		(
+																			SELECT
+																				CONTENTS_LINK_SID
+																			 FROM
+																			 	 RFC_COMTNCONTENTS
+																			 WHERE 
+																			 	CONTENTS_SID   = #contentsSid#
+																		 )
+								)	contentsLinkName,
+								CONTENTS_TYPE								contentsType,
+								CONTENTS_STYLE							contentsStyle,
+								CONTENTS_TITLE							contentsTitle,
+								ENG_NAME									engName,
+								CONTENTS_TITLE_IMG					contentsTitleImg,
+								CONTENTS_CONTENT					contentsContent,
+								CONTENTS_BOARD_URL				contentsBoardUrl,
+								CONTENTS_BOARDID						contentsBoardId,
+								CONTENTS_LINK_URL						contentsLinkUrl,
+								EDITOR_IS_USE								editorIsUse,
+								IS_SKIN_APPLY									isSkinApply,
+								CONTENTS_REG_DATE					contentsRegDate,
+								CONTENTS_MODI_DATE					contentsModiDate,
+								CONTENTS_TITLE_IMG_DESC		contentsTitleImgDesc,
+								MOBILE_CONTENTS							mobileContents,
+								MOBILE_IS_USE								mobileIsUse
+																																						
+					FROM  RFC_COMTNCONTENTS
+					WHERE
+					CONTENTS_SID = #contentsSid#
+					
+	</select>	
+	
+	<select id="ContentsDAO.selectContentsBackUpPkCnt"  parameterClass="ContentsVO" resultClass="int"  cacheModel="RFCContentsCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   RFC_COMTNCONTENTS
+						WHERE
+						CONTENTS_SID = #contentsSid#  
+	</select>
+	
+	<select id="contentsDAO.surverList"  parameterClass="menuGradeVO" resultClass="menuGradeVO">
+	                  SELECT
+	                      GRADE_SID gradeSid,
+	                      USER_ID userId,
+	                      USER_IP userIp,
+	                      USER_NAME userName,
+	                      MENU_CD menuCd,
+	                      MENU_GRADE_COUNT menuGradeCount,
+	                      MENU_GRADE_MEMO menuGradeMemo,
+	                      REGISTER_DATE register_dt
+	                  FROM RFC_COMTSMENUGRADE
+	                  WHERE
+	                    MENU_CD = #menuCd#
+	                		ORDER BY MENU_GRADE_COUNT DESC
+	                    LIMIT #listcount#
+    </select>
+    
+    <select id="contentsDAO.surveyTotalList"  parameterClass="menuGradeVO" resultClass="menuGradeVO">
+             	SELECT
+                  A.MENU_CD menuCd,
+                  (SELECT MENU_NM FROM RFC_COMTNMENU WHERE MENU_CD = A.MENU_CD) menu_nm,
+                  NVL(SUM(MENU_GRADE_COUNT),0) as total		
+                FROM RFC_COMTSMENUGRADE A
+                WHERE A.MENU_CD = #menuCd#
+                GROUP BY MENU_CD ORDER BY total DESC
+				LIMIT #listcount#
+    </select>
+     
+</sqlMap>

@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:dwr="http://www.directwebremoting.org/schema/spring-dwr"
+  xsi:schemaLocation="
+  http://www.springframework.org/schema/beans classpath:org/springframework/beans/factory/xml/spring-beans-3.0.xsd
+  http://www.springframework.org/schema/tx classpath:org/springframework/transaction/config/spring-tx-2.5.xsd
+  http://www.springframework.org/schema/aop classpath:org/springframework/aop/config/spring-aop-2.5.xsd
+  http://www.directwebremoting.org/schema/spring-dwr classpath:org/directwebremoting/spring/spring-dwr-3.0.xsd"
+  >
+	<dwr:configuration>
+	      <dwr:convert type="bean" class="egovframework.rfc3.iam.vo.GroupVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.iam.vo.DomainVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.office.vo.OfficeVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.office.vo.OfficePartVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.user.vo.ZipCodeVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.board.vo.BoardVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.board.vo.BoardDataVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.board.vo.BoardActionVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.board.vo.BoardSkinVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.board.vo.BoardCategoryVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.layout.vo.LayoutVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.menu.vo.MenuVO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.category.vo.CategoryCode1VO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.category.vo.CategoryCode2VO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.category.vo.CategoryCode3VO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.qrcode.vo.QrcodeSkinVO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.qrcode.vo.QrcodeFileVO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.qrcode.vo.QrcodeVO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.qrcode.vo.QrcodeHistoryVO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.popup.vo.PopupCategoryVO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.teachingtool.vo.ToolsOrder" />
+          <dwr:convert type="bean" class="egovframework.rfc3.teachingtool.vo.ToolsBasket" />
+          <dwr:convert type="bean" class="egovframework.rfc3.teachingtool.vo.ToolsOrderGoods" />
+          <dwr:convert type="bean" class="egovframework.rfc3.fooderp.vo.ProdMstVO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.fooderp.vo.ProdDivision" />
+          <dwr:convert type="bean" class="egovframework.rfc3.fooderp.vo.FarmMstVO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.research.vo.ReSearchApplyVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.user.vo.MberManageVO" />
+          <dwr:convert type="bean" class="egovframework.rfc3.component.vo.ComponentVO" />
+          <dwr:convert type="bean" class="egovframework.rte.psl.dataaccess.util.EgovMap" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.iam.vo.SaeolOrganizationVO" />
+	      <dwr:convert type="bean" class="egovframework.rfc3.login.vo.LoginVO" />
+	          
+	  </dwr:configuration>
+	  
+	  <dwr:controller id="dwrController" debug="true"/>
+	  
+	  <bean id="groupDwrService" class="egovframework.rfc3.iam.service.impl.GroupServiceImpl">
+	     <dwr:remote javascript="selectGroupListForSgroupId" >
+	     	<dwr:include method="selectGroupListForSgroupId"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="userManageDwrService" class="egovframework.rfc3.user.service.impl.UserManageServiceImpl">
+	     <dwr:remote javascript="isExistUserId" >
+	     	<dwr:include method="isExistUserId"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	  <bean id="domainDwrService" class="egovframework.rfc3.iam.service.impl.DomainServiceImpl">
+	     <dwr:remote javascript="selectDomainListForSgroupId" >
+	     	<dwr:include method="selectDomainListForSgroupId"/>
+	     </dwr:remote>
+	      <dwr:remote javascript="selectDomainUserAdminList" >
+	     	<dwr:include method="selectDomainUserAdminList"/>
+	     </dwr:remote>
+	     <dwr:remote javascript="selectSearchDomainList" >
+	     	<dwr:include method="selectSearchDomainList"/>
+	     </dwr:remote>
+	     <dwr:remote javascript="selectSearchDomainUserAdminList" >
+	     	<dwr:include method="selectSearchDomainUserAdminList"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+
+	  <bean id="viewResoruceDwrService" class="egovframework.rfc3.iam.service.impl.ViewResourceServiceImpl">
+	     <dwr:remote javascript="isExistViewResourceInfoCategory" >
+	     	<dwr:include method="isExistViewResourceInfoCategory"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="officeDwrService" class="egovframework.rfc3.office.service.impl.OfficeServiceImpl">
+	     <dwr:remote javascript="selectOfficeDpCnt" >
+	     	<dwr:include method="selectOfficeDpCnt"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 <bean id="officeDwrDpList" class="egovframework.rfc3.office.service.impl.OfficeServiceImpl">
+	     <dwr:remote javascript="officeDwrDpList" >
+	     	<dwr:include method="officeDwrDpList"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 <bean id="selectOfficeSgroupList" class="egovframework.rfc3.office.service.impl.OfficeServiceImpl">
+	     <dwr:remote javascript="selectOfficeSgroupList" >
+	     	<dwr:include method="selectOfficeSgroupList"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 <bean id="notOfficeDwrDpList" class="egovframework.rfc3.office.service.impl.OfficeServiceImpl">
+	     <dwr:remote javascript="notOfficeDwrDpList" >
+	     	<dwr:include method="notOfficeDwrDpList"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 <bean id="selectNotOfficeSgroupList" class="egovframework.rfc3.office.service.impl.OfficeServiceImpl">
+	     <dwr:remote javascript="selectNotOfficeSgroupList" >
+	     	<dwr:include method="selectNotOfficeSgroupList"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 <bean id="selectSgroupDomainBoardList" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="selectSgroupDomainBoardList" >
+	     	<dwr:include method="selectSgroupDomainBoardList"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="selectOfficeUserCnt" class="egovframework.rfc3.office.service.impl.OfficePartServiceImpl">
+	     <dwr:remote javascript="selectOfficeUserCnt" >
+	       <dwr:include method="selectOfficeUserCnt"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="selectOfficePartMenuList" class="egovframework.rfc3.office.service.impl.OfficePartServiceImpl">
+	     <dwr:remote javascript="selectOfficePartMenuList">
+	     	<dwr:include method="selectOfficePartMenuList"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="selectSgroupDomainSkinList" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="selectSgroupDomainSkinList" >
+	     	<dwr:include method="selectSgroupDomainSkinList"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 <bean id="selectBoardIdCount" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="selectBoardIdCount" >
+	     	<dwr:include method="selectBoardIdCount"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 <bean id="selectBoardCategory" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="selectBoardCategory" >
+	     	<dwr:include method="selectBoardCategory"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>	 	 
+	 
+	 <bean id="selectLayoutListDwr" class="egovframework.rfc3.layout.service.impl.LayoutServiceImpl">
+	     <dwr:remote javascript="selectLayoutListDwr" >
+	     	<dwr:include method="selectLayoutListDwr"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="selectBoardActionListAll" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="selectBoardActionListAll" >
+	     	<dwr:include method="selectBoardActionListAll"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>	 
+	 
+	 <bean id="selectMenutCodeDwr" class="egovframework.rfc3.menu.service.impl.MenuServiceImpl">
+	     <dwr:remote javascript="selectMenutCodeDwr" >
+	     	<dwr:include method="selectMenutCodeDwr"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>	 
+	 
+	 	<bean id="categoryCode1Dwr" class="egovframework.rfc3.category.service.impl.CategoryServiceImpl">
+	     <dwr:remote javascript="categoryCode1Dwr" >
+	     	<dwr:include method="categoryCode1Dwr"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>	
+	 
+	 <bean id="categoryCode2Dwr" class="egovframework.rfc3.category.service.impl.CategoryServiceImpl">
+	     <dwr:remote javascript="categoryCode2Dwr" >
+	     	<dwr:include method="categoryCode2Dwr"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>	 
+	 
+	 <bean id="categoryCode3Dwr" class="egovframework.rfc3.category.service.impl.CategoryServiceImpl">
+	     <dwr:remote javascript="categoryCode3Dwr" >
+	     	<dwr:include method="categoryCode3Dwr"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="selectQrcodeSkinVODwr" class="egovframework.rfc3.qrcode.service.impl.QrcodeServiceImpl">
+	     <dwr:remote javascript="selectQrcodeSkinVODwr" >
+	     	<dwr:include method="selectQrcodeSkinVODwr"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>	 
+	
+	
+	<bean id="insertQrcodeCommonHistoryDwr" class="egovframework.rfc3.qrcode.service.impl.QrcodeServiceImpl">
+	     <dwr:remote javascript="insertQrcodeCommonHistory" >
+	     	<dwr:include method="insertQrcodeCommonHistory"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="updateQrcodeHistoryDwr" class="egovframework.rfc3.qrcode.service.impl.QrcodeServiceImpl">
+	     <dwr:remote javascript="updateQrcodeHistory" >
+	     	<dwr:include method="updateQrcodeHistory"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 
+	  <bean id="getExampleSkin" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="getExampleSkin" >
+	     	<dwr:include method="getExampleSkin"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="getExampleEditorSkin" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="getExampleEditorSkin" >
+	     	<dwr:include method="getExampleEditorSkin"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	  <bean id="selectBoardSkinIdCount" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="selectBoardSkinIdCount" >
+	     	<dwr:include method="selectBoardSkinIdCount"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+
+ 	 <bean id="deleteQrcodeFileCommon" class="egovframework.rfc3.qrcode.service.impl.QrcodeServiceImpl">
+     <dwr:remote javascript="deleteQrcodeFileCommon" >
+     	<dwr:include method="deleteQrcodeFileCommon"/>
+     </dwr:remote>
+      <aop:scoped-proxy/>
+ 	</bean>	 
+
+
+	 <bean id="selectBoardActionCount" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="selectBoardActionCount" >
+	     	<dwr:include method="selectBoardActionCount"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="updateDataRegisterDt" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="updateDataRegisterDt" >
+	     	<dwr:include method="updateDataRegisterDt"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="insertFileId" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="insertFileId" >
+	     	<dwr:include method="insertFileId"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	  <bean id="updateFileNoQrcodeFileCommon" class="egovframework.rfc3.qrcode.service.impl.QrcodeServiceImpl">
+	     <dwr:remote javascript="updateFileNoQrcodeFileCommon" >
+	     	<dwr:include method="updateFileNoQrcodeFileCommon"/>
+	     </dwr:remote>
+	          <aop:scoped-proxy/>
+	 </bean>
+	 
+	  <bean id="updateTopSkin" class="egovframework.rfc3.qrcode.service.impl.QrcodeServiceImpl">
+	     <dwr:remote javascript="updateTopSkin" >
+	     	<dwr:include method="updateTopSkin"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>	 
+
+	 <bean id="selectPopupCategory" class="egovframework.rfc3.popup.service.impl.PopupServiceImpl">
+	     <dwr:remote javascript="selectPopupCategory" >
+	     	<dwr:include method="selectPopupCategory"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="checkPopupCategory" class="egovframework.rfc3.popup.service.impl.PopupServiceImpl">
+	     <dwr:remote javascript="checkPopupCategory" >
+	     	<dwr:include method="checkPopupCategory"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="autoCreateUser" class="egovframework.rfc3.research.service.impl.ReSearchSericeImpl">
+	     <dwr:remote javascript="autoCreateUser" >
+	     	<dwr:include method="autoCreateUser"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="updateToolsOrderOrderSTatus" class="egovframework.rfc3.teachingtool.service.impl.TeachingServiceImpl">
+	     <dwr:remote javascript="updateToolsOrderOrderSTatus" >
+	     	<dwr:include method="updateToolsOrderOrderSTatus"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="insertBasket" class="egovframework.rfc3.teachingtool.service.impl.TeachingServiceImpl">
+	     <dwr:remote javascript="insertBasket" >
+	     	<dwr:include method="insertBasket"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="updateBasket" class="egovframework.rfc3.teachingtool.service.impl.TeachingServiceImpl">
+	     <dwr:remote javascript="updateBasket" >
+	     	<dwr:include method="updateBasket"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="deleteToolsBasket" class="egovframework.rfc3.teachingtool.service.impl.TeachingServiceImpl">
+	     <dwr:remote javascript="deleteToolsBasket" >
+	     	<dwr:include method="deleteToolsBasket"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="updateOrderGoods" class="egovframework.rfc3.teachingtool.service.impl.TeachingServiceImpl">
+	     <dwr:remote javascript="updateOrderGoods" >
+	     	<dwr:include method="updateOrderGoods"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="updateOrderGoods1" class="egovframework.rfc3.teachingtool.service.impl.TeachingServiceImpl">
+	     <dwr:remote javascript="updateOrderGoods1" >
+	     	<dwr:include method="updateOrderGoods1"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="deleteOrderGoodsToToolsOrdGoodSid" class="egovframework.rfc3.teachingtool.service.impl.TeachingServiceImpl">
+	     <dwr:remote javascript="deleteOrderGoodsToToolsOrdGoodSid" >
+	     	<dwr:include method="deleteOrderGoodsToToolsOrdGoodSid"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="selectGoodsSearch" class="egovframework.rfc3.fooderp.service.impl.ErpServiceImpl">
+	     <dwr:remote javascript="selectGoodsSearch" >
+	     	<dwr:include method="selectGoodsSearch"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	<bean id="deleteBizProd" class="egovframework.rfc3.fooderp.service.impl.ErpServiceImpl">
+	     <dwr:remote javascript="deleteBizProd" >
+	     	<dwr:include method="deleteBizProd"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	  <bean id="deleteFarmMstVO" class="egovframework.rfc3.fooderp.service.impl.ErpServiceImpl">
+	     <dwr:remote javascript="deleteFarmMstVO" >
+	     	<dwr:include method="deleteFarmMstVO"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="updateApplyerFinishStatus" class="egovframework.rfc3.research.service.impl.ReSearchSericeImpl">
+	     <dwr:remote javascript="updateApplyerFinishStatus" >
+	     	<dwr:include method="updateApplyerFinishStatus"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	
+	<bean id="componentIdCheckDwr" class="egovframework.rfc3.component.service.impl.ComponentServiceImpl">
+	     <dwr:remote javascript="componentIdCheckDwr" >
+	     	<dwr:include method="getComponent"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	<bean id="updateDataTmpField" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="updateDataTmpField" >
+	     	<dwr:include method="updateDataTmpField"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+
+	<bean id="memSessionSetChild" class="egovframework.rfc3.user.service.impl.MberManageServiceImpl">
+	     <dwr:remote javascript="memSessionSetChild" >
+	     	<dwr:include method="memSessionSetChild"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>	 
+	 
+	 	 <bean id="selectOfficePartMenuList4" class="egovframework.rfc3.office.service.impl.OfficePartServiceImpl">
+	     <dwr:remote javascript="selectOfficePartMenuList4">
+	     	<dwr:include method="selectOfficePartMenuList4"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="getLoginUserInfoTotSomeDwr" class="egovframework.rfc3.login.service.impl.RFCLoginServiceImpl">
+	     <dwr:remote javascript="getLoginUserInfoTotSomeDwr">
+	     	<dwr:include method="getLoginUserInfoTotSomeDwr"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="getPassInit" class="egovframework.rfc3.user.service.impl.MberManageServiceImpl">
+	     <dwr:remote javascript="getPassInit">
+	     	<dwr:include method="getPassInit"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 
+	 <bean id="saeolDwrService" class="egovframework.rfc3.office.service.impl.OfficeServiceImpl">
+	     <dwr:remote javascript="saeolDwrService" >
+	     	<dwr:include method="saeolDwrService"/>
+	     </dwr:remote>
+	      <aop:scoped-proxy/>
+	 </bean>
+	 
+	 <bean id="getLoginUserInfoTotSomeInfoDwr" class="egovframework.rfc3.login.service.impl.RFCLoginServiceImpl">
+	     <dwr:remote javascript="getLoginUserInfoTotSomeInfoDwr">
+	     	<dwr:include method="getLoginUserInfoTotSomeInfoDwr"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 
+	 
+	 
+	 <bean id="getExtendedSelectNot" class="egovframework.rfc3.board.service.impl.BoardServiceImpl">
+	     <dwr:remote javascript="getExtendedSelectNot" >
+	     	<dwr:include method="getExtendedSelectNot"/>
+	     </dwr:remote>
+	     <aop:scoped-proxy/>
+	 </bean>
+	 
+	 
+
+</beans>

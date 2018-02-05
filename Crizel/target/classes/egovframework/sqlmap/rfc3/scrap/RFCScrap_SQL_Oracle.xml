@@ -1,0 +1,173 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCScrapManage">
+	<typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+    <typeAlias  alias="scrapVO"	 type = "egovframework.rfc3.scrap.vo.ScrapVO"/>
+    <typeAlias  alias="scrapDirectoryVO"	 type = "egovframework.rfc3.scrap.vo.ScrapDirectoryVO"/>
+    
+    <cacheModel type="${Globals.ibatis.default.cache}" id="RFCScrapManageCache" readOnly="true" serialize="false">
+      <flushInterval hours="24" />
+      	<flushOnExecute statement="scrapDAO.insertScrap"/>
+      	<flushOnExecute statement="scrapDAO.updateScrap"/>
+      	<flushOnExecute statement="scrapDAO.deleteScrap"/>
+      	<flushOnExecute statement="scrapDAO.insertScrapDirectory"/>
+      	<flushOnExecute statement="scrapDAO.updateScrapDirectory"/>
+      	<flushOnExecute statement="scrapDAO.deleteScrapDirectory"/>
+     </cacheModel>
+     
+     <select id="scrapDAO.selectScrap" parameterClass="scrapVO"  resultClass="scrapVO" cacheModel="RFCScrapManageCache">
+			       	SELECT
+			       			SCRAP_SID scrapSid,
+							SGROUP_ID sgroupId,
+							DOMAIN_ID domainId,
+							USER_ID userId,
+							SCRAP_DIR_SID scrapDirSid,
+							SCRAP_TITLE scrapTitle,
+							SCRAP_URL scrapUrl,
+							REGISTER_DATE register_dt
+						FROM
+						    RFC_COMTNSCRAP
+						WHERE
+							USER_ID = #userId#
+							<isNotEmpty prepend="AND" property="scrapDirSid" >
+				          		     SCRAP_DIR_SID = #scrapDirSid#
+				            </isNotEmpty>
+							<isNotEmpty prepend="AND" property="sgroupId" >
+				          		     SGROUP_ID = #sgroupId#
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="domainId" >
+				          		     DOMAIN_ID  = #domainId#
+				            </isNotEmpty>						
+	</select>
+	
+	<select id="scrapDAO.getScrap" parameterClass="scrapVO"  resultClass="scrapVO" cacheModel="RFCScrapManageCache">
+			       	SELECT
+			       			SCRAP_SID scrapSid,
+							SGROUP_ID sgroupId,
+							DOMAIN_ID domainId,
+							USER_ID userId,
+							SCRAP_DIR_SID scrapDirSid,
+							SCRAP_TITLE scrapTitle,
+							SCRAP_URL scrapUrl,
+							REGISTER_DATE register_dt
+						FROM
+						    RFC_COMTNSCRAP
+						WHERE
+							USER_ID = #userId# AND SCRAP_SID = #scrapSid#
+	</select>
+     
+     <insert id="scrapDAO.insertScrap"  parameterClass="scrapVO">
+					INSERT INTO RFC_COMTNSCRAP
+					( 
+						SCRAP_SID,
+						SGROUP_ID,
+						DOMAIN_ID,
+						USER_ID,
+						SCRAP_DIR_SID,
+						SCRAP_TITLE,
+						SCRAP_URL,
+						REGISTER_DATE
+					)
+					VALUES (
+						#scrapSid#,
+						#sgroupId#,
+						#domainId#,
+						#userId#,
+						#scrapDirSid#,
+						#scrapTitle#,
+						#scrapUrl#,
+						#register_dt#
+					)
+	</insert>	
+	
+	<update id="scrapDAO.updateScrap"  parameterClass="scrapVO">
+					UPDATE RFC_COMTNSCRAP
+					SET
+						SCRAP_DIR_SID=#scrapDirSid#,
+						SCRAP_TITLE=#scrapTitle#,
+						SCRAP_URL=#scrapUrl#
+					WHERE
+						SCRAP_SID = #scrapSid# AND USER_ID = #userId#
+	</update>
+	
+	<delete id="scrapDAO.deleteScrap"  parameterClass="scrapVO">
+					DELETE FROM RFC_COMTNSCRAP
+					WHERE
+						USER_ID = #userId#
+						<isNotEqual prepend="AND" property="scrapSid" compareValue="0">						
+			          		     SCRAP_SID = #scrapSid#
+			            </isNotEqual>
+			            <isNotEqual prepend="AND" property="scrapDirSid" compareValue="0">
+			            		SCRAP_DIR_SID = #scrapDirSid#
+			            </isNotEqual>						
+	</delete>
+	
+     <select id="scrapDAO.selectScrapDirectory" parameterClass="scrapDirectoryVO"  resultClass="scrapDirectoryVO" cacheModel="RFCScrapManageCache">
+			       	SELECT
+			       			SCRAP_DIR_SID scrapDirSid,
+							SGROUP_ID sgroupId,
+							DOMAIN_ID domainId,
+							USER_ID userId,
+							SCRAP_DIR_NAME scrapDirName,
+							REGISTER_DATE register_dt
+						FROM
+						    RFC_COMTNSCRAPDIR
+						WHERE
+							USER_ID = #userId#							
+							<isNotEmpty prepend="AND" property="sgroupId" >
+				          		     SGROUP_ID = #sgroupId#
+				            </isNotEmpty>
+				            <isNotEmpty prepend="AND" property="domainId" >
+				          		     DOMAIN_ID  = #domainId#
+				            </isNotEmpty>						
+	</select>
+	
+	<select id="scrapDAO.getScrapDirectory" parameterClass="scrapDirectoryVO"  resultClass="scrapDirectoryVO" cacheModel="RFCScrapManageCache">
+			       	SELECT
+			       			SCRAP_DIR_SID scrapDirSid,
+							SGROUP_ID sgroupId,
+							DOMAIN_ID domainId,
+							USER_ID userId,
+							SCRAP_DIR_NAME scrapDirName,
+							REGISTER_DATE register_dt
+						FROM
+						    RFC_COMTNSCRAPDIR
+						WHERE
+							USER_ID = #userId# AND SCRAP_DIR_SID = #scrapDirSid#										
+	</select>
+	
+     <insert id="scrapDAO.insertScrapDirectory"  parameterClass="scrapDirectoryVO">
+					INSERT INTO RFC_COMTNSCRAPDIR
+					( 
+						SCRAP_DIR_SID,
+						SGROUP_ID,
+						DOMAIN_ID,
+						USER_ID,
+						SCRAP_DIR_NAME,
+						REGISTER_DATE
+					)
+					VALUES (
+						#scrapDirSid#,
+						#sgroupId#,
+						#domainId#,
+						#userId#,
+						#scrapDirName#,
+						#register_dt#
+					)
+	</insert>	
+	
+	<update id="scrapDAO.updateScrapDirectory"  parameterClass="scrapDirectoryVO">
+				UPDATE RFC_COMTNSCRAPDIR 
+				SET
+					SCRAP_DIR_NAME = #scrapDirName#
+				WHERE
+					SCRAP_DIR_SID = #scrapDirSid# AND USER_ID = #userId#
+	</update>
+	
+	<delete id="scrapDAO.deleteScrapDirectory"  parameterClass="scrapDirectoryVO">
+				DELETE FROM RFC_COMTNSCRAPDIR 
+				WHERE
+					SCRAP_DIR_SID = #scrapDirSid# AND USER_ID = #userId#
+	</delete>		
+ 
+</sqlMap>

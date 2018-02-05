@@ -1,0 +1,753 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" "http://ibatis.apache.org/dtd/sql-map-2.dtd" >
+<sqlMap namespace="RFCCategory">
+	 <typeAlias  alias="egovMap"      type = "egovframework.rte.psl.dataaccess.util.EgovMap"/>
+     <typeAlias  alias="categoryVO" type = "egovframework.rfc3.category.vo.CategoryVO"/>
+     <typeAlias  alias="categoryCode1VO" type = "egovframework.rfc3.category.vo.CategoryCode1VO"/>
+     <typeAlias  alias="categoryCode2VO" type = "egovframework.rfc3.category.vo.CategoryCode2VO"/>
+     <typeAlias  alias="categoryCode3VO" type = "egovframework.rfc3.category.vo.CategoryCode3VO"/>
+     
+     <cacheModel type="${Globals.ibatis.default.cache}" id="RFCCategoryCache" readOnly="true" serialize="false">
+     	<flushInterval hours="24" />
+     	<flushOnExecute statement="CategoryCommonDAO.insertCategorysList"/>
+     	<flushOnExecute statement="CategoryCommonDAO.insertCategory1List"/>
+     	<flushOnExecute statement="CategoryCommonDAO.insertCategory2List"/>
+     	<flushOnExecute statement="CategoryCommonDAO.insertCategory3List"/>
+     	
+     	<flushOnExecute statement="CategoryCommonDAO.updateCommon"/>
+     	<flushOnExecute statement="CategoryCommonDAO.updateCategory1"/>
+     	<flushOnExecute statement="CategoryCommonDAO.updateCategory2"/>
+     	<flushOnExecute statement="CategoryCommonDAO.updateCategory3"/>
+     	
+     	<flushOnExecute statement="CategoryCommonDAO.deleteCommon"/>
+     	<flushOnExecute statement="CategoryCommonDAO.deleteCategory1"/>
+     	<flushOnExecute statement="CategoryCommonDAO.deleteCategory2"/>
+     	<flushOnExecute statement="CategoryCommonDAO.deleteCategory3"/>
+     </cacheModel>
+      
+      
+<!-- 
+RFC_COMTCCOMMON_CATEGORY
+RFC_COMTCCOMMON_CATEGORY1
+RFC_COMTCCOMMON_CATEGORY2
+RFC_COMTCCOMMON_CATEGORY3
+
+CATE_SID		cateSid
+CATE_CD			cateCd
+CATE_NM			cateNm
+CATE_DATE		cateDate
+CATE_IS_USE		cateIsUse
+      
+      
+CATE1_SID		cate1Sid
+CATE_CD			cateCd
+CATE1_CD		cate1Cd
+CATE1_NM		cate1Nm
+CATE1_CONTENT1	cate1Content1
+CATE1_CONTENT2	cate1Content2
+CATE1_CONTENT3	cate1Content3
+CATE1_DATE		cate1Date
+CATE1_IS_USE	cate1IsUse
+CATE1_IDX		cate1Idx
+
+
+CATE2_SID		cate2Sid
+CATE_CD			cateCd
+CATE1_CD		cate1Cd
+CATE2_CD		cate2Cd
+CATE2_NM		cate2Nm
+CATE2_CONTENT1	cate2Content1
+CATE2_CONTENT2	cate2Content2
+CATE2_CONTENT3	cate2Content3
+CATE2_DATE		cate2Date
+CATE2_IS_USE	cate2IsUse
+CATE2_IDX		cate2Idx
+
+
+CATE3_SID		cate3Sid
+CATE_CD			cateCd
+CATE1_CD		cate1Cd
+CATE2_CD		cate2Cd
+CATE3_CD		cate3Cd
+CATE3_NM		cate3Nm
+CATE3_CONTENT1	cate3Content1
+CATE3_CONTENT2	cate3Content2
+CATE3_CONTENT3	cate3Content3
+CATE3_DATE		cate3Date
+CATE3_IS_USE	cate3IsUse
+CATE3_IDX		cate3Idx
+ -->
+      <resultMap id="commoncategory" class="egovframework.rfc3.category.vo.CategoryVO">
+		<result property="cateSid" column="cateSid" /> 
+		<result property="cateCd" column="cateCd" /> 
+		<result property="cateNm" column="cateNm" /> 
+		<result property="cateDate" column="cateDate" /> 
+		<result property="cateIsUse" column="cateIsUse" /> 
+		<result property="subCnt" column="subCnt" /> 
+	  </resultMap>
+
+	  <resultMap id="category1" class="egovframework.rfc3.category.vo.CategoryCode1VO">
+		<result property="cate1Sid" column="cate1Sid" /> 
+		<result property="cateCd" column="cateCd" /> 
+		<result property="cate1Cd" column="cate1Cd" /> 
+		<result property="cate1Nm" column="cate1Nm" /> 
+		<result property="cate1Content1" column="cate1Content1" /> 
+		<result property="cate1Content2" column="cate1Content2" /> 
+		<result property="cate1Content3" column="cate1Content3" /> 
+		<result property="cate1Date" column="cate1Date" /> 
+		<result property="cate1IsUse" column="cate1IsUse" /> 
+		<result property="cate1Idx" column="cate1Idx" /> 
+		<result property="subCnt" column="subCnt" />		
+	  </resultMap>
+
+	  <resultMap id="category2" class="egovframework.rfc3.category.vo.CategoryCode2VO">
+		<result property="cate2Sid" column="cate2Sid" /> 
+		<result property="cateCd" column="cateCd" /> 
+		<result property="cate1Cd" column="cate1Cd" /> 
+		<result property="cate2Cd" column="cate2Cd" /> 
+		<result property="cate2Nm" column="cate2Nm" /> 
+		<result property="cate2Content1" column="cate2Content1" /> 
+		<result property="cate2Content2" column="cate2Content2" />
+		<result property="cate2Content3" column="cate2Content3" />
+		<result property="cate2Date" column="cate2Date" />
+		<result property="cate2IsUse" column="cate2IsUse" />
+		<result property="cate2Idx" column="cate2Idx" />
+		<result property="subCnt" column="subCnt" />		
+      </resultMap>
+
+	  <resultMap id="category3" class="egovframework.rfc3.category.vo.CategoryCode3VO">
+		<result property="cate3Sid" column="cate3Sid" /> 
+		<result property="cateCd" column="cateCd" /> 
+		<result property="cate1Cd" column="cate1Cd" /> 
+		<result property="cate2Cd" column="cate2Cd" /> 
+		<result property="cate3Cd" column="cate3Cd" /> 
+		<result property="cate3Nm" column="cate3Nm" /> 
+		<result property="cate3Content1" column="cate3Content1" /> 
+		<result property="cate3Content2" column="cate3Content2" /> 
+		<result property="cate3Content3" column="cate3Content3" /> 
+		<result property="cate3Date" column="cate3Date" /> 
+		<result property="cate3IsUse" column="cate3IsUse" /> 
+		<result property="cate3Idx" column="cate3Idx" /> 
+      </resultMap>
+    <!-- ************************************************************ COMMON CATEGORY ******************************************************** -->
+    <!-- 공통코드 카운트  -->
+     <select id="CategoryCommonDAO.selectCategoryCommonTotCnt"  parameterClass="CategoryVO" resultClass="int" cacheModel="RFCCategoryCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   
+						 		RFC_COMTCCOMMON_CATEGORY
+						<dynamic prepend="WHERE">
+						    <isNotEmpty prepend="AND"  property="cateCd" >
+			          		   CATE_CD= #cateCd# 
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+				         </dynamic>
+				       
+	</select>
+	<!-- 공통코드1차 카운트  -->
+	<select id="CategoryCommonDAO.selectCategory1TotCnt"  parameterClass="CategoryCode1VO" resultClass="int" cacheModel="RFCCategoryCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM  
+						 		 RFC_COMTCCOMMON_CATEGORY1
+						WHERE
+								CATE_CD  =  #cateCd# 
+							<isNotEmpty prepend="AND"  property="cate1Cd" >
+			          		   CATE1_CD= #cate1Cd# 
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+	</select>
+	<!-- 공통코드2차 카운트  -->
+	<select id="CategoryCommonDAO.selectCategory2TotCnt"  parameterClass="CategoryCode2VO" resultClass="int" cacheModel="RFCCategoryCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM  
+						      RFC_COMTCCOMMON_CATEGORY2
+						WHERE
+						     CATE_CD  =  #cateCd# 
+						     and CATE1_CD=#cate1Cd#
+						     <isNotEmpty prepend="AND"  property="cate2Cd" >
+			          		   CATE2_CD= #cate2Cd# 
+			           		</isNotEmpty> 
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+				       
+	</select>
+	<!-- 공통코드3차 카운트  -->
+	<select id="CategoryCommonDAO.selectCategory3TotCnt"  parameterClass="CategoryCode3VO" resultClass="int" cacheModel="RFCCategoryCache">
+						SELECT 
+								COUNT(*) totcnt
+						 FROM   
+						 	   RFC_COMTCCOMMON_CATEGORY3
+						 WHERE
+						 	 CATE_CD =#cateCd# 
+						 	 and CATE1_CD=#cate1Cd#  
+						 	 and CATE2_CD=#cate2Cd#
+						 	 <isNotEmpty prepend="AND"  property="cate3Cd" >
+			          		   CATE3_CD= #cate3Cd# 
+			           		</isNotEmpty>  
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+				       
+	</select>
+	<!-- 공통코드 리스트   -->
+	<select id="CategoryCommonDAO.selectCategoryCommonList" parameterClass="CategoryVO"  resultMap="commoncategory" cacheModel="RFCCategoryCache">
+			          SELECT 
+								CATE_SID		cateSid,
+								CATE_CD			cateCd,
+								CATE_NM			cateNm,
+								CATE_DATE		cateDate,
+								CATE_IS_USE		cateIsUse,	
+								(SELECT COUNT(*) FROM RFC_COMTCCOMMON_CATEGORY1 WHERE CATE_CD = A.CATE_CD)	subCnt																			
+					FROM  RFC_COMTCCOMMON_CATEGORY A
+					<dynamic prepend="WHERE">
+							<isNotEmpty prepend="AND"  property="cateCd" >
+			          		   CATE_CD= #cateCd# 
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+				         </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+		              	LIMIT #recordCountPerPage# OFFSET #firstIndex#
+	</select>	
+	
+	<!-- 공통코드1차 리스트   -->
+	<select id="CategoryCommonDAO.selectCategory1List" parameterClass="CategoryCode1VO"  resultMap="category1" cacheModel="RFCCategoryCache">
+			          SELECT 
+							CATE1_SID					cate1Sid,
+							CATE_CD					cateCd,
+							CATE1_CD					cate1Cd,
+							CATE1_NM					cate1Nm,
+							CATE1_CONTENT1	cate1Content1,
+							CATE1_CONTENT2	cate1Content2,
+							CATE1_CONTENT3	cate1Content3,
+							CATE1_DATE				cate1Date,
+							CATE1_IS_USE			cate1IsUse,
+							CATE1_IDX					cate1Idx,
+							(SELECT COUNT(*) FROM RFC_COMTCCOMMON_CATEGORY2 WHERE CATE_CD = A.CATE_CD AND CATE1_CD = A.CATE1_CD)	subCnt				
+																							
+					FROM  RFC_COMTCCOMMON_CATEGORY1 A
+					WHERE
+						 CATE_CD  = #cateCd# 
+						<isNotEmpty prepend="AND"  property="cate1Cd" >
+			          		   CATE1_CD= #cate1Cd# 
+			           	</isNotEmpty>
+			           	<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           	</isNotEmpty>
+		                <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		                 </isNotEmpty>
+		              	LIMIT #recordCountPerPage# OFFSET #firstIndex#
+	</select>	
+	
+	<!-- 공통코드2차 리스트   -->
+	<select id="CategoryCommonDAO.selectCategory2List" parameterClass="CategoryCode2VO"  resultMap="category2" cacheModel="RFCCategoryCache">
+			          SELECT 
+							CATE2_SID					cate2Sid,
+							CATE_CD					cateCd,
+							CATE1_CD					cate1Cd,
+							CATE2_CD					cate2Cd,
+							CATE2_NM					cate2Nm,
+							CATE2_CONTENT1	cate2Content1,
+							CATE2_CONTENT2	cate2Content2,
+							CATE2_CONTENT3	cate2Content3,
+							CATE2_DATE				cate2Date,
+							CATE2_IS_USE			cate2IsUse,
+							CATE2_IDX					cate2Idx,
+							(SELECT COUNT(*) FROM RFC_COMTCCOMMON_CATEGORY3 WHERE CATE_CD = A.CATE_CD AND CATE1_CD = A.CATE1_CD AND CATE2_CD = A.CATE2_CD)	subCnt				
+																							
+					FROM  RFC_COMTCCOMMON_CATEGORY2 A
+					WHERE
+						     CATE_CD  =  #cateCd# 
+						     and CATE1_CD=#cate1Cd#
+						     <isNotEmpty prepend="AND"  property="cate2Cd" >
+			          		   CATE2_CD= #cate2Cd# 
+			           		</isNotEmpty>  
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+				            <isNotEmpty  property="orderField" >
+				            	 ORDER BY  $orderField$   $orderSort$
+				            </isNotEmpty>
+		              		LIMIT #recordCountPerPage# OFFSET #firstIndex#
+	</select>	
+	
+	<!-- 공통코드3차 리스트   -->
+		<select id="CategoryCommonDAO.selectCategory3List" parameterClass="CategoryCode3VO"  resultMap="category3" cacheModel="RFCCategoryCache">
+			          SELECT 
+							CATE3_SID					cate3Sid,
+							CATE_CD					cateCd,
+							CATE1_CD					cate1Cd,
+							CATE2_CD					cate2Cd,
+							CATE3_CD					cate3Cd,
+							CATE3_NM					cate3Nm,
+							CATE3_CONTENT1	cate3Content1,
+							CATE3_CONTENT2	cate3Content2,
+							CATE3_CONTENT3	cate3Content3,
+							CATE3_DATE				cate3Date,
+							CATE3_IS_USE			cate3IsUse,
+							CATE3_IDX					cate3Idx
+																							
+					FROM  
+							RFC_COMTCCOMMON_CATEGORY3 A
+					 WHERE
+						 	  CATE_CD =#cateCd# 
+						 	  and CATE1_CD=#cate1Cd#  
+						 	  and CATE2_CD=#cate2Cd#
+						 	 <isNotEmpty prepend="AND"  property="cate3Cd" >
+			          		   CATE3_CD= #cate3Cd# 
+			           		</isNotEmpty>   
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+				            <isNotEmpty  property="orderField" >
+				            	 ORDER BY  $orderField$   $orderSort$
+				            </isNotEmpty>
+		              		LIMIT #recordCountPerPage# OFFSET #firstIndex#
+	</select>	
+	
+	<!-- 공통코드 입력 -->
+	<insert id="CategoryCommonDAO.insertCategorysList" parameterClass="CategoryVO">
+				INSERT INTO 
+				  	RFC_COMTCCOMMON_CATEGORY  (
+						CATE_SID,		
+						CATE_CD,			
+						CATE_NM,			
+						CATE_DATE,		
+						CATE_IS_USE						
+				) VALUES (
+						#cateSid#,
+						#cateCd#,								
+						#cateNm#,										
+						#cateDate#,
+						#cateIsUse#
+				)
+	</insert>
+	
+	<!-- 카테고리 1차 입력 -->
+	<insert id="CategoryCommonDAO.insertCategory1List" parameterClass="CategoryCode1VO">
+			INSERT INTO 
+				  	RFC_COMTCCOMMON_CATEGORY1  (
+						CATE1_SID	,
+						CATE_CD,			
+						CATE1_CD,		
+						CATE1_NM,	
+						CATE1_CONTENT1,	
+						CATE1_CONTENT2,	
+						CATE1_CONTENT3,	
+						CATE1_DATE,		
+						CATE1_IS_USE,	
+						CATE1_IDX		
+				) VALUES (
+						#cate1Sid#,
+						#cateCd#,
+						#cate1Cd#,
+						#cate1Nm#,
+						#cate1Content1#,
+						#cate1Content2#,
+						#cate1Content3#,
+						#cate1Date#,
+						#cate1IsUse#,
+						#cate1Idx#
+						
+				)
+	</insert>	
+	
+	<!-- 카테고리 2차 입력 -->
+	<insert id="CategoryCommonDAO.insertCategory2List" parameterClass="CategoryCode2VO">
+			INSERT INTO 
+				  	RFC_COMTCCOMMON_CATEGORY2  (
+						CATE2_SID	,	
+						CATE_CD,			
+						CATE1_CD,		
+						CATE2_CD,	
+						CATE2_NM,		
+						CATE2_CONTENT1,	
+						CATE2_CONTENT2,	
+						CATE2_CONTENT3,	
+						CATE2_DATE,		
+						CATE2_IS_USE,	
+						CATE2_IDX			
+				) VALUES (
+						#cate2Sid#,
+						#cateCd#,
+						#cate1Cd#,
+						#cate2Cd#,
+						#cate2Nm#,
+						#cate2Content1#,
+						#cate2Content2#,
+						#cate2Content3#,
+						#cate2Date#,
+						#cate2IsUse#,
+						#cate2Idx#
+				)
+	</insert>	
+	
+	<!-- 카테고리 3차 입력 -->
+	<insert id="CategoryCommonDAO.insertCategory3List" parameterClass="CategoryCode3VO">
+			INSERT INTO 
+				  	RFC_COMTCCOMMON_CATEGORY3  (
+						CATE3_SID,	
+						CATE_CD,			
+						CATE1_CD,		
+						CATE2_CD,	
+						CATE3_CD,	
+						CATE3_NM,	
+						CATE3_CONTENT1,	
+						CATE3_CONTENT2,	
+						CATE3_CONTENT3,	
+						CATE3_DATE,		
+						CATE3_IS_USE,	
+						CATE3_IDX			
+				) VALUES (
+						#cate3Sid#,
+						#cateCd#,
+						#cate1Cd#,
+						#cate2Cd#,
+						#cate3Cd#,
+						#cate3Nm#,
+						#cate3Content1#,
+						#cate3Content2#,
+						#cate3Content3#,
+						#cate3Date#,
+						#cate3IsUse#,
+						#cate3Idx#
+				)
+	</insert>	
+	
+	<!-- 공통코드 VOList -->
+	<select id="CategoryCommonDAO.selectCategoryCommonVOList" parameterClass="CategoryVO"  resultMap="commoncategory" cacheModel="RFCCategoryCache">
+			          SELECT 
+								CATE_SID			cateSid,
+								CATE_CD			cateCd,
+								CATE_NM			cateNm,
+								CATE_DATE		cateDate,
+								CATE_IS_USE	cateIsUse,
+								0	subCnt																										
+					FROM  RFC_COMTCCOMMON_CATEGORY
+					<dynamic prepend="WHERE">
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+				    		<isNotEmpty prepend="AND"  property="cateIsUse" >
+			          		  	 CATE_IS_USE  =  #cateIsUse#
+			           		</isNotEmpty>
+				    </dynamic>
+		            <isNotEmpty  property="orderField" >
+		            	 ORDER BY  $orderField$   $orderSort$
+		            </isNotEmpty>
+	</select>	
+	<!-- 공통코드 VO -->
+	<select id="CategoryCommonDAO.selectCategoryCommonVO" parameterClass="CategoryVO"  resultMap="commoncategory" cacheModel="RFCCategoryCache">
+			          SELECT 
+								CATE_SID			cateSid,
+								CATE_CD			cateCd,
+								CATE_NM			cateNm,
+								CATE_DATE		cateDate,
+								CATE_IS_USE	cateIsUse,
+								0	subCnt																										
+					FROM 
+							 RFC_COMTCCOMMON_CATEGORY
+					WHERE
+							1=1
+							<isNotEqual property="cateSid" compareValue="0">
+			         	  		<isNotEmpty prepend="AND"  property="cateSid" >
+			          			     CATE_SID = #cateSid#
+			           			</isNotEmpty>
+				    		</isNotEqual> 
+				            <isNotEmpty prepend="AND"  property="cateCd" >
+			          		  	 CATE_CD  =  #cateCd#
+			           		</isNotEmpty>
+					  	
+	</select>	
+	
+	
+
+	<!-- 카테고리 1차 VOList -->
+	<select id="CategoryCommonDAO.selectCategory1VOList" parameterClass="CategoryCode1VO"  resultMap="category1" cacheModel="RFCCategoryCache">
+			          SELECT 
+							CATE1_SID					cate1Sid,
+							CATE_CD					cateCd,
+							CATE1_CD					cate1Cd,
+							CATE1_NM					cate1Nm,
+							CATE1_CONTENT1	cate1Content1,
+							CATE1_CONTENT2	cate1Content2,
+							CATE1_CONTENT3	cate1Content3,
+							CATE1_DATE				cate1Date,
+							CATE1_IS_USE			cate1IsUse,
+							CATE1_IDX					cate1Idx,
+							0	subCnt																										
+					FROM  
+						RFC_COMTCCOMMON_CATEGORY1
+					WHERE 
+				          	 CATE_CD = #cateCd#  
+				          <isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>		
+				           	<isNotEmpty prepend="AND"  property="cate1IsUse" >
+			          		  	 CATE1_IS_USE  =  #cate1IsUse#
+			           		</isNotEmpty>
+				            <isNotEmpty  property="orderField" >
+				            	 ORDER BY  $orderField$   $orderSort$
+				            </isNotEmpty>
+	</select>	
+	<!-- 카테고리 1차 VO -->
+	<select id="CategoryCommonDAO.selectCategory1VO" parameterClass="CategoryCode1VO"  resultMap="category1" cacheModel="RFCCategoryCache">
+			          SELECT 
+							CATE1_SID					cate1Sid,
+							CATE_CD					cateCd,
+							CATE1_CD					cate1Cd,
+							CATE1_NM					cate1Nm,
+							CATE1_CONTENT1	cate1Content1,
+							CATE1_CONTENT2	cate1Content2,
+							CATE1_CONTENT3	cate1Content3,
+							CATE1_DATE				cate1Date,
+							CATE1_IS_USE			cate1IsUse,
+							CATE1_IDX					cate1Idx,
+							0	subCnt																										
+					FROM  
+								RFC_COMTCCOMMON_CATEGORY1
+					WHERE
+							1=1
+							<isNotEqual property="cate1Sid" compareValue="0">
+			         	  		<isNotEmpty prepend="AND"  property="cate1Sid" >
+			          			     CATE1_SID = #cate1Sid#
+			           			</isNotEmpty>
+				    		</isNotEqual> 
+				            <isNotEmpty prepend="AND"  property="cateCd" >
+			          		  	 CATE_CD  =  #cateCd#
+			           		</isNotEmpty>
+			           		 <isNotEmpty prepend="AND"  property="cate1Cd" >
+			          		  	 CATE1_CD  =  #cate1Cd#
+			           		</isNotEmpty>
+				          	  
+	</select>	
+	
+	<!-- 카테고리 2차  VOList  -->
+	<select id="CategoryCommonDAO.selectCategory2VOList" parameterClass="CategoryCode2VO"  resultMap="category2" cacheModel="RFCCategoryCache">
+			          SELECT 
+							CATE2_SID					cate2Sid,
+							CATE_CD					cateCd,
+							CATE1_CD					cate1Cd,
+							CATE2_CD					cate2Cd,
+							CATE2_NM					cate2Nm,
+							CATE2_CONTENT1	cate2Content1,
+							CATE2_CONTENT2	cate2Content2,
+							CATE2_CONTENT3	cate2Content3,
+							CATE2_DATE				cate2Date,
+							CATE2_IS_USE			cate2IsUse,
+							CATE2_IDX					cate2Idx,
+							0	subCnt																										
+					FROM 
+						 RFC_COMTCCOMMON_CATEGORY2
+					WHERE
+					      CATE_CD = #cateCd# and CATE1_CD = #cate1Cd# 
+						
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+				           	<isNotEmpty prepend="AND"  property="cate2IsUse" >
+			          		  	 CATE2_IS_USE  =  #cate2IsUse#
+			           		</isNotEmpty>
+				 
+				            <isNotEmpty  property="orderField" >
+				            	 ORDER BY  $orderField$   $orderSort$
+				            </isNotEmpty>
+	</select>	
+	
+	<!-- 카테고리 2차  VO  -->
+	<select id="CategoryCommonDAO.selectCategory2VO" parameterClass="CategoryCode2VO"  resultMap="category2" cacheModel="RFCCategoryCache">
+			          SELECT 
+							CATE2_SID					cate2Sid,
+							CATE_CD					cateCd,
+							CATE1_CD					cate1Cd,
+							CATE2_CD					cate2Cd,
+							CATE2_NM					cate2Nm,
+							CATE2_CONTENT1	cate2Content1,
+							CATE2_CONTENT2	cate2Content2,
+							CATE2_CONTENT3	cate2Content3,
+							CATE2_DATE				cate2Date,
+							CATE2_IS_USE			cate2IsUse,
+							CATE2_IDX					cate2Idx,
+							0	subCnt																										
+					FROM 
+						    RFC_COMTCCOMMON_CATEGORY2
+					WHERE
+					       1=1
+							<isNotEqual property="cate2Sid" compareValue="0">
+			         	  		<isNotEmpty prepend="AND"  property="cate2Sid" >
+			          			     CATE2_SID = #cate2Sid#
+			           			</isNotEmpty>
+				    		</isNotEqual> 
+				            <isNotEmpty prepend="AND"  property="cateCd" >
+			          		  	 CATE_CD  =  #cateCd#
+			           		</isNotEmpty>
+			           		 <isNotEmpty prepend="AND"  property="cate1Cd" >
+			          		  	 CATE1_CD  =  #cate1Cd#
+			           		</isNotEmpty>
+			           		 <isNotEmpty prepend="AND"  property="cate2Cd" >
+			          		  	 CATE2_CD  =  #cate2Cd#
+			           		</isNotEmpty>
+	</select>	
+	
+	<!-- 카테고리 3차  VOList-->
+	<select id="CategoryCommonDAO.selectCategory3VOList" parameterClass="CategoryCode3VO"  resultMap="category3" cacheModel="RFCCategoryCache">
+			          SELECT 
+							CATE3_SID					cate3Sid,
+							CATE_CD					cateCd,
+							CATE1_CD					cate1Cd,
+							CATE2_CD					cate2Cd,
+							CATE3_CD					cate3Cd,
+							CATE3_NM					cate3Nm,
+							CATE3_CONTENT1	cate3Content1,
+							CATE3_CONTENT2	cate3Content2,
+							CATE3_CONTENT3	cate3Content3,
+							CATE3_DATE				cate3Date,
+							CATE3_IS_USE			cate3IsUse,
+							CATE3_IDX					cate3Idx														
+					FROM  RFC_COMTCCOMMON_CATEGORY3
+					WHERE
+					        CATE_CD = #cateCd# and CATE1_CD = #cate1Cd# and  CATE2_CD = #cate2Cd# 
+			           		<isNotEmpty prepend="AND"  property="searchCondition" >
+			          		    $searchCondition$  LIKE  '%$searchKeyword$%'
+			           		</isNotEmpty>
+			           	
+					        <isNotEmpty prepend="AND"  property="cate3IsUse" >
+			          		  	   CATE3_IS_USE  =  #cate3IsUse#
+			           		  </isNotEmpty>
+				
+				            <isNotEmpty  property="orderField" >
+				            	 ORDER BY  $orderField$   $orderSort$
+				            </isNotEmpty>
+	</select>	
+	
+	<!-- 카테고리 3차  VO -->
+	<select id="CategoryCommonDAO.selectCategory3VO" parameterClass="CategoryCode3VO"  resultMap="category3" cacheModel="RFCCategoryCache">
+			          SELECT 
+							CATE3_SID					cate3Sid,
+							CATE_CD					cateCd,
+							CATE1_CD					cate1Cd,
+							CATE2_CD					cate2Cd,
+							CATE3_CD					cate3Cd,
+							CATE3_NM					cate3Nm,
+							CATE3_CONTENT1	cate3Content1,
+							CATE3_CONTENT2	cate3Content2,
+							CATE3_CONTENT3	cate3Content3,
+							CATE3_DATE				cate3Date,
+							CATE3_IS_USE			cate3IsUse,
+							CATE3_IDX					cate3Idx														
+					FROM  
+							RFC_COMTCCOMMON_CATEGORY3
+					WHERE
+					         1=1
+							<isNotEqual property="cate3Sid" compareValue="0">
+			         	  		<isNotEmpty prepend="AND"  property="cate3Sid" >
+			          			     CATE3_SID = #cate3Sid#
+			           			</isNotEmpty>
+				    		</isNotEqual> 
+				            <isNotEmpty prepend="AND"  property="cateCd" >
+			          		  	 CATE_CD  =  #cateCd#
+			           		</isNotEmpty>
+			           		 <isNotEmpty prepend="AND"  property="cate1Cd" >
+			          		  	 CATE1_CD  =  #cate1Cd#
+			           		</isNotEmpty>
+			           		 <isNotEmpty prepend="AND"  property="cate2Cd" >
+			          		  	 CATE2_CD  =  #cate2Cd#
+			           		</isNotEmpty>
+			           		<isNotEmpty prepend="AND"  property="cate3Cd" >
+			          		  	 CATE3_CD  =  #cate3Cd#
+			           		</isNotEmpty>
+	</select>	
+	
+	<!-- 공통코드 수정 -->
+	<update id="CategoryCommonDAO.updateCommon" parameterClass="categoryVO">
+			UPDATE
+     					RFC_COMTCCOMMON_CATEGORY
+     		SET
+								CATE_NM			= #cateNm#,
+								CATE_IS_USE	= #cateIsUse#				
+			WHERE
+							CATE_SID = #cateSid#
+	</update>
+	
+	<!-- 카테고리1차 수정 -->
+	<update id="CategoryCommonDAO.updateCategory1" parameterClass="CategoryCode1VO">
+			UPDATE
+     					RFC_COMTCCOMMON_CATEGORY1
+     		SET
+								CATE1_NM			= #cate1Nm#,
+								CATE1_CONTENT1	= #cate1Content1#,
+								CATE1_CONTENT2	= #cate1Content2#,
+								CATE1_CONTENT3	= #cate1Content3#,
+								CATE1_IS_USE	= #cate1IsUse#,	
+								CATE1_IDX	 = #cate1Idx#
+											
+			WHERE
+							CATE1_SID = #cate1Sid#
+	</update>
+	<!-- 카테고리2차 수정 -->
+		<update id="CategoryCommonDAO.updateCategory2" parameterClass="CategoryCode2VO">
+			UPDATE
+     					RFC_COMTCCOMMON_CATEGORY2
+     		SET
+								CATE2_NM			= #cate2Nm#,
+								CATE2_CONTENT1	= #cate2Content1#,
+								CATE2_CONTENT2	= #cate2Content2#,
+								CATE2_CONTENT3	= #cate2Content3#,
+								CATE2_IS_USE	= #cate2IsUse#,
+								CATE2_IDX		=	#cate2Idx#
+											
+			WHERE
+							CATE2_SID = #cate2Sid#
+	</update>
+	<!-- 카테고리3차 수정 -->
+		<update id="CategoryCommonDAO.updateCategory3" parameterClass="CategoryCode3VO">
+			UPDATE
+     					RFC_COMTCCOMMON_CATEGORY3
+     		SET
+								CATE3_NM			= #cate3Nm#,
+								CATE3_CONTENT1	= #cate3Content1#,
+								CATE3_CONTENT2	= #cate3Content2#,
+								CATE3_CONTENT3	= #cate3Content3#,
+								CATE3_IS_USE	= #cate3IsUse#,	
+								CATE3_IDX		=	#cate3Idx#
+											
+			WHERE
+							CATE3_SID = #cate3Sid#
+	</update>
+	
+	<!-- 공통코드  삭제  -->
+	<delete id="CategoryCommonDAO.deleteCommon" parameterClass="categoryVO" >
+		DELETE  FROM RFC_COMTCCOMMON_CATEGORY
+					WHERE  CATE_SID=#cateSid#
+	</delete>
+	
+	<!-- 카테고리 1차  삭제  -->
+	<delete id="CategoryCommonDAO.deleteCategory1" parameterClass="CategoryCode1VO" >
+		DELETE  FROM RFC_COMTCCOMMON_CATEGORY1
+					WHERE  CATE1_SID=#cate1Sid#
+	</delete>
+	
+	<!-- 카테고리 2차  삭제  -->
+	<delete id="CategoryCommonDAO.deleteCategory2" parameterClass="CategoryCode2VO" >
+		DELETE  FROM RFC_COMTCCOMMON_CATEGORY2
+					WHERE  CATE2_SID=#cate2Sid#
+	</delete>
+	
+	<!-- 카테고리 3차  삭제  -->
+	<delete id="CategoryCommonDAO.deleteCategory3" parameterClass="CategoryCode3VO" >
+		DELETE  FROM RFC_COMTCCOMMON_CATEGORY3
+					WHERE  CATE3_SID=#cate3Sid#
+	</delete>
+	
+</sqlMap>

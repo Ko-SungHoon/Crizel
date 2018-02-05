@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.openapi20.vo">
+	<class name="OpenApiAuthKeyVO"	table="RFC_COMTOPENAPIAUTHKEY">
+	  <cache usage="read-write"/>
+	  <comment>오픈API인증키관리테이블</comment>
+		<id name="keySid" type="long">
+			<column name="KEY_SID">
+				<comment>인증키고유번호</comment>
+   			</column>
+		</id>
+		<property name="openApiAuthKey" type="string" >
+			<column name="OPEN_API_AUTHKEY" length="128"  unique="true" >
+			<comment>인증키</comment>
+			</column>
+		</property>
+		<property name="userId" type="string" >
+			<column name="USER_ID" length="50"  not-null="true" unique="true"  >
+			<comment>신청자 아이디</comment>
+			</column>
+		</property>
+		<property name="userNm" type="string" >
+			<column name="USER_NM" length="100"   >
+			<comment>신청자 이름</comment>
+			</column>
+		</property>
+		<property name="startDay" type="string" >
+			<column name="START_DAY" length="10"  not-null="true" >
+			<comment>사용시작기간</comment>
+			</column>
+		</property>
+		<property name="endDay" type="string" >
+			<column name="END_DAY" length="10"     not-null="true" >
+			<comment>사용종료기간</comment>
+			</column>
+		</property>
+		<property name="birthDay" type="string" >
+			<column name="BIRTHDAY" length="10"   >
+			<comment>생년월일</comment>
+			</column>
+		</property>
+		<property name="zip" type="string" >
+			<column name="ZIP" length="10"   >
+			<comment>우편번호</comment>
+			</column>
+		</property>
+		<property name="addr1" type="string" >
+			<column name="ADDR1" length="300"   >
+			<comment>주소</comment>
+			</column>
+		</property>
+		<property name="addr2" type="string" >
+			<column name="ADDR2" length="200"   >
+			<comment>나머지 주소</comment>
+			</column>
+		</property>
+		<property name="tel" type="string" >
+			<column name="TEL" length="15"   >
+			<comment>연락처</comment>
+			</column>
+		</property>
+		<property name="email" type="string" >
+			<column name="EMAIL" length="50"   >
+			<comment>이메일</comment>
+			</column>
+		</property>
+		<property name="serviceNm" type="string" >
+			<column name="SERVICE_NM" length="100"   >
+			<comment>공공정보명</comment>
+			</column>
+		</property>
+		<property name="useAim" type="string" >
+			<column name="USE_AIM" length="100"   >
+			<comment>이용목적</comment>
+			</column>
+		</property>
+		<property name="serviceInfo" type="string" >
+			<column name="SERVICE_INFO" length="200"   >
+			<comment>서비스내용</comment>
+			</column>
+		</property>
+		<property name="status" type="string" >
+			<column name="STATUS" length="10"   >
+			<comment>인증상태</comment>
+			</column>
+		</property>
+		<property name="reasonNotAuth" type="string" >
+			<column name="REASON_NOT_AUTH" length="300"   >
+			<comment>서비스 제공 미사유</comment>
+			</column>
+		</property>
+		<property name="applyDate" type="timestamp" >
+			<column name="APPLY_DATE" >
+			<comment>신청일</comment>
+			</column>
+		</property>
+		<property name="serviceDate" type="timestamp" >
+			<column name="SERVICE_DATE" >
+			<comment>서비스날짜</comment>
+			</column>
+		</property>
+		<property name="smsSendDate" type="timestamp" >
+			<column name="SMS_SEND_DATE"   >
+			<comment>sms발송날짜</comment>
+			</column>
+		</property>
+	</class>
+</hibernate-mapping>

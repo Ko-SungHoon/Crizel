@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd" >
+<hibernate-mapping package="egovframework.rfc3.user.vo">
+	<class name="UserManageVO"	table="RFC_COMTNMANAGER">
+	  <cache usage="read-write"/>
+	  <comment>업무사용자 테이블</comment>
+		<id name="uniqId" type="string"  length="20" >
+			<column name="UNIQ_ID">
+				<comment>업무 사용자 일련번호</comment>
+			</column>
+		</id>    
+		<property name="emplyrId" type="string" >
+			<column name="EMPLYR_ID" length="64" unique="true"  not-null="true"  >
+				<comment>업무 사용자 ID</comment>
+			</column>
+		</property>
+		<property name="emplyrNm" type="string" >
+			<column name="EMPLYR_NM" length="60"  >
+				<comment>이름</comment>
+			</column>
+		</property>
+		<property name="ihidnum" type="string" >
+			<column name="IHID_NUM" length="64"  >
+				<comment>가상 식별번호</comment>
+			</column>
+		</property>
+		<property name="emplNo" type="string" >
+			<column name="EMPL_NO" length="20"  >
+				<comment>사원번호</comment>
+			</column>
+		</property>
+		<property name="password" type="string" >
+			<column name="PASSWORD" length="128"  >
+				<comment>패스워드</comment>
+			</column>
+		</property>
+		<property name="passwordCnsr" type="string" >
+			<column name="PASSWORD_CNSR" length="100"  >
+				<comment>패스워드 찾기 답변</comment>
+			</column>
+		</property>
+		<property name="passwordHint" type="string" >
+			<column name="PASSWORD_HINT" length="100"  >
+				<comment>패스워드 찾기 힌트</comment>
+			</column>
+		</property>
+		<property name="zip" type="string" >
+			<column name="ZIP" length="7"  >
+				<comment>우편번호</comment>
+			</column>
+		</property>
+		<property name="homeadres" type="string" >
+			<column name="HOME_ADRES" length="255"  >
+				<comment>주소</comment>
+			</column>
+		</property>
+		<property name="detailAdres" type="string" >
+			<column name="DETAIL_ADRES" length="255"  >
+				<comment>상세주소</comment>
+			</column>
+		</property>
+		<property name="areaNo" type="string" >
+			<column name="AREA_NO" length="128"  >
+				<comment>지역번호</comment>
+			</column>
+		</property>
+		<property name="middleTelno" type="string" >
+			<column name="MIDDLETEL_NO" length="128"  >
+				<comment>전화번호1</comment>
+			</column>
+		</property>
+		<property name="endTelno" type="string" >
+			<column name="ENDTEL_NO" length="128"  >
+				<comment>전화번호2</comment>
+			</column>
+		</property>
+		<property name="moblfristNo" type="string" >
+			<column name="MOBLFRIST_NO" length="128"  >
+				<comment>휴대전화번호1</comment>
+			</column>
+		</property>
+		<property name="moblmiddleNo" type="string" >
+			<column name="MOBLMIDDLE_NO" length="128"  >
+				<comment>휴대전화번호2</comment>
+			</column>
+		</property>
+		<property name="moblendNo" type="string" >
+			<column name="MOBLEND_NO" length="128"  >
+				<comment>휴대전화번호3</comment>
+			</column>
+		</property>
+		<property name="offmTelno" type="string" >
+			<column name="OFFMTEL_NO" length="128"  >
+				<comment>사무실 연락처</comment>
+			</column>
+		</property>
+		<property name="fxnum" type="string" >
+			<column name="FX_NUM" length="128"  >
+				<comment>팩스번호</comment>
+			</column>
+		</property>
+		<property name="emailAdres" type="string" >
+			<column name="EMAIL_ADRES" length="128"  >
+				<comment>이메일</comment>
+			</column>
+		</property>
+		<property name="emailLoginPassword" type="string" >
+			<column name="EMAIL_LOGIN_PASSWORD" length="128"  >
+				<comment>이메일 로그인 패스워드</comment>
+			</column>
+		</property>
+		<property name="emailYn" type="string" >
+			<column name="EMAIL_YN"  length="1"   >
+				<comment>이메일 수신 여부</comment>
+			</column>
+		</property>
+		<property name="homepage" type="string" >
+			<column name="HOMEPAGE" length="255"  >
+				<comment>홈페이지</comment>
+			</column>
+		</property>
+		<property name="sexdstnCode" type="string" >
+			<column name="SEX_DSTN_CODE"  length="1"  >
+				<comment>성별</comment>
+			</column>
+		</property>
+		<property name="brthGubun" type="string" >
+			<column name="BRTH_GUBUN"  length="1"  >
+				<comment>음력 양력 구분</comment>
+			</column>
+		</property>
+		<property name="brth" type="string" >
+			<column name="BRTH"  length="10"  >
+				<comment>생년월일</comment>
+			</column>
+		</property>
+		<property name="sgroupId" type="string" >
+			<column name="SITE_GROUP_ID"  length="30" >
+				<comment>사이트 그룹 ID</comment>
+			</column>
+		</property>
+		<property name="groupId" type="string" >
+			<column name="GROUP_ID"  length="30" >
+				<comment>권한 그룹 ID</comment>
+			</column>
+		</property>
+		<property name="insttCode" type="string" >
+			<column name="INSTT_CODE"  length="20"  >
+				<comment>소속기관코드</comment>
+			</column>
+		</property>
+		<property  name="orgnztId" type="string" >
+			<column name="ORGNZT_ID"  length="16"  >
+				<comment>부서 코드</comment>
+			</column>
+		</property>
+		<property name="ofcpsNm" type="string" >
+			<column name="OFCPS_NM"  length="15"  >
+				<comment>직위</comment>
+			</column>
+		</property>
+		<property name="emplyrSttusCode" type="string" >
+			<column name="EMPLYR_STTUS_CODE"  length="1"  >
+				<comment>회원가입 승인 코드</comment>
+			</column>
+		</property>
+		<property name="emailSttusCode" type="string" >
+			<column name="EMAIL_STTUS_CODE"  length="1"  default="'T'">
+				<comment>전자결재 이메일 승인 코드</comment>
+			</column>
+		</property>
+		<property name="subDn" type="string" >
+			<column name="SUB_DN"  length="200"  >
+				<comment>인증서 인증 값</comment>
+			</column>
+		</property>
+		<property name="photoImage" type="string" >
+			<column name="PHOTO_IMAGE"  length="20"  >
+				<comment>프로필 이미지 경로</comment>
+			</column>
+		</property>
+		<property name="userLevel"  type="int" >
+			<column name="USER_LEVEL"  default="0" >
+				<comment>사용자 레벨</comment>
+			</column>
+		</property>
+		<property name="sbscrbDe"  type="timestamp"  insert="true" update="false">
+			<column name="SBSCRB_DE"    >
+				<comment>가입 일자</comment>
+			</column>
+		</property>
+		<property name="modifyDate"  type="timestamp"  insert="false" update="true">
+			<column name="MODIFY_DATE"    >
+				<comment>정보수정 일자</comment>
+			</column>
+		</property>
+		<property name="userEtc1" type="string" >
+			<column name="USER_ETC1" length="100"  >
+				<comment>추가필드1</comment>
+			</column>
+		</property>
+		<property name="userEtc2" type="string" >
+			<column name="USER_ETC2" length="100"  >
+				<comment>추가필드1</comment>
+			</column>
+		</property>
+		<property name="userEtc3" type="string" >
+			<column name="USER_ETC3" length="100"  >
+				<comment>추가필드1</comment>
+			</column>
+		</property>
+		<property name="userEtc4" type="string" >
+			<column name="USER_ETC4" length="100"  >
+				<comment>추가필드1</comment>
+			</column>
+		</property>
+		<property name="userEtc5" type="string" >
+			<column name="USER_ETC5" length="100"  >
+				<comment>추가필드1</comment>
+			</column>
+		</property>
+		<property name="userEtc6" type="string" >
+			<column name="USER_ETC6" length="100"  >
+				<comment>추가필드1</comment>
+			</column>
+		</property>
+		<property name="userEtc7" type="string" >
+			<column name="USER_ETC7" length="100"  >
+				<comment>추가필드1</comment>
+			</column>
+		</property>
+		<property name="userEtc8" type="string" >
+			<column name="USER_ETC8" length="100"  >
+				<comment>추가필드1</comment>
+			</column>
+		</property>
+		<property name="userEtc9" type="string" >
+			<column name="USER_ETC9" length="100"  >
+				<comment>추가필드1</comment>
+			</column>
+		</property>
+		<property name="userEtc10" type="string" >
+			<column name="USER_ETC10" length="100"  >
+				<comment>추가필드1</comment>
+			</column>
+		</property>
+		<property name="officepartSttusCode" type="string" >
+			<column name="OFFICEPART_STTUS_CODE"  length="1"  >
+				<comment>조직도 적용 유무</comment>
+			</column>
+		</property>
+				<property name="userAuthCode" type="string" >
+			<column name="USER_AUTH_CODE" length="128" >
+				<comment>암호화 방법</comment>
+			</column>
+		</property>
+		
+		<property name="pwChangeDate"  type="timestamp"  insert="false" update="false">
+			<column name="PWCHANGE_DATE"   >
+				<comment>최종 패스워드 변경일</comment>
+			</column>
+		</property>
+		
+		<property name="loginFirstEventYn" type="string" >
+			<column name="LOGIN_FIRST_EVENT_YN"  length="1"   default="'1'" >
+				<comment>최초 로그인 이벤트 유무</comment>
+			</column>
+		</property>
+
+		<property name="licenseSid" type="string" >
+			<column name="LICENSE_SID" length="100"  >
+				<comment>비콘 라이센스 일련번호</comment>
+			</column>
+		</property>
+
+		<property name="beaconSid" type="string" >
+			<column name="BEACON_SID" length="100"  >
+				<comment>비콘 권한 일련번호</comment>
+			</column>
+		</property>
+		
+		
+		<property name="regularType" type="string" >
+			<column name="REGULAR_TYPE" length="100"  />
+		</property>
+		
+		
+		
+		
+		
+		
+	</class>
+</hibernate-mapping>
