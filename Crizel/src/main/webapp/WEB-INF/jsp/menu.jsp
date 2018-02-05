@@ -44,6 +44,7 @@ $(function(){
 				<c:if test="${login.id ne null }">
 					<%-- <li><a href="/main.do?y=y&m=m&id=${login.id}">가계부</a></li> --%>
 				</c:if>
+				<li><a href="/directory.do">파일</a></li>
 				<c:if test="${login.id ne null }">
 					<li><a href="/diary.do">일기</a></li>
 				</c:if>

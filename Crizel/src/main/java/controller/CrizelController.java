@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.xml.sax.SAXException;
 
+import util.DirectoryView;
 import vo.CrizelVo;
 
 @Controller
@@ -227,6 +228,17 @@ public class CrizelController {
 		mav.addObject("type", type);
 		mav.addObject("url", url);
 		mav.setViewName("/nico");
+		return mav;
+	}
+	
+	@RequestMapping("directory.do")
+	public ModelAndView nico(@RequestParam(value="path", required=false, defaultValue="d:/") String path){
+		ModelAndView mav = new ModelAndView();	
+		DirectoryView directory = new DirectoryView();
+		
+		mav.addObject("directory", directory.directory(path));
+		mav.addObject("path", path);
+		mav.setViewName("/directory/main");
 		return mav;
 	}
 	

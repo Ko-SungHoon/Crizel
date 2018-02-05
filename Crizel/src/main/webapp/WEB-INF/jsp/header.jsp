@@ -8,5 +8,6 @@
 <link rel="stylesheet" href="/css/crizel.css">
 <script src="/js/login.js"></script>
 <script src="/js/crizel.js"></script>
+<script src="/js/common.js"></script>
 <style type="text/css">
 </style>
