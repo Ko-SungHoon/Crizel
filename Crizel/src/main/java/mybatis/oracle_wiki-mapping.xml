@@ -34,7 +34,7 @@
 						WIKI_TITLE, 
 						WIKI_CONTENT, 
 						WIKI_CATE_ID)
-		VALUES(WIKI_SEQ.NEXTVAL, #{wiki_title}, #{wiki_content}, #{wiki_cate_id})
+		VALUES((select nvl(max(wiki_id)+1,1) from wiki), #{wiki_title}, #{wiki_content}, #{wiki_cate_id})
 	</insert>
 	
 	<update id="wikiUpdate" parameterType="wiki.WikiVO">
@@ -58,7 +58,7 @@
 	<insert id="wikiCateInsert" parameterType="wiki.WikiVO">
 		INSERT INTO WIKI_CATE(	WIKI_CATE_ID, 
 								WIKI_CATE_VAL)
-		VALUES(WIKI_CATE_ID_SEQ.NEXTVAL, #{wiki_cate_val})
+		VALUES((select nvl(max(wiki_cate_id)+1,1) from wiki_cate), #{wiki_cate_val})
 	</insert>
 	
 	<update id="wikiCateUpdate" parameterType="wiki.WikiVO">

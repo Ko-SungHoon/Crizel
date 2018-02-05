@@ -36,8 +36,8 @@ function jsonTest(keyword){
 				$(".test").append("<li><a href='" + this.addr + "' target='_blank'>" + val.name + "</a></li>");	//val.name 도 되고 this.name 도 된다
 			});
 		},
-		error : function(e) {
-			alert("에러발생");
+		error:function(request,status,error){
+			alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
 		}
 	});
 }	

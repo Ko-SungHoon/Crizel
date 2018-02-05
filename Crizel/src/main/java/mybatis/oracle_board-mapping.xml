@@ -52,13 +52,13 @@
 			tmp_field9, 
 			tmp_field10)
 		values(
-			B_ID_SEQ.nextval, 
+			(select nvl(max(b_id)+1,1) from board), 
 			<choose>
 				<when test="b_group > 0">
 					#{b_group},
 				</when>
 				<otherwise>
-					B_GROUP_SEQ.nextval,
+					(select nvl(max(b_group)+1,1) from board),
 				</otherwise>
 			</choose>
 			#{b_level}, 
@@ -105,7 +105,7 @@
 	<insert id="fileInsert" parameterType="board.BoardVO">
 		insert into board_file
 		values(
-			f_id_seq.nextval, 
+			(select nvl(max(f_id)+1,1) from board_file), 
 			#{b_id}, 
 			#{directory}, 
 			#{real_name}, 

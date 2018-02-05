@@ -13,7 +13,7 @@
 	
 	<insert id="girlsInsert" parameterType="girls.GirlsVO">	
 		insert into girls(g_id, name, addr, type, tag1, tag2) 
-		values(girls_seq.nextval, #{name}, #{addr}, #{type}, #{tag1}, #{tag2})
+		values((select nvl(max(g_id)+1, 1) from girls), #{name}, #{addr}, #{type}, #{tag1}, #{tag2})
 	</insert>
 	
 	<delete id="girlsDelete" parameterType="girls.GirlsVO">
