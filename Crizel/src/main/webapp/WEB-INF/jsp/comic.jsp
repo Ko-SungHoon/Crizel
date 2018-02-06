@@ -133,6 +133,10 @@ function comicDown(addr, type){
 					<a href="/comic.do?type=B&list=/b/manga/151772" style="display: inline-block;">우리 딸을 위해서라면 나는 어쩌면 마왕을 쓰러뜨릴 수 있을지 모른다</a>
 					<a href="javascript:comicDown('/b/manga/151772', 'A');" style="display: inline-block;">[다운]</a>
 				</li>
+				<li>
+					<a href="/comic.do?type=B&list=/b/manga/260684" style="display: inline-block;">오빠는 끝</a>
+					<a href="javascript:comicDown('/b/manga/260684', 'A');" style="display: inline-block;">[다운]</a>
+				</li>
 			</ul>
 		</c:if>
 		

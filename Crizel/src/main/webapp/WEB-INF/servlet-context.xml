@@ -7,6 +7,7 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.0.xsd"
 	xmlns:util="http://www.springframework.org/schema/util"
 	>
+	<util:properties id="config" location="/WEB-INF/config.properties" />
 	<context:component-scan base-package="controller" />
 	<context:component-scan base-package="diary" />
 	<context:component-scan base-package="girls" />
@@ -30,8 +31,8 @@
 		class="org.springframework.jdbc.datasource.DriverManagerDataSource"
 		p:driverClassName="oracle.jdbc.driver.OracleDriver" 
 		p:url="jdbc:oracle:thin:@127.0.0.1:1521:xe"
-		p:username="edu" 
-		p:password="1234" /> 
+		p:username="#{config['username']}" 
+		p:password="#{config['password']}" /> 
 		
 	<!-- 
 	<bean id="dataSource"
