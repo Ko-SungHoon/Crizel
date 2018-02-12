@@ -20,6 +20,8 @@ private class InsVO{
 	public String reg_ip;
 	public String reg_date;
 	public String show_flag;
+	public String apply_flag;
+	public String apply_date;
 	
 	public String inst_cat;
 	public String inst_cat_nm;
@@ -40,7 +42,9 @@ private class InsVOMapper implements RowMapper<InsVO> {
     	vo.req_memo			= rs.getString("REQ_MEMO");	
     	vo.reg_ip			= rs.getString("REG_IP");	
     	vo.reg_date			= rs.getString("REG_DATE");	
-    	vo.show_flag		= rs.getString("SHOW_FLAG");	
+    	vo.show_flag		= rs.getString("SHOW_FLAG");
+    	vo.apply_flag		= rs.getString("APPLY_FLAG");
+    	vo.apply_date		= rs.getString("APPLY_DATE");
     	
     	vo.inst_cat			= rs.getString("INST_CAT");	
     	vo.inst_cat_nm		= rs.getString("INST_CAT_NM");	
@@ -67,12 +71,11 @@ int num = 0;
 
 sql = new StringBuffer();
 sql.append("		SELECT	COUNT(*) CNT		 							");
-sql.append("		FROM ART_INST_REQ A LEFT JOIN ART_INST_REQ_CNT B		");
-sql.append("		ON A.REQ_NO = B.REQ_NO									");
+sql.append("		FROM ART_INST_REQ A										");
 sql.append("		WHERE 1=1					 							");
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("inst_cat_nm".equals(search1)){
-		sql.append("	AND B.INST_CAT_NM = '").append(keyword).append("'	");
+		sql.append("REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_CAT_NM LIKE '%").append(keyword).append("%'	");
 	}else if("req_mng_nm".equals(search1)){
 		sql.append("	AND A.REQ_MNG_NM = '").append(keyword).append("'	");
 	}
@@ -102,19 +105,29 @@ sql.append("			A.REQ_MEMO,				 							");
 sql.append("			A.REG_IP,				 							");
 sql.append("			A.REG_DATE,				 							");
 sql.append("			A.SHOW_FLAG,				 						");
-sql.append("			B.INST_CAT,				 							");
-sql.append("			B.INST_CAT_NM,				 						");
-sql.append("			B.INST_NO,				 							");
-sql.append("			B.INST_NM,				 							");
-sql.append("			B.INST_REQ_CNT				 						");
-sql.append("		FROM ART_INST_REQ A LEFT JOIN ART_INST_REQ_CNT B		");
-sql.append("		ON A.REQ_NO = B.REQ_NO									");
+sql.append("			A.APPLY_FLAG,				 						");
+sql.append("			A.APPLY_DATE,				 						");
+sql.append("			(SELECT INST_CAT FROM ART_INST_REQ_CNT WHERE REQ_NO 	= A.REQ_NO AND ROWNUM = 1) INST_CAT,			");
+sql.append("			(SELECT INST_CAT_NM FROM ART_INST_REQ_CNT WHERE REQ_NO 	= A.REQ_NO AND ROWNUM = 1) INST_CAT_NM,			");
+sql.append("			(SELECT INST_NO FROM ART_INST_REQ_CNT WHERE REQ_NO 		= A.REQ_NO AND ROWNUM = 1) INST_NO,				");
+/* sql.append("			(SELECT INST_NM FROM ART_INST_REQ_CNT WHERE REQ_NO 		= A.REQ_NO AND ROWNUM = 1) 	INST_NM,			"); */
+sql.append("			(SELECT																									");
+sql.append("					SUBSTR(																							");
+sql.append("							XMLAGG(																					");
+sql.append("									XMLELEMENT(COL ,', ', INST_NM) ORDER BY INST_NM).EXTRACT('//text()'				");
+sql.append("							).GETSTRINGVAL()																		");
+sql.append("					, 2) INST_NM																					");
+sql.append("			FROM ART_INST_REQ_CNT																					");
+sql.append("			WHERE REQ_NO = A.REQ_NO																					");
+sql.append("			GROUP BY REQ_NO) INST_NM,																				");
+sql.append("			(SELECT NVL(SUM(INST_REQ_CNT),0) FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO) INST_REQ_CNT			");
+sql.append("		FROM ART_INST_REQ A										");
 sql.append("		WHERE 1=1					 							");
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("inst_cat_nm".equals(search1)){
-		sql.append("	AND B.INST_CAT_NM = '").append(keyword).append("'	");
+		sql.append("REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_CAT_NM LIKE '%").append(keyword).append("%'	");
 	}else if("req_mng_nm".equals(search1)){
-		sql.append("	AND A.REQ_MNG_NM = '").append(keyword).append("'	");
+		sql.append("	AND A.REQ_MNG_NM LIKE '%").append(keyword).append("%'	");
 	}
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
@@ -152,15 +165,25 @@ function getPopup(type){
 	newWin(addr, 'PRINTVIEW', '1000', '740');
 }
 
-function approvalSubmit(req_no){
+function updateSubmit(req_no){
 	var addr = "/program/art/insAdmin/instMngPopup.jsp?mode=update&req_no="+req_no;
 	newWin(addr, 'PRINTVIEW', '1000', '740');
 	//window.open(addr,"PRINTVIEW","width=1000px,height=740px, status=yes, scrollbars=yes, resizable=yes");
 }
 
-function cancelSubmit(req_no){
-	if(confirm("프로그램을 삭제하시겠습니까?")){
-		location.href="/program/art/insAdmin/instMngPopup.jsp?mode=delete&req_no="+req_no;
+function applySubmit(req_no, apply_flag, inst_no){
+	var msg;
+	
+	if(apply_flag == "N"){
+		msg = "악기대여 신청을 승인하시겠습니까?";
+		apply_flag = "Y";
+	}else if(apply_flag == "Y"){
+		msg = "악기대여 신청을 취소하시겠습니까?";
+		apply_flag = "A";
+	}
+	
+	if(confirm(msg)){
+		location.href="/program/art/insAdmin/instMngAction.jsp?mode=apply&req_no="+req_no+"&apply_flag="+apply_flag+"&inst_no="+inst_no;
 	}else{
 		return false;
 	}
@@ -205,7 +228,8 @@ function cancelSubmit(req_no){
 				<th scope="col">그룹명</th>
 				<th scope="col">연락처</th>
 				<th scope="col">등록일</th>
-				<th scope="col" class="rfc_bbs_list_last">수정/승인</th>
+				<th scope="col">수정</th>
+				<th scope="col" class="rfc_bbs_list_last">승인</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -218,12 +242,30 @@ function cancelSubmit(req_no){
 				<td><%=ob.inst_nm %></td>
 				<td><%=ob.inst_req_cnt %></td>
 				<td><%=ob.req_id %>/<%=ob.req_mng_nm %></td>
-				<td><%=ob.req_group %></td>
+				<td><%=parseNull(ob.req_group)%></td>
 				<td><%=telSet(ob.req_mng_tel)%></td>
 				<td><%=ob.reg_date %></td>
+				<td><button type="button" onclick="updateSubmit('<%=ob.req_no%>')">수정</button></td>
 				<td>
-					<button type="button" onclick="approvalSubmit('<%=ob.req_no%>')">수정</button>
-					<button type="button" onclick="cancelSubmit('<%=ob.req_no%>')">승인</button>
+					<%
+					if("N".equals(ob.apply_flag)){
+					%>
+						<button type="button" onclick="applySubmit('<%=ob.req_no%>', '<%=ob.apply_flag%>', '<%=ob.inst_no%>')">승인</button>
+					<%
+					}else if("Y".equals(ob.apply_flag)){
+					%>
+						<button type="button" onclick="applySubmit('<%=ob.req_no%>', '<%=ob.apply_flag%>', '')">취소</button>
+					<%	
+					}else if("A".equals(ob.apply_flag)){		//관리자 취소
+					%>
+						관리자 취소
+					<%	
+					}else if("C".equals(ob.apply_flag)){		//사용자 취소
+					%>
+						사용자 취소
+					<%	
+					}
+					%>
 				</td>
 			</tr>
 			<%
@@ -231,7 +273,7 @@ function cancelSubmit(req_no){
 			}else{
 			%>
 			<tr>
-				<td colspan="9">등록된 게시물이 없습니다.</td>
+				<td colspan="10">등록된 게시물이 없습니다.</td>
 			</tr>
 			<%
 			} 

@@ -29,10 +29,13 @@ List<Map<String,Object>> list	= null;
 
 try{
 	sql = new StringBuffer();
-	sql.append("ART_ALWAY_CALENDAR('2018', '01')											");
+	sql.append("{CALL ART_ALWAY_CALENDAR(?, ?)}											");
 	list = jdbcTemplate.queryForList(
-				sql.toString()
+				sql.toString(),
+				new Object[]{"2018", "01"}
 			);
+	
+	int a = jdbcTemplate.update(sql.toString(), new Object[]{"2018", "01"});
 }catch(Exception e){
 	out.println(e.toString());
 }

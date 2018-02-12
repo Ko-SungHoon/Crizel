@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="crizel">
+	<select id="twitter" parameterType="String" resultType="String">
+		select
+		addr from twitter where name=#{name} order by name
+	</select>
+
+	<select id="twitterProc" resultType="vo.CrizelVo">
+		select * from twitter order
+		by name
+	</select>
+	
+	<select id="twitterName" resultType="String">
+		select name from twitter order
+		by name
+	</select>
+
+	<select id="twitterAll" resultType="String">
+		select addr from twitter
+		order by name
+	</select>
+
+	<select id="twitterCount" resultType="int" parameterType="String">
+		select
+		count(addr) from twitter
+	</select>
+
+	<insert id="twitterInsert" parameterType="vo.CrizelVo">
+		insert into twitter
+		values(#{name}, #{addr})
+	</insert>
+
+	<delete id="twitterDelete" parameterType="vo.CrizelVo">
+		delete from twitter
+		where name=#{name}
+	</delete>
+	
+	<select id="insta" parameterType="String" resultType="String">
+		select
+		addr from insta where name=#{name} order by name
+	</select>
+
+	<select id="instaProc" resultType="vo.CrizelVo">
+		select * from insta order
+		by name
+	</select>
+	
+	<select id="instaNmae" resultType="String">
+		select name from insta order
+		by name
+	</select>
+
+	<select id="instaAll" resultType="String">
+		select addr from insta
+		order by name
+	</select>
+
+	<select id="instaCount" resultType="int" parameterType="String">
+		select
+		count(addr) from insta
+	</select>
+
+	<insert id="instaInsert" parameterType="vo.CrizelVo">
+		insert into insta
+		values(#{name}, #{addr})
+	</insert>
+
+	<delete id="instaDelete" parameterType="vo.CrizelVo">
+		delete from insta
+		where name=#{name}
+	</delete>
+
+	<select id="list" resultType="vo.CrizelVo" parameterType="String">
+		select
+		* from ani where day=#{day} order by ani_time
+	</select>
+
+	<insert id="listInsert" parameterType="vo.CrizelVo">
+		insert into ani
+		values((select * from (select ifnull(max(ani_id)+1,1) from ani)tmp), #{title}, #{ani_time}, #{day},
+		#{keyword}, #{site})
+	</insert>
+	
+	<select id="listInsertDetail" resultType="vo.CrizelVo">
+		select * from ani;
+	</select>
+
+	<delete id="listDelete" parameterType="vo.CrizelVo">
+		delete from ani where
+		ani_id=#{ani_id}
+	</delete>
+
+	<select id="login" parameterType="vo.CrizelVo" resultType="vo.CrizelVo">
+		select * from login where id=#{id} and pw=#{pw}
+	</select>
+
+	<select id="board" parameterType="int" resultType="vo.CrizelVo">
+		select
+		X.rnum, X.nick, X.subject, X.content, X.write_date, X.board_id
+		from (
+			select @RNUM := @RNUM + 1 as rnum, A.nick, A.subject, A.content,
+			A.write_date, A.board_id
+			from (
+					select nick, subject, content,
+					write_date, board_id
+					from board
+					order by board_id) A,( SELECT @RNUM := 0 ) b
+				where (select @RNUM := @RNUM from ( SELECT @RNUM := 0 ) c) <![CDATA[ <= ]]>
+			#{pagingCount}) X
+		where X.rnum <![CDATA[ >= ]]>
+		#{pagingCount}-9
+		order by rnum desc
+	</select>
+
+	<select id="totalCount" resultType="int">
+		select count(*) from board
+	</select>
+
+	<insert id="boardInsert" parameterType="vo.CrizelVo">
+		insert into board
+		values((select * from (select ifnull(max(board_id)+1,1) from board)tmp), #{nick}, #{subject}, #{content},
+		DATE_FORMAT(now(), '%Y.%m.%d') , 0)
+	</insert>
+
+	<select id="boardContent" resultType="vo.CrizelVo"
+		parameterType="vo.CrizelVo">
+		select * from board where board_id=#{board_id}
+	</select>
+
+	<select id="realFile" resultType="String" parameterType="String">
+		select
+		realFile from fileUpload where saveFile=#{fileName}
+	</select>
+
+	<select id="searchBoardId" resultType="int" parameterType="String">
+		select max(board_id) from board
+	</select>
+
+	<insert id="fileInsert" parameterType="vo.CrizelVo">
+		insert into fileUpload
+		values((select * from (select ifnull(max(file_id)+1,1) from fileUpload)tmp), #{board_id}, 
+		#{file_directory}, #{realFile}, #{saveFile}	)
+	</insert>
+	
+	<select id="fileAllDel" parameterType="vo.CrizelVo">
+		delete from fileUpload where board_id=#{board_id}
+	</select>
+	
+	<select id="boardContentFile" resultType="vo.CrizelVo"
+		parameterType="vo.CrizelVo">		
+		select * from fileUpload where board_id=#{board_id}
+	</select>
+
+	<delete id="boardDelete" parameterType="int">
+		delete from board where
+		board_id=#{board_id}
+	</delete>
+	
+	<delete id="boardFileAllDel" parameterType="int">
+		delete from fileUpload where
+		board_id=#{board_id}
+	</delete>
+	
+	<update id="boardUpdate" parameterType="vo.CrizelVo">
+		 update board set nick=#{nick}, subject=#{subject}, content=#{content}, write_date=DATE_FORMAT(now(), '%Y.%m.%d')
+		 where board_id=#{board_id}
+	</update>
+	
+	<delete id="boardFileDel" parameterType="vo.CrizelVo">
+		delete from fileUpload where saveFile=#{saveFile}
+	</delete>
+
+	<insert id="register" parameterType="vo.CrizelVo">
+		insert into login
+		values(#{id}, #{pw}, #{name}, #{email}, #{phone}, #{nick},
+		DATE_FORMAT(now(), '%Y.%m.%d'))
+	</insert>
+
+	<select id="registerCheck" parameterType="String" resultType="String">
+		select id from login where id=#{re_id}
+	</select>
+</mapper>

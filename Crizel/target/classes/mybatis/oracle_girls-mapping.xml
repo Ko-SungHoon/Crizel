@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="girls">
+	<select id="girlsGetName" resultType="String">
+		select min(name) name from girls
+	</select>
+	
+	<select id="nameList" resultType="girls.GirlsVO">
+		select * from girls order by name
+	</select>
+	
+	<insert id="girlsInsert" parameterType="girls.GirlsVO">	
+		insert into girls(g_id, name, addr, type, tag1, tag2) 
+		values((select nvl(max(g_id)+1, 1) from girls), #{name}, #{addr}, #{type}, #{tag1}, #{tag2})
+	</insert>
+	
+	<delete id="girlsDelete" parameterType="girls.GirlsVO">
+		delete from girls where g_id = #{g_id}
+	</delete>
+	
+	<select id="girlsImg" parameterType="String" resultType="girls.GirlsVO">
+		select * from girls where name = #{name}
+	</select>
+</mapper>
