@@ -12,6 +12,11 @@
 <style type="text/css">
 
 </style>
+<script>
+function fileDown(directory, filename){
+	location.href="/download.do?directory="+encodeURIComponent(directory)+"&filename="+encodeURIComponent(filename)+"&check=content";
+}
+</script>
 </head>
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
@@ -23,7 +28,10 @@
 	</ul>
 	<ul class="ul_type01">
 		<c:forEach items="${directory.file}" var="ob">
-			<li><a href="/download.do?directory=${path}/&filename=${ob}&check=content">${ob}</a></li>
+			<li>
+				<a href="javascript:fileDown('${path}','${ob}')">${ob}</a>
+				<%-- <a href="/download.do?directory=${path}/&filename=${ob}&check=content">${ob}</a> --%>
+			</li>
 		</c:forEach>
 	</ul>
 </div>
