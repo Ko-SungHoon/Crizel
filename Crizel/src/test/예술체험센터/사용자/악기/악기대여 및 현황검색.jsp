@@ -172,8 +172,50 @@ num = paging.getRowNo();
 function searchSubmit(){
 	$("#searchForm").attr("action", "").submit();
 }
-function goToList(inst_cat_nm, inst_name){
-	location.href="/index.gne?menuCd=DOM_000000126003003001&search1="+encodeURIComponent(inst_cat_nm)+"&keyword="+encodeURIComponent(inst_name);
+function goToList(inst_cat_nm, inst_name, cnt){
+	if(cnt>0){
+		location.href="/index.gne?menuCd=DOM_000000126003003001&search1="+encodeURIComponent(inst_cat_nm)+"&keyword="+encodeURIComponent(inst_name);	
+	}else{
+		alert("대여 가능한 악기가 없습니다.");
+	}
+	
+}
+function getDetail(inst_no){
+	$.ajax({
+		type : "POST",
+		url : "/program/art/insAdmin/instDetail.jsp",
+		contentType : "application/x-www-form-urlencoded; charset=utf-8",
+		data : {
+			inst_no : inst_no
+		},
+		datatype : "json",
+		success : function(data) {
+			$.each(JSON.parse(data), function(i, val) {									//ajax로 받아온 json 데이터를 html로 구성한다
+				$("#modal_inst_cat_nm").html(val.inst_cat_nm);
+				$("#modal_inst_name").html(val.inst_name);
+				$("#modal_inst_size").html(val.inst_size);
+				$("#modal_inst_model").html(val.inst_model);
+				$("#modal_curr_cnt").html(val.curr_cnt);
+				$("#modal_max_cnt").html(val.max_cnt);
+				$("#modal_inst_lca").html(val.inst_lca);
+				$("#modal_inst_memo").html(val.inst_memo);
+				$("#modal_inst_pic").attr("src", val.inst_pic);
+				$("#modal_inst_button").attr("onclick", "goToList('" + val.inst_cat_nm + "', '" + val.inst_name + "', '" + (parseInt(val.max_cnt)-parseInt(val.curr_cnt)) + "')");
+			});
+		},
+		error:function(request,status,error){
+			alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+		}
+	});
+	
+	modal_open();
+}
+function modal_open() {
+    $('#slide').popup({
+         focusdelay: 400,
+         outline: true,
+         vertical: 'middle'
+    });
 }
 </script>
 <section class="board">
@@ -212,15 +254,22 @@ function goToList(inst_cat_nm, inst_name){
 	%>
 		<li>
 			<p>
-				<img src="<%=ob.inst_pic%>" alt="<%=ob.inst_name%>">
+				<img src="<%=ob.inst_pic%>" alt="<%=ob.inst_name%>"
+				onclick="javascript:getDetail('<%=ob.inst_no%>')"
+					class="badge initialism slide_open openLayer" style="cursor: pointer;">
 			</p>
 			<ul>
-				<li class="pro_tit"><a href="#"><%=ob.inst_name %></a></li>
+				<li class="pro_tit">
+					<a onclick="javascript:getDetail('<%=ob.inst_no%>')"
+					class="badge initialism slide_open openLayer" style="cursor: pointer; width: 100%;">
+						<%=ob.inst_name %>
+					</a>
+				</li>
 				<li>악기분류 : <%=ob.inst_cat_nm%></li>
 				<li>대여수 / 보유수 : <%=ob.curr_cnt%> / <%=ob.max_cnt%></li>
-				<li>악기위치  : <%=ob.inst_lca%></li>
-				<li><%=ob.inst_memo %></li>
-				<li><button type="button" onclick="goToList('<%=ob.inst_cat_nm%>', '<%=ob.inst_name%>')">대여하기</button></li>
+				<%-- <li>악기위치  : <%=ob.inst_lca%></li>
+				<li><%=parseNull(ob.inst_memo).replace("\n", "<br>")%></li> --%>
+				<li><button type="button" onclick="goToList('<%=ob.inst_cat_nm%>', '<%=ob.inst_name%>', '<%=ob.max_cnt - ob.curr_cnt%>')">대여하기</button></li>
 			</ul>
 		</li>
 		
@@ -237,4 +286,88 @@ function goToList(inst_cat_nm, inst_name){
 		<%=paging.getHtml("2") %>
 	</div>
 	<% } %>
+	
+	
+	
+<%/*************************************** STR Modal part ****************************************/%>
+<div id="slide" style="display:none;">
+        <table class="tbl_type01">
+            <colgroup>
+				<col width="30%" />
+				<col width="70%" />
+			</colgroup>
+			<tbody style="text-align: center; vertical-align: middle;">
+			<tr>
+				<th>
+					악기 분류
+				</th>
+				<td>
+					<span id="modal_inst_cat_nm"></span>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					악기규격
+				</th>
+				<td>
+					<span id="modal_inst_size"></span>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					악기이미지
+				</th>
+				<td>
+					<img src="" id="modal_inst_pic" alt="악기이미지" style="width: 250px; height: 150px;">
+				</td>
+			</tr>
+			<tr>
+				<th>
+					악기모델명
+				</th>
+				<td>
+					<span id="modal_inst_model"></span>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					악기명
+				</th>
+				<td>
+					<span id="modal_inst_name"></span>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					악기위치
+				</th>
+				<td>
+					<span id="modal_inst_lca"></span>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					대여량 / 총량
+				</th>
+				<td>
+					<span id="modal_curr_cnt"></span> / <span id="modal_max_cnt"></span>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					악기 상세 내용
+				</th>
+				<td>
+					<span id="modal_inst_memo"></span>
+				</td>
+			</tr>
+			<tr>
+				<th colspan="2">
+					<button type="button" id="modal_inst_button">대여하기</button>
+				</th>
+			</tr>
+			</tbody>
+        </table>
+</div>
+<%/*************************************** END Modal part ****************************************/%>	
 </section>

@@ -572,7 +572,7 @@ function excel(){
 			}else{
 			%>
 			<tr>
-				<td colspan="3">등록된 게시물이 없습니다.</td>
+				<td colspan="7">등록된 게시물이 없습니다.</td>
 			</tr>
 			<%
 			} 

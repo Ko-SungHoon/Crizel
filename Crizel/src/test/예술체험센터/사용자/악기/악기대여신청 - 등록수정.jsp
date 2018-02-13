@@ -354,6 +354,7 @@ try{
 		<input type="hidden" id="req_id" name="req_id" value="<%=sm.getId()%>">
 		<input type="hidden" id="reg_ip" name="reg_ip" value="<%=request.getRemoteAddr()%>">
 		<input type="hidden" id="req_no" name="req_no" value="<%=vo.req_no%>">
+		<input type="hidden" id="pageType" name="pageType" value="client">
 		<table class="board_read02">
 			<caption>악기대여신청 등록 테이블</caption>
 			<colgroup>
@@ -486,13 +487,21 @@ try{
                                             </select>
                                         </td>
                                     </tr>
+                                    <%
+                                    int currCnt	= 0;
+                                    int maxCnt	= 0;
+                                    if(!"".equals(search1)){
+                                    	currCnt	= instCount.max_cnt - instCount.curr_cnt;
+                                    	maxCnt	= instCount.max_cnt;
+                                    }
+                                    %>
                                     <tr>
                                         <th>대여량</th>
                                         <td><input type="text" id="req_inst_cnt_0" name="req_inst_cnt" value="0" required></td>
                                         <th>남은량</th>
-                                        <td><input type="text" id="curr_cnt_0" name="curr_cnt" value="<%=instCount.max_cnt - instCount.curr_cnt%>" readonly></td>
+                                        <td><input type="text" id="curr_cnt_0" name="curr_cnt" value="<%=currCnt%>" readonly></td>
                                         <th>총량</th>
-                                        <td><input type="text" id="max_cnt_0" name="max_cnt" value="<%=instCount.max_cnt%>" readonly></td>
+                                        <td><input type="text" id="max_cnt_0" name="max_cnt" value="<%=maxCnt%>" readonly></td>
                                     </tr>
                                     <tr>
                                      	<td colspan="6">

@@ -107,7 +107,7 @@ private class InsVOMapper4 implements RowMapper<InsVO> {
     	InsVO vo = new InsVO();
     	vo.inst_no			= rs.getInt("INST_NO");
     	vo.inst_cat_nm		= rs.getString("INST_CAT_NM");
-    	vo.inst_nm		= rs.getString("INST_NM");
+    	vo.inst_nm			= rs.getString("INST_NM");
     	vo.inst_req_cnt		= rs.getInt("INST_REQ_CNT");
     	vo.req_inst_cnt		= rs.getInt("REQ_INST_CNT");
     	vo.max_cnt			= rs.getInt("MAX_CNT");
@@ -318,14 +318,14 @@ try{
 				<tr>
 					<th scope="row"><label for="req_mng_mail">이메일</label></th>
 					<td>
-						
+						<%=parseNull(vo.req_mng_mail) %>
 						<input type="hidden" id="req_mng_mail" name="req_mng_mail" value="<%=parseNull(vo.req_mng_mail) %>">
 					</td>
 				</tr>
 				<tr>
 					<th scope="row"><label for="req_memo">내용</label></th>
 					<td>
-						<%=parseNull(vo.req_memo) %>
+						<%=parseNull(vo.req_memo).replace("\n", "<br>")%>
 						<input type="hidden" id="req_memo" name="req_memo" value="<%=parseNull(vo.req_memo) %>">
 					</td>
 				</tr> 

@@ -224,8 +224,25 @@ function cancelSubmit(req_no){
 				<td><%=ob.reg_date %></td>
 				<td><%=ob.apply_flag %></td>
 				<td>
-					<button type="button" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button>
-					<button type="button" onclick="cancelSubmit('<%=ob.req_no%>')">취소</button>
+					<%
+					if("N".equals(ob.apply_flag)){
+					%>
+						<button type="button" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button>
+					<%
+					}else if("Y".equals(ob.apply_flag)){
+					%>
+						<button type="button" onclick="cancelSubmit('<%=ob.req_no%>')">취소</button>
+					<%	
+					}else if("A".equals(ob.apply_flag)){		//관리자 취소
+					%>
+						관리자 취소
+					<%	
+					}else if("C".equals(ob.apply_flag)){		//사용자 취소
+					%>
+						사용자 취소
+					<%	
+					}
+					%>
 				</td>
 			</tr>
 			<%
