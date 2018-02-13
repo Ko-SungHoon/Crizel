@@ -69,23 +69,34 @@ int totalCount = 0;
 int cnt=0;
 int num = 0;
 
+Object[] setObj		= null;
+List<String> setList	= new ArrayList<String>();
+
 sql = new StringBuffer();
-sql.append("		SELECT	COUNT(*) CNT		 							");
-sql.append("		FROM ART_INST_REQ A										");
-sql.append("		WHERE 1=1					 							");
+sql.append("		SELECT	COUNT(*) CNT		 																									");
+sql.append("		FROM ART_INST_REQ A																												");
+sql.append("		WHERE 1=1					 																									");
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("inst_cat_nm".equals(search1)){
-		sql.append("REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_CAT_NM LIKE '%").append(keyword).append("%'	");
+		sql.append(" AND A.REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_CAT_NM LIKE '%'||?||'%' GROUP BY REQ_NO) 	");
+		setList.add(keyword);
 	}else if("req_mng_nm".equals(search1)){
-		sql.append("	AND A.REQ_MNG_NM = '").append(keyword).append("'	");
+		sql.append(" AND A.REQ_MNG_NM LIKE '%'||?||'%'																								");
+		setList.add(keyword);
 	}
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
 }
 
+setObj = new Object[setList.size()];
+for(int i=0; i<setList.size(); i++){
+	setObj[i] = setList.get(i);
+}
+
 totalCount = jdbcTemplate.queryForObject(
 		sql.toString(),
-		Integer.class
+		Integer.class,
+		setObj
 	);
 
 paging.setPageNo(Integer.parseInt(pageNo));
@@ -125,9 +136,9 @@ sql.append("		FROM ART_INST_REQ A										");
 sql.append("		WHERE 1=1					 							");
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("inst_cat_nm".equals(search1)){
-		sql.append("REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_CAT_NM LIKE '%").append(keyword).append("%'	");
+		sql.append(" AND A.REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_CAT_NM LIKE '%'||?||'%' GROUP BY REQ_NO) 	");
 	}else if("req_mng_nm".equals(search1)){
-		sql.append("	AND A.REQ_MNG_NM LIKE '%").append(keyword).append("%'	");
+		sql.append(" AND A.REQ_MNG_NM LIKE '%'||?||'%'																								");
 	}
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
@@ -138,7 +149,8 @@ sql.append(") WHERE RNUM >= ").append(paging.getStartRowNo()).append(" \n	");
 
 list = jdbcTemplate.query(
 			sql.toString(), 
-			new InsVOMapper()
+			new InsVOMapper(),
+			setObj
 		);
 
 num = paging.getRowNo();

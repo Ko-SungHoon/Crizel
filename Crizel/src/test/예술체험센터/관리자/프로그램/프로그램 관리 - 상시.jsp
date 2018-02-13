@@ -95,22 +95,34 @@ int totalCount = 0;
 int cnt=0;
 int num = 0;
 
+Object[] setObj		= null;
+List<String> setList	= new ArrayList<String>();
+
 sql = new StringBuffer();
 sql.append("		SELECT	COUNT(*) CNT		 		");
 sql.append("		FROM ART_PRO_ALWAY		 			");
 sql.append("		WHERE DEL_FLAG = 'N'		 		");
 if(!"".equals(year)){
-sql.append("		AND PRO_YEAR = ").append(year);
+sql.append("		AND PRO_YEAR = ?					");
 paging.setParams("year", year);
+setList.add(year);
 }
 if(!"".equals(code_val1)){
-sql.append("		AND PRO_CAT_NM = '").append(code_val1).append("'	");
+sql.append("		AND PRO_CAT_NM = ?					");
 paging.setParams("code_val1", code_val1);
+setList.add(code_val1);
 }
+
+setObj = new Object[setList.size()];
+for(int i=0; i<setList.size(); i++){
+	setObj[i] = setList.get(i);
+}
+
 
 totalCount = jdbcTemplate.queryForObject(
 		sql.toString(),
-		Integer.class
+		Integer.class,
+		setObj
 	);
 
 paging.setPageNo(Integer.parseInt(pageNo));
@@ -137,11 +149,11 @@ sql.append("				PRO_TCH_NM		 							");
 sql.append("		FROM ART_PRO_ALWAY		 							");
 sql.append("		WHERE DEL_FLAG = 'N'		 						");
 if(!"".equals(year)){
-sql.append("		AND PRO_YEAR = ").append(year).append("				");
+sql.append("		AND PRO_YEAR = ?					");
 paging.setParams("year", year);
 }
 if(!"".equals(code_val1)){
-sql.append("		AND PRO_CAT_NM = '").append(code_val1).append("'	");
+sql.append("		AND PRO_CAT_NM = ?					");
 paging.setParams("code_val1", code_val1);
 }
 sql.append("		ORDER BY PRO_NO DESC		 			");
@@ -150,7 +162,8 @@ sql.append(") WHERE RNUM >= ").append(paging.getStartRowNo()).append(" \n");
 
 list = jdbcTemplate.query(
 			sql.toString(), 
-			new ArtVOMapper()
+			new ArtVOMapper(),
+			setObj
 		);
 
 
@@ -182,6 +195,7 @@ function newWin(url, title, w, h){
     var left = ((width / 2) - (w / 2)) + dualScreenLeft;
     var top = ((height / 2) - (h / 2)) + dualScreenTop;
     var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+ 
 }
 
 function getPopup(type){

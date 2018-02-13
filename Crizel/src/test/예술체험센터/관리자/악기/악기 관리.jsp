@@ -94,27 +94,39 @@ int totalCount = 0;
 int cnt=0;
 int num = 0;
 
+Object[] setObj		= null;
+List<String> setList	= new ArrayList<String>();
+
 sql = new StringBuffer();
-sql.append("		SELECT	COUNT(*) CNT		 			");
-sql.append("		FROM ART_INST_MNG		 				");
-sql.append("		WHERE DEL_FLAG = 'N'		 			");
+sql.append("		SELECT	COUNT(*) CNT		 				");
+sql.append("		FROM ART_INST_MNG		 					");
+sql.append("		WHERE DEL_FLAG = 'N'		 				");
 if(!"".equals(search1)){
-sql.append("		AND INST_CAT_NM = '").append(search1).append("'		");
-paging.setParams("search1", search1);
+	sql.append("		AND INST_CAT_NM = ?							");
+	paging.setParams("search1", search1);
+	setList.add(search1);
 	if(!"".equals(keyword)){
-	sql.append("		AND INST_NAME = '").append(keyword).append("'	");
-	paging.setParams("keyword", keyword);
+		sql.append("		AND INST_NAME LIKE '%'||?||'%'			");
+		paging.setParams("keyword", keyword);
+		setList.add(keyword);
 	}
 }else{
 	if(!"".equals(keyword)){
-	sql.append("		AND INST_NAME = '").append(keyword).append("'	");
+	sql.append("		AND INST_NAME LIKE '%'||?||'%'				");
 	paging.setParams("keyword", keyword);
+	setList.add(keyword);
 	}
+}
+
+setObj = new Object[setList.size()];
+for(int i=0; i<setList.size(); i++){
+	setObj[i] = setList.get(i);
 }
 
 totalCount = jdbcTemplate.queryForObject(
 		sql.toString(),
-		Integer.class
+		Integer.class,
+		setObj
 	);
 
 paging.setPageNo(Integer.parseInt(pageNo));
@@ -143,15 +155,15 @@ sql.append("			DEL_FLAG			 							");
 sql.append("		FROM ART_INST_MNG		 							");
 sql.append("		WHERE DEL_FLAG = 'N'		 						");
 if(!"".equals(search1)){
-sql.append("		AND INST_CAT_NM = '").append(search1).append("'		");
-paging.setParams("search1", search1);
+	sql.append("		AND INST_CAT_NM = ?							");
+	paging.setParams("search1", search1);
 	if(!"".equals(keyword)){
-	sql.append("		AND INST_NAME = '").append(keyword).append("'	");
-	paging.setParams("keyword", keyword);
+		sql.append("		AND INST_NAME LIKE '%'||?||'%'			");
+		paging.setParams("keyword", keyword);
 	}
 }else{
 	if(!"".equals(keyword)){
-	sql.append("		AND INST_NAME = '").append(keyword).append("'	");
+	sql.append("		AND INST_NAME LIKE '%'||?||'%'				");
 	paging.setParams("keyword", keyword);
 	}
 }
@@ -159,9 +171,11 @@ sql.append("		ORDER BY INST_NO DESC		 						");
 sql.append("	) A WHERE ROWNUM <= ").append(paging.getEndRowNo()).append(" \n");
 sql.append(") WHERE RNUM >= ").append(paging.getStartRowNo()).append(" \n");
 
+
 list = jdbcTemplate.query(
 			sql.toString(), 
-			new InsVOMapper()
+			new InsVOMapper(),
+			setObj
 		);
 
 sql = new StringBuffer();

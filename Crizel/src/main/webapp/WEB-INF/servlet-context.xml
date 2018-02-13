@@ -14,6 +14,7 @@
 	<context:component-scan base-package="model" />
 	<context:component-scan base-package="board" />
 	<context:component-scan base-package="wiki" />
+	<context:component-scan base-package="nyaa" />
 	<!-- <context:component-scan base-package="com.ksis.validate" /> -->
 
 	<!-- viewResolver -->

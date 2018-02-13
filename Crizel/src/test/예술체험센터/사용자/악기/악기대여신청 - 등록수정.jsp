@@ -159,10 +159,11 @@ try{
 		sql.append("	A.APPLY_FLAG,												");
 		sql.append("	A.APPLY_DATE												");
 		sql.append("FROM ART_INST_REQ A 											");
-		sql.append("WHERE A.REQ_NO = ").append(req_no).append("						");
+		sql.append("WHERE A.REQ_NO = ?												");
 		vo = jdbcTemplate.queryForObject(
 					sql.toString(), 
-					new InsVOMapper()
+					new InsVOMapper(),
+					new Object[]{req_no}
 				);
 		
 		
@@ -196,11 +197,12 @@ try{
 		sql.append("FROM ART_INST_MNG											");
 		sql.append("WHERE INST_NO IN (SELECT INST_NO							");
 		sql.append("				 FROM ART_INST_REQ_CNT 						");
-		sql.append("				 WHERE REQ_NO = ").append(req_no).append(")	");
+		sql.append("				 WHERE REQ_NO = ? GROUP BY INST_NO)			");
 		sql.append("ORDER BY INST_NAME				");
 		list2 = jdbcTemplate.query(
 					sql.toString(), 
-					new InsVOMapper3()
+					new InsVOMapper3(),
+					new Object[]{req_no}
 				);
 	} 
 	

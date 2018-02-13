@@ -135,24 +135,31 @@ int totalCount = 0;
 int cnt=0;
 int num = 0;
 
+Object[] setObj		= null;
+List<String> setList	= new ArrayList<String>();
+
 sql = new StringBuffer();
 sql.append("SELECT	COUNT(*) CNT		 																	");
 sql.append("FROM ART_INST_REQ A																				");
 sql.append("WHERE 1=1					 																	");
 
 if(!"".equals(start_date)){
-	sql.append("AND A.REG_DATE >= '").append(start_date).append("'											");
+	sql.append("AND A.REG_DATE >= ?																			");
 	paging.setParams("start_date", start_date);
+	setList.add(start_date);
 }
 if(!"".equals(end_date)){
-	sql.append("AND A.REG_DATE <= '").append(end_date).append("'											");
+	sql.append("AND A.REG_DATE <= ?																			");
 	paging.setParams("end_date", end_date);
+	setList.add(end_date);
 }
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("req_id".equals(search1)){
-		sql.append("AND REQ_ID LIKE '%").append(keyword).append("%'											");
+		sql.append("AND REQ_ID LIKE '%'||?||'%'																");
+		setList.add(keyword);
 	}else if("req_mng_nm".equals(search1)){
-		sql.append("AND A.REQ_MNG_NM LIKE '%").append(keyword).append("%'									");
+		sql.append("AND A.REQ_MNG_NM LIKE '%'||?||'%'														");
+		setList.add(keyword);
 	}
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
@@ -161,22 +168,30 @@ if(!"".equals(search2)){
 	sql.append("AND A.REQ_NO = (																			");
 	sql.append("				SELECT REQ_NO																");
 	sql.append("				FROM ART_INST_REQ_CNT														");
-	sql.append("				WHERE ROWNUM = 1 AND INST_CAT_NM = '").append(search2).append("'			");
+	sql.append("				WHERE ROWNUM = 1 AND INST_CAT_NM = ?										");
 	sql.append("				)																			");
 	paging.setParams("search2", search2);
+	setList.add(search2);
 }
 if(!"".equals(search3)){
 	sql.append("AND A.REQ_NO = (																			");
 	sql.append("				SELECT REQ_NO																");
 	sql.append("				FROM ART_INST_REQ_CNT														");
-	sql.append("				WHERE ROWNUM = 1 AND INST_NO = '").append(search3).append("'				");
+	sql.append("				WHERE ROWNUM = 1 AND INST_NO = ?											");
 	sql.append("				)																			");
 	paging.setParams("search3", search3);
+	setList.add(search3);
+}
+
+setObj = new Object[setList.size()];
+for(int i=0; i<setList.size(); i++){
+	setObj[i] = setList.get(i);
 }
 
 totalCount = jdbcTemplate.queryForObject(
 		sql.toString(),
-		Integer.class
+		Integer.class,
+		setObj
 	);
 
 paging.setPageNo(Integer.parseInt(pageNo));
@@ -217,18 +232,18 @@ sql.append("		FROM ART_INST_REQ A																							");
 sql.append("		WHERE 1=1					 																				");
 
 if(!"".equals(start_date)){
-	sql.append("AND A.REG_DATE >= '").append(start_date).append("'											");
+	sql.append("AND A.REG_DATE >= ?																			");
 	paging.setParams("start_date", start_date);
 }
 if(!"".equals(end_date)){
-	sql.append("AND A.REG_DATE <= '").append(end_date).append("'											");
+	sql.append("AND A.REG_DATE <= ?																			");
 	paging.setParams("end_date", end_date);
 }
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("req_id".equals(search1)){
-		sql.append("AND REQ_ID LIKE '%").append(keyword).append("%'											");
+		sql.append("AND REQ_ID LIKE '%'||?||'%'																");
 	}else if("req_mng_nm".equals(search1)){
-		sql.append("AND A.REQ_MNG_NM LIKE '%").append(keyword).append("%'									");
+		sql.append("AND A.REQ_MNG_NM LIKE '%'||?||'%'														");
 	}
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
@@ -237,7 +252,7 @@ if(!"".equals(search2)){
 	sql.append("AND A.REQ_NO = (																			");
 	sql.append("				SELECT REQ_NO																");
 	sql.append("				FROM ART_INST_REQ_CNT														");
-	sql.append("				WHERE ROWNUM = 1 AND INST_CAT_NM = '").append(search2).append("'			");
+	sql.append("				WHERE ROWNUM = 1 AND INST_CAT_NM = ?										");
 	sql.append("				)																			");
 	paging.setParams("search2", search2);
 }
@@ -245,7 +260,7 @@ if(!"".equals(search3)){
 	sql.append("AND A.REQ_NO = (																			");
 	sql.append("				SELECT REQ_NO																");
 	sql.append("				FROM ART_INST_REQ_CNT														");
-	sql.append("				WHERE ROWNUM = 1 AND INST_NO = '").append(search3).append("'				");
+	sql.append("				WHERE ROWNUM = 1 AND INST_NO = ?											");
 	sql.append("				)																			");
 	paging.setParams("search3", search3);
 }
@@ -254,10 +269,14 @@ sql.append("ORDER BY A.REQ_NO DESC			 								");
 sql.append("	) A WHERE ROWNUM <= ").append(paging.getEndRowNo()).append(" \n");
 sql.append(") WHERE RNUM >= ").append(paging.getStartRowNo()).append(" \n	");
 
+
 list = jdbcTemplate.query(
 			sql.toString(), 
-			new InsVOMapper()
+			new InsVOMapper(),
+			setObj
 		);
+
+setList	= new ArrayList<String>();
 
 sql = new StringBuffer();
 sql.append("SELECT			 																										");
@@ -270,12 +289,14 @@ sql.append("FROM ART_INST_MNG																										");
 sql.append("WHERE 1=1					 																							");
 
 if(!"".equals(start_date)){
-	sql.append("AND REG_DATE >= '").append(start_date).append("'																	");
+	sql.append("AND REG_DATE >= ?																									");
 	paging.setParams("start_date", start_date);
+	setList.add(start_date);
 }
 if(!"".equals(end_date)){
-	sql.append("AND REG_DATE <= '").append(end_date).append("'																		");
+	sql.append("AND REG_DATE <= ?																									");
 	paging.setParams("end_date", end_date);
+	setList.add(end_date);
 }
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("req_id".equals(search1)){
@@ -283,35 +304,45 @@ if(!"".equals(search1) && !"".equals(keyword)){
 		sql.append("			   		FROM ART_INST_REQ_CNT ");
 		sql.append("					WHERE ROWNUM = 1 AND REQ_NO = (SELECT REQ_NO												");
 		sql.append("												   FROM ART_INST_REQ											");
-		sql.append("												   WHERE REQ_ID LIKE '%").append(keyword).append("%'			");
+		sql.append("												   WHERE REQ_ID LIKE '%'||?||'%'							");
 		sql.append("												   )															");
 		sql.append("				)																								");
+		setList.add(keyword);
 	}else if("req_mng_nm".equals(search1)){
 		sql.append("AND INST_NO = 	(	SELECT INST_NO 																				");
 		sql.append("					FROM ART_INST_REQ_CNT 																		");
 		sql.append("					WHERE ROWNUM = 1 AND REQ_NO =	(	SELECT REQ_NO 											");
 		sql.append("														FROM ART_INST_REQ 										");
-		sql.append("														WHERE REQ_MNG_NM LIKE '%").append(keyword).append("%'	");
+		sql.append("														WHERE REQ_MNG_NM LIKE '%'||?||'%'					");
 		sql.append("													)															");
 		sql.append("				)																								");
+		setList.add(keyword);
 	}
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
 }
 if(!"".equals(search2)){
-	sql.append("AND INST_CAT_NM = '").append(search2).append("'																		");
+	sql.append("AND INST_CAT_NM = ?																									");
 	paging.setParams("search2", search2);
+	setList.add(search2);
 }
 if(!"".equals(search3)){
-	sql.append("AND INST_NO = '").append(search3).append("'																			");
+	sql.append("AND INST_NO = ?																										");
 	paging.setParams("search3", search3);
+	setList.add(search3);
 }
 sql.append("ORDER BY INST_CAT_NM		 																							");
+
+setObj = new Object[setList.size()];
+for(int i=0; i<setList.size(); i++){
+	setObj[i] = setList.get(i);
+}
 
 
 totalList = jdbcTemplate.query(
 		sql.toString(), 
-		new TotalList()
+		new TotalList(),
+		setObj
 	);
 
 sql = new StringBuffer();
@@ -411,7 +442,7 @@ function instSelect(inst_cat_nm){
 }
 
 function searchSubmit(){
-	$("#searchForm").attr("action", "").submit();
+	$("#searchForm").attr("action", "").attr("method","get").submit();
 }
 function getPopup(type){
 	var addr = "/program/art/insAdmin/instMngPopup.jsp";

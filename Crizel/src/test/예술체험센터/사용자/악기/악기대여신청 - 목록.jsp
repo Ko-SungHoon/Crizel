@@ -72,30 +72,43 @@ int totalCount = 0;
 int cnt=0;
 int num = 0;
 
+Object[] setObj		= null;
+List<String> setList	= new ArrayList<String>();
+
 sql = new StringBuffer();
 sql.append("SELECT	COUNT(*) CNT		 									");
 sql.append("FROM ART_INST_REQ A												");
 sql.append("WHERE A.SHOW_FLAG = 'Y'		 									");
 if(!cm.isMenuCmsManager(sm)){
-sql.append("AND A.REQ_ID = '").append(sm.getId()).append("'					");	
+sql.append("AND A.REQ_ID = ?												");	
+setList.add(getId);
 }
 if(!"".equals(search1)){
-	sql.append("AND A.APPLY_FLAG = '").append(search1).append("'	");
+	sql.append("AND A.APPLY_FLAG = ?										");
+	setList.add(search1);
 paging.setParams("search1", search1);
 }
 if(!"".equals(search2) && !"".equals(keyword)){
 	if("inst_nm".equals(search2)){
-		sql.append("AND A.REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_NM LIKE '%").append(keyword).append("%')	");
+		sql.append("AND A.REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_NM LIKE '%'||?||'%' GROUP BY REQ_NO)	");
+		setList.add(keyword);
 	}else if("req_mng_nm".equals(search2)){
-		sql.append("AND A.REQ_MNG_NM LIKE '%").append(keyword).append("%'	");
+		sql.append("AND A.REQ_MNG_NM LIKE '%'||?||'%'						");
+		setList.add(keyword);
 	}
 paging.setParams("search2", search2);
 paging.setParams("keyword", keyword);
 }
 
+setObj = new Object[setList.size()];
+for(int i=0; i<setList.size(); i++){
+	setObj[i] = setList.get(i);
+}
+
 totalCount = jdbcTemplate.queryForObject(
 		sql.toString(),
-		Integer.class
+		Integer.class,
+		setObj
 	);
 
 paging.setPageNo(Integer.parseInt(pageNo));
@@ -139,17 +152,17 @@ sql.append("			(SELECT NVL(SUM(INST_REQ_CNT),0) FROM ART_INST_REQ_CNT WHERE REQ_
 sql.append("		FROM ART_INST_REQ A										");
 sql.append("		WHERE A.SHOW_FLAG = 'Y'		 							");
 if(!cm.isMenuCmsManager(sm)){
-sql.append("AND A.REQ_ID = '").append(sm.getId()).append("'					");	
+sql.append("AND A.REQ_ID = ?												");	
 }
-if(!"".equals(search1)){	
-	sql.append("AND A.APPLY_FLAG = '").append(search1).append("'			");
-paging.setParams("search1", search1);
+if(!"".equals(search1)){
+	sql.append("AND A.APPLY_FLAG = ?										");
+	paging.setParams("search1", search1);
 }
 if(!"".equals(search2) && !"".equals(keyword)){
 	if("inst_nm".equals(search2)){
-		sql.append("AND A.REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_NM LIKE '%").append(keyword).append("%')	");
+		sql.append("AND A.REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_NM LIKE '%'||?||'%' GROUP BY REQ_NO)	");
 	}else if("req_mng_nm".equals(search2)){
-		sql.append("AND A.REQ_MNG_NM LIKE '%").append(keyword).append("%'	");
+		sql.append("AND A.REQ_MNG_NM LIKE '%'||?||'%'						");
 	}
 paging.setParams("search2", search2);
 paging.setParams("keyword", keyword);
@@ -160,7 +173,8 @@ sql.append(") WHERE RNUM >= ").append(paging.getStartRowNo()).append(" \n	");
 
 list = jdbcTemplate.query(
 			sql.toString(), 
-			new InsVOMapper()
+			new InsVOMapper(),
+			setObj
 		);
 
 num = paging.getRowNo();

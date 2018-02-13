@@ -69,6 +69,9 @@ int totalCount = 0;
 int cnt=0;
 int num = 0;
 
+Object[] setObj		= null;
+List<String> setList	= new ArrayList<String>();
+
 sql = new StringBuffer();
 sql.append("		SELECT	COUNT(*) CNT		 							");
 sql.append("		FROM ART_REQ_DEEP A LEFT JOIN ART_PRO_DEEP B			");
@@ -76,17 +79,26 @@ sql.append("		ON A.PRO_NO = B.PRO_NO									");
 sql.append("		WHERE 1=1					 							");
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("pro_cat_nm".equals(search1)){
-		sql.append("	AND B.PRO_CAT_NM = '").append(keyword).append("'	");
+		sql.append("	AND B.PRO_CAT_NM LIKE '%'||?||'%'					");
+		setList.add(keyword);
 	}else if("req_user_nm".equals(search1)){
-		sql.append("	AND A.REQ_USER_NM = '").append(keyword).append("'	");
+		sql.append("	AND A.REQ_USER_NM LIKE '%'||?||'%'					");
+		setList.add(keyword);
 	}
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
 }
 
+setObj = new Object[setList.size()];
+for(int i=0; i<setList.size(); i++){
+	setObj[i] = setList.get(i);
+}
+
+
 totalCount = jdbcTemplate.queryForObject(
 		sql.toString(),
-		Integer.class
+		Integer.class,
+		setObj
 	);
 
 paging.setPageNo(Integer.parseInt(pageNo));
@@ -118,9 +130,9 @@ sql.append("		ON A.PRO_NO = B.PRO_NO									");
 sql.append("		WHERE 1=1					 							");
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("pro_cat_nm".equals(search1)){
-		sql.append("	AND B.PRO_CAT_NM = '").append(keyword).append("'	");
+		sql.append("	AND B.PRO_CAT_NM LIKE '%'||?||'%'					");
 	}else if("req_user_nm".equals(search1)){
-		sql.append("	AND A.REQ_USER_NM = '").append(keyword).append("'	");
+		sql.append("	AND A.REQ_USER_NM LIKE '%'||?||'%'					");
 	}
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
@@ -131,7 +143,8 @@ sql.append(") WHERE RNUM >= ").append(paging.getStartRowNo()).append(" \n");
 
 list = jdbcTemplate.query(
 			sql.toString(), 
-			new ArtVOMapper()
+			new ArtVOMapper(),
+			setObj
 		);
 
 num = paging.getRowNo();

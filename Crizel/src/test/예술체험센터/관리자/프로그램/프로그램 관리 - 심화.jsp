@@ -103,23 +103,35 @@ int totalCount = 0;
 int cnt=0;
 int num = 0;
 
+Object[] setObj		= null;
+List<String> setList	= new ArrayList<String>();
+
 sql = new StringBuffer();
 sql.append("		SELECT	COUNT(*) CNT		 								");
 sql.append("		FROM ART_PRO_DEEP		 									");
 sql.append("		WHERE DEL_FLAG = 'N'		 								");
 if(!"".equals(year)){
-sql.append("		AND (SUBSTR(PROSTR_DATE,0,4) = '").append(year).append("'	");
-sql.append("		OR SUBSTR(PROEND_DATE,0,4) = '").append(year).append("')	");
+sql.append("		AND (SUBSTR(PROSTR_DATE,0,4) = ?							");
+sql.append("		OR SUBSTR(PROEND_DATE,0,4) = ?	)							");
 paging.setParams("year", year);
+setList.add(year);
+setList.add(year);
 }
 if(!"".equals(code_val1)){
-sql.append("		AND PRO_CAT_NM = '").append(code_val1).append("'			");
+sql.append("		AND PRO_CAT_NM = ?											");
 paging.setParams("code_val1", code_val1);
+setList.add(code_val1);
+}
+
+setObj = new Object[setList.size()];
+for(int i=0; i<setList.size(); i++){
+	setObj[i] = setList.get(i);
 }
 
 totalCount = jdbcTemplate.queryForObject(
 		sql.toString(),
-		Integer.class
+		Integer.class,
+		setObj
 	);
 
 paging.setPageNo(Integer.parseInt(pageNo));
@@ -165,12 +177,12 @@ sql.append("			END STATUS																");
 sql.append("		FROM ART_PRO_DEEP		 													");
 sql.append("		WHERE DEL_FLAG = 'N'		 												");
 if(!"".equals(year)){
-sql.append("		AND (SUBSTR(PROSTR_DATE,0,4) = '").append(year).append("'					");
-sql.append("		OR SUBSTR(PROEND_DATE,0,4) = '").append(year).append("')					");
+sql.append("		AND (SUBSTR(PROSTR_DATE,0,4) = ?							");
+sql.append("		OR SUBSTR(PROEND_DATE,0,4) = ?	)							");
 paging.setParams("year", year);
 }
 if(!"".equals(code_val1)){
-sql.append("		AND PRO_CAT_NM = '").append(code_val1).append("'							");
+sql.append("		AND PRO_CAT_NM = ?											");
 paging.setParams("code_val1", code_val1);
 }
 sql.append("		ORDER BY PRO_NO DESC														");
@@ -179,7 +191,8 @@ sql.append(") WHERE RNUM >= ").append(paging.getStartRowNo()).append(" 							")
 
 list = jdbcTemplate.query(
 			sql.toString(), 
-			new ArtVOMapper()
+			new ArtVOMapper(),
+			setObj
 		);
 
 
