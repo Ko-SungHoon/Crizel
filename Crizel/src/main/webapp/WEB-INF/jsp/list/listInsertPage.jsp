@@ -32,11 +32,11 @@ String dayArr[] = {"월", "화", "수", "목", "금", "토", "일"};
 %>
 	<div class="content">
 			<form action="/listInsert.do" method="post" onsubmit="return formSubmit();">
-				<table class="tbl_type01">
+				<table class="tbl_type02">
 					<tr>
 						<th>사이트</th>
 						<td>
-						<select name="site">
+						<select name="site" required>
 							<option value="ohys">ohys</option>
 							<option value="leopard">leopard</option>
 						</select>
@@ -45,7 +45,7 @@ String dayArr[] = {"월", "화", "수", "목", "금", "토", "일"};
 					<tr>
 						<th>날짜</th>
 						<td>
-							<select name="day" id="day">
+							<select name="day" id="day" required>
 								<%
 								for(int i=0; i<dayArr.length; i++){
 								%>
@@ -58,20 +58,20 @@ String dayArr[] = {"월", "화", "수", "목", "금", "토", "일"};
 					</tr>
 					<tr>
 						<th>시간</th>
-						<td><input type="text" name="ani_time" id="ani_time"></td>
+						<td><input type="text" name="ani_time" id="ani_time" required></td>
 					</tr>
 					<tr>
 						<th>제목</th>
-						<td><input type="text" name="title" id="title"></td>
+						<td><input type="text" name="title" id="title" required></td>
 					</tr>
 					<tr>
 						<th>키워드</th>
-						<td><input type="text" name="keyword" id="keyword"></td>
-					</tr>
-					<tr>
-						<td colspan="2"><input type="submit" value="추가"></td>
+						<td><input type="text" name="keyword" id="keyword" required></td>
 					</tr>
 				</table>
+				<div class="btn">
+					<button>추가</button>
+				</div>
 			</form>
 	</div>
 

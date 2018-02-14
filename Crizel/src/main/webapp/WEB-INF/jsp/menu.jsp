@@ -22,7 +22,9 @@ $(function(){
 	});
 });
 </script>
-<div class="header">
+<style>
+</style>
+<nav class="header">
 	<a class="logo" href="/">CRIZEL</a>
 	<ul class="mobMenu">
 		<li id="home"><span>메뉴</span></li>
@@ -41,24 +43,13 @@ $(function(){
 		</li>
 		<li><a href="#">링크</a>
 			<ul>
-				<c:if test="${login.id ne null }">
-					<%-- <li><a href="/main.do?y=y&m=m&id=${login.id}">가계부</a></li> --%>
-				</c:if>
+				<li><a href="/comic.do">만화</a></li>
 				<li><a href="/nyaa.do">Nyaa</a></li>
 				<li><a href="/directory.do">파일</a></li>
-				<c:if test="${login.id ne null }">
-					<li><a href="/diary.do">일기</a></li>
-				</c:if>
-				<li><a href="/pubg.do">배틀그라운드</a></li>
-				<li><a href="/wiki.do">위키</a></li>
-				<li><a href="/yes24.do">예스24</a></li>
+				<li><a href="/diary.do">일기</a></li>
 				<li><a href="http://www.youtube-audio.com/" target="blank">유튜브 mp3 추출</a></li>
-				<c:if test="${login.id == 'rhzhzh3' }">
-					<li><a href="http://www.anissia.net/anitime/" target="_blank">애니시아</a></li>
-					<!-- <li><a href="https://www.nyaa.se/?page=search&cats=1_11&filter=0&term="target="_blank">토렌트</a></li> -->
-					<li><a href="https://hentaku.net/poombun.php">검색기</a></li>
-					<li><a href="/comic.do">만화</a></li>
-				</c:if>
+				<li><a href="http://www.anissia.net/anitime/" target="_blank">애니시아</a></li>
+				<li><a href="https://hentaku.net/poombun.php">검색기</a></li>
 			</ul></li>
 		<li><a href="/board.do?pageParam=1">게시판</a></li>
 	</ul>
@@ -78,7 +69,7 @@ $(function(){
 		<span>메뉴</span>
 		</div> 
 	-->
-</div>
+</nav>
 
 <style>
  #remoCon {

@@ -15,17 +15,18 @@
 <body>
 <jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
-<form action="/nyaa.do" method="get">
-<select id="type" name="type">
-	<option value="1_0" <c:if test="${type eq '1_0'}"> selected </c:if>>VIDEO</option>
-	<option value="2_0" <c:if test="${type eq '2_0'}"> selected </c:if>>AUDIO</option>
-	<option value="4_0" <c:if test="${type eq '4_0'}"> selected </c:if>>LIVE</option>
-	<option value="5_0" <c:if test="${type eq '5_0'}"> selected </c:if>>PICTURE</option>
-</select>
-<input type="text" id="keyword" name="keyword" value="${keyword}">
-<button>검색</button>
-</form>
-
+<div class="search center">
+	<form action="/nyaa.do" method="get">
+		<select id="type" name="type">
+			<option value="1_0" <c:if test="${type eq '1_0'}"> selected </c:if>>VIDEO</option>
+			<option value="2_0" <c:if test="${type eq '2_0'}"> selected </c:if>>AUDIO</option>
+			<option value="4_0" <c:if test="${type eq '4_0'}"> selected </c:if>>LIVE</option>
+			<option value="5_0" <c:if test="${type eq '5_0'}"> selected </c:if>>PICTURE</option>
+		</select>
+		<input type="text" id="keyword" name="keyword" value="${keyword}">
+		<button>검색</button>
+	</form>
+</div>
 <table class="tbl_type01">
 <thead>
 	<tr>

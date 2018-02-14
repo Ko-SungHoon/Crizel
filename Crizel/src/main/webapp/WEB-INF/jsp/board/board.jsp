@@ -29,10 +29,10 @@ $(function(){
 			<table class="tbl_type01">
 				<thead>
 					<tr>
-						<td style="width:10%">번호</td>
-						<td style="width:50%">제목</td>
-						<td style="width:20%">작성자</td>
-						<td style="width:20%">작성일</td>
+						<th style="width:10%">번호</th>
+						<th style="width:50%">제목</th>
+						<th style="width:20%">작성자</th>
+						<th style="width:20%">작성일</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -40,11 +40,12 @@ $(function(){
 					<c:if test="${ob.title ne null}">
 						<tr>
 							<td>${ob.rnum}</td>
-							<td class="l">
+							<td class="left">
+								<a href="/boardContent.do?b_id=${ob.b_id}&pageParam=${page}">
 								<c:if test="${ob.b_level ne '0' }">
 								&nbsp;&nbsp;ㄴ 
 								</c:if>
-								<a href="/boardContent.do?b_id=${ob.b_id}&pageParam=${page}">${ob.title}</a>
+								${ob.title}</a>
 							</td>
 							<td>${ob.user_nick}</td>
 							<td>${ob.register_date}</td>
@@ -52,27 +53,22 @@ $(function(){
 					</c:if>	
 					</c:forEach>
 				</tbody>
-				<tfoot>
-					<tr>
-						<td colspan="4">						
-							<c:if test="${totalCount>0}">
-								<a href="/board.do?pageParam=1"> 처음 </a>
-								
-								<a href="/board.do?pageParam=${pre}"> 이전 </a>
-	
-								<c:forEach begin="${startPage}" end="${endPage}"
-									varStatus="i">
-									<a href="/board.do?pageParam=${i.index}">${i.index}</a>
-								</c:forEach>
-								
-								<a href="/board.do?pageParam=${next}"> 다음 </a>
-								<a href="/board.do?pageParam=${totalPage}"> 끝 </a>
-							</c:if>	
-							<input type="button" id="insert" value="글쓰기" style="float: right;">	
-						</td>
-					</tr>
-				</tfoot>
 			</table>
+			<div class="paging">
+				<c:if test="${totalCount>0}">
+					<a href="/board.do?pageParam=1"> 처음 </a>
+					
+					<a href="/board.do?pageParam=${pre}"> 이전 </a>
+	
+					<c:forEach begin="${startPage}" end="${endPage}"
+						varStatus="i">
+						<a href="/board.do?pageParam=${i.index}">${i.index}</a>
+					</c:forEach>
+					<a href="/board.do?pageParam=${next}"> 다음 </a>
+					<a href="/board.do?pageParam=${totalPage}"> 끝 </a>
+				</c:if>	
+				<input type="button" id="insert" value="글쓰기" style="float: right;">	
+			</div>
 	</div>
 
 </body>

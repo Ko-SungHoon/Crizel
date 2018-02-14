@@ -46,7 +46,7 @@ $(function(){
 		<c:if test="${content ne null}">
 			<input type="hidden" name="diary_id" id="diary_id" value="${content.diary_id}">
 		</c:if>
-		<table class="tbl_type01">
+		<table class="tbl_type02">
 			<tr>
 				<th>날짜</th>
 				<td>${day}</td>
@@ -57,17 +57,15 @@ $(function(){
 					<textarea style="width: 80%; height: 150px;" name="content" id="content">${content.content}</textarea>
 				</td>
 			</tr>
-			<tr>
-				<td colspan="2">
-					<c:if test="${content eq null}">
-						<span id="diary_insert">등록</span>
-					</c:if>
-					<c:if test="${content ne null}">
-						<span id="diary_update">수정</span>
-					</c:if>
-				</td>
-			</tr>
 		</table>
+		<div class="search">
+			<c:if test="${content eq null}">
+				<button type="button" id="diary_insert">등록</button>
+			</c:if>
+			<c:if test="${content ne null}">
+				<button type="button" id="diary_update">수정</button>
+			</c:if>
+		</div>
 	</form>
 </div>
 </body>

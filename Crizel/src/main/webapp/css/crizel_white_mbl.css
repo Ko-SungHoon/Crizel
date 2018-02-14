@@ -1,48 +1,35 @@
 @CHARSET "UTF-8";
-@import url(http://fonts.googleapis.com/earlyaccess/hanna.css);
-body{font-family: 'Hanna', serif; font-size: 17px; margin:0; padding:0; background: #2e2e2e; color:white;}
-a{text-decoration: none; color:black;}
-input[type=submit] {background: black; color: white;  width: 100px; height: 30px; border: 1px solid white; cursor: pointer; letter-spacing: 5px;
-					font-family: 'Hanna', serif; font-size: 20px; text-align: center;}
-input[type=button] {background: black; color: white;  width: 100px; height: 30px; border: 1px solid white; cursor: pointer; letter-spacing: 5px;
-					font-family: 'Hanna', serif; font-size: 20px; text-align: center;}
-input[type=text] {height: 20px; width: 70%;}		
-input[type=password] {height: 20px; width: 70%;}
-select { width: 300px; /* 원하는 너비설정 */ height: 20px; /* 여백으로 높이 설정 */ font-family: inherit; /* 폰트 상속 */ font-size:20px; 
-		background: url(https://farm1.staticflickr.com/379/19928272501_4ef877c265_t.jpg) no-repeat 100% 50%; /* 네이티브 화살표 대체 */ 
-		background-color:white; letter-spacing: 5px;
-		-webkit-appearance: none; /* 네이티브 외형 감추기 */ -moz-appearance: none; appearance: none; }
-		
-		
-@media all and (min-width:768px) { /* 데스크탑 CSS 작성 */
+@media all and (max-width:768px) { /* 모바일 CSS 작성 */
 
 .header{background: #171717;}
 .content{margin-top: 50px;}
 
-.logo{width: 10%; display: inline-block;  line-height:50px; height: 50px; text-align: center; padding: 0; margin: 0; color:#e3e3e3; font-size: 30px;}
-.login_menu{display: inline-block; width: 10%; line-height:50px; height: 50px; padding: 0; margin: 0; text-align: right;}
+.logo{width: 10%; display: inline-block;  line-height:50px; height: 50px; text-align: center; padding: 0; margin: 0; color:#e3e3e3; font-size: 30px; display: none;}
+.login_menu{/* display: inline-block; */ display:none; width: 100%; line-height:50px; height: 50px; padding: 0; margin: 0; text-align: center;}
 .login_menu a{color: #e3e3e3;}
+
+.mobMenu{background: #171717; list-style: none; line-height:50px; height: 50px; text-align: center; width:100%; padding: 0; margin: 0; display: inline-block; }
+.mobMenu li{display: inline-block; width: 100%; margin-left: auto;}
+.mobMenu li a{color: #e3e3e3; text-decoration: none;display: block;}
+
 .menu_wrap{margin-top: 50px;}
-
-.mobMenu{display: none;}
-
-.menu{background: #171717; list-style: none; line-height:50px; height: 50px; text-align: center; width:79%; padding: 0; margin: 0; display: inline-block; }
-.menu li{display: inline-block; width: 150px; margin-left: auto;}
+.menu{background: #171717; list-style: none; line-height:50px; height: 50px; text-align: center; width:100%; padding: 0; margin: 0; display: none; /* display: inline-block; */ }
+.menu li{/* display: inline-block; */ display:none; width: 100%; margin-left: auto;}
+.menu #home{display: block;}
 .menu li a{color: #e3e3e3; text-decoration: none;display: block;}
 .menu li a:hover{background: #525252; color: #e3e3e3;}
-.menu li ul{display: none;padding: 0;margin: 0 auto; position: absolute; width: 150px;}
+.menu li ul{padding: 0;margin: 0 auto; width: 100%;}
 .menu li:hover > ul{display: block;}
 .menu li ul{background: #171717;}
-.menu li ul li{width: 100%;}
+.menu li ul li{width: 100%; background: #525252;}
 
 .tbl_type01{width: 80%; margin: auto; padding: 0; text-align: center; border-collapse: collapse; border-spacing: 0; margin-bottom: 50px;
 			background: #171717; color: #e3e3e3;}
-.movie{width: 50%; margin:60px 0 0 60px;}
+.movie{width: 100%; margin:30px 0 0 0;}
 .tbl_type01 td, th{line-height: 50px; border: 1px solid #575757; border-collapse: collapse; border-spacing: 0;}
 .tbl_type01 a,span{color: #e3e3e3; cursor: pointer;}
 .tbl_type01 .content{text-align: left; padding: 20px; line-height: 27px;}
 .tbl_type01 .btn01{margin: 10px;}
-.tbl_type01 .l{text-align: left; padding-left: 10px;}
 
 .tbl_type01 .mon span, .tue span, .wed span, .thu span, .fri span, .sat span, .sun span{ display: block; cursor: pointer;}
 .tbl_type01 .mon.on span, .tue.on span, .wed.on span, .thu.on span, .fri.on span, .sat.on span, .sun.on span{background: #525252;}
@@ -52,14 +39,14 @@ select { width: 300px; /* 원하는 너비설정 */ height: 20px; /* 여백으�
 .ani_title:hover, .ani_del:hover{background: #525252;}
 
 .nameList{width: 100%; line-height:100px; height: auto; padding: 0; margin: 0; list-style: none; margin-bottom: 50px; display:inline-block;}
-.nameList li{float: left; width:20%; line-height:50px; height: 50px; text-align: center;}
+.nameList li{float: left; width:100%; line-height:50px; height: 50px; text-align: center;}
 .nameList li a{display: block; color: #e3e3e3;}
 .nameList li a:hover{background: #525252; }
 .nameList .twitter_name{display: inline-block;}
 .nameList .twitter_del{display: inline-block;}
 
 .nameList2{width: 100%; line-height:100px; height: 100px; padding: 0; margin: 0; list-style: none; margin-bottom: 50px; height: auto;  display:inline-block;}
-.nameList2 li{float: left; width:33%; line-height:50px; height: 50px; text-align: center;}
+.nameList2 li{float: left; width:100%; line-height:50px; height: 50px; text-align: center;}
 .nameList2 li a{display: block; color: #e3e3e3;}
 .nameList2 li a:hover{background: #525252; }
 
@@ -81,17 +68,10 @@ select { width: 300px; /* 원하는 너비설정 */ height: 20px; /* 여백으�
 .sat, .sat a {color:#9cd1ff !important;}
 .calendar .holiday+a{color:#ff8787 !important;}
 
-.ul_type01{list-style : none; width : 100%; display: block; padding:0;}
-.ul_type01 a{color:white; font-size:25px; display : block;}
-.ul_type01 a:hover{background: #525252;}
-.ul_type01 li{list-style : none; display : block;}
-.ul_type01 ul{margin-top : 15px; border-bottom: 1px solid white; padding: 0;}
-
-
 /* 모달 */
-.modal {display: none; position: fixe	d; z-index: 1; padding-top: 200px; left: 0;top: 0;width: 100%; height: 100%; overflow: auto; 
+.modal {display: none; position: fixed; z-index: 1; padding-top: 0px; left: 0;top: 0;width: 100%; height: 100%; overflow: auto; 
 		background-color: rgb(0, 0, 0); background-color: rgba(0, 0, 0, 0.4); }
-.modal-content {margin: auto;	padding: 20px;	border: 1px solid #888;	width: 25%; border-radius:12px; background: #171717;}
+.modal-content {margin: auto;	padding: 20px;	border: 1px solid #888;	width: 100%; border-radius:12px; background: white;}
 .close {height: 25px; border-color: #242424; border-radius: 30px;	width: 70px;cursor: pointer;}
 .close:hover, .close:focus {color: #000;text-decoration: none;cursor: pointer;}
 .modal-content table{width: 100%; text-align: center; }

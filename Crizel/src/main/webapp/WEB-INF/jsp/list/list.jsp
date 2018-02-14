@@ -7,9 +7,6 @@
 <head>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <title>List</title>
-<style type="text/css">
-#keyword{width: 30%; margin-right: 15px;}
-</style>
 <script>
 $(function(){
 	if($("#dayCheck").val() == "월"){
@@ -27,11 +24,6 @@ $(function(){
 	}else if($("#dayCheck").val() == "일"){
 		$(".sun").addClass("on");
 	}
-	
-	$("#searchBtn").click(function(){
-		var keyword = $("#keyword").val();
-		location.href="/listDetail.do?keyword=" + keyword + "&type=video";
-	});
 });
 </script>
 </head>
@@ -39,6 +31,13 @@ $(function(){
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
 	<input type="hidden" value="${day}" id="dayCheck">
+	<div class="search center">
+		<form action="/listDetail.do" method="get">
+			<input type="hidden" id="type" name="type" value="video">
+			<input type="text" name="keyword" id="keyword">
+			<button>검색</button>
+		</form>
+	</div>
 	<table class="tbl_type01">
 		<colgroup>
 			<col style="width:14.285%" />
@@ -51,18 +50,13 @@ $(function(){
 		</colgroup>
 		<thead>
 		<tr>
-			<td colspan="7">
-				<input type="text" name="keyword" id="keyword"><span id="searchBtn">검색</span>
-			</td>
-		</tr>
-		<tr>
-			<th scope="col" class="mon" onclick="location.href='/list.do?day=월'"><span>월</span></th>
-			<th scope="col" class="tue" onclick="location.href='/list.do?day=화'"><span>화</span></th>
-			<th scope="col" class="wed" onclick="location.href='/list.do?day=수'"><span>수</span></th>
-			<th scope="col" class="thu" onclick="location.href='/list.do?day=목'"><span>목</span></th>
-			<th scope="col" class="fri" onclick="location.href='/list.do?day=금'"><span>금</span></th>
-			<th scope="col" class="sat" onclick="location.href='/list.do?day=토'"><span>토</span></th>
-			<th scope="col" class="sun" onclick="location.href='/list.do?day=일'"><span>일</span></th>
+			<th scope="col" ><a href="/list.do?day=월" class="mon">월</a></th>
+			<th scope="col" ><a href="/list.do?day=화" class="tue">화</a></th>
+			<th scope="col" ><a href="/list.do?day=수" class="wed">수</a></th>
+			<th scope="col" ><a href="/list.do?day=목" class="thu">목</a></th>
+			<th scope="col" ><a href="/list.do?day=금" class="fri">금</a></th>
+			<th scope="col" ><a href="/list.do?day=토" class="sat">토</a></th>
+			<th scope="col" ><a href="/list.do?day=일" class="sun">일</a></th>
 		</tr>
 		</thead>
 		<c:if test="${list ne null}">

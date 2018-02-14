@@ -28,7 +28,7 @@ function formSubmit(){
 
 	<div class="content">
 		<form action="/girlsInsert.do" method="post" onsubmit="return formSubmit();">
-			<table class="tbl_type01">
+			<table class="tbl_type02">
 				<tr>
 					<th>타입</th>
 					<td>
@@ -60,7 +60,7 @@ function formSubmit(){
 				</tr>
 			</table>
 			
-			<ul class="nameList">
+			<ul class="ul_type04">
 				<c:forEach items="${nameList}" var="ob">
 					<li> 
 						<a href="${ob.addr}" target="blank" class="twitter_name">${ob.name}</a>

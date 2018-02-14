@@ -30,7 +30,8 @@ $(function() {
 </script>
 <title>Crizel</title>
 </head>
-<body style="background: url('/img/bg03.jpg');">
+<!-- <body style="background: url('/img/bg03.jpg');"> -->
+<body>
 <%@include file="/WEB-INF/jsp/menu.jsp" %>
 
 <%!
@@ -55,39 +56,61 @@ JSONObject object = (JSONObject) JSONValue.parse(isr);
 /* Object로 받을 경우 */
 JSONObject head = (JSONObject) object.get("boxOfficeResult");
 %>
-<table class="tbl_type01 movie">
-	<colgroup>
-		<col width="10%">
-		<col width="50%">
-		<col width="40%">
-	</colgroup>
-	<tr>
-		<td colspan="3"><%=head.get("boxofficeType").toString() %> _ <a href="http://www.cgv.co.kr/theaters/?theaterCode=0081" target="_blank">진주 CGV</a></td>
-	</tr>
+
+<div class="content">
 	
-<%
-/* Array로 받을 경우 */
-//JSONArray bodyArray = (JSONArray) head.get("dailyBoxOfficeList");
-JSONArray bodyArray = (JSONArray) head.get("weeklyBoxOfficeList");
-for (int i = 0; i < bodyArray.size(); i++) {
-	JSONObject data = (JSONObject) bodyArray.get(i);
-%>
-	<tr>
-		<td><%=data.get("rank").toString()%></td>
-		<td style="text-align: left;"><%=data.get("movieNm").toString()%></td>
-<%
-	if(i == 0){
-%>
-		<td rowspan="<%=bodyArray.size()%>">
-			<div id="saramin"></div>
-		</td>
-<%
-} 
-%>
-	</tr>
-<%
-}
-%>
-</table>
+	<ul class="bookMark">
+		<li>
+			<a href="/list.do">
+				<img src="/img/video.png" />
+			</a>
+		</li>
+		<li>
+			<a href="/girls.do">
+				<img src="/img/nana.jpg" />
+			</a>
+		</li>
+		<li>
+			<a href="/comic.do">
+				<img src="/img/liverpool.jpg" />
+			</a>
+		</li>
+	</ul>
+	
+
+	<table class="tbl_main">
+		<colgroup>
+			<col width="10%">
+			<col width="50%">
+			<col width="40%">
+		</colgroup>
+		<tr>
+			<th colspan="3"><%=head.get("boxofficeType").toString() %> _ <a href="http://www.cgv.co.kr/theaters/?theaterCode=0081" target="_blank">진주 CGV</a></th>
+		</tr>
+	<%
+	/* Array로 받을 경우 */
+	//JSONArray bodyArray = (JSONArray) head.get("dailyBoxOfficeList");
+	JSONArray bodyArray = (JSONArray) head.get("weeklyBoxOfficeList");
+	for (int i = 0; i < bodyArray.size(); i++) {
+		JSONObject data = (JSONObject) bodyArray.get(i);
+	%>
+		<tr>
+			<td><%=data.get("rank").toString()%></td>
+			<td class="left"><%=data.get("movieNm").toString()%></td>
+	<%
+		if(i == 0){
+	%>
+			<td rowspan="<%=bodyArray.size()%>">
+				<div id="saramin"></div>
+			</td>
+	<%
+	} 
+	%>
+		</tr>
+	<%
+	}
+	%>
+	</table>
+</div>
 </body>
 </html>

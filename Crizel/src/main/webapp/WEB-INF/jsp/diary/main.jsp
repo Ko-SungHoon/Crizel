@@ -20,7 +20,34 @@ function dayChange(value){
 <div class="content">
 	<input type="hidden" name="month" id="month" value="${cal.month}">
 	<input type="hidden" name="year" id="year" value="${cal.year}">
-	<table class="calendar">
+	<div class="search">
+		<%
+		String yearArr[] = {"2016","2017"};
+		String monthArr[] = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
+		%>
+		<form action="/diary.do" method="post" id="postForm">
+			<select name="year">
+				<%
+				for(int i=yearArr.length-1; i>=0; i--){
+				%>
+					<option value="<%=yearArr[i]%>"><%=yearArr[i]%>년</option>
+				<%
+				}
+				%>
+			</select>
+			<select name="month">
+				<%
+				for(int i=0; i<monthArr.length; i++){
+				%>
+					<option value="<%=monthArr[i]%>"><%=monthArr[i]%>월</option>
+				<%
+				}
+				%>
+			</select>
+			<button>검색</button>
+		</form>
+	</div>
+	<table class="tbl_type01">
 		<colgroup>
 			<col style="width:14.285%" />
 			<col style="width:14.285%" />
@@ -31,36 +58,6 @@ function dayChange(value){
 			<col style="width:14.285%" />
 		</colgroup>
 		<thead>
-			<%-- <tr>
-				<th colspan="7">
-				<%
-				String yearArr[] = {"2016","2017"};
-				String monthArr[] = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
-				%>
-					<form action="/diary.do" method="post" id="postForm">
-						<select name="year">
-							<%
-							for(int i=yearArr.length-1; i>=0; i--){
-							%>
-								<option value="<%=yearArr[i]%>"><%=yearArr[i]%>년</option>
-							<%
-							}
-							%>
-						</select>
-						<select name="month">
-							<%
-							for(int i=0; i<monthArr.length; i++){
-							%>
-								<option value="<%=monthArr[i]%>"><%=monthArr[i]%>월</option>
-							<%
-							}
-							%>
-						</select>
-						<span onclick="$('#postForm').submit();">검색</span>
-					</form>
-					
-				</th>
-			</tr> --%>
 			<tr>
 				<th colspan="2" class="cal_pre" >
 					<span onclick="dayChange('pre')">이전달</span>
@@ -116,7 +113,9 @@ function dayChange(value){
 									</c:if>
 								</c:forEach>
 								
-								<a href="/diaryContent.do?day=${cal.year}-${cal.month}-${dayVal}" <c:if test="${useCheck eq 'Y'}">class="on"</c:if> >${dayVal}</a>
+								<a href="/diaryContent.do?day=${cal.year}-${cal.month}-${dayVal}" <c:if test="${useCheck eq 'Y'}">class="on"</c:if> >
+									${dayVal} 
+								</a>
 								<c:set var="useCheck" value="N"/>
 								<c:set var="dayVal" value="${dayVal+1}"/>
 							</c:if>

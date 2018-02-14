@@ -46,7 +46,7 @@ if(!"".equals(day)){
 <form id="postForm" method="post">
 <input type="hidden" name="day" id="day" value="${day}">
 <input type="hidden" name="diary_id" id="diary_id" value="${content.diary_id}">
-	<table class="tbl_type01">
+	<table class="tbl_type02">
 		<colgroup>
 			<col style="width:15%;" >
 			<col style="width:85%;" >
@@ -59,19 +59,17 @@ if(!"".equals(day)){
 			<th>내용</th>
 			<td class="content">${fn:replace(content.content , crlf, '</br>' )}</td>
 		</tr>
-		<tr>
-			<td colspan="2">
-				<a class="btn01" href="/diary.do?year=<%=year%>&month=<%=month%>">목록</a>
+	</table>
+	<div class="search">
+		<button type="button" onclick="location.href='/diary.do?year=<%=year%>&month=<%=month%>'">목록</button>
 				<c:if test="${content eq null}">
-					<span class="btn01" id="insertPage">일기쓰기</span>
+					<button type="button" id="insertPage">일기쓰기</button>
 				</c:if>
 				<c:if test="${content ne null}">
-					<span class="btn01" id="diary_update">수정</span>
-					<span class="btn01" id="diary_delete">삭제</span>
+					<button type="button" id="diary_update">수정</button>
+					<button type="button" id="diary_delete">삭제</button>
 				</c:if>	
-			</td>
-		</tr>
-	</table>
+	</div>
 </form>
 </div>
 </body>

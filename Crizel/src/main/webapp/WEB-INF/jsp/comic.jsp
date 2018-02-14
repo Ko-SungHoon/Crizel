@@ -7,10 +7,6 @@
 <head>
 <jsp:include page="/WEB-INF/jsp/header.jsp" />
 <title>Comic</title>
-<style type="text/css">
-#keyword{width: 30%; margin-right: 15px;}
-#postForm{text-align:center; margin:auto;}
-</style>
 <script>
 function list(addr){
 	addr = encodeURIComponent(addr); 
@@ -87,94 +83,150 @@ function comicDown(addr, type){
 				<li><a href="http://marumaru.in/b/manga/164536" target="_blank">우리 메이드가 너무 짜증나</a></li>
 				<li><a href="http://marumaru.in/b/manga/151772" target="_blank">우리 딸을 위해서라면 나는 어쩌면 마왕을 쓰러뜨릴 수 있을지 모른다</a></li>
 			</ul> -->
-			
-			<ul class="nameList2">
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/60371" style="display: inline-block;">장난을 잘 치는 타카기양</a>
-					<a href="javascript:comicDown('/b/manga/60371', 'A');" style="display: inline-block;">[다운]</a>
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/229679" style="display: inline-block;">장난을 잘 치는 (전)타카기양</a>
-					<a href="javascript:comicDown('/b/manga/229679', 'A');" style="display: inline-block;">[다운]</a>	
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/65484" style="display: inline-block;">원펀맨</a>
-					<a href="javascript:comicDown('/b/manga/65484', 'A');" style="display: inline-block;">[다운]</a>	
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/139743" style="display: inline-block;">갸루와 오타쿠는 서로 이해할 수 없어</a>
-					<a href="javascript:comicDown('/b/manga/139743', 'A');" style="display: inline-block;">[다운]</a>
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/84591" style="display: inline-block;">전생했더니 슬라임이었던 건에 대하여</a>
-					<a href="javascript:comicDown('/b/manga/84591', 'A');" style="display: inline-block;">[다운]</a>
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/153107" style="display: inline-block;">전생했더니 슬라임이었던 건에 대하여 - 외전</a>
-					<a href="javascript:comicDown('/b/manga/153107', 'A');" style="display: inline-block;">[다운]</a>
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/164545" style="display: inline-block;">장래적으로 죽어줘</a>
-					<a href="javascript:comicDown('/b/manga/164545', 'A');" style="display: inline-block;">[다운]</a>
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/156005" style="display: inline-block;">나는 너를 울리고싶어</a>
-					<a href="javascript:comicDown('/b/manga/156005', 'A');" style="display: inline-block;">[다운]</a>
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/173116" style="display: inline-block;">나에게 천사가 내려왔다</a>
-					<a href="javascript:comicDown('/b/manga/173116', 'A');" style="display: inline-block;">[다운]</a>
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/164536" style="display: inline-block;">우리 메이드가 너무 짜증나</a>
-					<a href="javascript:comicDown('/b/manga/164536', 'A');" style="display: inline-block;">[다운]</a>
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/151772" style="display: inline-block;">우리 딸을 위해서라면 나는 어쩌면 마왕을 쓰러뜨릴 수 있을지 모른다</a>
-					<a href="javascript:comicDown('/b/manga/151772', 'A');" style="display: inline-block;">[다운]</a>
-				</li>
-				<li>
-					<a href="/comic.do?type=B&list=/b/manga/260684" style="display: inline-block;">오빠는 끝</a>
-					<a href="javascript:comicDown('/b/manga/260684', 'A');" style="display: inline-block;">[다운]</a>
-				</li>
-			</ul>
+			<table class="tbl_type01">
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/60371" >장난을 잘 치는 타카기양</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/60371', 'A');">[다운]</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/229679">장난을 잘 치는 (전)타카기양</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/229679', 'A');">[다운]</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/65484">원펀맨</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/65484', 'A');">[다운]</a>	
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/139743">갸루와 오타쿠는 서로 이해할 수 없어</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/139743', 'A');">[다운]</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/84591">전생했더니 슬라임이었던 건에 대하여</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/84591', 'A');">[다운]</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/153107">전생했더니 슬라임이었던 건에 대하여 - 외전</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/153107', 'A');">[다운]</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/164545">장래적으로 죽어줘</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/164545', 'A');">[다운]</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/156005">나는 너를 울리고싶어</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/156005', 'A');">[다운]</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/173116">나에게 천사가 내려왔다</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/173116', 'A');">[다운]</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/164536">우리 메이드가 너무 짜증나</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/164536', 'A');">[다운]</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/151772">우리 딸을 위해서라면 나는 어쩌면 마왕을 쓰러뜨릴 수 있을지 모른다</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/151772', 'A');">[다운]</a>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=/b/manga/260684">오빠는 끝</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('/b/manga/260684', 'A');">[다운]</a>
+					</td>
+				</tr>
+			</table>
+		</c:if>
+		<div class="search">
+			<form action="/comic.do" method="post" id="postForm">
+				<input type="hidden" name="type" id="type" value="A">
+				<input type="text" name="keyword" id="keyword" value="${keyword}">
+				<span onclick="$('#postForm').submit();">검색</span>
+			</form>
+		</div>
+		
+		<c:if test="${type eq 'A' or type eq 'B'}">
+			<table class="tbl_type01">
+			<c:forEach items="${comic}" var="ob">
+				<tr>
+					<c:choose>
+						<c:when test="${type eq 'A'}">
+						<td>
+							<a href="/comic.do?type=B&list=${ob.addr}">${ob.title}</a>
+						</td>
+						<td>
+							<a href="javascript:comicDown('${ob.addr}', 'A');">[다운]</a>
+						</td>
+						</c:when>
+						<c:when test="${type eq 'B'}">
+						<td>
+							<a href="${ob.addr}">${ob.title}</a>
+						</td>
+						<td>
+							<a href="javascript:comicDown('${ob.addr}', 'B');">[다운]</a>
+							<%-- <a href="javascript:comicView('${ob.addr}');">${ob.title}</a> --%>
+						</td>
+						</c:when>
+					</c:choose>
+				</tr>
+			</c:forEach>
+			</table>
 		</c:if>
 		
-		<form action="/comic.do" method="post" id="postForm">
-			<input type="hidden" name="type" id="type" value="A">
-			<input type="text" name="keyword" id="keyword" value="${keyword}">
-			<span onclick="$('#postForm').submit();">검색</span>
-			
-			<c:if test="${type eq 'A' or type eq 'B'}">
-				<ul class="nameList2">
-				<c:forEach items="${comic}" var="ob">
-					<li>
-						<c:choose>
-							<c:when test="${type eq 'A'}">
-								<a href="/comic.do?type=B&list=${ob.addr}" style="display: inline-block;">${ob.title}</a>
-								<a href="javascript:comicDown('${ob.addr}', 'A');" style="display: inline-block;">[다운]</a>
-							</c:when>
-							<c:when test="${type eq 'B'}">
-								<a href="${ob.addr}" style="display: inline-block;">${ob.title}</a>
-								<a href="javascript:comicDown('${ob.addr}', 'B');" style="display: inline-block;">[다운]</a>
-								<%-- <a href="javascript:comicView('${ob.addr}');">${ob.title}</a> --%>
-							</c:when>
-						</c:choose>
-					</li>
-				</c:forEach>
-				</ul>
-			</c:if>
-			
-			<%-- <c:if test="${type eq 'C'}">
-				<ul class="girlsList">
-				<c:forEach items="${comic}" var="ob">
-					<li>
-						<img src="${ob.img}">
-					<li>
-				</c:forEach>
-				</ul>
-			</c:if> --%>
-		</form>
+		<%-- <c:if test="${type eq 'C'}">
+			<ul class="girlsList">
+			<c:forEach items="${comic}" var="ob">
+				<li>
+					<img src="${ob.img}">
+				<li>
+			</c:forEach>
+			</ul>
+		</c:if> --%>
 	</div>
 </body>
 </html>

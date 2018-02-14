@@ -25,6 +25,9 @@ public class DiaryDao {
 		return factory.openSession().update("diary.diaryUpdate", vo);
 	}
 	public List<Object> useDay(String year, String month) {
+		if(Integer.parseInt(month) < 10){
+			month = "0" + month;
+		}
 		String day = year.substring(2,4) + "/" + month + "/";
 		return factory.openSession().selectList("diary.useDay", day);
 	}

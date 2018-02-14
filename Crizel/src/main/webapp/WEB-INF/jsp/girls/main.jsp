@@ -25,14 +25,14 @@
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
-	<ul class="nameList">
+	<ul class="ul_type02">
 		<c:forEach items="${nameList}" var="ob">
 			<li>
 				<a href="/girls.do?name=${ob.name}">${ob.name}</a>
 			</li>
 		</c:forEach>
 	</ul>
-	<ul class="girlsList">
+	<ul class="ul_type03">
 	<c:forEach items="${girlsList}" var="ob">
 		<li>
 			<img src="${ob}">

@@ -31,7 +31,7 @@ $(function(){
 				</c:if>
 				<input type="hidden" name="b_level" id="b_level" value="${b_level}">
 				
-				<table class="tbl_type01">
+				<table class="tbl_type02">
 					<tr>
 						<th>제목</th>
 						<td><input type="text" id="title" name="title"></td>
@@ -53,10 +53,10 @@ $(function(){
 					<tr>
 						<td colspan="2"><input type="file" id="file" name="file"></td>
 					</tr>
-					<tr>
-						<td colspan="2"><input type="button" id="boardInsertSubmit" value="글쓰기"></td>
-					</tr>
 				</table>
+				<div class="search">
+					<input type="button" id="boardInsertSubmit" value="글쓰기">
+				</div>
 			</form>
 		</div>
 

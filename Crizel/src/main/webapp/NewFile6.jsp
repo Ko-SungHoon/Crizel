@@ -1,551 +1,527 @@
-<%@ page import = "java.util.*, egovframework.rfc3.board.vo.CommentVO,java.text.SimpleDateFormat" %>
-<%@ page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper"%>
-<%@ page import="egovframework.rfc3.board.vo.BoardDataVO"%>
-<%@ page import="egovframework.rfc3.board.vo.BoardCategoryVO"%>
-<%@ page import="egovframework.rfc3.common.util.EgovStringUtil"%>
-<%@ page import="egovframework.rfc3.board.vo.BoardFileVO"%>
-<%
-	ArrayList<BoardDataVO> answerList = (ArrayList<BoardDataVO>)bm.getBoardReplyDataList(bm.getDataIdx());
-%>
-<%
-		BoardManager bms= new BoardManager(request);
-%>
+<%@ page import="java.util.*, egovframework.rfc3.board.vo.BoardVO, egovframework.rfc3.board.vo.BoardCategoryVO, egovframework.rfc3.common.util.EgovStringUtil"%>
 <%
 	List<BoardCategoryVO> categoryList1 = bm.getCategoryList1();
 	List<BoardCategoryVO> categoryList2 = bm.getCategoryList2();
 	List<BoardCategoryVO> categoryList3 = bm.getCategoryList3();
 %>
-<script type="text/javascript">
-function showCommentReply(id)
-{
-	var reply = document.getElementById(id);
-	if(reply.style.display == 'none')
+<script type="text/javascript">	
+	function formSubmit(f)
 	{
-		reply.style.display = 'block';
-	}else{
-		reply.style.display = 'none';
+		if(f.dataTitle.value == '')
+		{
+			alert("제목을 입력하시기 바랍니다.");
+			f.dataTitle.focus();
+			return false;
+		}
+		if(!checkDataContent(f)){
+			return false;	
+		}
+ 		
+		if($("#checkInfo").prop("checked") == false){
+			alert("개인정보 제공에 동의 하시기 바랍니다.");
+			return false;
+		}
+		return true;
 	}
-}
+	
+	
+	<%  if(bm.isBoardDateIsUseCf()){ %>
+	function CheckDate(pDate){
+		var mDate = pDate.split("-");
+		var mTimeStampe = new Date(mDate[0],mDate[1],mDate[2]).getTime();
+		return mTimeStampe;
+	}
+
+	function OnClear(pObj){
+		pObj.value="";
+	}
+<% }%>
+	
 </script>
 
-			<!-- board_read -->
-			<section class="board">
-			<table class="board_read02" summary="상세내용입니다">
-				<caption><%=bm.getDataTitle()%> 상세내용</caption>
-						<colgroup>
-						<col width="18%">
-						<col width="32%">
-						<col width="18%">
-						<col width="*">
-						</colgroup>
-				<thead>
-					<tr>
-					<th colspan="4"  class="topline"><%=bm.getDataTitle()%></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-					<th scope="row">작성자</th>
-					<td><%=bm.getUserNick()%></td>
-					<th scope="row" class="lline">등록일</th>
-					<td><%=bm.getRegister_dt("yyyy/MM/dd")%></td>
-					</tr>
+<% if(bm.isBoardEditor()){ %>
+<script type="text/javascript">	
+function checkDataContent(f){
+		oEditors.getById["dataContent"].exec("UPDATE_CONTENTS_FIELD", []);
+		if(f.dataContent.value == '')
+		{
+			alert("내용을 입력하시기 바랍니다.");
+			oEditors.getById["dataContent"].exec("FOCUS", []);
 
+			return false;
+		}
+	return true;
+}
+
+
+</script>
+<% }else{ %>
+<script type="text/javascript">	
+function checkDataContent(f){
+		if(f.dataContent.value == '')
+		{
+			alert("내용을 입력하시기 바랍니다.");
+			return false;
+		}
+		f.dataContent.value = f.dataContent.value.replace(/(<([^>]+)>)/gi, "");
+
+	return true;
+}
+</script>
+<% } %>
+<script type="text/javascript" src="<%=request.getContextPath() %>/SmartEditor2/js/HuskyEZCreator.js"></script> 
+			<!-- board_write -->
+<form onsubmit="return formSubmit(this);" method="post" action="<%=request.getContextPath() %>/board/<%=bm.getCommand() != null && bm.getCommand().equals("update") ? "updateAct" : "writeAct"%>.<%=bm.getUrlExt()%>" enctype="multipart/form-data">
+	<input type="hidden" name="orderBy" value="<%=bm.getOrderBy()%>" />
+	<input type="hidden" name="boardId" value="<%=bm.getBoardId()%>" />
+	<input type="hidden" name="searchStartDt" value="<%=bm.getSearchStartDt()%>" />
+	<input type="hidden" name="searchEndDt" value="<%=bm.getSearchEndDt()%>" />
+	
+	<input type="hidden" name="menuCd" value="${menuCd}" />
+	<input type="hidden" name="contentsSid" value="${contentsSid}" />
+
+	<input type="hidden" name="command" value="<%=bm.getCommand() %>"/>
+	<input type="hidden" name="startPage" value="<%=bm.getPageNum() %>"/>
+	<input type="hidden" name="pcode" value="<%=bm.getPcode() %>"/>
+	<%
+		if(bm.getCommand() != null && (bm.getCommand().equals("update") || bm.getCommand().equals("reply")))
+		{
+			%>			
+			<input type="hidden" name="dataSid" value="<%=bm.getDataSid() %>"/>			
 			<%
-			int tdCnt = 0;
-			%>
-			<%if(bm.isViewItem("USER_EMAIL") && tdCnt == 0){ out.print("<tr>");}%>
-			<% if(bm.isViewItem("USER_EMAIL")) { tdCnt++; %>
-				<th scope="row">이메일</th>
-					<td><%=EgovStringUtil.isNullToString(bm.getUserEmail())%></td>
-			<% } %>
-			<%if(bm.isViewItem("USER_EMAIL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
-		<% if(bm.isViewItem("USER_HOMEPAGE")) { %>
-			<tr>
-			<th scope="row">홈페이지</th>
-			<td colspan="3"><%=EgovStringUtil.isNullToString(bm.getUserHomepage())%></td>
-			<tr>
-		<% } %>
-
-		<%if(bm.isViewItem("USER_TEL") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("USER_TEL")) { tdCnt++; %>
-			<th scope="row">전화번호</th>
-				<td><%=EgovStringUtil.isNullToString(bm.getUserTel())%></td>
-		<% } %>
-		<%if(bm.isViewItem("USER_TEL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("USER_CEL") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("USER_CEL")) {  tdCnt++;%>
-			<th scope="row">휴대전화</th>
-				<td><%=EgovStringUtil.isNullToString(bm.getUserCel())%></td>
-		<% } %>
-		<%if(bm.isViewItem("USER_CEL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
-		<% if(bm.isViewItem("USER_ZIPCODE") || bm.isViewItem("USER_ADDRESS") || bm.isViewItem("USER_DETAILADDR")) { %>
-			<tr>
-			<th scope="row">주소</th>
-			<td colspan="3">
-				<% if(bm.isViewItem("USER_ZIPCODE")){ %>
-			(<%=EgovStringUtil.isNullToString(bm.getUserZipcode())%>)
-			<% } %>
-
-			<% if(bm.isViewItem("USER_ADDRESS")){ %>
-			<%=EgovStringUtil.isNullToString(bm.getUserAddress())%>
-			<% } %>
-
-			<% if(bm.isViewItem("USER_DETAILADDR")){ %>
-			&nbsp;&nbsp;<%=EgovStringUtil.isNullToString(bm.getUserDetailAddr())%>
-			<% } %>
-			</td>
-			</tr>
-		<% } %>
+		}
+	%>
+<%
+String boardTitle = (bm.getBoardVO()).getBoardTitle();
+%>
 
 
-		<%
-						if(bm.isViewItem("CATEGORY_CODE1") && categoryList1 != null && categoryList1.size() > 0){
-							if(bm.getMenuIsBoard1Cate()){
-								if(tdCnt == 0){ out.print("<tr>");}
-								tdCnt++;
-								for(BoardCategoryVO category : categoryList1){
-									if(bm.getCategoryCode1().equals(category.getCategoryCode())){
-						%>
-								<th scope="row">카테고리1</th>
-									<td><%=category.getCategoryName()%></td>
-						<%
-								if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
-									}
-								}
+			<section class="board">
+				<fieldset>
+					<legend>게시글 입력</legend>
+
+					<p class="board_point"><span class="c_red">*</span> 표시가 있는 항목은 필수 입력항목입니다.</p>
+					<table class="board_write" summary="게시글에 대한 정보를 입력합니다.">   
+<caption>게시글 입력</caption>
+						<tbody>
+							<tr>
+								<th scope="row" class="topline"><label for="dataTitle"><span class="c_red">*</span>제 목</label></th>
+								<td class="topline"><input type="text" name="dataTitle" id="dataTitle" 
+								<%if(bm.getCommand().equals("reply")){ 		//답변글일 경우 제목을 고정					%>	
+								value="방문해 주셔서 감사드립니다." 
+								<%}else{%>
+								value="<%=bm.getDataTitle() %>" 
+								<%}%>
+								style="width:95%"/>
+								
+								</td>
+								
+
+							</tr>
+
+							<tr>
+								<th scope="row" ><label for="userNick"><span class="c_red">*</span>작 성 자</label></th>
+								<!--<td><input name="userNick" id="userNick" value="이찬희" title="작성자" readonly="Readonly" type="text"></td>-->
+								<td>
+
+					<%
+					if(!bm.isManager())
+					{
+						if(bm.getCommand() != null && "update".equals(bm.getCommand()))
+						{
+							%>
+							<%=bm.getUserNick() %>
+							<input type="hidden" name="userNick" id="userNick" value="<%=bm.getUserNick() %>" />
+							<%
+						}else{
+							if(bm.getSUserName() != null && !"".equals(bm.getSUserName()))
+							{
+								%>
+								<%=bm.getSUserName() %>
+								<input type="hidden" name="userNick" id="userNick" value="<%=bm.getSUserName() %>" />
+								<%
+							}else{
+								%>
+								<input type="text" name="userNick" id="userNick" value="" />
+								<%
 							}
 						}
-						%>
+					}else{
+						if(bm.getCommand() != null && "update".equals(bm.getCommand()))
+						{
+							%>
+							<input type="text" name="userNick" id="userNick" value="<%=bm.getUserNick() %>" />
+							<%
+						}else{
+							%>
+							<input type="text" name="userNick" id="userNick" value="<%=bm.getSUserName() %>" />
+							<%
+						}						
+					}
+					%>								
+								
+								</td>
+							</tr>
+            
 
 
-						<%
-						if(bm.isViewItem("CATEGORY_CODE2") && categoryList2 != null && categoryList2.size() > 0){
-							if(bm.getMenuIsBoard2Cate()){
-								if(tdCnt == 0){ out.print("<tr>");}
-								tdCnt++;
-							for(BoardCategoryVO category2 : categoryList2){
-								if(bm.getCategoryCode2().equals(category2.getCategoryCode())){
-						%>
-								<th scope="row">카테고리2</th>
-									<td><%=category2.getCategoryName()%></td>
-						<%
-						if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
-								}
-							}
-							}
-						}
-						%>
-
-						<%
-						if(bm.isViewItem("CATEGORY_CODE3") && categoryList3 != null && categoryList3.size() > 0){
-							if(bm.getMenuIsBoard3Cate()){
-								if(tdCnt == 0){ out.print("<tr>");}
-								tdCnt++;
-							for(BoardCategoryVO category3 : categoryList3){
-								if(bm.getCategoryCode3().equals(category3.getCategoryCode())){
-						%>
-								<th scope="row">카테고리3</th>
-									<td><%=category3.getCategoryName()%></td>
-						<%
-						if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
-								}
-							}
-							}
-						}
-						%>
-
-
-
-
-		<%if(bm.isViewItem("TMP_FIELD1") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD1")) { tdCnt++; %>
-			<th scope="row">임시필드1</th>
-				<td><%=EgovStringUtil.isNullToString(bm.getTmpField1())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD1") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD2") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD2")) { tdCnt++; %>
-			<th scope="row">임시필드2</th>
-				<td><%=EgovStringUtil.isNullToString(bm.getTmpField2())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD2") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD3") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD3")) { tdCnt++; %>
-			<th scope="row">임시필드3</th>
-				<td><%=EgovStringUtil.isNullToString(bm.getTmpField3())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD3") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD4") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD4")) { tdCnt++; %>
-			<th scope="row">임시필드4</th>
-				<td><%=EgovStringUtil.isNullToString(bm.getTmpField4())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD4") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD5") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD5")) { tdCnt++; %>
-			<th scope="row">임시필드5</th>
-				<td><%=EgovStringUtil.isNullToString(bm.getTmpField5())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD5") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%
+							<%					
 			int extensionCount = bm.extensionCount();
 			for(int i=0;i<extensionCount;i++)
 			{
-				if(tdCnt == 0){ out.print("<tr>");}
-				tdCnt++;
 				bm.setExtensionVO(i);
 				%>
-				<th scope="row"><%=bm.getExtensionDesc() %></th>
-					<td><%=bm.getExtensionValue(bm.getExtensionKey())%></td>
+				<tr>
+					<th scope="row"><label for="<%=bm.getExtensionKey()%>"><%=bm.getExtensionDesc() %></label></th>
+					<td>
+						<%=bm.getExtensionTag("","","")%>
+					</td>
+				</tr>
 				<%
-				if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
 			}
 			%>
-			<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
-			<tr>
-			<th scope="row">내용</th>
-			<td colspan="3">
-				<%
-				if(bm.getFileCount() > 0) {
-					String fileName = null;
-					String ext = null;
-					String img = null;
-					for(int i=0; i<bm.getFileCount(); i++) {
-						BoardFileVO fileVO = (BoardFileVO)bm.getBoardFileVO(i);
-						fileName = fileVO.getFileMask();
-						ext = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-						if("jpg".equals(ext) || "bmp".equals(ext) || "png".equals(ext) || "gif".equals(ext) || "jpeg".equals(ext)) {
-							if("fileUpload".equals(fileVO.getFileId())) {
-								img = "/fileUpload/real/" + fileVO.getFileMask();
-							} else if("ksboard".equals(fileVO.getFileId())) {
-								img = "/ksboard/data/photo/" + fileVO.getFileMask();
-							} else {
-								img = "/upload_data/board_data/" + fileVO.getBoardId() + "/" + fileVO.getFileMask();
-							}
-				%>
-				<%if("".equals(fileVO.getFileMemo()) || fileVO.getFileMemo()==null){ %>
-				<img src="<%=img %>" alt="<%=bm.getDataTitle()%> <%=fileVO.getFileName().substring(0, fileVO.getFileName().length()-4)%>" title="<%=bm.getDataTitle()%> <%=fileVO.getFileName().substring(0, fileVO.getFileName().length()-4)%>" onerror="this.src='/images/no_img.gif';"  /><br>
-				<%}else{ %>
-				<img src="<%=img %>" alt="<%=fileVO.getFileMemo()%>" title="<%=fileVO.getFileMemo()%>" onerror="this.src='/images/no_img.gif';"  /><br>
-				
-				<%
-				}
-						}
-					}
-				}
-				%>
-				<%if(bm.getDataContent() != null){ %>
-					<%=bm.getDataContent().replace("\r\n","<br>")%>
-				<%} %>
-			</td>
-			</tr>
-			<tr>
-				<th scope="row">첨부파일</th>
-				<td colspan="3">
-		<%
-					String userAgent = request.getHeader("user-agent");
-					if(bm.getFileCount() > 0){
-					for(int fcnt = 0;fcnt<bm.getFileCount();fcnt++)
-					{
-						boolean isMobile = false;
-						boolean isHtml5 = !(userAgent.toLowerCase().indexOf("msie 6.0")>-1||userAgent.toLowerCase().indexOf("msie 7.0")>-1||userAgent.toLowerCase().indexOf("msie 8.0")>-1);
-						if(userAgent.toLowerCase().indexOf("mobile") >=0)
-						{
-							isMobile = true;
-						}
-						if(fcnt > 0)
-						{
-							%>
-							<br/>
-							<%
-						}
-						if(bm.getBoardFileVO(fcnt) != null)
-						{
-							if("fileUpload".equals(bm.getBoardFileVO(fcnt).getFileId()) || "upload".equals(bm.getBoardFileVO(fcnt).getFileId())
-									|| "ksboard".equals(bm.getBoardFileVO(fcnt).getFileId()) || "data".equals(bm.getBoardFileVO(fcnt).getFileId())) {
-								out.print(bm.getFileList(bm.getBoardFileVO(fcnt),"<span><a href=\"{fileDown}\" class=\"file\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)","").replace("/board/download.gne", "/program/board/download.jsp"));
-							} else {
-								out.print(bm.getFileList(bm.getBoardFileVO(fcnt),"<span><a href=\"{fileDown}\" class=\"file\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
-							}
-							//out.print(bm.getFileList(bm.getBoardFileVO(fcnt),"<span><a href=\"{fileDown}\" class=\"file\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
-							if(bm.getBoardFileVO(fcnt).getFileId()!=null && !bm.getBoardFileVO(fcnt).getFileId().equals("")){
-							out.print(bm.getHtmlViewerIcon(bm.getBoardFileVO(fcnt),"",isMobile).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
-							}else{
-							out.print(bm.getConvertIcon(bm.getBoardFileVO(fcnt),null).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
-							}
-
-
-						}
-					}
-					}
-					%>
-					</td>
-					</tr>
-				</tbody>
-				</table>
-				<p class="read_page" style="margin:20px 0px;">
-<!--RFC 공통 버튼 시작-->
-<div class="rfc_bbs_btn">
-	<%=bm.getViewIcons()%>
-</div>
-<!--RFC 공통 버튼 끝-->
-				</p>
-			</section>
-			<!-- board_read -->
-<%
-if(answerList.size() > 0)
-{
-	for(int j=0; j < answerList.size(); j++) {
-		bms.setBoardDataVO(answerList.get(j));
-%>
-			<table class="board_read02" summary="답변 상세내용입니다">
-				<caption><%=bm.getDataTitle()%> 답변 상세내용</caption>
-						<colgroup>
-						<col width="18%">
-						<col width="32%">
-						<col width="18%">
-						<col width="*">
-						</colgroup>
-				<thead>
-					<tr>
-					<th colspan="4"  class="topline"><%=bms.getDataTitle()%></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-					<th scope="row">작성자</th>
-					<td><%=bms.getUserNick()%></td>
-					<th scope="row" class="lline">등록일</th>
-					<td><%=bms.getRegister_dt("yyyy/MM/dd")%></td>
-					</tr>
-
-			<tr>
-			<th scope="row">내용</th>
-			<td colspan="3">
-				<%
-				if(bms.getFileCount() > 0) {
-					String fileName = null;
-					String ext = null;
-					String img = null;
-					for(int i=0; i<bms.getFileCount(); i++) {
-						BoardFileVO fileVO = (BoardFileVO)bms.getBoardFileVO(i);
-						fileName = fileVO.getFileMask();
-						ext = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-						if("jpg".equals(ext) || "bmp".equals(ext) || "png".equals(ext) || "gif".equals(ext) || "jpeg".equals(ext)) {
-							if("fileUpload".equals(fileVO.getFileId())) {
-								img = "/fileUpload/real/" + fileVO.getFileMask();
-							} else if("ksboard".equals(fileVO.getFileId())) {
-								img = "/ksboard/data/photo/" + fileVO.getFileMask();
-							} else {
-								img = "/upload_data/board_data/" + fileVO.getBoardId() + "/" + fileVO.getFileMask();
-							}
-				%>
-				<%if("".equals(fileVO.getFileMemo()) || fileVO.getFileMemo()==null){ %>
-				<img src="<%=img %>" alt="<%=bm.getDataTitle()%> <%=fileVO.getFileName().substring(0, fileVO.getFileName().length()-4)%>" title="<%=bm.getDataTitle()%> <%=fileVO.getFileName().substring(0, fileVO.getFileName().length()-4)%>" onerror="this.src='/images/no_img.gif';"  /><br>
-				<%}else{ %>
-				<img src="<%=img %>" alt="<%=fileVO.getFileMemo()%>" title="<%=fileVO.getFileMemo()%>" onerror="this.src='/images/no_img.gif';"  /><br>
-				
-				<%
-				}
-						}
-					}
-				}
-				%>
-				<%=bms.getDataContent().replace("\r\n","<br>")%>
-			</td>
-			</tr>
-						<tr>
-				<th scope="row">첨부파일</th>
-				<td colspan="3">
-		<%
-					String userAgent2 = request.getHeader("user-agent");
-					if(bms.getFileCount() > 0){
-					for(int fcnt = 0;fcnt<bms.getFileCount();fcnt++)
-					{
-						boolean isMobile = false;
-						boolean isHtml5 = !(userAgent2.toLowerCase().indexOf("msie 6.0")>-1||userAgent2.toLowerCase().indexOf("msie 7.0")>-1||userAgent2.toLowerCase().indexOf("msie 8.0")>-1);
-						if(userAgent2.toLowerCase().indexOf("mobile") >=0)
-						{
-							isMobile = true;
-						}
-						if(fcnt > 0)
-						{
-							%>
-							<br/>
-							<%
-						}
-						if(bms.getBoardFileVO(fcnt) != null)
-						{
-							if("fileUpload".equals(bms.getBoardFileVO(fcnt).getFileId()) || "upload".equals(bms.getBoardFileVO(fcnt).getFileId())
-									|| "ksboard".equals(bms.getBoardFileVO(fcnt).getFileId()) || "data".equals(bms.getBoardFileVO(fcnt).getFileId())) {
-								out.print(bms.getFileList(bms.getBoardFileVO(fcnt),"<span><a href=\"{fileDown}\" class=\"file\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)","").replace("/board/download.gne", "/program/board/download.jsp"));
-							} else {
-								out.print(bms.getFileList(bms.getBoardFileVO(fcnt),"<span><a href=\"{fileDown}\" class=\"file\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
-							}
-							//out.print(bms.getFileList(bms.getBoardFileVO(fcnt),"<span><a href=\"{fileDown}\" class=\"file\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
-							if(bms.getBoardFileVO(fcnt).getFileId()!=null && !bms.getBoardFileVO(fcnt).getFileId().equals("")){
-							out.print(bms.getHtmlViewerIcon(bms.getBoardFileVO(fcnt),"",isMobile).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
-							}else{
-							out.print(bms.getConvertIcon(bms.getBoardFileVO(fcnt),null).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
-							}
-
-
-						}
-					}
-					}
-					%>
-					</td>
-					</tr>
-				</tbody>
-				</table>
-<div class="rfc_bbs_btn">
-	<%=bms.getViewIcons()%>
-</div>
-<%	}
-}
-%>
-
-
-<%if(bm.isCommentUse())
-{
-	List<CommentVO> commentVOList = bm.getCommentList();
-	%>
-	<!-- 코멘트 시작 -->
-	<div class="rfc_bbs_point">
-		<!--div class="rfc_bbs_point_last">
-			코멘트 목록
-		</div-->
-		<ul class="comment_list">
 			<%
-			for(CommentVO comment : commentVOList)
+			if(bm.isBoardNoticeCf() && bm.isManager())
 			{
 				%>
-				<li>
-					<dl>
-						<dt class="comment_name"><%=comment.getDataDep() != 1 ? "<img src=\""+request.getContextPath()+"/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_re.gif\" alt=\"Re\" />" : ""%><%=comment.getUserNick()%></dt>
-						<dd class="rfc_bbs_point_star" style="display: none;"><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star0<%=comment.getStarPoint()%>.gif" alt="별<%=comment.getStarPoint()%>개" /></dd>
-						<dd class="rfc_bbs_point_data"><%=new SimpleDateFormat("yyyy/MM/dd").format(comment.getRegister_dt()).toString()%></dd>
-						<dd class="rfc_bbs_point_down" style="display: none;">
-						<%
-						if(comment.getFileName() != null && !"".equals(comment.getFileName()))
-						{
-							%>
-							<a href="<%=request.getContextPath() %>/board/downloadComment.<%=bm.getUrlExt()%>?dataSid=<%=bm.getDataSid()%>&amp;boardId=<%=bm.getBoardId() %>&amp;commentSid=<%=comment.getCommentSid() %>"><img src="<%=request.getContextPath() %>/images/egovframework/rfc3/board/images/skin/bbs_list_type1/rfc_bbs_file.gif" alt="파일이미지" class="rfc_bbs_point_down_img" /><%=comment.getFileName()%> (<%=comment.getFileSize()%>)</a>
-							<%
-						}%>
-						</dd>
-						<dd class="rfc_bbs_point_btn">
-							<!--a href="#"><img src="/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_btn_answer.gif" alt="답변" /></a>
-							<a href="#"><img src="/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_btn_modify.gif" alt="수정" /></a-->
-							<%=bm.getCommentDelete(request.getContextPath()+"/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_btn_delete.gif",comment.getCommentSid(),"") %>
-						</dd>
-						<dd class="rfc_bbs_point_txt_left_con"><%=comment.getCommentTitle()%></dd>
-					</dl>
-					<%
-					if(comment.getDataDep() == 1)
-					{
-						%>
-						<!--h4><a href="#" onclick="showCommentReply('comment<%=comment.getCommentSid()%>');return false;"><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_star_tit.gif" alt="별점평가하기" /></a></h4-->
-						<div class="rfc_bbs_star" id="comment<%=comment.getCommentSid()%>" style="display:none;">
-							<div class="rfc_bbs_star_last">
-								<form name="comment" action="<%=request.getContextPath()%>/board/writeComment.<%=bm.getUrlExt() %>" method="post" class="rfc_bbs_Form" enctype="multipart/form-data">
-									<fieldset>
-										<legend>코멘트 답변</legend>
-										<input type="hidden" name="commentSid" value="<%=comment.getCommentSid()%>" />
-										<input type="hidden" name="boardSid" value="<%=bm.getBoardSid()%>" />
-										<input type="hidden" name="orderBy" value="<%=bm.getOrderBy()%>" />
-										<input type="hidden" name="boardId" value="<%=bm.getBoardId()%>" />
-										<input type="hidden" name="dataSid" value="<%=bm.getDataSid()%>" />
+				<tr>
+					<th scope="row"><label for="dataNotice">공지글</label></th>
+					<td><input type="checkbox" name="dataNotice" id="dataNotice" value="true" <%=bm.isNotice() == true ? "checked" : ""%>/> 공지</td>
+				</tr>
+				<%
+						if(bm.isBoardDateIsUseCf()){
+					%>
+						<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/humanity/jquery-ui.css" type="text/css" media="all" />
+						<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js" type="text/javascript"></script>
+						<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js" type="text/javascript"></script>
+						<style>
+							 .ui-datepicker{
+								 font-size : 16px;
+								 width : 280px !important; 
+							 }
+							 .ui-datepicker select.ui-datepicker-month{
+								 width:30% !important;  
+								 font-size: 13px;
+							 }
+						
+							 .ui-datepicker select.ui-datepicker-year{
+								 width:40% !important;     
+								 font-size: 13px; 
+							 }
+						</style>
+							<script type="text/javascript">
+								function CheckDate(pDate){
+									var mDate = pDate.split("-");
+									var mTimeStampe = new Date(mDate[0],mDate[1],mDate[2]).getTime();
+									return mTimeStampe;
+								}
 
-										<input type="hidden" name="searchType" value="<%=bm.getSearchType()%>" />
-										<input type="hidden" name="keyword" value="<%=bm.getKeyword()%>" />
-
-										<input type="hidden" name="searchStartDt" value="<%=bm.getSearchStartDt()%>" />
-										<input type="hidden" name="searchEndDt" value="<%=bm.getSearchEndDt()%>" />
-										<input type="hidden" name="startPage" value="<%=bm.getPageNum()%>" />
-
-										<input type="hidden" name="menuCd" value="${menuCd}" />
-										<input type="hidden" name="contentsSid" value="${contentsSid}" />
-
-										<div class="rfc_bbs_star_file_write">
-											<textarea name="commentTitle" id="textarea" cols="100%" rows="3" title="내용"></textarea>
-											<input type="image" src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_btn_star.gif" alt="평가하기" class="rfc_bbs_border_none"/>
-										</div>
-										<div class="rfc_bbs_star_file_find" style="display: none;">
-											<label class="label_block" for="file">* 첨부파일</label>
-											<input type="file" name="file" value="" title="첨부파일" class="rfc_bbs_star_file_input" />
-										</div>
-									</fieldset>
-								</form>
-							</div>
-						</div>
-						<%
-					}%>
-				</li>
+							function OnClear(pObj){
+								pObj.value="";
+							}
+							$(function() {
+							
+								$.datepicker.regional['ko'] = { // Default regional settings
+							
+							        closeText: '닫기',
+							
+							        prevText: '이전달',
+							
+							        nextText: '다음달',
+							
+							        currentText: '오늘',
+							
+							        monthNames: ['1월(JAN)','2월(FEB)','3월(MAR)','4월(APR)','5월(MAY)','6월(JUN)',
+							
+							        '7월(JUL)','8월(AUG)','9월(SEP)','10월(OCT)','11월(NOV)','12월(DEC)'],
+							
+							        monthNamesShort: ['1월','2월','3월','4월','5월','6월',
+							
+							        '7월','8월','9월','10월','11월','12월'],
+							
+							        dayNames: ['일','월','화','수','목','금','토'],
+							
+							        dayNamesShort: ['일','월','화','수','목','금','토'],
+							
+							        dayNamesMin: ['일','월','화','수','목','금','토']
+									
+								};
+							
+								$.datepicker.setDefaults($.datepicker.regional['ko']);
+							
+							     $( ".start_dt" ).datepicker({
+							          dateFormat: 'yy-mm-dd',  //데이터 포멧형식
+							          minDate: '-30M',      //오늘 부터 3달전까지만 선택 할 수 있다.
+							          maxDate: '+36M',     //오늘 부터 36개월후까지만 선택 할 수 있다.
+							          changeMonth: true,    //달별로 선택 할 수 있다.
+							          changeYear: true,     //년별로 선택 할 수 있다.
+							          showOtherMonths: false,  //이번달 달력안에 상/하 빈칸이 있을경우 전달/다음달 일로 채워준다.
+							          selectOtherMonths: true, 
+							          showButtonPanel: true  //오늘 날짜로 돌아가는 버튼 및 닫기 버튼을 생성한다.
+							     });
+							     $( ".end_dt" ).datepicker({
+							          dateFormat: 'yy-mm-dd',  //데이터 포멧형식
+							          minDate: '-30M',      //오늘 부터 3달전까지만 선택 할 수 있다.
+							          maxDate: '+36M',     //오늘 부터 36개월후까지만 선택 할 수 있다.
+							          changeMonth: true,    //달별로 선택 할 수 있다.
+							          changeYear: true,     //년별로 선택 할 수 있다.
+							          showOtherMonths: false,  //이번달 달력안에 상/하 빈칸이 있을경우 전달/다음달 일로 채워준다.
+							          selectOtherMonths: true, 
+							          showButtonPanel: true  //오늘 날짜로 돌아가는 버튼 및 닫기 버튼을 생성한다.
+							     });
+							});
+							</script>
+											
+							<tr>
+								<th scope="row">개시기간</th>
+								<td colspan="5">
+									시작일 : <input class="start_dt" id="start_dt" name="start_dt" type="text" class="calendar" onclick="javascript:OnClear(this);"  onchange="Date_Check(this);" size="20" title="시작일" readonly="readonly"  value="<%=bm.getStart_dt("yyyy-MM-dd") %>"/> ~ 종료일 : <input class="end_dt" id="end_dt" name="end_dt" type="text" class="calendar" onclick="javascript:OnClear(this);"  onchange="Date_Check(this);" size="20" title="종료일" readonly="readonly"  value="<%=bm.getEnd_dt("yyyy-MM-dd") %>"/>
+								</td>
+							</tr>
+				<%
+						}
+			}%>
+			<%
+			if(bm.isBoardIsSecretCf())
+			{
+				%>
+				<tr>
+					<th scope="row"><label for="dataSecret">비밀글</label></th>
+					<td><input type="checkbox" name="dataSecret"  id="dataSecret" value="true" <%=bm.isSecret() == true ? "checked" : ""%>/> 비밀글</td>
+				</tr>
 				<%
 			}%>
-		</ul>
-	</div>
-	<!-- 코멘트 목록 끝 -->
+			<%
+			if(bm.getSUserId().equals(""))
+			{
+				%>
+				<tr>
+					<th scope="row"><label for="userPw">패스워드</label></th>
+					<td><input type="text" name="userPw" id="userPw" value="" /></td>
+				</tr>
+				<%
+			}%>
+			<%
+			if(bm.isWriteItem("CATEGORY_CODE1") || bm.isWriteItem("CATEGORY_CODE2") || bm.isWriteItem("CATEGORY_CODE3")) {
+			if( (categoryList1 != null && categoryList1.size() > 0) || (categoryList2 != null && categoryList2.size() > 0) || (categoryList3 != null && categoryList3.size() > 0))
+			{ 
+				%>
+				<tr>
+					<th scope="row">카테고리</th>
+					<td>
+						<% 
+						if(bm.isWriteItem("CATEGORY_CODE1") && categoryList1 != null && categoryList1.size() > 0){ 
+							if(bm.getMenuIsBoard1Cate()){
+						%>
+								<select name="categoryCodeData1" id="categoryCodeData1" class="layout_select" title="카테고리1">
+								<option value="">1차 카테고리</option>
+						<% 
+								for(BoardCategoryVO category : categoryList1){ 
+										if(!category.getCategoryName().equals("noview")){
+						%>
+											<option value="<%=category.getCategoryCode()%>" <%if(bm.getCategoryCode1().equals(category.getCategoryCode()))out.print("selected");%>><%=category.getCategoryName()%></option>
+						<% 
+										}
+								} 
+						%>
+								</select>
+						<%
+							}else{
+						%>
+								<input type="hidden" name="categoryCodeData1" id="categoryCodeData1" value="<%=bm.getCategoryCode1()%>"  title="카테고리1"/>
+						<%
+							}
+						}
+						%>
 
 
-	<!--RFC 공통 페이지 시작-->
-	<div class="rfc_bbs_pager">
-		<%=bm.printPaging()%>
-	</div>
-	<!--RFC 공통 페이지 끝-->
+						<% 
+						if(bm.isWriteItem("CATEGORY_CODE2") && categoryList2 != null && categoryList2.size() > 0){ 
+							if(bm.getMenuIsBoard2Cate()){
+						%>
+							<select name="categoryCodeData2" id="categoryCodeData2" class="layout_select"  title="카테고리2">
+							<option value="">2차 카테고리</option>
+						<% 
+							for(BoardCategoryVO category2 : categoryList2){
+								if(!category2.getCategoryName().equals("noview")){
+						%>
+								<option value="<%=category2.getCategoryCode()%>" <%if(bm.getCategoryCode2().equals(category2.getCategoryCode()))out.print("selected");%>><%=category2.getCategoryName()%></option>
+						<% 
+								}
+							} 
+						%>
+							</select>
+						<%
+							}else{
+						%>
+							<input type="hidden" name="categoryCodeData2" id="categoryCodeData2" value="<%=bm.getCategoryCode2()%>"  title="카테고리2"/>
+						<%
+							}
+						}
+						%>
 
-	<!-- 코멘트 등록 시작 -->
-	<!--h4><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_star_tit.gif" alt="별점평가하기" /></h4-->
-	<div class="rfc_bbs_star">
-		<div class="rfc_bbs_star_last">
-			<form name="comment" action="<%=request.getContextPath()%>/board/writeComment.<%=bm.getUrlExt() %>" method="post" class="rfc_bbs_Form" enctype="multipart/form-data">
-				<fieldset>
-					<input type="hidden" name="boardSid" value="<%=bm.getBoardSid()%>" />
-					<input type="hidden" name="orderBy" value="<%=bm.getOrderBy()%>" />
-					<input type="hidden" name="boardId" value="<%=bm.getBoardId()%>" />
-					<input type="hidden" name="dataSid" value="<%=bm.getDataSid()%>" />
+						<% 
+						if(bm.isWriteItem("CATEGORY_CODE3") && categoryList3 != null && categoryList3.size() > 0){ 
+							if(bm.getMenuIsBoard3Cate()){
+								
+						%>
+							<select name="categoryCodeData3" id="categoryCodeData3" class="layout_select"  title="카테고리3">
+							<option value="">3차 카테고리</option>
+						<% 
+							for(BoardCategoryVO category3 : categoryList3){
+								if(!category3.getCategoryName().equals("noview")){
+						%>
+								<option value="<%=category3.getCategoryCode()%>" <%if(bm.getCategoryCode3().equals(category3.getCategoryCode()))out.print("selected");%>><%=category3.getCategoryName()%></option>
+						<% 
+								}
+							} 
+						%>
+							</select>
+						<%
+							}else{
+						%>
+							<input type="hidden" name="categoryCodeData3" id="categoryCodeData3" value="<%=bm.getCategoryCode3()%>"  title="카테고리3"/>
+						<%
+							}
+						}
+						%>
+					</td>
+				</tr>
+				<%
+			}
+			}
+			%>
 
-					<input type="hidden" name="searchType" value="<%=bm.getSearchType()%>" />
-					<input type="hidden" name="keyword" value="<%=bm.getKeyword()%>" />
+<% if(bm.isWriteItem("USER_EMAIL")) { %>
+            <tr>
+                <th scope="row"><label for="userEmail">이메일</label></th>
+                <td><input type="text" name="userEmail" value="<%=EgovStringUtil.isNullToString(bm.getUserEmail())%>" style="width:50%" id="userEmail" /></td>
+            </tr>
+            <% } %>
+            <% if(bm.isWriteItem("USER_HOMEPAGE")) { %>
+            <tr>
+                <th  scope="row"><label for="userHomepage"><%if("BBS_0000361".equals(bm.getBoardId())||"BBS_0000360".equals(bm.getBoardId())){%>링크<%}else{%>홈페이지<%}%></label></th>
+                <td><input type="text" name="userHomepage" value="<%=EgovStringUtil.isNullToString(bm.getUserHomepage())%>" style="width:99%" id="userHomepage" /></td>
+            </tr>
+            <% } %>
+            <% if(bm.isWriteItem("USER_TEL")) { %>
+            <tr>
+                <th  scope="row"><label for="userTel">전화번호</label></th>
+                <td><input type="text" name="userTel" value="<%=EgovStringUtil.isNullToString(bm.getUserTel())%>" style="width:50%" id="userTel" /></td>
+            </tr>
+            <% } %>
+			 <% if(bm.isWriteItem("USER_CEL")) { %>
+            <tr>
+                <th scope="row"><label for="userCel">핸드폰번호</label></th>
+                <td><input type="text" name="userCel" value="<%=EgovStringUtil.isNullToString(bm.getUserCel())%>" style="width:50%" id="userCel" /></td>
+            </tr>
+            <% } %>
+            <% if(bm.isWriteItem("USER_ZIPCODE")) { %>
+            <tr>
+                <th  scope="row"><label for="userZipcode">우편번호</label></th>
+                <td><input type="text" name="userZipcode" value="<%=EgovStringUtil.isNullToString(bm.getUserZipcode())%>" style="width:50%" id="userZipcode" /></td>
+            </tr>
+            <% } %>
+            <% if(bm.isWriteItem("USER_ADDRESS")) { %>
+            <tr>
+                <th  scope="row"><label for="userAddress">주소</label></th>
+                <td><input type="text" name="userAddress" value="<%=EgovStringUtil.isNullToString(bm.getUserAddress())%>" style="width:99%" id="userAddress" /></td>
+            </tr>
+            <% } %>
+            <% if(bm.isWriteItem("USER_DETAILADDR")) { %>
+            <tr>
+                <th  scope="row"><label for="userDetailAddr">상세주소</label></th>
+                <td><input type="text" name="userDetailAddr" value="<%=EgovStringUtil.isNullToString(bm.getUserAddress())%>" style="width:99%" id="userDetailAddr" /></td>
+            </tr>
+            <% } %>
+           
+            <% if(bm.isWriteItem("TMP_FIELD1")) { %>
+            <tr>
+                <th scope="row"><label for="tmpField1">임시필드1</label></th>
+                <td><input type="text" name="tmpField1" value="<%=EgovStringUtil.isNullToString(bm.getTmpField1())%>" style="width:99%" id="tmpField1" /></td>
+            </tr>
+            <% } %>
+            <% if(bm.isWriteItem("TMP_FIELD2")) { %>
+            <tr>
+                <th scope="row"><label for="tmpField2">임시필드2</label></th>
+                <td><input type="text" name="tmpField2" value="<%=EgovStringUtil.isNullToString(bm.getTmpField2())%>" style="width:99%" id="tmpField2" /></td>
+            </tr>
+            <% } %>
+            <% if(bm.isWriteItem("TMP_FIELD3")) { %>
+            <tr>
+                <th scope="row"><label for="tmpField3">임시필드3</label></th>
+                <td><input type="text" name="tmpField3" value="<%=EgovStringUtil.isNullToString(bm.getTmpField3())%>" style="width:99%" id="tmpField3" /></td>
+            </tr>
+            <% } %>
+            <% if(bm.isWriteItem("TMP_FIELD4")) { %>
+            <tr>
+                <th scope="row"><label for="tmpField4">임시필드4</label></th>
+                <td><input type="text" name="tmpField4" value="<%=EgovStringUtil.isNullToString(bm.getTmpField4())%>" style="width:99%" id="tmpField4" /></td>
+            </tr>
+            <% } %>
+            <% if(bm.isWriteItem("TMP_FIELD5")) { %>
+            <tr>
+                <th scope="row"><label for="tmpField5">임시필드5</label></th>
+                <td><input type="text" name="tmpField5" value="<%=EgovStringUtil.isNullToString(bm.getTmpField5())%>" style="width:99%" id="tmpField5" /></td>
+            </tr>
+            <% } %>
 
-					<input type="hidden" name="searchStartDt" value="<%=bm.getSearchStartDt()%>" />
-					<input type="hidden" name="searchEndDt" value="<%=bm.getSearchEndDt()%>" />
-					<input type="hidden" name="startPage" value="<%=bm.getPageNum()%>" />
 
-					<input type="hidden" name="menuCd" value="${menuCd}" />
-					<input type="hidden" name="contentsSid" value="${contentsSid}" />
 
-					<div class="rfc_bbs_star_star" style="display: none;">
-						<input type="radio" name="starPoint" id="star_radio01" value="1" title="1점" class="rfc_bbs_border_none rfc_bbs_radio_none"/><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star01.gif" alt="별1개" />
-						<input type="radio" name="starPoint" id="star_radio02" value="2" title="2점" class="rfc_bbs_border_none rfc_bbs_radio_none" /><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star02.gif" alt="별2개" />
-						<input type="radio" name="starPoint" id="star_radio03" value="3" title="3점" class="rfc_bbs_border_none rfc_bbs_radio_none" /><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star03.gif" alt="별3개" />
-						<input type="radio" name="starPoint" id="star_radio04" value="4" title="4점" class="rfc_bbs_border_none rfc_bbs_radio_none" /><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star04.gif" alt="별4개" />
-						<input type="radio" name="starPoint" id="star_radio05" value="5" title="5점" class="rfc_bbs_border_none rfc_bbs_radio_none" /><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star05.gif" alt="별5개" />
-					</div>
-					<div class="rfc_bbs_star_file_write">
-						<textarea name="commentTitle" id="textarea" cols="100%" rows="3" title="내용" style="float:left;width:658px;margin-right:10px;"></textarea>
-						<input type="image" src="<%=request.getContextPath()%>/images/btn_comment.jpg" alt="평가하기" class="rfc_bbs_border_none"/>
-					</div>
-					<div class="rfc_bbs_star_file_find" style="display: none;">
-						<label class="label_block" for="file">* 첨부파일</label>
-						<input type="file" name="file" id="file" value="" title="첨부파일" class="rfc_bbs_star_file_input" />
-					</div>
+			<%
+			if(bm.getFileCount() >0){
+			if(bm.getCommand() != null && bm.getCommand().equals("update"))
+			{
+				%>
+				<tr>
+					<th scope="row">첨부파일</th>
+					<td>
+						<%=bm.getFileList("<span title=\"첨부파일:{fileName}\"><a href=\"{fileDelete}\" onclick=\"Javascript:if(confirm('선택한 첨부파일을 삭제 하시겠습니까?')) return true; else return false;\" onkeypress=\"if(event.keyCode == 13){return confirm('선택한 첨부파일을 삭제 하시겠습니까?');}\">{fileMemo} {fileName} ({fileSize}) </a><a style=\"color:red\" href=\"{fileDelete}\" onclick=\"Javascript:if(confirm('선택한 첨부파일을 삭제 하시겠습니까?')) return true; else return false;\">삭제</a></span><br/>")%>
+					</td>
+				</tr>
+				<%
+			}}%>
+
+
+
+							<tr>
+								<th scope="row">내 용</th>
+								<td><textarea name="dataContent" id="dataContent" style="width:95%; height:400px" rows="5" cols="50" title="내용"><%=bm.getDataContent()%></textarea>
+							<% if(bm.isBoardEditor()){ %>
+								<script type="text/javascript">
+								createEditor("dataContent,<%=request.getContextPath() %>/SmartEditor2/SEditorSkin.html");
+								</script>
+							<% } %>	 
+								</td>
+							</tr>
+							<tr>
+								<th scope="row">첨부파일</th>
+								<td>
+									
+									<%=bm.getFileUpload() %>
+
+<!--										<label for="upload0" class="none">첨부파일</label><input name="upload" id="upload0" title="첨부파일" type="file" style="width:95%;" />
+										<label for="upload1" class="none">첨부파일</label><input name="upload" id="upload1" title="첨부파일" type="file" style="width:95%;" />
+										<label for="upload2" class="none">첨부파일</label><input name="upload" id="upload2" title="첨부파일" type="file" style="width:95%;" />-->
+									
+								</td>
+							</tr>			   
+						</tbody>
+					</table>
+					<p class="read_page" style="margin:20px 0px;">
+
+	<!--RFC 공통 버튼 시작-->
+	<div class="rfc_bbs_btn center">
+		<%=bm.getWriteIcons()%>
+	</div><br /><br />
+
+	<!--RFC 공통 버튼 끝-->
+
+<!--						<a href="#">&lt; 목록</a><a href="#" class="btn_blue">수정</a><a href="#" class="btn_gray">취소</a>-->
+					</p>
+
 				</fieldset>
-			</form>
-		</div>
-	</div>
-	<!-- 코멘트 등록 끝 -->
-	<%
-}
-%>
+			</section>
+			<!-- board_write -->
+
+</form>                                                

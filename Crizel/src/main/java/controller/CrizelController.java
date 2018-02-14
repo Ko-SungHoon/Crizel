@@ -38,7 +38,7 @@ public class CrizelController {
 		this.service = service;
 	}
 	@RequestMapping("list.do")
-	public ModelAndView list(@RequestParam String day) {
+	public ModelAndView list(@RequestParam(value="day", required=false, defaultValue="today") String day) {
 		ModelAndView mav = new ModelAndView();		
 		Calendar cal = Calendar.getInstance();
 		final String[] week = { "일", "월", "화", "수", "목", "금", "토" };

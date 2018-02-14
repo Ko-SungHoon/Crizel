@@ -21,19 +21,35 @@ function fileDown(directory, filename){
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
-	<ul class="ul_type01">
+	<table class="tbl_type01">
+		<tr>
+			<th>
+				디렉토리
+			</th>
+		</tr>
 		<c:forEach items="${directory.folder}" var="ob">
-			<li><a href="/directory.do?path=${ob.path}">${ob.name}</a></li>
+		<tr>
+			<td>
+				<a href="/directory.do?path=${ob.path}">${ob.name}</a>
+			</td>
+		</tr>
 		</c:forEach>
-	</ul>
-	<ul class="ul_type01">
+	</table>
+	
+	<table class="tbl_type01">
+		<tr>
+			<th>
+				파일
+			</th>
+		</tr>
 		<c:forEach items="${directory.file}" var="ob">
-			<li>
+		<tr>
+			<td>
 				<a href="javascript:fileDown('${path}','${ob}')">${ob}</a>
-				<%-- <a href="/download.do?directory=${path}/&filename=${ob}&check=content">${ob}</a> --%>
-			</li>
+			</td>
+		</tr>
 		</c:forEach>
-	</ul>
+	</table>
 </div>
 </body>
 </html>

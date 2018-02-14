@@ -4,8 +4,8 @@
 <script src="/js/jquery-highlight.js"></script>
 <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon" />
 <link rel="icon" href="/img/favicon.ico" type="image/x-icon" />
-<link rel="stylesheet" href="/css/crizel_mbl.css">
-<link rel="stylesheet" href="/css/crizel.css">
+<link rel="stylesheet" href="/css/crizel_white_mbl.css">
+<link rel="stylesheet" href="/css/crizel_white.css">
 <script src="/js/login.js"></script>
 <script src="/js/crizel.js"></script>
 <script src="/js/common.js"></script>

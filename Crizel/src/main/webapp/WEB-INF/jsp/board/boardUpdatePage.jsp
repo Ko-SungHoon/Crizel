@@ -56,7 +56,7 @@
 				enctype="multipart/form-data" method="POST">
 				<input type="hidden" id="b_id" name="b_id"
 					value="${list.b_id}">
-				<table class="tbl_type01">
+				<table class="tbl_type02">
 					<tr>
 						<th>제목</th>
 						<td><input type="text" id="title" name="title" value="${list.title}"></td>
@@ -106,13 +106,10 @@
 								</c:otherwise>
 							</c:choose></td>
 					</tr>
-					<tr>
-						<td colspan="2"><input type="button" id="boardUpdateSubmit"
-							value="수정"></td>
-					</tr>
-
-
 				</table>
+				<div class="search">
+					<input type="button" id="boardUpdateSubmit" value="수정">
+				</div>
 			</form>
 	</div>
 

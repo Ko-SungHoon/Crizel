@@ -132,8 +132,8 @@ sql.append("			FROM ART_INST_REQ_CNT																					");
 sql.append("			WHERE REQ_NO = A.REQ_NO																					");
 sql.append("			GROUP BY REQ_NO) INST_NM,																				");
 sql.append("			(SELECT NVL(SUM(INST_REQ_CNT),0) FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO) INST_REQ_CNT			");
-sql.append("		FROM ART_INST_REQ A										");
-sql.append("		WHERE 1=1					 							");
+sql.append("		FROM ART_INST_REQ A																							");
+sql.append("		WHERE 1=1					 																				");
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("inst_cat_nm".equals(search1)){
 		sql.append(" AND A.REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_CAT_NM LIKE '%'||?||'%' GROUP BY REQ_NO) 	");
