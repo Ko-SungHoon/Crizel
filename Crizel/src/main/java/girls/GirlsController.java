@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -22,7 +23,7 @@ public class GirlsController {
 	}
 
 	@RequestMapping("girls.do")
-	public ModelAndView diary(HttpServletRequest request, HttpServletResponse response) {
+	public ModelAndView girls(HttpServletRequest request, HttpServletResponse response) {
 		ModelAndView mav = new ModelAndView();	
 		String name = parseNull(request.getParameter("name"));
 		List<Object> nameList = service.nameList();
@@ -33,6 +34,14 @@ public class GirlsController {
 		mav.setViewName("/girls/main");
 		return mav;
 
+	}
+	
+	@RequestMapping("girlsDownload.do")
+	public void girlsDownload(
+			@RequestParam(value="url", required=false) String url,
+			@RequestParam(value="name", required=false) String name,
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
+		service.girlsDownload(url, name);
 	}
 	
 	@RequestMapping("girlsInsertPage.do")
