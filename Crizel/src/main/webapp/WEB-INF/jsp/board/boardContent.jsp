@@ -84,7 +84,7 @@ $(function(){
 						<th style="width:20%">첨부파일</th>
 						<td>
 							<c:forEach items="${file}" var="ob">
-								<a href="/download.do?directory=${ob.directory}&filename=${ob.save_name}&check=board">${ob.save_name}</a><br>
+								<a href="/download.do?directory=${ob.directory}&filename=${ob.real_name}&check=board">${ob.save_name}</a><br>
 							</c:forEach>
 						</td>
 					</tr>

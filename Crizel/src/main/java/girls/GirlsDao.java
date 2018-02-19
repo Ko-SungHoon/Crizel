@@ -75,6 +75,28 @@ public class GirlsDao {
 						if (line.contains("sharedData")) {
 							line = line.replace("<script type=\"text/javascript\">window._sharedData = ","");
 							line = line.replace(";</script>", "");
+							
+							JSONParser parser = new JSONParser();
+						    Object obj = parser.parse( line );
+						    JSONObject object = (JSONObject) obj;
+							JSONObject name1 = (JSONObject) object.get("entry_data");
+							JSONArray msg = (JSONArray) name1.get("ProfilePage");
+							JSONObject data = (JSONObject) msg.get(0);
+							JSONObject data2 = (JSONObject) data.get("user");
+							JSONObject data3 = (JSONObject) data2.get("media");
+							JSONArray msg2 = (JSONArray) data3.get("nodes");
+
+							for (int i1 = 0; i1 < msg2.size(); i1++) {
+								JSONObject data4 = (JSONObject) msg2.get(i1);
+								//System.out.println(data4.get("thumbnail_src").toString());
+								imgList.add(data4.get("thumbnail_src").toString());
+							}
+						}
+					}
+					/*while ((line = rd.readLine()) != null) {
+						if (line.contains("sharedData")) {
+							line = line.replace("<script type=\"text/javascript\">window._sharedData = ","");
+							line = line.replace(";</script>", "");
 							try {
 								FileWriter fw = new FileWriter("Test.json"); // 절대주소 경로 가능
 								BufferedWriter bw = new BufferedWriter(fw);
@@ -103,7 +125,7 @@ public class GirlsDao {
 								imgList.add(data4.get("display_src").toString());
 							}
 						}
-					}
+					}*/
 				}catch(Exception e){
 					System.out.println(e.toString());
 				}

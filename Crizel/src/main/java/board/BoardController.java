@@ -210,16 +210,13 @@ public class BoardController {
 
 	
 	@RequestMapping("download.do")
-	void download(@RequestParam String directory, String filename, String check,
+	public void download(
+			@RequestParam(value="directory", required=false) String directory, 
+			@RequestParam(value="filename", required=false) String filename, 
+			@RequestParam(value="check", required=false) String check,
 			HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		String realname = "";
-		
-		if(check.equals("board")){
-			realname = service.realName(filename);
-		}else{
-			realname = filename;
-		}
+		String realname = filename;
 		
 		String docName = URLEncoder.encode(realname, "UTF-8").replaceAll("\\+", " ");
 
