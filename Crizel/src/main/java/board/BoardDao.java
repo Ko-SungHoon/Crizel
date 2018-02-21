@@ -12,16 +12,16 @@ public class BoardDao {
 	@Autowired
 	private SqlSessionFactory factory;
 
-	public int totalCount() {
-		return factory.openSession().selectOne("board.totalCount");
+	public int totalCount(Map<String, Object> map) {
+		return factory.openSession().selectOne("board.totalCount", map);
 	}
 
 	public void boardInsert(BoardVO vo) {
 		factory.openSession().insert("board.boardInsert", vo);
 	}
 
-	public List<Object> board(Map<String, Integer> row) {
-		return factory.openSession().selectList("board.board", row);
+	public List<Object> board(Map<String, Object> map) {
+		return factory.openSession().selectList("board.board", map);
 	}
 
 	public BoardVO boardContent(BoardVO vo) {

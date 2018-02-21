@@ -35,11 +35,18 @@ public class BoardController {
 	}
 
 	@RequestMapping("board.do")
-	public ModelAndView board(@RequestParam int pageParam) {
+	public ModelAndView board(
+			@RequestParam(value="pageParam", defaultValue="1") int pageParam,
+			@RequestParam(value="search1", required=false) String search1,
+			@RequestParam(value="keyword", required=false) String keyword) {
+		Map<String, Object> map = new HashMap<String,Object>();
+		map.put("search1", search1);
+		map.put("keyword", keyword);
+		
 		int page = pageParam; // 시작 페이지
 		int countList = 10; // 한 페이지에 출력될 게시물 수
 		int countPage = 10; // 한 화면에 출력될 페이지 수
-		int totalCount = service.totalCount();
+		int totalCount = service.totalCount(map);
 		int totalPage = totalCount / countList;
 		if (totalCount % countList > 0) {
 			totalPage++;
@@ -59,11 +66,10 @@ public class BoardController {
 			startRow = 1;
 		}
 		
-		Map<String, Integer> row = new HashMap<String,Integer>();
-		row.put("startRow", startRow);
-		row.put("endRow", endRow);
+		map.put("startRow", startRow);
+		map.put("endRow", endRow);
 
-		List<Object> list = service.board(row);
+		List<Object> list = service.board(map);
 
 		int pre = page - countPage;
 		if (page < countPage) {
@@ -83,6 +89,8 @@ public class BoardController {
 		mav.addObject("next",next);
 		mav.addObject("totalPage",totalPage);
 		mav.addObject("list",list);
+		mav.addObject("search1", search1);
+		mav.addObject("keyword", keyword);
 		
 		mav.setViewName("/board/board");
 		return mav;
@@ -150,9 +158,10 @@ public class BoardController {
 	}
 
 	@RequestMapping("boardDelete.do")
-	public ModelAndView boardDelete(@RequestParam int b_id) {
+	public void boardDelete(@RequestParam int b_id,
+			HttpServletResponse response) throws IOException {
 		service.boardDelete(b_id);
-		return board(1);
+		response.sendRedirect("/board.do");
 	}
 	
 	@RequestMapping("boardUpdatePage.do")
@@ -169,8 +178,8 @@ public class BoardController {
 	}
 	
 	@RequestMapping("boardUpdate.do")
-	public ModelAndView boardUpdate(@ModelAttribute BoardVO vo, HttpServletRequest httpRequest,
-			MultipartHttpServletRequest request) throws IllegalStateException,
+	public void boardUpdate(@ModelAttribute BoardVO vo, HttpServletRequest httpRequest,
+			MultipartHttpServletRequest request, HttpServletResponse response) throws IllegalStateException,
 			IOException  {
 		service.boardUpdate(vo);
 		
@@ -200,7 +209,7 @@ public class BoardController {
 			}
 		}
 		
-		return board(1);
+		response.sendRedirect("/board.do");
 	}
 	
 	@RequestMapping("boardFileDel.do")

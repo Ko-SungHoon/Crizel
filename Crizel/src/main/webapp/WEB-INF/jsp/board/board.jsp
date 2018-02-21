@@ -14,7 +14,7 @@ $(function(){
 			location.href="/boardInsertPage.do";
 		}else{
 			alert("로그인이 필요한 페이지 입니다.");
-			modal.style.display = "block";
+			location.href="/loginPage.do";
 		}
 	});	
 });
@@ -26,6 +26,18 @@ $(function(){
 <input type="hidden" id="nickSession" value="${login.nick}">
 	<jsp:include page="/WEB-INF/jsp/menu.jsp" />
 	<div class="content"> 
+		<div class="search">	
+			<form action="/board.do" method="get" id="searchForm">
+				<select id="search1" name="search1">
+					<option <c:if test="${search1 eq 'titleContent'}"> selected </c:if> value="titleContent">제목+내용</option>
+					<option <c:if test="${search1 eq 'title'}"> selected </c:if> value="title">제목</option>
+					<option <c:if test="${search1 eq 'content'}"> selected </c:if> value="content">내용</option>
+					<option <c:if test="${search1 eq 'user_nick'}"> selected </c:if> value="user_nick">작성자</option>
+				</select>
+				<input type="text" id="keyword" name="keyword" value="${keyword}">
+				<button>검색</button>
+			</form>	
+		</div>
 			<table class="tbl_type01">
 				<thead>
 					<tr>

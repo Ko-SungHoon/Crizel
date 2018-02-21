@@ -26,6 +26,7 @@ import org.springframework.web.servlet.ModelAndView;
 import org.xml.sax.SAXException;
 
 import util.DirectoryView;
+import util.Saramin;
 import vo.CrizelVo;
 
 @Controller
@@ -82,8 +83,13 @@ public class CrizelController {
 		service.listInsert(vo);
 		return "redirect:listInsertPage.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8");
 	}
+	
+	@RequestMapping("loginPage.do")
+	public String loginPage() {
+		return "login";
+	}
 
-	@SuppressWarnings("unchecked")
+	/*@SuppressWarnings("unchecked")
 	@RequestMapping("login.do")
 	public void login(@ModelAttribute CrizelVo vo, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
@@ -101,29 +107,38 @@ public class CrizelController {
 			response.setContentType("application/x-json; charset=UTF-8");
 			response.getWriter().print(obj);
 		}
+	}*/
+	
+	@RequestMapping("login.do")
+	public void login(@ModelAttribute CrizelVo vo, HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		CrizelVo vo2 = service.login(vo);
+		
+		HttpSession session = request.getSession();
+		session.setAttribute("login", vo2);
+		
+		response.sendRedirect("/");
 	}
 
 	@RequestMapping("logout.do")
-	public String logout(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
+	public void logout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session = request.getSession();
 		session.invalidate();
-		return "../index";
+		response.sendRedirect("/");
 	}
 
 	@RequestMapping("registerPage.do")
 	public String registerPage() {
-		
 		return "registerPage";
 	}
 
 	@RequestMapping("register.do")
-	public String register(@ModelAttribute CrizelVo vo, String re_id,
-			String re_pw) {
+	public void register(@ModelAttribute CrizelVo vo, String re_id, String re_pw,
+			HttpServletRequest request, HttpServletResponse response) throws IOException {
 		vo.setId(re_id);
 		vo.setPw(re_pw);
 		service.register(vo);
-		return "../index";
+		response.sendRedirect("/");
 	}
 
 	@SuppressWarnings("unchecked")
@@ -240,6 +255,27 @@ public class CrizelController {
 		mav.addObject("path", path);
 		mav.setViewName("/directory/main");
 		return mav;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@RequestMapping("saramin.do")
+	public void saramin(HttpServletResponse response) throws Exception {
+		Saramin saram = new Saramin();
+		List<Map<String,Object>> list = saram.getList();
+		
+		JSONArray arr = new JSONArray();
+		for(Map<String,Object> ob : list){
+			JSONObject obj = new JSONObject();
+			obj.put("url", ob.get("url").toString());
+			obj.put("name", ob.get("name").toString());
+			obj.put("salary", ob.get("salary").toString());
+			obj.put("category", ob.get("job-category").toString());
+			arr.add(obj);
+		}
+		
+		response.setContentType("application/x-json; charset=UTF-8");
+		response.getWriter().print(arr);
+		
 	}
 	
 	public String parseNull(String value){

@@ -1,76 +1,92 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
     pageEncoding="UTF-8"%>
-<%@page import="java.io.BufferedInputStream" %>
-<%@page import="java.io.ByteArrayOutputStream" %> 
-<%@page import="java.io.FileOutputStream" %>
-<%@page import="java.io.IOException" %>
-<%@page import="java.io.InputStream" %>
-<%@page import="java.net.URL" %>
-<%@page import="java.io.File" %>
+ 
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <title>JSP</title>
-</head>
-<body>
-<%!
-public boolean isNumber(String str){
-	boolean bool = false;
-	try{
-		Integer.parseInt(str);
-		bool = true;
-	}catch(Exception e){
-		e.printStackTrace();
-	}
-	return bool;
-}
-%>
-
-<%
-String urlStr = request.getParameter("url");
-urlStr = "https://scontent-icn1-1.cdninstagram.com/vp/4f26156f2bbd9e866e3f2a87aab3986f/5A8D196E/t51.2885-15/e15/28153624_177190939675132_6157697391119040512_n.jpg";
-String file1 = urlStr.split("/")[urlStr.split("/").length-1];
-String file2 = file1.split("[.]")[file1.split("[.]").length-2];
-String ext = file1.split("[.]")[file1.split("[.]").length-1];
-String name = "경리1";
-
-int num = 0;
-while(true){
-	num++;
-	try{
-		File file = new File("E://사진/" + name + "." + ext);
-		if(file.exists()){
-			if(isNumber(name.substring(name.length()-1))){
-				num = Integer.parseInt(name.substring(name.length()-1))+1;
-				name = name.substring(0, name.length()-1) + Integer.toString(num);
+<%@include file="/WEB-INF/jsp/header.jsp" %>
+<style type="text/css">
+.center{margin: auto; display: block; text-align: center; vertical-align: middle;}
+.dialog{background: green}
+.dialog .btn{width: 100%; text-align: right;}
+</style>
+<script>
+$(function (){
+	$.fn.modal = function (customoptions) {
+		return this.each(function () {
+			if(typeof customoptions === 'object'){
+				
+			}else if(typeof customoptions === 'string'){
+				
 			}else{
-				name = name + Integer.toString(num);
+				
 			}
-		}else{
-			break;
-		}
-	}catch(Exception e){
-		out.println(e.toString());
-	}
+		});
+	}	
+});
+
+function test(){
+	location.hash="TEST";
+}
+function openDialog(){
+	
 }
 
-URL url = new URL(urlStr);
-InputStream in = new BufferedInputStream(url.openStream());
-ByteArrayOutputStream outs = new ByteArrayOutputStream();
-byte[] buf = new byte[1024];
-int n = 0;
-while (-1 != (n = in.read(buf))) {
-	outs.write(buf, 0, n);
+function closeDialog(){
+	$(".dialog").dialog("close");
 }
-outs.close();	
-in.close();
-byte[] bytes = outs.toByteArray();
 
-FileOutputStream fos = new FileOutputStream("E://사진/" + name + "." + ext);
-fos.write(bytes);
-fos.close();
-%>
- 
+$(function(){
+	$(".btnClone").click(function(){
+		$(".cloneTest").append($(".clone").eq(0).clone());
+	});
+	$(".btnDel").click(function(){
+		alert($(this).index());
+	});	
+});
+
+
+</script>
+</head>
+<body onload="test()">
+
+<div class="center">
+	<button type="button" onclick="openDialog()">모달창 띄우기</button>
+</div>
+
+<div class="cloneTest">
+	<div class="clone">
+		<input type="text" id="test"> <button type="button" class="btnClone">추가</button> <button type="button" class="btnDel">삭제</button>
+	</div>
+</div>
+
+<div class="dialog" id="dialog">
+	<div class="btn">
+		<button type="button" onclick="closeDialog()">CLOSE</button>
+	</div>
+   	<p>다이얼로그 모달창을 띄우는 간단한 방법!!</p>
+</div>
+
+<script>
+/* $(function(){
+	$('.dialog').dialog({
+		bgiframe: true,
+		autoOpen: false,
+	    modal: true,
+	    width: "300",
+	    height: "500",
+	    open: function() {
+        	$('.ui-widget-overlay').off('click');
+        	$('.ui-widget-overlay').on('click', function() {
+                alert("EE");
+            })
+        }
+	}).parents(".ui-dialog").find(".ui-dialog-titlebar").remove();
+}); */
+</script>
+
+
 </body>
 </html>

@@ -13,7 +13,21 @@
 							delete_status, tmp_field1, tmp_field2, tmp_field3, tmp_field4, tmp_field5, tmp_field6, tmp_field7, tmp_field8, 
 							tmp_field9, tmp_field10 
 					from board
-					where delete_status = 'N'		
+					where delete_status = 'N'	
+			<choose>
+				<when test="search1 == 'titleContent' and keyword != null">
+					and ( title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%' )
+				</when>
+				<when test="search1 == 'title' and keyword != null">
+					and title like '%'||#{keyword}||'%'
+				</when>
+				<when test="search1 == 'user_nick' and keyword != null">
+					and user_nick like '%'||#{keyword}||'%'
+				</when>
+				<when test="search1 == 'content' and keyword != null">
+					and content like '%'||#{keyword}||'%'
+				</when>
+			</choose>				
 					order by b_group, b_id desc
 				) A
 				where rownum <![CDATA[ <= ]]> #{endRow}
@@ -22,8 +36,22 @@
 		order by rnum desc
 	</select>
 
-	<select id="totalCount" resultType="int">
+	<select id="totalCount" parameterType="HashMap" resultType="int">
 		select count(*) from board where delete_status = 'N'
+	<choose>
+		<when test="search1 == 'titleContent' and keyword != null">
+			and ( title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%' )
+		</when>
+		<when test="search1 == 'title' and keyword != null">
+			and title like '%'||#{keyword}||'%'
+		</when>
+		<when test="search1 == 'user_nick' and keyword != null">
+			and user_nick like '%'||#{keyword}||'%'
+		</when>
+		<when test="search1 == 'content' and keyword != null">
+			and content like '%'||#{keyword}||'%'
+		</when>
+	</choose>
 	</select>
 
 	<insert id="boardInsert" parameterType="board.BoardVO">

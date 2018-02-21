@@ -4,10 +4,10 @@
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ page import="java.util.*" %>
 <%
-Map<String,Object> crizelMap = new HashMap<String,Object>();
+/* Map<String,Object> crizelMap = new HashMap<String,Object>();
 crizelMap.put("id", "rhzhzh3");
 crizelMap.put("nick", "크리젤");
-request.getSession().setAttribute("login", crizelMap);
+request.getSession().setAttribute("login", crizelMap); */
 %>
 <script>
 $(function(){
@@ -55,7 +55,7 @@ $(function(){
 	</ul>
 	<span class="login_menu">
 		<c:if test="${login eq null}">
-			<a href="#" id="myBtn">로그인</a>
+			<a href="/loginPage.do">로그인</a>
 			<a href="/registerPage.do">회원가입</a>
 		</c:if>
 		

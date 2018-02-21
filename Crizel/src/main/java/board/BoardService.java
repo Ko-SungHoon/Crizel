@@ -17,16 +17,16 @@ public class BoardService {
 		this.dao = dao;
 	}
 
-	public int totalCount() {
-		return dao.totalCount();
+	public int totalCount(Map<String, Object> map) {
+		return dao.totalCount(map);
 	}
 
 	public void boardInsert(BoardVO vo) {
 		dao.boardInsert(vo);
 	}
 
-	public List<Object> board(Map<String, Integer> row) {
-		return dao.board(row);
+	public List<Object> board(Map<String, Object> map) {
+		return dao.board(map);
 	}
 
 	public BoardVO boardContent(BoardVO vo) {

@@ -1,7 +1,9 @@
+<%@page import="com.ibm.icu.util.Calendar"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@page import="java.util.Map" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,16 +23,27 @@ function dayChange(value){
 	<input type="hidden" name="month" id="month" value="${cal.month}">
 	<input type="hidden" name="year" id="year" value="${cal.year}">
 	<div class="search">
+		<%!
+		public String numberFormat(String val){
+			if(Integer.parseInt(val) < 10){
+				val = "0" + val;
+			}
+			return val;
+		}
+		%>
 		<%
-		String yearArr[] = {"2016","2017"};
+		Map<String,Object> map = (Map<String,Object>)request.getAttribute("cal");
+		String year = request.getParameter("year")==null? map.get("year").toString() :request.getParameter("year");
+		String month = request.getParameter("month")==null? numberFormat(map.get("month").toString()) :request.getParameter("month");
+		Calendar cal = Calendar.getInstance();
 		String monthArr[] = {"01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"};
 		%>
 		<form action="/diary.do" method="post" id="postForm">
 			<select name="year">
 				<%
-				for(int i=yearArr.length-1; i>=0; i--){
+				for(int i=cal.get(Calendar.YEAR) ; i>=2016; i--){
 				%>
-					<option value="<%=yearArr[i]%>"><%=yearArr[i]%>년</option>
+					<option value="<%=i%>" <%if(Integer.toString(i).equals(year)){%> selected <%}%> ><%=i%>년</option>
 				<%
 				}
 				%>
@@ -39,7 +52,7 @@ function dayChange(value){
 				<%
 				for(int i=0; i<monthArr.length; i++){
 				%>
-					<option value="<%=monthArr[i]%>"><%=monthArr[i]%>월</option>
+					<option value="<%=monthArr[i]%>" <%if(monthArr[i].equals(month)){%> selected <%}%> ><%=monthArr[i]%>월</option>
 				<%
 				}
 				%>

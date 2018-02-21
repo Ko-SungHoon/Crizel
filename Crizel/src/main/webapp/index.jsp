@@ -11,54 +11,13 @@
 <%@include file="/WEB-INF/jsp/header.jsp" %>
 <style type="text/css">
 </style>
-<script>
-$(function() {
-	$.ajax({
-		type : "POST",
-		url : "/saramin.do",
-		contentType : "application/x-www-form-urlencoded; charset=utf-8",
-		datatype : "html",
-		success : function(data) {
-			$("#saramin").html(data.trim());
-		},
-		error : function(request,status,error) {
-			alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-			alert("에러발생");
-		}
-	});
-});
-</script>
+<script src="/js/main.js"></script>
 <title>Crizel</title>
 </head>
 <!-- <body style="background: url('/img/bg03.jpg');"> -->
 <body>
 <%@include file="/WEB-INF/jsp/menu.jsp" %>
-
-<%!
-public String strFormat(int value){
-	String strValue = "";
-	if(value < 10){
-		strValue = "0" + Integer.toString(value);
-	}else{
-		strValue = Integer.toString(value);
-	}
-	return strValue;
-}	
-%>
-<%
-Calendar cal = Calendar.getInstance();
-cal.add(Calendar.DATE, -7);
-String date = strFormat(cal.get(Calendar.YEAR))+strFormat(cal.get(Calendar.MONTH))+strFormat(cal.get(Calendar.DATE));
-URL url = new URL("http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchWeeklyBoxOfficeList.json?"
-		+ "key=af6cbec63ac47906095794b914d659e7&targetDt="+date);
-InputStreamReader isr = new InputStreamReader(url.openConnection().getInputStream(), "UTF-8");
-JSONObject object = (JSONObject) JSONValue.parse(isr);
-/* Object로 받을 경우 */
-JSONObject head = (JSONObject) object.get("boxOfficeResult");
-%>
-
 <div class="content">
-	
 	<ul class="bookMark">
 		<li>
 			<a href="/list.do">
@@ -77,6 +36,58 @@ JSONObject head = (JSONObject) object.get("boxOfficeResult");
 		</li>
 	</ul>
 	
+	<div id="spinner">
+		<vue-simple-spinner
+		    size="big" message="로딩중..."
+		    v-show="loading"
+		></vue-simple-spinner>
+	</div>
+	
+	<table class="tbl_main" id="mainMovie" v-if="records">
+		<colgroup>
+			<col width="10%">
+			<col width="50%">
+			<col width="40%">
+		</colgroup>
+		<tr>
+			<th colspan="3"><a href="http://www.cgv.co.kr/theaters/?theaterCode=0081" target="_blank"> {{ records.boxOfficeResult.boxofficeType }} </a></th>
+		</tr>
+		<tr v-for="(record, index) in records.boxOfficeResult.weeklyBoxOfficeList">
+			<td>
+				{{ record.rnum }}
+			</td>
+			<td>
+				{{ record.movieNm }}
+			</td>
+			<td rowspan="10" v-if="index == 0">
+				<div id="saramin"></div>
+			</td>
+		</tr>
+	</table>
+	<%-- 
+	
+	<%!
+	public String strFormat(int value){
+		String strValue = "";
+		if(value < 10){
+			strValue = "0" + Integer.toString(value);
+		}else{
+			strValue = Integer.toString(value);
+		}
+		return strValue;
+	}	
+	%>
+	<%
+	Calendar cal = Calendar.getInstance();
+	cal.add(Calendar.DATE, -7);
+	String date = strFormat(cal.get(Calendar.YEAR))+strFormat(cal.get(Calendar.MONTH))+strFormat(cal.get(Calendar.DATE));
+	URL url = new URL("http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchWeeklyBoxOfficeList.json?"
+			+ "key=af6cbec63ac47906095794b914d659e7&targetDt="+date);
+	InputStreamReader isr = new InputStreamReader(url.openConnection().getInputStream(), "UTF-8");
+	JSONObject object = (JSONObject) JSONValue.parse(isr);
+	/* Object로 받을 경우 */
+	JSONObject head = (JSONObject) object.get("boxOfficeResult");
+	%>
 
 	<table class="tbl_main">
 		<colgroup>
@@ -110,7 +121,7 @@ JSONObject head = (JSONObject) object.get("boxOfficeResult");
 	<%
 	}
 	%>
-	</table>
+	</table> --%>
 </div>
 </body>
 </html>

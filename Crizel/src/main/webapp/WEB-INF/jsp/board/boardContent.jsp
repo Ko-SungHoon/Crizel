@@ -15,7 +15,7 @@ $(function(){
 			location.href="/boardDelete.do?b_id=${list.b_id}";
 		}else{
 			alert("로그인이 필요한 기능입니다.");
-			modal.style.display = "block";
+			location.href="/loginPage.do";
 		}
 		
 	});
