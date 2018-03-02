@@ -56,12 +56,6 @@
 			<td>
 				{{ record.rnum }}
 			</td>
-			<script>
-			function goMovie(thisValue){
-				alert($(thisValue).html());
-				//location.href="http://movie.naver.com/movie/search/result.nhn?query="+title+"&section=all&ie=utf8"
-			}
-			</script>
 			<td>
 				<a :href="'http://movie.naver.com/movie/search/result.nhn?query='+record.movieNm+'&section=all&ie=utf8'" target="_blank" >
 					{{ record.movieNm }}
