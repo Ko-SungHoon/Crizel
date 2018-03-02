@@ -1,8 +1,8 @@
 <%
 /**
-*   PURPOSE :   악기 관리
-*   CREATE  :   20180201_thur    Ko
-*   MODIFY  :   ....
+*   PURPOSE :   악기 대여신청 - 목록
+*   CREATE  :   20180206_tue    Ko
+*   MODIFY  :   20180222 ljh css클래스 수정
 **/
 %>
 <%@ include file="/program/class/UtilClass.jsp"%>
@@ -10,82 +10,60 @@
 <%@page import="org.springframework.jdbc.core.*" %>
 <%!
 private class InsVO{
-	public int inst_no;
-	public String inst_cat;
-	public String inst_cat_nm;
-	public String inst_name;
-	public int curr_cnt;
-	public int max_cnt;
-	public String inst_size;
-	public String inst_model;
-	public String inst_pic;
-	public String inst_lca;
-	public String reg_id;
+	public int req_no;
+	public String req_id;
+	public String req_group;
+	public String req_mng_nm;
+	public String req_mng_tel;
+	public int req_inst_cnt;
+	public String req_memo;
 	public String reg_ip;
 	public String reg_date;
-	public String mod_date;
 	public String show_flag;
-	public String del_flag;
-	
-	public int artcode_no;
-	public String code_tbl;
-	public String code_col;
-	public String code_name;
-	public String code_val1;
-	public String code_val2;
-	public String code_val3;
-	public int order1;
-	public int order2;
-	public int order3;
+	public String apply_flag;
+	public String apply_date;
+
+	public String inst_cat;
+	public String inst_cat_nm;
+	public int inst_no;
+	public String inst_nm;
+	public int inst_req_cnt;
 }
 
 private class InsVOMapper implements RowMapper<InsVO> {
     public InsVO mapRow(ResultSet rs, int rowNum) throws SQLException {
     	InsVO vo = new InsVO();
-        vo.inst_no			= rs.getInt("INST_NO");
-        vo.inst_cat			= rs.getString("INST_CAT");
-        vo.inst_cat_nm		= rs.getString("INST_CAT_NM");
-        vo.inst_name		= rs.getString("INST_NAME");
-        vo.curr_cnt			= rs.getInt("CURR_CNT");
-        vo.max_cnt			= rs.getInt("MAX_CNT");
-        vo.inst_size		= rs.getString("INST_SIZE");
-        vo.inst_model		= rs.getString("INST_MODEL");
-        vo.inst_pic			= rs.getString("INST_PIC");
-        vo.inst_lca			= rs.getString("INST_LCA");
-        vo.reg_id			= rs.getString("REG_ID");
-        vo.reg_ip			= rs.getString("REG_IP");
-        vo.reg_date			= rs.getString("REG_DATE");
-        vo.mod_date			= rs.getString("MOD_DATE");
-        vo.show_flag		= rs.getString("SHOW_FLAG");
-        vo.del_flag			= rs.getString("DEL_FLAG");
-        return vo;
-    }
-}
-private class InsVOMapper2 implements RowMapper<InsVO> {
-    public InsVO mapRow(ResultSet rs, int rowNum) throws SQLException {
-    	InsVO vo = new InsVO();
-        vo.artcode_no		= rs.getInt("ARTCODE_NO");
-        vo.code_tbl 		= rs.getString("CODE_TBL");
-        vo.code_col			= rs.getString("CODE_COL");
-        vo.code_name 		= rs.getString("CODE_NAME");
-        vo.code_val1 		= rs.getString("CODE_VAL1");
-        vo.code_val2		= rs.getString("CODE_VAL2");
-        vo.code_val3		= rs.getString("CODE_VAL3");
-        vo.order1 			= rs.getInt("ORDER1");
-        vo.order2 			= rs.getInt("ORDER2");
-        vo.order3 			= rs.getInt("ORDER3");
+    	vo.req_no			= rs.getInt("REQ_NO");
+    	vo.req_id			= rs.getString("REQ_ID");
+    	vo.req_group		= rs.getString("REQ_GROUP");
+    	vo.req_mng_nm		= rs.getString("REQ_MNG_NM");
+    	vo.req_mng_tel		= rs.getString("REQ_MNG_TEL");
+    	vo.req_inst_cnt		= rs.getInt("REQ_INST_CNT");
+    	vo.req_memo			= rs.getString("REQ_MEMO");
+    	vo.reg_ip			= rs.getString("REG_IP");
+    	vo.reg_date			= rs.getString("REG_DATE");
+    	vo.show_flag		= rs.getString("SHOW_FLAG");
+    	vo.apply_flag		= rs.getString("APPLY_FLAG");
+    	vo.apply_date		= rs.getString("APPLY_DATE");
+
+    	vo.inst_cat			= rs.getString("INST_CAT");
+    	vo.inst_cat_nm		= rs.getString("INST_CAT_NM");
+    	vo.inst_no			= rs.getInt("INST_NO");
+    	vo.inst_nm			= rs.getString("INST_NM");
+    	vo.inst_req_cnt		= rs.getInt("INST_REQ_CNT");
         return vo;
     }
 }
 %>
 <%
-String search1 		= parseNull(request.getParameter("search1"));
-String keyword	 	= parseNull(request.getParameter("keyword"));
+StringBuffer sql	= null;
+List<InsVO> list 	= null;
+String search1		= parseNull(request.getParameter("search1"));		//승인상태
+String search2		= parseNull(request.getParameter("search2"));		//악기명,신청자명
+String keyword		= parseNull(request.getParameter("keyword"));
 String menuCd		= parseNull(request.getParameter("menuCd"));
-
-StringBuffer sql 		= null;
-List<InsVO> list 		= null;
-List<InsVO> list2 		= null;
+boolean readCheck 	= false;		//게시글 보기 권한(자신의 게시글 , 관리자는 읽기 가능)
+String getId 		= sm.getId();
 
 Paging paging = new Paging();
 paging.setPageSize(20);
@@ -94,181 +72,190 @@ int totalCount = 0;
 int cnt=0;
 int num = 0;
 
+Object[] setObj		= null;
+List<String> setList	= new ArrayList<String>();
+
 sql = new StringBuffer();
-sql.append("		SELECT	COUNT(*) CNT		 			");
-sql.append("		FROM ART_INST_MNG		 				");
-sql.append("		WHERE DEL_FLAG = 'N'		 			");
+sql.append("SELECT	COUNT(*) CNT		 									");
+sql.append("FROM ART_INST_REQ A												");
+sql.append("WHERE A.SHOW_FLAG = 'Y'		 									");
+if(!cm.isMenuCmsManager(sm)){
+sql.append("AND A.REQ_ID = ?												");
+setList.add(getId);
+}
 if(!"".equals(search1)){
-sql.append("		AND INST_CAT_NM = '").append(search1).append("'		");
+	sql.append("AND A.APPLY_FLAG = ?										");
+	setList.add(search1);
 paging.setParams("search1", search1);
-	if(!"".equals(keyword)){
-	sql.append("		AND INST_NAME = '").append(keyword).append("'	");
-	paging.setParams("keyword", keyword);
+}
+if(!"".equals(search2) && !"".equals(keyword)){
+	if("inst_nm".equals(search2)){
+		sql.append("AND A.REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_NM LIKE '%'||?||'%' GROUP BY REQ_NO)	");
+		setList.add(keyword);
+	}else if("req_mng_nm".equals(search2)){
+		sql.append("AND A.REQ_MNG_NM LIKE '%'||?||'%'						");
+		setList.add(keyword);
 	}
-}else{
-	if(!"".equals(keyword)){
-	sql.append("		AND INST_NAME = '").append(keyword).append("'	");
-	paging.setParams("keyword", keyword);
-	}
+paging.setParams("search2", search2);
+paging.setParams("keyword", keyword);
+}
+
+setObj = new Object[setList.size()];
+for(int i=0; i<setList.size(); i++){
+	setObj[i] = setList.get(i);
 }
 
 totalCount = jdbcTemplate.queryForObject(
 		sql.toString(),
-		Integer.class
+		Integer.class,
+		setObj
 	);
 
 paging.setPageNo(Integer.parseInt(pageNo));
 paging.setTotalCount(totalCount);
 
 sql = new StringBuffer();
-sql.append("SELECT * FROM(												");
-sql.append("	SELECT ROWNUM AS RNUM, A.* FROM (						");
-sql.append("		SELECT			 									");
-sql.append("			INST_NO,			 							");
-sql.append("			INST_CAT,			 							");
-sql.append("			INST_CAT_NM,			 						");
-sql.append("			INST_NAME,			 							");
-sql.append("			CURR_CNT,			 							");
-sql.append("			MAX_CNT,			 							");
-sql.append("			INST_SIZE,			 							");
-sql.append("			INST_MODEL,			 							");
-sql.append("			INST_PIC,			 							");
-sql.append("			INST_LCA,			 							");
-sql.append("			REG_ID,			 								");
-sql.append("			REG_IP,			 								");
-sql.append("			REG_DATE,			 							");
-sql.append("			MOD_DATE,			 							");
-sql.append("			SHOW_FLAG,			 							");
-sql.append("			DEL_FLAG			 							");
-sql.append("		FROM ART_INST_MNG		 							");
-sql.append("		WHERE DEL_FLAG = 'N'		 						");
-if(!"".equals(search1)){
-sql.append("		AND INST_CAT_NM = '").append(search1).append("'		");
-paging.setParams("search1", search1);
-	if(!"".equals(keyword)){
-	sql.append("		AND INST_NAME = '").append(keyword).append("'	");
-	paging.setParams("keyword", keyword);
-	}
-}else{
-	if(!"".equals(keyword)){
-	sql.append("		AND INST_NAME = '").append(keyword).append("'	");
-	paging.setParams("keyword", keyword);
-	}
+sql.append("SELECT * FROM(													");
+sql.append("	SELECT ROWNUM AS RNUM, A.* FROM (							");
+sql.append("		SELECT			 										");
+sql.append("			A.REQ_NO,				 							");
+sql.append("			A.REQ_ID,				 							");
+sql.append("			A.REQ_GROUP,				 						");
+sql.append("			A.REQ_MNG_NM,				 						");
+sql.append("			A.REQ_MNG_TEL,				 						");
+sql.append("			A.REQ_INST_CNT,				 						");
+sql.append("			A.REQ_MEMO,				 							");
+sql.append("			A.REG_IP,				 							");
+sql.append("			A.REG_DATE,				 							");
+sql.append("			A.SHOW_FLAG,				 						");
+sql.append("			CASE				 								");
+sql.append("				WHEN A.APPLY_FLAG = 'N'	THEN '승인대기'			");
+sql.append("				WHEN A.APPLY_FLAG = 'Y'	THEN '승인완료'			");
+sql.append("				WHEN A.APPLY_FLAG = 'A'	THEN '관리자 취소'			");
+sql.append("				WHEN A.APPLY_FLAG = 'C'	THEN '취소'				");
+sql.append("			END APPLY_FLAG,										");
+sql.append("			A.APPLY_DATE,										");
+sql.append("			(SELECT INST_CAT FROM ART_INST_REQ_CNT WHERE REQ_NO 	= A.REQ_NO AND ROWNUM = 1) INST_CAT,			");
+sql.append("			(SELECT INST_CAT_NM FROM ART_INST_REQ_CNT WHERE REQ_NO 	= A.REQ_NO AND ROWNUM = 1) INST_CAT_NM,			");
+sql.append("			(SELECT INST_NO FROM ART_INST_REQ_CNT WHERE REQ_NO 		= A.REQ_NO AND ROWNUM = 1) INST_NO,				");
+/* sql.append("			(SELECT INST_NM FROM ART_INST_REQ_CNT WHERE REQ_NO 		= A.REQ_NO AND ROWNUM = 1) 	INST_NM,			"); */
+sql.append("			(SELECT																									");
+sql.append("					SUBSTR(																							");
+sql.append("							XMLAGG(																					");
+sql.append("									XMLELEMENT(COL ,', ', INST_NM) ORDER BY INST_NM).EXTRACT('//text()'				");
+sql.append("							).GETSTRINGVAL()																		");
+sql.append("					, 2) INST_NM																					");
+sql.append("			FROM ART_INST_REQ_CNT																					");
+sql.append("			WHERE REQ_NO = A.REQ_NO																					");
+sql.append("			GROUP BY REQ_NO) INST_NM,																				");
+sql.append("			(SELECT NVL(SUM(INST_REQ_CNT),0) FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO) 	INST_REQ_CNT		");
+sql.append("		FROM ART_INST_REQ A										");
+sql.append("		WHERE A.SHOW_FLAG = 'Y'		 							");
+if(!cm.isMenuCmsManager(sm)){
+sql.append("AND A.REQ_ID = ?												");
 }
-sql.append("		ORDER BY INST_NO DESC		 						");
+if(!"".equals(search1)){
+	sql.append("AND A.APPLY_FLAG = ?										");
+	paging.setParams("search1", search1);
+}
+if(!"".equals(search2) && !"".equals(keyword)){
+	if("inst_nm".equals(search2)){
+		sql.append("AND A.REQ_NO = (SELECT REQ_NO FROM ART_INST_REQ_CNT WHERE REQ_NO = A.REQ_NO AND INST_NM LIKE '%'||?||'%' GROUP BY REQ_NO)	");
+	}else if("req_mng_nm".equals(search2)){
+		sql.append("AND A.REQ_MNG_NM LIKE '%'||?||'%'						");
+	}
+paging.setParams("search2", search2);
+paging.setParams("keyword", keyword);
+}
+sql.append("ORDER BY A.REQ_NO DESC			 								");
 sql.append("	) A WHERE ROWNUM <= ").append(paging.getEndRowNo()).append(" \n");
-sql.append(") WHERE RNUM >= ").append(paging.getStartRowNo()).append(" \n");
+sql.append(") WHERE RNUM > ").append(paging.getStartRowNo()).append(" \n	");
 
 list = jdbcTemplate.query(
-			sql.toString(), 
-			new InsVOMapper()
-		);
-
-sql = new StringBuffer();
-sql.append("SELECT *								");
-sql.append("FROM ART_PRO_CODE						");
-sql.append("WHERE CODE_NAME = 'ART_INST_MNG' 		");
-sql.append("ORDER BY ORDER1, ARTCODE_NO	 			");
-list2 = jdbcTemplate.query(
-			sql.toString(), 
-			new InsVOMapper2()
+			sql.toString(),
+			new InsVOMapper(),
+			setObj
 		);
 
 num = paging.getRowNo();
 %>
 <script>
+function newWin(url, title, w, h){
+	var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+    var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+    var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+    var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+    var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+    var top = ((height / 2) - (h / 2)) + dualScreenTop;
+    var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+
+}
+
 function searchSubmit(){
 	$("#searchForm").attr("action", "").submit();
 }
 
-function newWin(url, title, w, h){
-	var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
-    var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
- 
-    var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-    var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
- 
-    var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-    var top = ((height / 2) - (h / 2)) + dualScreenTop;
-    var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
- 
-}
-
-function getPopup(type){
-	var addr;
-	if(type == "artcode"){
-		addr = "/program/art/admin/programCodePopup.jsp?type=inst";
-	}else if( type == "insert"){
-		addr = "/program/art/insAdmin/instInsertPopup.jsp";
-	}
-	newWin(addr, 'PRINTVIEW', '1000', '740');
-	//window.open(addr,"PRINTVIEW","width=1000px,height=740px, status=yes, scrollbars=yes, resizable=yes");
-}
-
-function updateSubmit(inst_no){
-	var addr = "/program/art/insAdmin/instInsertPopup.jsp?mode=update&inst_no="+inst_no;
-	newWin(addr, 'PRINTVIEW', '1000', '740');
-	//window.open(addr,"PRINTVIEW","width=1000px,height=740px, status=yes, scrollbars=yes, resizable=yes");
-}
-
-function deleteSubmit(inst_no){
-	if(confirm("프로그램을 삭제하시겠습니까?")){
-		location.href="/program/art/insAdmin/instInsertAction.jsp?mode=delete&inst_no="+inst_no;
-	}else{
-		return false;
-	}
+function insert(){
+	location.href="/index.gne?menuCd=DOM_000002001003003001";		
+	//location.href="/index.gne?menuCd=DOM_000000126003003001";		//테스트서버
 }
 
 </script>
-<section class="board">
-	<div class="search" style="text-align: left;">
+<section class="board music_rentList">
+	<div class="search fsize_90">
 		<form id="searchForm" method="get">
 			<fieldset>
-			<input type="hidden" id="menuCd" name="menuCd" value="<%=menuCd%>">
-				<label for="search1">분류</label> 
-				<select id="search1" name="search1">
-					<option value="">분류</option>
-					<%
-					for(InsVO ob : list2){						
-					%>	
-						<option value="<%=ob.code_val1%>" <%if(ob.code_val1.equals(search1)){%> selected="selected" <%}%> ><%=ob.code_val1 %></option>
-					<%
-					}
-					%>
-				</select>
-				<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
-				<button onclick="searchSubmit();">검색하기</button>
+				<input type="hidden" id="menuCd" name="menuCd" value="<%=menuCd%>">
+				<span class="sel1">
+					<label for="search1">상태</label>
+					<select id="search1" name="search1">
+						<option value="">선택</option>
+						<option value="N" <%if("N".equals(search1)){%> selected="selected" <%}%>>승인대기</option>
+						<option value="Y" <%if("Y".equals(search1)){%> selected="selected" <%}%>>승인완료</option>
+						<option value="A" <%if("A".equals(search1)){%> selected="selected" <%}%>>관리자 취소</option>
+						<option value="C" <%if("C".equals(search1)){%> selected="selected" <%}%>>취소</option>
+					</select>
+				</span>
+				<span class="sel2">
+					<label for="search2">검색분류</label>
+					<select id="search2" name="search2">
+						<option value="">선택</option>
+						<option value="inst_nm" <%if("inst_nm".equals(search2)){%> selected="selected" <%}%>>악기명</option>
+						<option value="req_mng_nm" <%if("req_mng_nm".equals(search2)){%> selected="selected" <%}%>>신청자명</option>
+					</select>
+				</span>
+				<span class="srch-box">
+					<label for="keyword">검색어</label>
+					<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
+					<button onclick="searchSubmit();">검색</button>
+				</span>
 			</fieldset>
 		</form>
 	</div>
-	<div class="search">
-		<button onclick="getPopup('artcode');">분류관리</button>
-		<button onclick="getPopup('insert');">악기추가</button>
-	</div>
-	<p>
+	<p class="fsize_90">
 		<strong>총 <span><%=totalCount%></span> 건
 		</strong> [ Page <%=pageNo %>/<%=paging.getFinalPageNo() %>]
 	</p>
-	<table class="tb_board">
-		<caption>악기 관리 테이블</caption>
+	<table class="tb_board thgrey nohover">
+		<caption>악기 대여신청 테이블</caption>
 		<colgroup>
-			<col style="width: 5%"/>
-			<col style="width: 15%"/>
-			<col style="width: 35%"/>
-			<col style="width: 10%"/>
-			<col style="width: 10%"/>
-			<col style="width: 10%"/>
-			<col style="width: 15%"/>
+			<col style="width:8%" />
+			<col style="width:15%" />
+			<col style="width:18%" />
+			<col />
+			<col style="width:15%" />
+			<col style="width:12%" />
 		</colgroup>
 		<thead>
 			<tr>
 				<th scope="col">순서</th>
-				<th scope="col">분류</th>
-				<th scope="col">악기명</th>
-				<th scope="col">대여 수</th>
-				<th scope="col">총량</th>
-				<th scope="col">등록일</th>
-				<th scope="col" class="rfc_bbs_list_last">수정/삭제</th>
+				<th scope="col">신청일</th>
+				<th scope="col">신청자명</th>
+				<th scope="col">신청악기명</th>
+				<th scope="col">상태<br class="dis_mo" />처리일</th>
+				<th scope="col">상태</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -277,30 +264,32 @@ function deleteSubmit(inst_no){
 			for(InsVO ob : list){ %>
 			<tr>
 				<td><%=num--%></td>
-				<td><%=ob.inst_cat_nm%></td>
-				<td><%=ob.inst_name %></td>
-				<td><%=ob.curr_cnt %></td>
-				<td><%=ob.max_cnt %></td>
-				<td><%=ob.reg_date %></td>
+				<td><span class="date"><%=parseNull(ob.reg_date) %></span></td>
+				<td><%=parseNull(ob.req_mng_nm) %></td>
 				<td>
-					<%-- <button type="button" onclick="applySubmit('<%=ob.inst_no%>')">적용</button> --%>
-					<button type="button" onclick="updateSubmit('<%=ob.inst_no%>')">수정</button>
-					<button type="button" onclick="deleteSubmit('<%=ob.inst_no%>')">삭제</button>
+					<%-- <a href="/index.gne?menuCd=DOM_000000126003003002&req_no=<%=ob.req_no%>"><strong class="blue"><%=parseNull(ob.inst_nm) %></strong></a> --%>
+					<a href="/index.gne?menuCd=DOM_000002001003003002&req_no=<%=ob.req_no%>"><strong class="blue"><%=parseNull(ob.inst_nm) %></strong></a>
 				</td>
+				<td><span class="date"><%=parseNull(ob.apply_date) %></span></td>
+				<td><span class="state"><%=parseNull(ob.apply_flag) %></span></td>
 			</tr>
 			<%
 			}
 			}else{
 			%>
 			<tr>
-				<td colspan="7">등록된 게시물이 없습니다.</td>
+				<td colspan="6">등록된 게시물이 없습니다.</td>
 			</tr>
 			<%
-			} 
+			}
 			%>
 		</tbody>
 	</table>
-	
+
+	<div class="btn_area mg_0 r">
+		<button onclick="insert();" class="btn medium edge darkMblue">대여하기</button>
+	</div>
+
 	<% if(paging.getTotalCount() > 0) { %>
 	<div class="pageing">
 		<%=paging.getHtml("2") %>

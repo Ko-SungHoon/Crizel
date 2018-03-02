@@ -25,21 +25,8 @@ function girlsDownload(url, name, name2){
 	if(name ==  ""){
 		name = name2;
 	}
-	$.ajax({
-		type : "POST",
-		url : "/girlsDownload.do",
-		contentType : "application/x-www-form-urlencoded; charset=utf-8",
-		data : {
-			url : url,
-			name : name
-		},
-		success : function(data) {
-			alert("다운로드 완료");
-		},
-		error:function(request,status,error){
-			alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-		}
-	});
+	location.href="/girlsDownload.do?url="+url+"&name="+encodeURIComponent(name);
+	
 }
 </script>
 </head>

@@ -1,5 +1,15 @@
 package girls;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -41,7 +51,7 @@ public class GirlsController {
 			@RequestParam(value="url", required=false) String url,
 			@RequestParam(value="name", required=false) String name,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
-		service.girlsDownload(url, name);
+		service.girlsDownload(url, name, response);
 	}
 	
 	@RequestMapping("girlsInsertPage.do")

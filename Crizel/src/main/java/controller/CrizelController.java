@@ -25,7 +25,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.xml.sax.SAXException;
 
+import com.mysql.jdbc.Util;
+
 import util.DirectoryView;
+import util.Music;
 import util.Saramin;
 import vo.CrizelVo;
 
@@ -275,6 +278,18 @@ public class CrizelController {
 		
 		response.setContentType("application/x-json; charset=UTF-8");
 		response.getWriter().print(arr);
+		
+	}
+	
+	@RequestMapping("music.do")
+	public ModelAndView music(
+			@RequestParam(value="url", required=false, defaultValue="http://hikarinoakariost.info/") String url,
+			HttpServletResponse response) throws Exception {
+		ModelAndView mav = new ModelAndView();
+		Music music = new Music();
+		mav.addObject("music", music.music(url));
+		mav.setViewName("music");
+		return mav;
 		
 	}
 	
