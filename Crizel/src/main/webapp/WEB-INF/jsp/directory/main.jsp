@@ -59,8 +59,9 @@ function viewPage(path, name, type){
 					
 					<c:set var="ext" value="${fn:split(ob, '.')}" />
 					
-					<c:if test="${ext[fn:length(ext)-1] eq 'avi'
+					<c:if test="${ext[fn:length(ext)-1] eq 'ogg'
 						or ext[fn:length(ext)-1] eq 'mp4'
+						or ext[fn:length(ext)-1] eq 'webm'
 					}">	
 					<li>
 						<img src="/img/video.png" style="width:35px; vertical-align: middle"

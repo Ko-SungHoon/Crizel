@@ -21,6 +21,8 @@
 	<c:if test="${type eq 'video'}">
 		<video class="videoView" controls>
 		  <source src="/videoView.do?fileValue=${fileValue}&type=video" type="video/mp4">
+		  <source src="/videoView.do?fileValue=${fileValue}&type=video" type="video/ogg">
+		  <source src="/videoView.do?fileValue=${fileValue}&type=video" type="video/webm">
 		  <source src="/videoView.do?fileValue=${fileValue}&type=video" type="video/avi">
 		</video>
 	</c:if>

@@ -12,6 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 
 public class VideoView {
 	public void VideoViewStream(String fileValue, HttpServletRequest request, HttpServletResponse response) {
+		String split = (fileValue.split("/")[fileValue.split("/").length-1]);
+		String ext = split.split("\\.")[split.split("\\.").length-1];
+		
 		File file = new File(fileValue);
 		InputStream is = null;
 		OutputStream os = null;
@@ -46,7 +49,7 @@ public class VideoView {
 			response.reset();
 			
 			response.setStatus(isPart ? 206 : 200);
-			response.setContentType("video/mp4");
+			response.setContentType("video/"+ext);
 			response.setHeader("Content-Type", "application/octet-stream");
 			response.setHeader("Content-Range", "bytes " + rangeStart + "-" + rangeEnd + "/" + movieSize);
 			response.setHeader("Accept-Ranges", "bytes");
@@ -74,7 +77,7 @@ public class VideoView {
 			randomFile.close();
 			
 		} catch (Exception e) {
-			e.toString();
+			System.out.println(e.toString());
 		}
 		
 	}
