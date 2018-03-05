@@ -16,6 +16,16 @@
 	<context:component-scan base-package="wiki" />
 	<context:component-scan base-package="nyaa" />
 	<!-- <context:component-scan base-package="com.ksis.validate" /> -->
+	
+	<!-- <bean id="egov.propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:/WEB-INF/config.properties</value>
+                <value>file:/WEB-INF/config.properties</value>
+                <value>/WEB-INF/config.properties</value>
+            </list>
+        </property>
+    </bean> -->
 
 	<!-- viewResolver -->
 	<bean id="viewResolver"

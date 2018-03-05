@@ -30,6 +30,7 @@ import com.mysql.jdbc.Util;
 import util.DirectoryView;
 import util.Music;
 import util.Saramin;
+import util.VideoView;
 import vo.CrizelVo;
 
 @Controller
@@ -291,6 +292,24 @@ public class CrizelController {
 		mav.setViewName("music");
 		return mav;
 		
+	}
+	
+	@RequestMapping("videoViewPage")
+	public ModelAndView videoViewPage(
+			@RequestParam(value="fileValue", required=false)String fileValue,
+			HttpServletRequest request,HttpServletResponse response){
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("fileValue", fileValue);
+		mav.setViewName("directory/view");
+		return mav;
+	}
+	
+	@RequestMapping("videoView")
+	public void videoView(
+			@RequestParam(value="fileValue", required=false)String fileValue,
+			HttpServletRequest request,HttpServletResponse response){
+		VideoView vv = new VideoView();
+		vv.VideoViewStream(fileValue, request, response);
 	}
 	
 	public String parseNull(String value){

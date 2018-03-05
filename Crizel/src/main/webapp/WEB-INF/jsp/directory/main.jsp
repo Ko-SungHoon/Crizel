@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/functions" prefix="fn"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -10,11 +11,14 @@
 </title>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <style type="text/css">
-
 </style>
 <script>
 function fileDown(directory, filename){
 	location.href="/download.do?directory="+encodeURIComponent(directory)+"&filename="+encodeURIComponent(filename)+"&check=content";
+}
+function viewVideoPage(path, name){
+	var fileValue =  encodeURIComponent(path + "/" + name);
+	location.href="/videoViewPage.do?fileValue=" + fileValue;
 }
 </script>
 </head>
@@ -45,7 +49,17 @@ function fileDown(directory, filename){
 		<c:forEach items="${directory.file}" var="ob">
 		<tr>
 			<td>
-				<a href="javascript:fileDown('${path}','${ob}')">${ob}</a>
+				<ul>
+					<li><a href="javascript:fileDown('${path}','${ob}')">${ob}</a></li>
+					<c:set var="ext" value="${fn:split(ob, '.')}" />
+					<c:if test="${ext[fn:length(ext)-1] eq 'avi'
+						or ext[fn:length(ext)-1] eq 'mp4'
+					}">	
+					<li>
+						<a href="javascript:viewVideoPage('${path}','${ob}')">영상보기</a>
+					</li>
+					</c:if>
+				</ul>
 			</td>
 		</tr>
 		</c:forEach>

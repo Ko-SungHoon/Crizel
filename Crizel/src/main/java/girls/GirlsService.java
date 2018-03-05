@@ -80,7 +80,7 @@ public class GirlsService {
 		String split = (urlStr.split("/")[urlStr.split("/").length-1]);
 		String ext = split.split("\\.")[split.split("\\.").length-1];
 		
-		response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(name, "UTF-8") + "." + ext);
+		response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(name, "UTF-8").replace("+", "%20") + "." + ext);
 		response.setHeader("Content-Type", "application/octet-stream");
 		response.setHeader("Content-Transfer-Encoding", "binary;");
 		response.setHeader("Pragma", "no-cache;");

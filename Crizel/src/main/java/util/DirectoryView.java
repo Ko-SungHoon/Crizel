@@ -30,14 +30,6 @@ public class DirectoryView {
 			}
 		}
 		
-		for(Map<String,Object> ob : directoryList){
-			System.out.println("폴더명 : " + ob.get("name").toString() + " 경로 : " + ob.get("path").toString());
-		}
-		
-		for(String ob : fileList){
-			System.out.println("파일 : " + ob);
-		}
-		
 		map = new HashMap<String,Object>();
 		map.put("folder", directoryList);
 		map.put("file", fileList);
