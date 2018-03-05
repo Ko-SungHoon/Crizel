@@ -7,7 +7,7 @@
 <html>
 <head>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
-<title>VIDEO
+<title>VIEW
 </title>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <style type="text/css">
@@ -18,11 +18,16 @@
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
-	<video class="videoView" controls>
-	  <source src="/videoView.do?fileValue=${fileValue}" type="video/mp4">
-	  <source src="/videoView.do?fileValue=${fileValue}" type="video/avi">
-	  Your browser does not support HTML5 video.
-	</video>
+	<c:if test="${type eq 'video'}">
+		<video class="videoView" controls>
+		  <source src="/videoView.do?fileValue=${fileValue}&type=video" type="video/mp4">
+		  <source src="/videoView.do?fileValue=${fileValue}&type=video" type="video/avi">
+		</video>
+	</c:if>
+	<c:if test="${type eq 'image'}">
+		<img src="/videoView.do?fileValue=${fileValue}&type=image" style="width: 70%; margin: auto; display: block;">
+	</c:if>
+	
 </div>
 </body>
 </html>

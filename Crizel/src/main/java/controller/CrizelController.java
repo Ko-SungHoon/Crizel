@@ -28,6 +28,7 @@ import org.xml.sax.SAXException;
 import com.mysql.jdbc.Util;
 
 import util.DirectoryView;
+import util.ImageView;
 import util.Music;
 import util.Saramin;
 import util.VideoView;
@@ -254,7 +255,6 @@ public class CrizelController {
 	public ModelAndView nico(@RequestParam(value="path", required=false, defaultValue="d:/") String path){
 		ModelAndView mav = new ModelAndView();	
 		DirectoryView directory = new DirectoryView();
-		
 		mav.addObject("directory", directory.directory(path));
 		mav.addObject("path", path);
 		mav.setViewName("/directory/main");
@@ -297,9 +297,11 @@ public class CrizelController {
 	@RequestMapping("videoViewPage")
 	public ModelAndView videoViewPage(
 			@RequestParam(value="fileValue", required=false)String fileValue,
-			HttpServletRequest request,HttpServletResponse response){
+			@RequestParam(value="type", required=false)String type,
+			HttpServletRequest request,HttpServletResponse response) throws Exception{
 		ModelAndView mav = new ModelAndView();
-		mav.addObject("fileValue", fileValue);
+		mav.addObject("fileValue", URLEncoder.encode(fileValue, "UTF-8"));
+		mav.addObject("type", type);
 		mav.setViewName("directory/view");
 		return mav;
 	}
@@ -307,9 +309,15 @@ public class CrizelController {
 	@RequestMapping("videoView")
 	public void videoView(
 			@RequestParam(value="fileValue", required=false)String fileValue,
+			@RequestParam(value="type", required=false)String type,
 			HttpServletRequest request,HttpServletResponse response){
-		VideoView vv = new VideoView();
-		vv.VideoViewStream(fileValue, request, response);
+		if("video".equals(type)){
+			VideoView vv = new VideoView();
+			vv.VideoViewStream(fileValue, request, response);
+		}else{
+			ImageView iv = new ImageView();
+			iv.ImageStream(fileValue, request, response);
+		}
 	}
 	
 	public String parseNull(String value){

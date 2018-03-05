@@ -13,12 +13,15 @@
 <style type="text/css">
 </style>
 <script>
+function changeDirectory(path){
+	location.href="/directory.do?path="+encodeURIComponent(path);
+}
 function fileDown(directory, filename){
 	location.href="/download.do?directory="+encodeURIComponent(directory)+"&filename="+encodeURIComponent(filename)+"&check=content";
 }
-function viewVideoPage(path, name){
+function viewPage(path, name, type){
 	var fileValue =  encodeURIComponent(path + "/" + name);
-	location.href="/videoViewPage.do?fileValue=" + fileValue;
+	location.href="/videoViewPage.do?fileValue=" + fileValue + "&type=" + type;
 }
 </script>
 </head>
@@ -34,7 +37,7 @@ function viewVideoPage(path, name){
 		<c:forEach items="${directory.folder}" var="ob">
 		<tr>
 			<td>
-				<a href="/directory.do?path=${ob.path}">${ob.name}</a>
+				<a href="javascript:changeDirectory('${ob.path}')">${ob.name}</a>
 			</td>
 		</tr>
 		</c:forEach>
@@ -50,15 +53,34 @@ function viewVideoPage(path, name){
 		<tr>
 			<td>
 				<ul>
-					<li><a href="javascript:fileDown('${path}','${ob}')">${ob}</a></li>
+					<li>
+						<a href="javascript:fileDown('${path}','${ob}')">${ob}</a>
+					</li>
+					
 					<c:set var="ext" value="${fn:split(ob, '.')}" />
+					
 					<c:if test="${ext[fn:length(ext)-1] eq 'avi'
 						or ext[fn:length(ext)-1] eq 'mp4'
 					}">	
 					<li>
-						<a href="javascript:viewVideoPage('${path}','${ob}')">영상보기</a>
+						<img src="/img/video.png" style="width:35px; vertical-align: middle"
+						onclick="viewPage('${path}','${ob}', 'video')">
 					</li>
 					</c:if>
+					
+					<c:if test="${ext[fn:length(ext)-1] eq 'jpg'
+						or ext[fn:length(ext)-1] eq 'JPG'
+						or ext[fn:length(ext)-1] eq 'png'
+						or ext[fn:length(ext)-1] eq 'jpeg'
+						or ext[fn:length(ext)-1] eq 'bmp'
+						or ext[fn:length(ext)-1] eq 'gif'
+					}">
+					<li>
+						<img src="/img/img.jpg" style="width:35px; vertical-align: middle"
+						onclick="javascript:viewPage('${path}','${ob}', 'image')">
+					</li>
+					</c:if>
+					
 				</ul>
 			</td>
 		</tr>

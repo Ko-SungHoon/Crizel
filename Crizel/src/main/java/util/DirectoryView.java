@@ -19,14 +19,16 @@ public class DirectoryView {
 		List<String> fileList	  	= new ArrayList<String>();
 		Map<String,Object> directoryMap = null;
 		
-		for(File ob : file.listFiles()){
-			if(ob.isDirectory()){
-				directoryMap = new HashMap<String,Object>();
-				directoryMap.put("name", ob.getName());
-				directoryMap.put("path", ob.getPath().replace("\\", "/"));
-				directoryList.add(directoryMap);
-			}else{
-				fileList.add(ob.getName());
+		if(file.listFiles() != null){
+			for(File ob : file.listFiles()){
+				if(ob.isDirectory()){
+					directoryMap = new HashMap<String,Object>();
+					directoryMap.put("name", ob.getName());
+					directoryMap.put("path", ob.getPath().replace("\\", "/"));
+					directoryList.add(directoryMap);
+				}else{
+					fileList.add(ob.getName());
+				}
 			}
 		}
 		

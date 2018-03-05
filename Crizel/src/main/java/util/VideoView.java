@@ -74,7 +74,7 @@ public class VideoView {
 			randomFile.close();
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.toString();
 		}
 		
 	}
