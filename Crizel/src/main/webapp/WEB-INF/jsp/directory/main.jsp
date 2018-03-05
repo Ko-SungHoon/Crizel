@@ -69,13 +69,13 @@ function viewPage(path, name, type){
 					</li>
 					</c:if>
 					
-					<c:if test="${ext[fn:length(ext)-1] eq 'jpg'
-						or ext[fn:length(ext)-1] eq 'JPG'
-						or ext[fn:length(ext)-1] eq 'png'
-						or ext[fn:length(ext)-1] eq 'jpeg'
-						or ext[fn:length(ext)-1] eq 'bmp'
-						or ext[fn:length(ext)-1] eq 'gif'
-					}">
+					<c:if test="${
+									ext[fn:length(ext)-1] eq 'jpg'	or ext[fn:length(ext)-1] eq 'JPG'
+								or 	ext[fn:length(ext)-1] eq 'png' 	or ext[fn:length(ext)-1] eq 'PNG'
+								or 	ext[fn:length(ext)-1] eq 'jpeg' or ext[fn:length(ext)-1] eq 'JPEG'
+								or 	ext[fn:length(ext)-1] eq 'bmp'	or ext[fn:length(ext)-1] eq 'BMP'
+								or 	ext[fn:length(ext)-1] eq 'gif'	or ext[fn:length(ext)-1] eq 'GIF'
+								}">
 					<li>
 						<img src="/img/img.jpg" style="width:35px; vertical-align: middle"
 						onclick="javascript:viewPage('${path}','${ob}', 'image')">
