@@ -1,391 +1,564 @@
-<%
-/**
-*   PURPOSE :   악기 대여신청 - 상세
-*   CREATE  :   20180207_wed    Ko
-*   MODIFY  :   20180222 LJH 마크업, css클래스 수정
-**/
-%>
-<%@ include file="/program/class/UtilClass.jsp"%>
-<%@ include file="/program/class/PagingClass.jsp"%>
-<%@page import="org.springframework.jdbc.core.*"%>
+<%@ include file="/program/class/UtilClass.jsp" %>
+<%@ include file="/program/class/PagingClass.jsp" %>
+<%@ page import="java.text.ParseException"%>
+<%@ page import="java.text.SimpleDateFormat"%>
+<%@ page import="java.text.DateFormat"%>
+<%@ page import="java.util.Date"%>
 <%!
-private class InsVO{
-	public int req_no;
-	public String req_id;
-	public String req_group;
-	public String req_mng_nm;
-	public String req_mng_tel;
-	public String req_mng_mail;
-	public int req_inst_cnt;
-	public String req_memo;
-	public String reg_ip;
-	public String reg_date;
-	public String show_flag;
-	public String apply_flag;
-	public String apply_date;
-
-	public String inst_cat;
-	public String inst_cat_nm;
-	public int inst_no;
-	public String inst_nm;
-	public int inst_req_cnt;
-
-	public String inst_name;
-	public String inst_memo;
-	public int curr_cnt;
-	public int max_cnt;
-	public String inst_size;
-	public String inst_model;
-	public String inst_pic;
-	public String inst_lca;
-	public String reg_id;
-	public String mod_date;
-	public String del_flag;
-
-	public int artcode_no;
-	public String code_tbl;
-	public String code_col;
-	public String code_name;
-	public String code_val1;
-	public String code_val2;
-	public String code_val3;
-	public int order1;
-	public int order2;
-	public int order3;
-}
-
-private class InsVOMapper implements RowMapper<InsVO> {
-    public InsVO mapRow(ResultSet rs, int rowNum) throws SQLException {
-    	InsVO vo = new InsVO();
-    	vo.req_no			= rs.getInt("REQ_NO");
-    	vo.req_id			= rs.getString("REQ_ID");
-    	vo.req_group		= rs.getString("REQ_GROUP");
-    	vo.req_mng_nm		= rs.getString("REQ_MNG_NM");
-    	vo.req_mng_tel		= rs.getString("REQ_MNG_TEL");
-    	vo.req_mng_mail		= rs.getString("REQ_MNG_MAIL");
-    	vo.req_inst_cnt		= rs.getInt("REQ_INST_CNT");
-    	vo.req_memo			= rs.getString("REQ_MEMO");
-    	vo.reg_ip			= rs.getString("REG_IP");
-    	vo.reg_date			= rs.getString("REG_DATE");
-    	vo.show_flag		= rs.getString("SHOW_FLAG");
-    	vo.apply_flag		= rs.getString("APPLY_FLAG");
-    	vo.apply_date		= rs.getString("APPLY_DATE");
-
-        return vo;
+public String getDateDay(String date, String dateType) throws Exception {
+    String day = "" ;
+    SimpleDateFormat dateFormat = new SimpleDateFormat(dateType) ;
+    Date nDate = dateFormat.parse(date) ;
+    Calendar cal = Calendar.getInstance() ;
+    cal.setTime(nDate);
+    int dayNum = cal.get(Calendar.DAY_OF_WEEK) ;
+    switch(dayNum){
+        case 1: day = "일"; break ;
+        case 2: day = "평일"; break ;
+        case 3: day = "평일"; break ;
+        case 4: day = "평일"; break ;
+        case 5: day = "평일"; break ;
+        case 6: day = "평일"; break ;
+        case 7: day = "토"; break ;
     }
-}
-
-private class InsVOMapper2 implements RowMapper<InsVO> {
-    public InsVO mapRow(ResultSet rs, int rowNum) throws SQLException {
-    	InsVO vo = new InsVO();
-        vo.artcode_no		= rs.getInt("ARTCODE_NO");
-        vo.code_tbl 		= rs.getString("CODE_TBL");
-        vo.code_col			= rs.getString("CODE_COL");
-        vo.code_name 		= rs.getString("CODE_NAME");
-        vo.code_val1 		= rs.getString("CODE_VAL1");
-        vo.code_val2		= rs.getString("CODE_VAL2");
-        vo.code_val3		= rs.getString("CODE_VAL3");
-        vo.order1 			= rs.getInt("ORDER1");
-        vo.order2 			= rs.getInt("ORDER2");
-        vo.order3 			= rs.getInt("ORDER3");
-        return vo;
-    }
-}
-
-private class InsVOMapper3 implements RowMapper<InsVO> {
-    public InsVO mapRow(ResultSet rs, int rowNum) throws SQLException {
-    	InsVO vo = new InsVO();
-    	vo.inst_no			= rs.getInt("inst_no");
-    	vo.inst_name		= rs.getString("inst_name");
-        return vo;
-    }
-}
-
-private class InsVOMapper4 implements RowMapper<InsVO> {
-    public InsVO mapRow(ResultSet rs, int rowNum) throws SQLException {
-    	InsVO vo = new InsVO();
-    	vo.inst_no			= rs.getInt("INST_NO");
-    	vo.inst_cat_nm		= rs.getString("INST_CAT_NM");
-    	vo.inst_nm			= rs.getString("INST_NM");
-    	vo.inst_req_cnt		= rs.getInt("INST_REQ_CNT");
-    	vo.req_inst_cnt		= rs.getInt("REQ_INST_CNT");
-    	vo.max_cnt			= rs.getInt("MAX_CNT");
-    	vo.curr_cnt			= rs.getInt("CURR_CNT");
-
-        return vo;
-    }
+    return day ;
 }
 %>
-
 <%
-StringBuffer sql		= null;
-List<InsVO> list 		= null;
-List<InsVO> list2 		= null;
-List<InsVO> list3 		= null;
-InsVO vo			 	= new InsVO();
-String search1		= parseNull(request.getParameter("search1"));		//승인상태
-String search2		= parseNull(request.getParameter("search2"));		//악기명,신청자명
-String keyword		= parseNull(request.getParameter("keyword"));
-String getId 		= sm.getId();
-String mode 		= parseNull(request.getParameter("mode"), "clientInsert");
-String req_no 		= parseNull(request.getParameter("req_no"));
+//String schoolInfoPage = "DOM_000001201007003000";			//학교정보
+String schoolInfoPage = "DOM_000000106007003000";			//테스트서버
 
-try{
-	if(!"".equals(req_no)){
-		sql = new StringBuffer();
-		sql.append("SELECT															");
-		sql.append("	A.REQ_NO,													");
-		sql.append("	A.REQ_ID,													");
-		sql.append("	A.REQ_GROUP,												");
-		sql.append("	A.REQ_MNG_NM,												");
-		sql.append("	A.REQ_MNG_TEL,												");
-		sql.append("	A.REQ_MNG_MAIL,												");
-		sql.append("	A.REQ_INST_CNT,												");
-		sql.append("	A.REQ_MEMO,													");
-		sql.append("	A.REG_IP,													");
-		sql.append("	A.REG_DATE,													");
-		sql.append("	A.SHOW_FLAG,												");
-		sql.append("	A.APPLY_FLAG,												");
-		sql.append("	A.APPLY_DATE												");
-		sql.append("FROM ART_INST_REQ A 											");
-		sql.append("WHERE A.REQ_NO = ?												");
-		vo = jdbcTemplate.queryForObject(
-					sql.toString(),
-					new InsVOMapper(),
-					new Object[]{req_no}
-				);
+//String writePage = "DOM_000001201007001002";				//시설등록
+String writePage = "DOM_000000106007001003";				//테스트서버
+
+//String longWritePage = "DOM_000001201007005001";			//장기예약 등록
+String longWritePage = "DOM_000000106007005001";			//테스트서버
+
+//String infoPage = "DOM_000001201003001001";				//시설예약 - 선택
+String infoPage = "DOM_000000106003001001";					//테스트서버
+
+//String roomInfoPage = "DOM_000001201007001003";			//시설상세보기
+String roomInfoPage = "DOM_000000106007001005";				//테스트서버
 
 
-		sql = new StringBuffer();
-		sql.append("SELECT B.INST_NO, B.INST_CAT_NM, B.INST_NM, A.REQ_INST_CNT, B.INST_REQ_CNT, C.MAX_CNT, C.CURR_CNT	");
-		sql.append("FROM ART_INST_REQ A LEFT JOIN ART_INST_REQ_CNT B 													");
-		sql.append("ON A.REQ_NO = B.REQ_NO 																				");
-		sql.append("LEFT JOIN ART_INST_MNG C 																			");
-		sql.append("ON B.INST_NO = C.INST_NO 																			");
-		sql.append("WHERE A.REQ_NO = ? 																					");
-		list3 = jdbcTemplate.query(
-					sql.toString(),
-					new Object[]{req_no},
-					new InsVOMapper4()
-				);
+
+Calendar cal = Calendar.getInstance();
+
+String nowYear = "";
+String nowMonth = "";
+String nowDay = "";
+String date2 = "";
+
+nowYear = Integer.toString(cal.get(Calendar.YEAR));
+if(cal.get(Calendar.MONTH)+1 < 10){
+	nowMonth = "0" + Integer.toString(cal.get(Calendar.MONTH)+1);
+}else{
+	nowMonth = Integer.toString(cal.get(Calendar.MONTH)+1);
+}
+if(cal.get(Calendar.DATE) < 10){
+	nowDay = "0" + Integer.toString(cal.get(Calendar.DATE));
+}else{
+	nowDay = Integer.toString(cal.get(Calendar.DATE));
+}
+
+date2 = nowYear + "-" + nowMonth + "-" + nowDay;
+
+Connection conn = null;
+PreparedStatement pstmt = null;
+ResultSet rs = null;
+StringBuffer sql = null;
+List<Map<String, Object>> dataList = null;
+List<Map<String, Object>> useAbleList = null;
+List<Map<String, Object>> useAbleListBan = null;
+
+String pageNo = parseNull(request.getParameter("pageNo"), "1");
+int totalCount = 0;
+Paging paging = new Paging();
+
+
+String school_id = parseNull(request.getParameter("school_id"));
+String room_id = "";
+String reserve_type = "";
+String reserve_type2 = "";
+String reserve_number = "";
+String reserve_area = "";
+String reserve_max = "";
+String reserve_date = "";
+String reserve_etc = "";
+String reserve_notice = "";
+String save_img = "";
+String real_img = "";
+String directory = "";
+String reserve_use = "";
+String reserve_start = "";
+String reserve_end = "";
+String time1_1 = "";
+String time1_2 = "";
+String time1_3 = "";
+String time1_4 = "";
+String time2_1 = "";
+String time2_2 = "";
+String time2_3 = "";
+String time2_4 = "";
+String time3_1 = "";
+String time3_2 = "";
+String time3_3 = "";
+String time3_4 = "";
+String all_open = "";
+
+boolean id_check = false;
+String charge_id = parseNull(request.getParameter("charge_id"));
+if(!"".equals(sm.getId())){
+	charge_id = sm.getId();
+}
+
+if("gne_ksis00".equals(charge_id)){
+	//charge_id = "m_17191";
+}
+
+boolean sc_approval_check = false;
+boolean all_time_check = false;
+
+int key = 0;
+
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+
+	//로그인 한 아이디의 학교 번호 찾기
+	key = 0;
+	sql = new StringBuffer();
+	sql.append("SELECT * FROM RESERVE_SCHOOL WHERE CHARGE_ID = ? AND SCHOOL_APPROVAL = 'Y' ");
+	pstmt = conn.prepareStatement(sql.toString());
+	pstmt.setString(++key, charge_id);
+	rs = pstmt.executeQuery();
+	if(rs.next()){
+		school_id = rs.getString("SCHOOL_ID");
+		id_check = true;
 	}
+	
+	
+	
+	//학교정보 등록은 했지만 아직 승인나지 않았을 경우를 찾는다
+	key = 0;
+	sql = new StringBuffer();
+	sql.append("SELECT * FROM RESERVE_SCHOOL WHERE CHARGE_ID = ? AND SCHOOL_APPROVAL != 'Y' ");
+	pstmt = conn.prepareStatement(sql.toString());
+	pstmt.setString(++key, charge_id);
+	rs = pstmt.executeQuery();
+	if(rs.next()){
+		sc_approval_check = true;
+	}
+	
+	
+
 
 	sql = new StringBuffer();
-	sql.append("SELECT *								");
-	sql.append("FROM ART_PRO_CODE						");
-	sql.append("WHERE CODE_NAME = 'ART_INST_MNG' 		");
-	sql.append("ORDER BY ORDER1, ARTCODE_NO	 			");
-	list = jdbcTemplate.query(
-				sql.toString(),
-				new InsVOMapper2()
-			);
-
-	if(!"".equals(req_no)){
-		sql = new StringBuffer();
-		sql.append("SELECT *													");
-		sql.append("FROM ART_INST_MNG											");
-		sql.append("WHERE INST_NO IN (SELECT INST_NO							");
-		sql.append("				 FROM ART_INST_REQ_CNT 						");
-		sql.append("				 WHERE REQ_NO = ? GROUP BY INST_NO)			");
-		sql.append("ORDER BY INST_NAME				");
-		list2 = jdbcTemplate.query(
-					sql.toString(),
-					new InsVOMapper3(),
-					new Object[]{req_no}
-				);
+	sql.append("SELECT COUNT(*) AS CNT FROM RESERVE_ROOM WHERE SCHOOL_ID = ? ");
+	pstmt = conn.prepareStatement(sql.toString());
+	pstmt.setString(1, school_id);
+	rs = pstmt.executeQuery();
+	if(rs.next()){
+		totalCount = rs.getInt("CNT");
 	}
-}catch(Exception e){
-	out.println(e.toString());
-}
+	
+	
 
+
+	sql = new StringBuffer();
+	sql.append("SELECT SCHOOL_ID, ROOM_ID, RESERVE_TYPE, RESERVE_TYPE2, RESERVE_AREA, RESERVE_NUMBER, RESERVE_MAX, RESERVE_ETC, RESERVE_NOTICE, SAVE_IMG, DIRECTORY, 	 ");
+	sql.append("	(SELECT RESERVE_TYPE FROM RESERVE_DATE WHERE RESERVE_TYPE = 'A' AND ROOM_ID = RR.ROOM_ID GROUP BY RESERVE_TYPE) ALL_OPEN ");
+	sql.append("FROM RESERVE_ROOM RR WHERE SCHOOL_ID = ? ORDER BY ROOM_ID DESC		 ");
+	pstmt = conn.prepareStatement(sql.toString());
+	pstmt.setString(1, school_id);
+	rs = pstmt.executeQuery();
+	dataList = getResultMapRows(rs);
+	
+	//paging.setParams("search1", search1);
+	//paging.setPageNo(Integer.parseInt(pageNo));
+	//paging.setTotalCount(totalCount);
+	//paging.setPageSize(10);
+	//paging.setPageBlock(10);
+
+} catch (Exception e) {
+	%>
+	<%=e.toString() %>
+	<%
+/*
+	e.printStackTrace();
+	sqlMapClient.endTransaction();
+	alertBack(out, "처리중 오류가 발생하였습니다."); */
+} finally {
+	if (rs != null) try { rs.close(); } catch (SQLException se) {}
+	if (pstmt != null) try { pstmt.close(); } catch (SQLException se) {}
+	if (conn != null) try { conn.close(); } catch (SQLException se) {}
+	sqlMapClient.endTransaction();
+}
+if(id_check){
 %>
 <script>
-	function updateSubmit() {
-		location.href = "/index.gne?menuCd=DOM_000002001003003001&mode=update&req_no=<%=req_no%>";	// 악기대여 신청 목록
-		//location.href = "/index.gne?menuCd=DOM_000000126003003001&mode=update&req_no=<%=req_no%>";	// 악기대여 신청 목록_테스트서버
+function selDel(){
+	if(confirm("모든 데이터(통계 포함)가 삭제됩니다. \n삭제하시겠습니까?")){
+		$("#postForm").attr("action", "/program/school_reserve/roomDel.jsp");
+		$("#postForm").submit();
+	}else{
+		return false;
 	}
+}
 
-	function cancelSubmit() {
-		if(confirm("신청을 취소하시겠습니까?")){
-			$("#mode").val("apply");
-			$("#apply_flag").val("C");
-			$("#postForm").attr("action", "/program/art/insAdmin/instMngAction.jsp").submit();
-		}else{
-			return false;
-		}
-	}
+function roomReg(){
+	$("#postForm").attr("action", "/index.gne?menuCd=<%=writePage%>").submit();
+}
 
-	function listSubmit() {
-		location.href = "/index.gne?menuCd=DOM_000002001003003000";	// 악기대여 신청 목록
-		//location.href = "/index.gne?menuCd=DOM_000002001003003000";	// 악기대여 신청 목록_테스트서버
-	}
-
-	function applySubmit(req_no, apply_flag, inst_no){
-		var msg;
-
-		if(apply_flag == "N"){
-			msg = "악기대여 신청을 승인하시겠습니까?";
-			apply_flag = "Y";
-		}else if(apply_flag == "Y"){
-			msg = "악기대여 신청을 취소하시겠습니까?";
-			apply_flag = "A";
-		}
-
-		if(confirm(msg)){
-			location.href="/program/art/insAdmin/instMngAction.jsp?mode=apply&req_no="+req_no+"&apply_flag="+apply_flag+"&inst_no="+inst_no+"&pageType=client";
-		}else{
-			return false;
-		}
-	}
+function roomEdit(room_id){
+	$("#command").val("update");
+	$("#room_id").val(room_id);
+	$("#postForm").attr("action", "/index.gne?menuCd=<%=writePage%>").submit();
+}
 </script>
-<section class="music_rentDetail">
-	<form id="postForm" method="post">
-		<input type="hidden" id="mode" name="mode" value="<%=mode%>">
-		<input type="hidden" id="reg_id" name="reg_id" value="<%=sm.getId()%>">
-		<input type="hidden" id="req_id" name="req_id" value="<%=sm.getId()%>">
-		<input type="hidden" id="reg_ip" name="reg_ip" value="<%=request.getRemoteAddr()%>">
-		<input type="hidden" id="req_no" name="req_no" value="<%=vo.req_no%>">
-		<table class="table_skin01 td-l fsize_90">
-			<caption>악기대여신청 상세보기 테이블</caption>
-			<colgroup>
-			<col style="width:0%;">
-			<col />
-			</colgroup>
-			<tbody>
-				<tr>
-					<th scope="row">대여악기명</th>
-					<td>
-						<label for="inst_cat_nm" class="blind">대여악기명</label>
-					<%
-					for(int i=0; i<list3.size(); i++){
-							InsVO vo2 = list3.get(i);
-					%>
-						<table class="bbs_list2 mag0 td-c"><!-- 악기 추가 테이블 -->
-							<caption>신청한 악기종류와 대여량 </caption>
-							<colgroup>
-								<col />
-								<col style="width:25%">
-								<col style="width:25%">
-							</colgroup>
-								<thead>
-									<tr>
-										<th scope="col">분류/악기명</th>
-										<th scope="col">남은량/총량</th>
-										<th scope="col">대여량</th>
-									</tr>
-								</thead>
-								<tbody>
-									<tr>
-										<td>
-											<%=vo2.inst_cat_nm%> 	<input type="hidden" id="inst_cat_nm" name="inst_cat_nm" value="<%=vo2.inst_cat_nm %>"> /
-											<%=vo2.inst_nm%>		<input type="hidden" id="inst_no" name="inst_no" value="<%=vo2.inst_no %>">
-										</td>
-										<td>
-											<%=vo2.max_cnt - vo2.curr_cnt%> / <%=vo2.max_cnt %>	<input type="hidden" id="max_cnt" name="max_cnt" value="<%=vo2.max_cnt %>">
-										</td>
-										<td>
-											<%if(vo2.req_inst_cnt > 0){%>
-											<%=parseNull(Integer.toString(vo2.inst_req_cnt))%>
-											<%}else{ %>
-												0
-											<%} %>
-											<input type="hidden" id="req_inst_cnt" name="req_inst_cnt" value="0">
-										</td>
-									</tr>
-								</tbody>
-							</table>
-						<%}%>
-					</td>
-				</tr>
-				<tr>
-					<th scope="row">신청자명</th>
-					<td>
-						<label for="req_mng_nm" class="blind">신청자명</label>
-						<%=parseNull(vo.req_mng_nm) %>
-						<input type="hidden" id="req_mng_nm" name="req_mng_nm" value="<%=parseNull(vo.req_mng_nm) %>">
-					</td>
-				</tr>
-				<tr>
-					<th scope="row">단체명/대리인</th>
-					<td>
-						<label for="req_group" class="blind">단체명/대리인</label>
-						<%=parseNull(vo.req_group) %>
-						<input type="hidden" id="req_group" name="req_group" value="<%=parseNull(vo.req_group) %>">
-					</td>
-				</tr>
-				<tr>
-					<th scope="row">연락처</th>
-					<td>
-						<label for="req_mng_tel" class="blind">연락처</label>
-						<%=telSet(parseNull(vo.req_mng_tel)) %>
-						<input type="hidden" id="req_mng_tel" name="req_mng_tel" value="<%=parseNull(vo.req_mng_tel) %>">
-					</td>
-				</tr>
-				<tr>
-					<th scope="row">이메일</th>
-					<td>
-						<label for="req_mng_mail" class="blind">이메일</label>
-						<%=parseNull(vo.req_mng_mail) %>
-						<input type="hidden" id="req_mng_mail" class="wps_80" name="req_mng_mail" value="<%=parseNull(vo.req_mng_mail) %>">
-					</td>
-				</tr>
-				<tr>
-					<th scope="row">내용</th>
-					<td>
-						<label for="req_memo" class="blind">내용</label>
-						<%=parseNull(vo.req_memo).replace("\n", "<br>")%>
-						<input type="hidden" id="req_memo" name="req_memo" value="<%=parseNull(vo.req_memo) %>">
-					</td>
-				</tr>
-				<%if("N".equals(vo.apply_flag) || "Y".equals(vo.apply_flag)){ %>
-				<tr>
-					<th scope="row">신청취소</th>
-					<td>
-						<label for="req_memo" class="blind">신청취소</label>
-						<button type="button" class="btn small edge red" onclick="cancelSubmit()">신청취소</button></td>
-				</tr>
-				<%} %>
-				<%if(cm.isMenuCmsManager(sm)){ %>
-				<tr>
-					<th scope="row">상태</th>
-					<td>
-						<label for="apply_flag" class="blind">상태</label>
-						<select id="apply_flag" name="apply_flag">
-							<option value="N" <%if("N".equals(vo.apply_flag)){%> selected <%}%>>승인대기</option>
-							<option value="Y" <%if("Y".equals(vo.apply_flag)){%> selected <%}%>>승인완료</option>
-							<option value="A" <%if("A".equals(vo.apply_flag)){%> selected <%}%>>관리자취소</option>
-							<option value="C" <%if("C".equals(vo.apply_flag)){%> selected <%}%>>취소</option>
-						</select>
+<form action="" method="post" id="postForm">
+<input type="hidden" name="pageNo" value="<%=pageNo%>">
+<input type="hidden" name="school_id" value="<%=school_id%>">
+<input type="hidden" name="command" id="command" value="insert">
+<input type="hidden" name="room_id" id="room_id">
 
-						<%
-						if("N".equals(vo.apply_flag)){
-						%>
-							<button type="button" class="btn small edge mako" onclick="applySubmit('<%=vo.req_no%>', '<%=vo.apply_flag%>', '<%=vo.inst_no%>')">승인</button>
-						<%
-						}else if("Y".equals(vo.apply_flag)){
-						%>
-							<button type="button" class="btn small edge white" onclick="applySubmit('<%=vo.req_no%>', '<%=vo.apply_flag%>', '')">취소</button>
-						<%
-						}else if("A".equals(vo.apply_flag)){		//관리자 취소
-						%>
-							관리자 취소
-						<%
-						}else if("C".equals(vo.apply_flag)){		//사용자 취소
-						%>
-							사용자 취소
-						<%
-						}
-						%>
-					</td>
-				</tr>
+<section class="sch_faciList">
+	<h3>학교시설물 목록</h3>
+	<ul class="list">
+	<%
+	if(dataList.size()>0){
+	for(int i=0; i<dataList.size(); i++){
+		time1_1 = "";
+		time1_2 = "";
+		time1_3 = "";
+		time1_4 = "";
+		time2_1 = "";
+		time2_2 = "";
+		time2_3 = "";
+		time2_4 = "";
+		time3_1 = "";
+		time3_2 = "";
+		time3_3 = "";
+		time3_4 = "";
+		Map<String, Object> map = dataList.get(i);
+		school_id = parseNull(map.get("SCHOOL_ID").toString());
+		room_id = parseNull(map.get("ROOM_ID").toString());
+		reserve_type = parseNull(map.get("RESERVE_TYPE").toString());
+		reserve_type2 = parseNull(map.get("RESERVE_TYPE2").toString());
+		reserve_area = parseNull(map.get("RESERVE_AREA").toString());
+		reserve_number = parseNull(map.get("RESERVE_NUMBER").toString());
+		reserve_max = parseNull(map.get("RESERVE_MAX").toString());
+		reserve_etc = parseNull(map.get("RESERVE_ETC").toString());
+		reserve_notice = parseNull(map.get("RESERVE_NOTICE").toString());
+		save_img = parseNull(map.get("SAVE_IMG").toString());
+		directory = parseNull(map.get("DIRECTORY").toString());
+		all_open = parseNull(map.get("ALL_OPEN").toString());
+
+		try {
+			sqlMapClient.startTransaction();
+			conn = sqlMapClient.getCurrentConnection();
+			
+			//개방일 및 개방시간
+			sql = new StringBuffer();
+			sql.append("SELECT * 	 ");
+			sql.append("FROM RESERVE_DATE	 ");
+			sql.append("WHERE SCHOOL_ID = ? AND ROOM_ID = ? AND RESERVE_GROUP = 0 AND ((DATE_END >= ? AND RESERVE_TYPE = 'B') OR RESERVE_TYPE = 'A') 	");
+			sql.append("ORDER BY RESERVE_TYPE, DATE_START	 ");
+			pstmt = conn.prepareStatement(sql.toString());
+			pstmt.setString(1, school_id);
+			pstmt.setString(2, room_id);
+			pstmt.setString(3, date2);
+			rs = pstmt.executeQuery();
+			useAbleList = getResultMapRows(rs);
+			
+			//개방불가일 및 개방불가시간
+			sql = new StringBuffer();
+			sql.append("SELECT * 	 ");
+			sql.append("FROM RESERVE_BAN	 ");
+			sql.append("WHERE SCHOOL_ID = ? AND ROOM_ID = ? AND DATE_END >= ? 	");
+			sql.append("ORDER BY DATE_START	 ");
+			pstmt = conn.prepareStatement(sql.toString());
+			pstmt.setString(1, school_id);
+			pstmt.setString(2, room_id);
+			pstmt.setString(3, date2);
+			rs = pstmt.executeQuery();
+			useAbleListBan = getResultMapRows(rs);
+
+		} catch (Exception e) {
+			%>
+			<%=e.toString() %>
+			<%
+			e.printStackTrace();
+			sqlMapClient.endTransaction();
+			/*
+			alertBack(out, "처리중 오류가 발생하였습니다."); */
+		} finally {
+			if (rs != null) try { rs.close(); } catch (SQLException se) {}
+			if (pstmt != null) try { pstmt.close(); } catch (SQLException se) {}
+			if (conn != null) try { conn.close(); } catch (SQLException se) {}
+			sqlMapClient.endTransaction();
+		}
+
+	%>
+	 <li>
+		 <dl>
+			 <dt><span title="<%if(!"기타시설".equals(reserve_type)){%><%=reserve_type %><%}else{ %><%=reserve_type2 %><%} %>"><img src="<%=directory%><%=save_img%>" alt="<%if(!"기타시설".equals(reserve_type)){%><%=reserve_type %><%}else{ %><%=reserve_type2 %><%} %>" onError="this.onerror=null; this.src='/img/school/noimg.png'"></span>
+<!-- 등록된 이미지 없을 때 이미지 노출 경로 
+		<span title="등록된 사진이 없습니다."><img src="/img/school/noimg.png" alt="등록된 사진이 없습니다." /></span>
+-->
+</dt>
+			 <dd>
+				<%if(!"기타시설".equals(reserve_type)){%>
+					<h4><%=reserve_type %></h4>
+				<%}else{ %>
+					<h4><%=reserve_type2 %></h4>
 				<%} %>
-			</tbody>
-		</table>
-	</form>
-	<div class="btn_area c">
-		<input type="button" class="btn medium edge white" onclick="listSubmit()" value="목록" title="목록">
-		<%if("".equals(parseNull(vo.apply_flag)) || "N".equals(parseNull(vo.apply_flag))){%>
-		<input type="submit" class="btn medium edge darkMblue w_100" onclick="updateSubmit()" value="수정" title="수정">
-		<%} %>
-	</div>
-</section>
+
+					<table class="tbl_gray magT10">
+						<caption> 해당학교의 시설물 상세 내용입니다. </caption>
+						<colgroup>
+							<col class="">
+							<col class="wps_20">
+							<col class="wps_20">
+							<col class="wps_20">
+							<col class="wps_20">
+							<col class="wps_20">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th scope="row">면적</th>
+								<td><%=reserve_area %> m&sup2;</td>
+								<th scope="row">대여시설 수</th>
+								<td><%=reserve_number %> 개</td>
+								<th scope="row">최대수용인원</th>
+								<td><%=reserve_max%> 명</td>
+							</tr>
+							<tr>
+									<th scope="row">개방일 및 개방시간</th>
+									<td colspan="5">
+								<%
+								if(useAbleList!=null && useAbleList.size()>0){	
+									boolean dayCheck1 = false;		//시작날짜와 종료날짜 사이에 평일이 있는지 확인하는 변수
+									boolean dayCheck2 = false;		//시작날짜와 종료날짜 사이에 토요일이 있는지 확인하는 변수
+									boolean dayCheck3 = false;		//시작날짜와 종료날짜 사이에 일요일이 있는지 확인하는 변수
+								%>
+										<ul>
+										<%
+										for(int k=0; k<useAbleList.size(); k++){
+											Map<String,Object> map2 = useAbleList.get(k);
+											
+											dayCheck1 = false;
+											dayCheck2 = false;
+											dayCheck3 = false;
+											
+											String s1=map2.get("DATE_START").toString();
+											String s2=map2.get("DATE_END").toString();
+											DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+											SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+											try{
+												Date d1 = df.parse( s1 );
+												Date d2 = df.parse( s2 );
+												Calendar c1 = Calendar.getInstance();
+												Calendar c2 = Calendar.getInstance();
+												//Calendar 타입으로 변경 add()메소드로 1일씩 추가해 주기위해 변경
+												c1.setTime( d1 );
+												c2.setTime( d2 );
+												while( c1.compareTo( c2 ) !=1 ){
+													if("평일".equals(getDateDay(sdf.format(c1.getTime()), "yyyy-MM-dd"))){
+														dayCheck1 = true;
+													}else if("토".equals(getDateDay(sdf.format(c1.getTime()), "yyyy-MM-dd"))){
+														dayCheck2 = true;
+													}else if("일".equals(getDateDay(sdf.format(c1.getTime()), "yyyy-MM-dd"))){
+														dayCheck3 = true;
+													}
+													
+													//시작날짜 + 1 일
+													c1.add(Calendar.DATE, 1);
+												}
+											}catch(ParseException e){
+												e.printStackTrace();
+											}
+										%>
+											<li>
+												<%if("".equals( parseNull(map2.get("DATE_START").toString()))){%>
+													<%
+													if(!"".equals( parseNull(map2.get("TIME_START_A").toString())) ||
+														!"".equals( parseNull(map2.get("TIME_START_B").toString()))||
+														!"".equals( parseNull(map2.get("TIME_START_C").toString()))){%>
+														<strong>항시개방</strong>												
+													<%
+														if(!"".equals( parseNull(map2.get("TIME_START_A").toString()))){
+															dayCheck1 = true;
+														}
+														if(!"".equals( parseNull(map2.get("TIME_START_B").toString()))){
+															dayCheck2 = true;
+														}
+														if(!"".equals( parseNull(map2.get("TIME_START_C").toString()))){
+															dayCheck3 = true;
+														}
+													} %>
+													
+												<%}else{%>
+													<strong><%=map2.get("DATE_START").toString()%> ~ <%=map2.get("DATE_END").toString() %></strong>
+												<%}%>
+												
+												<%if(!"".equals( parseNull(map2.get("TIME_START_A").toString())) && dayCheck1){%>
+													<span>평일 : <%=timeSet(map2.get("TIME_START_A").toString())%> ~ <%=timeSet(map2.get("TIME_END_A").toString()) %>
+													<%if(!"".equals( parseNull(map2.get("TIME_START_A2").toString()))){%>
+													, <%=timeSet(map2.get("TIME_START_A2").toString())%> ~ <%=timeSet(map2.get("TIME_END_A2").toString()) %>
+													<%} %>
+													</span>
+												<%}%>
+												
+												<%if(!"".equals( parseNull(map2.get("TIME_START_B").toString())) && dayCheck2){%>
+													<span>토요일 : <%=timeSet(map2.get("TIME_START_B").toString())%> ~ <%=timeSet(map2.get("TIME_END_B").toString()) %>
+													<%if(!"".equals( parseNull(map2.get("TIME_START_B2").toString()))){%>
+													, <%=timeSet(map2.get("TIME_START_B2").toString())%> ~ <%=timeSet(map2.get("TIME_END_B2").toString()) %>
+													<%} %>
+													</span>
+												<%}%>
+												
+												<%if(!"".equals( parseNull(map2.get("TIME_START_C").toString())) && dayCheck3){%>
+													<span>일요일 : <%=timeSet(map2.get("TIME_START_C").toString())%> ~ <%=timeSet(map2.get("TIME_END_C").toString()) %>
+													<%if(!"".equals( parseNull(map2.get("TIME_START_C2").toString()))){%>
+													, <%=timeSet(map2.get("TIME_START_C2").toString())%> ~ <%=timeSet(map2.get("TIME_END_C2").toString()) %>
+													<%} %>
+													</span>
+												<%}%>
+												
+											</li>
+											<%} %>
+										
+											<%
+											for(int k=0; k<useAbleListBan.size(); k++){
+												Map<String,Object> map2 = useAbleListBan.get(k);
+												
+												dayCheck1 = false;
+												dayCheck2 = false;
+												dayCheck3 = false;
+												
+												String s1=map2.get("DATE_START").toString();
+												String s2=map2.get("DATE_END").toString();
+												DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+												SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+												try{
+													Date d1 = df.parse( s1 );
+													Date d2 = df.parse( s2 );
+													Calendar c1 = Calendar.getInstance();
+													Calendar c2 = Calendar.getInstance();
+													//Calendar 타입으로 변경 add()메소드로 1일씩 추가해 주기위해 변경
+													c1.setTime( d1 );
+													c2.setTime( d2 );
+													while( c1.compareTo( c2 ) !=1 ){
+														if("평일".equals(getDateDay(sdf.format(c1.getTime()), "yyyy-MM-dd"))){
+															dayCheck1 = true;
+														}else if("토".equals(getDateDay(sdf.format(c1.getTime()), "yyyy-MM-dd"))){
+															dayCheck2 = true;
+														}else if("일".equals(getDateDay(sdf.format(c1.getTime()), "yyyy-MM-dd"))){
+															dayCheck3 = true;
+														}
+														//시작날짜 + 1 일
+														c1.add(Calendar.DATE, 1);
+													}
+												}catch(ParseException e){
+													e.printStackTrace();
+												}
+											%>
+												<li>
+													<%if("".equals( parseNull(map2.get("DATE_START").toString()))){%>
+														<%if(!"".equals( parseNull(map2.get("TIME_START_A").toString())) ||
+															!"".equals( parseNull(map2.get("TIME_START_B").toString()))||
+															!"".equals( parseNull(map2.get("TIME_START_C").toString()))){%>
+															<strong>항시개방</strong>												
+														<%} %>
+														
+													<%}else{%>
+														<strong><%=map2.get("DATE_START").toString()%> ~ <%=map2.get("DATE_END").toString() %> (개방불가)</strong>
+													<%}%>
+													
+													<%if(!"".equals( parseNull(map2.get("TIME_START_A").toString())) && dayCheck1){%>
+														<span>평일 : <%=timeSet(map2.get("TIME_START_A").toString())%> ~ <%=timeSet(map2.get("TIME_END_A").toString()) %>
+														<%if(!"".equals( parseNull(map2.get("TIME_START_A2").toString()))){%>
+														, <%=timeSet(map2.get("TIME_START_A2").toString())%> ~ <%=timeSet(map2.get("TIME_END_A2").toString()) %>
+														<%} %>
+														</span>
+													<%}%>
+													
+													<%if(!"".equals( parseNull(map2.get("TIME_START_B").toString())) && dayCheck2){%>
+														<span>토요일 : <%=timeSet(map2.get("TIME_START_B").toString())%> ~ <%=timeSet(map2.get("TIME_END_B").toString()) %>
+														<%if(!"".equals( parseNull(map2.get("TIME_START_B2").toString()))){%>
+														, <%=timeSet(map2.get("TIME_START_B2").toString())%> ~ <%=timeSet(map2.get("TIME_END_B2").toString()) %>
+														<%} %>
+														</span>
+													<%}%>
+													
+													<%if(!"".equals( parseNull(map2.get("TIME_START_C").toString())) && dayCheck3){%>
+														<span>일요일 : <%=timeSet(map2.get("TIME_START_C").toString())%> ~ <%=timeSet(map2.get("TIME_END_C").toString()) %>
+														<%if(!"".equals( parseNull(map2.get("TIME_START_C2").toString()))){%>
+														, <%=timeSet(map2.get("TIME_START_C2").toString())%> ~ <%=timeSet(map2.get("TIME_END_C2").toString()) %>
+														<%} %>
+														</span>
+													<%}%>
+													
+												</li>
+												<%} %>
+											
+										</ul>		
+								<%
+								}
+								%>
+									
+									</td>
+								</tr>
+							<tr>
+								<th scope="row">특이사항</th>
+								<td colspan="5"><%if("".equals(reserve_etc)){%>내용없음<%}else{%><%=reserve_etc.replace("\r\n", "<br>") %><%}%></td>
+							</tr>
+							<tr>
+								<th scope="row">주의사항</th>
+								<td colspan="5"><%if("".equals(reserve_notice)){%>내용없음<%}else{%><%=reserve_notice.replace("\r\n", "<br>") %><%}%></td>
+							</tr>
+						</tbody>
+					</table>
+
+				<div class="btn_area">
+					<button type="button" onclick="location.href='/index.gne?menuCd=<%=longWritePage%>&school_id=<%=school_id%>&room_id=<%=room_id%>'" class="btn edge small green">장기예약등록</button>
+					<button type="button"  onclick="location.href='/index.gne?menuCd=<%=infoPage %>&school_id=<%=school_id%>&room_id=<%=room_id%>'" class="btn edge small mako">단기예약등록</button>
+					<button type="button" onclick="location.href='/index.gne?menuCd=<%=roomInfoPage%>&school_id=<%=school_id%>&room_id=<%=room_id%>'" class="btn edge small darkMblue">설정변경</button>
+				</div>
+			 </dd>
+		 </dl>
+	 </li>
+	 <%}} %>
+</seciton>
+<div class="btn_area c">
+	<button type="button" onclick="roomReg()" class="btn edge medium darkMblue">등록하기</button>
+</div>
+
+<%}else{
+	
+	
+	if(sc_approval_check){		//학교 등록은 ？으나 아직 승인되지 않았을 때
+%>
+	<script>
+	$(function(){
+		alert("승인대기중입니다. 관리자 승인 완료 후 해당 메뉴를 이용하여 주시기 바랍니다. 문의전화 : 도교육청 재정과 268-1483");
+		location.href="/index.gne?menuCd=<%=schoolInfoPage%>";
+	});
+	</script>	
+<%		
+	}else{						//학교등록이 안되있을때
+%>
+	<script>
+	$(function(){
+		alert("학교정보가 등록되지 않았습니다. 등록한 후 승인이 되면 사용 가능합니다.");
+		location.href="/index.gne?menuCd=<%=schoolInfoPage%>";
+	});
+	</script>
+<%		
+	}
+%>
+
+<!-- <div class="topbox2 c">학교정보가 등록되지 않았거나 승인되지 않았습니다.</div> -->
+<%} %>
+</form>

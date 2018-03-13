@@ -1,5 +1,7 @@
 package controller;
 
+import girls.GirlsVO;
+
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
@@ -164,7 +166,7 @@ public class CrizelController {
 		}
 	}
 	
-	@RequestMapping("comic.do")
+	@RequestMapping("comic")
 	public ModelAndView comic(@RequestParam(value="type", required=false) String type,
 							@RequestParam(value="keyword", required=false) String keyword,
 							@RequestParam(value="list", required=false) String list,
@@ -174,18 +176,44 @@ public class CrizelController {
 			List<Map<String,Object>> comic = service.comic(type, keyword, list, img);
 			mav.addObject("comic", comic);
 		}
+		List<Object> comicList = service.comicList();
+		
+		mav.addObject("comicList", comicList);
 		mav.addObject("type", type);
 		mav.addObject("keyword", keyword);
-		mav.setViewName("/comic");
+		mav.setViewName("comic/main");
 		return mav;
 	}
 	
-	@RequestMapping("comicView.do")
+	@RequestMapping("comicInsertPage")
+	public ModelAndView comicInsertPage(HttpServletRequest request, HttpServletResponse response) {
+		ModelAndView mav = new ModelAndView();	
+		List<Object> comicList = service.comicList();
+		mav.addObject("comicList", comicList);
+		mav.setViewName("comic/comicInsertPage");
+		return mav;
+	}
+	
+	@RequestMapping("comicInsert")
+	public String comicInsert(@ModelAttribute CrizelVo vo) {
+		service.comicInsert(vo);
+		return "redirect:comicInsertPage.do";
+
+	}
+
+	@RequestMapping("comicDelete")
+	public String comicDelete(@ModelAttribute CrizelVo vo) {
+		service.comicDelete(vo);
+		return "redirect:comicInsertPage.do";
+
+	}
+	
+	@RequestMapping("comicView")
 	public void comicView(@RequestParam(value="addr", required=false) String addr) throws IOException {
 		service.comicView(addr);
 	}
 	
-	@RequestMapping("comicDown.do")
+	@RequestMapping("comicDown")
 	public void comicDown(@RequestParam(value="addr", required=false) String addr,
 						  @RequestParam(value="type", required=false) String type) throws IOException {
 		service.comicDown(addr, type);

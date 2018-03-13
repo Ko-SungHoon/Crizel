@@ -109,6 +109,18 @@ public class CrizelDao {
 		return factory.openSession().selectList("crizel.json", keyword);
 	}
 
+	public List<Object> comicList() {
+		return factory.openSession().selectList("crizel.comicList");
+	}
+
+	public void comicInsert(CrizelVo vo) {
+		factory.openSession().insert("crizel.comicInsert", vo);
+	}
+
+	public void comicDelete(CrizelVo vo) {
+		factory.openSession().delete("crizel.comicDelete", vo);
+	}
+
 	
 
 }

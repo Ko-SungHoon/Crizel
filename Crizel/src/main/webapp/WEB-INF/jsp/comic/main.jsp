@@ -82,9 +82,8 @@ function comicDown(addr, type){
 				<li><a href="http://marumaru.in/b/manga/173116" target="_blank">나에게 천사가 내려왔다</a></li>
 				<li><a href="http://marumaru.in/b/manga/164536" target="_blank">우리 메이드가 너무 짜증나</a></li>
 				<li><a href="http://marumaru.in/b/manga/151772" target="_blank">우리 딸을 위해서라면 나는 어쩌면 마왕을 쓰러뜨릴 수 있을지 모른다</a></li>
-			</ul> -->
-			<table class="tbl_type01">
-				<tr>
+			</ul> 
+			<tr>
 					<td>
 						<a href="/comic.do?type=B&list=/b/manga/60371" >장난을 잘 치는 타카기양</a>
 					</td>
@@ -180,6 +179,19 @@ function comicDown(addr, type){
 						<a href="javascript:comicDown('/b/manga/260684', 'A');">[다운]</a>
 					</td>
 				</tr>
+			
+			-->
+			<table class="tbl_type01">
+			<c:forEach items="${comicList}" var="ob">
+				<tr>
+					<td>
+						<a href="/comic.do?type=B&list=${ob.addr}" >${ob.title}</a>
+					</td>
+					<td>
+						<a href="javascript:comicDown('${ob.addr}', 'A');">[다운]</a>
+					</td>
+				</tr>
+			</c:forEach>
 			</table>
 		</c:if>
 		<div class="search">
@@ -187,6 +199,7 @@ function comicDown(addr, type){
 				<input type="hidden" name="type" id="type" value="A">
 				<input type="text" name="keyword" id="keyword" value="${keyword}">
 				<span onclick="$('#postForm').submit();">검색</span>
+				<a href="comicInsertPage.do">추가/삭제</a>
 			</form>
 		</div>
 		

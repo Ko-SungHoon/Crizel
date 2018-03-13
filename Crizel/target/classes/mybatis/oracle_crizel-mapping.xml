@@ -195,4 +195,27 @@
 		
 		order by name
 	</select>
+	
+	<select id="comicList" resultType="vo.CrizelVo">
+		select * from comic order by title
+	</select>
+	
+	<insert id="comicInsert" parameterType="vo.CrizelVo">
+		INSERT INTO COMIC(
+			COMIC_ID,
+			TITLE,
+			ADDR,
+			ADDR2
+		)
+		VALUES(
+			(SELECT NVL(MAX(COMIC_ID)+1,1) FROM COMIC),
+			#{title},
+			#{addr},
+			#{addr2}
+		)
+	</insert>
+	
+	<delete id="comicDelete" parameterType="vo.CrizelVo">
+		DELETE FROM COMIC WHERE COMIC_ID = #{comic_id}
+	</delete>
 </mapper>

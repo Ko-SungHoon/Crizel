@@ -503,4 +503,16 @@ public class CrizelService {
 		Nico nico = new Nico();
 		return nico.data(keyword, type, url);
 	}
+
+	public List<Object> comicList() {
+		return dao.comicList();
+	}
+
+	public void comicInsert(CrizelVo vo) {
+		dao.comicInsert(vo);
+	}
+
+	public void comicDelete(CrizelVo vo) {
+		dao.comicDelete(vo);
+	}
 }

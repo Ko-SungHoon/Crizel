@@ -34,8 +34,25 @@ public class CrizelVo {
 	private String saveFile;
 	private int file_id;
 	
+	private int comic_id;
+	//private String addr;
+	private String addr2;
 	
 	
+	
+	
+	public int getComic_id() {
+		return comic_id;
+	}
+	public void setComic_id(int comic_id) {
+		this.comic_id = comic_id;
+	}
+	public String getAddr2() {
+		return addr2;
+	}
+	public void setAddr2(String addr2) {
+		this.addr2 = addr2;
+	}
 	public String getSite() {
 		return site;
 	}
