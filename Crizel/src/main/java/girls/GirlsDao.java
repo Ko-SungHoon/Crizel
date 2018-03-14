@@ -44,7 +44,24 @@ public class GirlsDao {
 	public List<Object> girlsImg(String name) {
 		List<Object> imgList = new ArrayList<Object>();
 		String line;
-		GirlsVO vo = factory.openSession().selectOne("girls.girlsImg", name);
+		GirlsVO vo = null; 
+		List<GirlsVO> list = null;
+		
+		int size = 0;
+		
+		if("all".equals(name)){
+			list = factory.openSession().selectList("girls.girlsImgList");
+			size = list.size();
+		}else{
+			size = 1;
+		}
+		
+		for(int i=0; i<size; i++){
+			if("all".equals(name)){
+				vo = list.get(i);
+			}else{
+				vo = factory.openSession().selectOne("girls.girlsImg", name);
+			}
 			
 			if("twitter".equals(vo.getType())){						//트위터
 				try {
@@ -79,53 +96,21 @@ public class GirlsDao {
 							JSONParser parser = new JSONParser();
 						    Object obj = parser.parse( line );
 						    JSONObject object = (JSONObject) obj;
-							JSONObject name1 = (JSONObject) object.get("entry_data");
-							JSONArray msg = (JSONArray) name1.get("ProfilePage");
-							JSONObject data = (JSONObject) msg.get(0);
-							JSONObject data2 = (JSONObject) data.get("user");
-							JSONObject data3 = (JSONObject) data2.get("media");
-							JSONArray msg2 = (JSONArray) data3.get("nodes");
-
-							for (int i1 = 0; i1 < msg2.size(); i1++) {
-								JSONObject data4 = (JSONObject) msg2.get(i1);
-								//System.out.println(data4.get("thumbnail_src").toString());
-								imgList.add(data4.get("thumbnail_src").toString());
+							JSONObject entry_data = (JSONObject) object.get("entry_data");
+							JSONArray ProfilePage = (JSONArray) entry_data.get("ProfilePage");
+							JSONObject ProfilePage_0 = (JSONObject) ProfilePage.get(0);
+							JSONObject graphql = (JSONObject) ProfilePage_0.get("graphql");
+							JSONObject user = (JSONObject) graphql.get("user");
+							JSONObject edge_owner_to_timeline_media = (JSONObject) user.get("edge_owner_to_timeline_media");
+							JSONArray edges = (JSONArray) edge_owner_to_timeline_media.get("edges");
+							
+							for(int i2=0; i2<edges.size(); i2++){
+								JSONObject node = (JSONObject)((JSONObject)edges.get(i2)).get("node");
+								//System.out.println(node.get("display_url").toString());
+								imgList.add(node.get("display_url").toString());
 							}
 						}
 					}
-					/*while ((line = rd.readLine()) != null) {
-						if (line.contains("sharedData")) {
-							line = line.replace("<script type=\"text/javascript\">window._sharedData = ","");
-							line = line.replace(";</script>", "");
-							try {
-								FileWriter fw = new FileWriter("Test.json"); // 절대주소 경로 가능
-								BufferedWriter bw = new BufferedWriter(fw);
-								String str = line;
-								bw.write(str);
-								bw.newLine(); // 줄바꿈
-								bw.close();
-							} catch (IOException e) {
-								System.err.println(e.toString()); // 에러가 있다면 메시지 출력
-								System.exit(1);
-							}
-							JSONParser parser = new JSONParser();
-							Object obj = parser.parse(new FileReader("Test.json"));
-
-							JSONObject object = (JSONObject) obj;
-							JSONObject name1 = (JSONObject) object.get("entry_data");
-							JSONArray msg = (JSONArray) name1.get("ProfilePage");
-							JSONObject data = (JSONObject) msg.get(0);
-							JSONObject data2 = (JSONObject) data.get("user");
-							JSONObject data3 = (JSONObject) data2.get("media");
-							JSONArray msg2 = (JSONArray) data3.get("nodes");
-
-							for (int i1 = 0; i1 < msg2.size(); i1++) {
-								JSONObject data4 = (JSONObject) msg2.get(i1);
-								//imgList.add(data4.get("thumbnail_src").toString());
-								imgList.add(data4.get("display_src").toString());
-							}
-						}
-					}*/
 				}catch(Exception e){
 					System.out.println(e.toString());
 				}
@@ -148,6 +133,7 @@ public class GirlsDao {
 					e.printStackTrace();
 				}
 			}
+		}
 		
 		return imgList;
 	}

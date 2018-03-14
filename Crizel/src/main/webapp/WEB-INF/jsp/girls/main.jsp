@@ -9,7 +9,7 @@
 <title>
 <c:choose>
 	<c:when test="${name eq ''}">
-		${nameList[0].name} 
+		사진
 	</c:when>
 	<c:otherwise>
 		${name}
@@ -26,27 +26,39 @@ function girlsDownload(url, name, name2){
 		name = name2;
 	}
 	location.href="/girlsDownload.do?url="+url+"&name="+encodeURIComponent(name);
-	
 }
 </script>
 </head>
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
-	<ul class="ul_type02">
+	<c:if test="${girlsList eq null}">
+		<table class="tbl_type01">
+			<tr>
+				<td>
+					<a href="/girls.do?name=all">전체</a>
+				</td>
+			</tr>
 		<c:forEach items="${nameList}" var="ob">
-			<li>
-				<a href="/girls.do?name=${ob.name}">${ob.name}</a>
-			</li>
+			<tr>
+				<td>
+					<a href="/girls.do?name=${ob.name}">${ob.name}</a>
+				</td>
+			</tr>
 		</c:forEach>
-	</ul>
-	<ul class="ul_type03">
-	<c:forEach items="${girlsList}" var="ob">
-		<li>
-			<img src="${ob}" onclick="girlsDownload('${ob}', '${name}', '${nameList[0].name}')">
-		<li>
-	</c:forEach>
-	</ul>
+		</table>
+	</c:if>
+	
+	<c:if test="${girlsList ne null}">
+		<ul class="ul_type03">
+		<c:forEach items="${girlsList}" var="ob">
+			<li>
+				<img src="${ob}" onclick="girlsDownload('${ob}', '${name}', '${nameList[0].name}')">
+			<li>
+		</c:forEach>
+		</ul>
+	</c:if>
+	
 </div>
 </body>
 </html>

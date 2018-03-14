@@ -33,14 +33,19 @@ public class GirlsController {
 	}
 
 	@RequestMapping("girls.do")
-	public ModelAndView girls(HttpServletRequest request, HttpServletResponse response) {
+	public ModelAndView girls(
+			@RequestParam(value="name", required=false, defaultValue="") String name,
+			HttpServletRequest request, HttpServletResponse response) {
 		ModelAndView mav = new ModelAndView();	
-		String name = parseNull(request.getParameter("name"));
 		List<Object> nameList = service.nameList();
-		List<Object> girlsList = service.girlsImg(name);
+		List<Object> girlsList = null;
+		
+		if(!"".equals(name)){
+			girlsList = service.girlsImg(name);
+			mav.addObject("girlsList", girlsList);
+		}
 		mav.addObject("name", name);
 		mav.addObject("nameList", nameList);
-		mav.addObject("girlsList", girlsList);
 		mav.setViewName("/girls/main");
 		return mav;
 

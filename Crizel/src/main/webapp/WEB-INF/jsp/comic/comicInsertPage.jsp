@@ -40,14 +40,23 @@ function formSubmit(){
 				</tr>
 			</table>
 			
-			<ul class="ul_type04">
+			<table class="tbl_type01">
+				<colgroup>
+					<col width="80%" />
+					<col width="20%" />
+				</colgroup>
 				<c:forEach items="${comicList}" var="ob">
-					<li> 
-						<a href="${ob.addr2}" target="blank" class="twitter_name">${ob.title}</a>
-						<a href="/comicDelete.do?comic_id=${ob.comic_id}" class="twitter_del">[삭제]</a>
-					</li>
+					<tr>
+						<td>
+							<a href="${ob.addr2}" target="blank" class="twitter_name">${ob.title}</a>
+						</td>
+						<td>
+							<a href="/comicDelete.do?comic_id=${ob.comic_id}" class="twitter_del">[삭제]</a>
+						</td>
+					</tr>
 				</c:forEach>
-			</ul>
+				
+			</table>
 		</form>
 	</div>
 

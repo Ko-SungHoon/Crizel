@@ -23,4 +23,8 @@
 	<select id="girlsImg" parameterType="String" resultType="girls.GirlsVO">
 		select * from girls where name = #{name}
 	</select>
+	
+	<select id="girlsImgList" resultType="girls.GirlsVO">
+		select * from girls order by name
+	</select>
 </mapper>
