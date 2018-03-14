@@ -121,6 +121,14 @@ public class CrizelDao {
 		factory.openSession().delete("crizel.comicDelete", vo);
 	}
 
+	public void comicViewCheck(Map<String, Object> map) {
+		factory.openSession().insert("crizel.comicViewCheck", map);
+	}
+
+	public List<Map<String, Object>> comicViewList(String addr) {
+		return factory.openSession().selectList("crizel.comicViewList", addr);
+	}
+
 	
 
 }

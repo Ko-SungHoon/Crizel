@@ -515,4 +515,12 @@ public class CrizelService {
 	public void comicDelete(CrizelVo vo) {
 		dao.comicDelete(vo);
 	}
+
+	public void comicViewCheck(Map<String, Object> map) {
+		dao.comicViewCheck(map);
+	}
+
+	public List<Map<String, Object>> comicViewList(String addr) {
+		return dao.comicViewList(addr);
+	}
 }

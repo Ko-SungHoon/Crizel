@@ -38,9 +38,24 @@ public class CrizelVo {
 	//private String addr;
 	private String addr2;
 	
+	private int check_id;
+	private String register_date;
 	
 	
 	
+	
+	public int getCheck_id() {
+		return check_id;
+	}
+	public void setCheck_id(int check_id) {
+		this.check_id = check_id;
+	}
+	public String getRegister_date() {
+		return register_date;
+	}
+	public void setRegister_date(String register_date) {
+		this.register_date = register_date;
+	}
 	public int getComic_id() {
 		return comic_id;
 	}

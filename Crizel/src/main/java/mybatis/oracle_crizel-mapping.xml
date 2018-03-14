@@ -218,4 +218,24 @@
 	<delete id="comicDelete" parameterType="vo.CrizelVo">
 		DELETE FROM COMIC WHERE COMIC_ID = #{comic_id}
 	</delete>
+	
+	<insert id="comicViewCheck" parameterType="HashMap">
+		MERGE INTO COMIC_CHECK
+		USING DUAL ON(TITLE = #{title})
+		WHEN MATCHED THEN
+		  UPDATE SET
+		    REGISTER_DATE  = SYSDATE
+		WHEN NOT MATCHED THEN
+		  INSERT (CHECK_ID, TITLE, ADDR, REGISTER_DATE)
+		  VALUES((SELECT NVL(MAX(CHECK_ID)+1,1) FROM COMIC_CHECK), #{title}, #{addr}, SYSDATE )
+	</insert>
+	
+	<select id="comicViewList" parameterType="String" resultType="vo.CrizelVo">
+		SELECT *
+		FROM COMIC_CHECK
+		WHERE ADDR = #{addr}
+		ORDER BY TITLE
+	</select>
+	
+	
 </mapper>

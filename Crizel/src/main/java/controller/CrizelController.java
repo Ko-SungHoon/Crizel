@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -170,17 +171,22 @@ public class CrizelController {
 	public ModelAndView comic(@RequestParam(value="type", required=false) String type,
 							@RequestParam(value="keyword", required=false) String keyword,
 							@RequestParam(value="list", required=false) String list,
-							@RequestParam(value="img", required=false) String img) throws IOException {
+							@RequestParam(value="img", required=false) String img,
+							@RequestParam(value="title", required=false) String title) throws IOException {
 		ModelAndView mav = new ModelAndView();
 		if(type != null){
 			List<Map<String,Object>> comic = service.comic(type, keyword, list, img);
 			mav.addObject("comic", comic);
+			
+			List<Map<String,Object>> comicViewList = service.comicViewList(list);
+			mav.addObject("comicViewList", comicViewList);
 		}
 		List<Object> comicList = service.comicList();
 		
 		mav.addObject("comicList", comicList);
 		mav.addObject("type", type);
 		mav.addObject("keyword", keyword);
+		mav.addObject("list", list);
 		mav.setViewName("comic/main");
 		return mav;
 	}
@@ -217,6 +223,19 @@ public class CrizelController {
 	public void comicDown(@RequestParam(value="addr", required=false) String addr,
 						  @RequestParam(value="type", required=false) String type) throws IOException {
 		service.comicDown(addr, type);
+	}
+	
+	@RequestMapping("comicViewCheck")
+	public void comicViewCheck(
+			@RequestParam(value="title", required=false) String title,
+			@RequestParam(value="addr", required=false) String addr,
+			HttpServletResponse response) throws IOException {
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("title", title);
+		map.put("addr", addr);
+		service.comicViewCheck(map);
+		response.setContentType("application/x-json; charset=UTF-8");
+		response.getWriter().print("1");
 	}
 	
 	
