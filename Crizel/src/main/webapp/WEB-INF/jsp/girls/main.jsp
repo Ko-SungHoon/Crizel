@@ -32,8 +32,20 @@ function girlsDownload(url, name, name2){
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
+<script>
+function allNewTap(){
+	<c:forEach items="${nameList}" var="ob">
+		window.open('/girls.do?name=${ob.name}', "_blank");
+	</c:forEach>
+}
+</script>
 	<c:if test="${girlsList eq null}">
 		<table class="tbl_type01">
+			<tr>
+				<td>
+					<a href="javascript:allNewTap()">모두 새 탭</a>
+				</td>
+			</tr>
 			<tr>
 				<td>
 					<a href="/girls.do?name=all">전체</a>
