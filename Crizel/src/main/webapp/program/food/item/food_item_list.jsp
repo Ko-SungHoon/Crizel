@@ -1,0 +1,360 @@
+<%
+/**
+*   PURPOSE :   품목관리
+*   CREATE  :   20180322_thur    Ko
+*   MODIFY  :   ...
+**/
+%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="egovframework.rfc3.user.web.SessionManager" %>
+<%@ include file="/program/class/UtilClass.jsp"%>
+<%@ include file="/program/class/PagingClass.jsp"%>
+<%@ page import="org.springframework.jdbc.core.*" %>
+<%@ include file="/program/food/food_util.jsp" %>
+<%@ include file="/program/food/foodVO.jsp" %>
+
+<%
+response.setCharacterEncoding("UTF-8");
+request.setCharacterEncoding("UTF-8");
+
+SessionManager sessionManager = new SessionManager(request);
+String pageTitle = "품목관리";
+%>
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<title>RFC관리자 > <%=pageTitle %></title>
+		<script type='text/javascript' src='/js/egovframework/rfc3/iam/common.js'></script>
+		<script type='text/javascript' src='/js/jquery.js'></script>
+		<link href="/css/egovframework/rfc3/iam/admin_common.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="/program/excel/common/js/jquery.min.js"></script>
+        <script type="text/javascript" src="/program/excel/common/js/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script>
+</script>
+</head>
+<body>
+<%
+String keyword  =   parseNull(request.getParameter("keyword"));
+String search1  =   parseNull(request.getParameter("search1"));
+
+String cat_no   =   parseNull(request.getParameter("cat_no"), "1");
+
+StringBuffer sql 			= null;
+List<FoodVO> catList		= null;
+List<FoodVO> itemList		= null;
+
+Paging paging = new Paging();
+String pageNo = parseNull(request.getParameter("pageNo"), "1");
+int totalCount = 0;
+Object[] setObj		= null;
+List<String> setList	= new ArrayList<String>();
+
+
+try{
+    sql =   new StringBuffer();
+	sql.append("SELECT FOOD_ST_CAT.*                    ");
+	sql.append("FROM FOOD_ST_CAT						");
+	sql.append("ORDER BY CAT_NO, CAT_NM					");
+	catList = jdbcTemplate.query(sql.toString(), new FoodList());
+
+    //식품구분이 없을 경우 나중에 작업하기
+
+    sql = new StringBuffer();
+    sql.append("SELECT COUNT(*)																					");
+    sql.append("FROM(																							");
+    sql.append("SELECT																							");
+    sql.append("	  PRE.ITEM_NO																				");
+    sql.append("	, ITEM.FOOD_CODE																			");
+    sql.append("	, ITEM.FOOD_CAT_INDEX																		");
+    sql.append("	, (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM						");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("							XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()' 	");
+    sql.append("	).GETSTRINGVAL(),2) NM_FOOD 																");
+    sql.append("	FROM FOOD_ST_NM 																			");
+    sql.append("	WHERE NM_NO IN (FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5)) AS NM_FOOD      	");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("	    					XMLELEMENT(COL,',',DT_NM) ORDER BY DT_NM).EXTRACT('//text()' 		");
+    sql.append("	).GETSTRINGVAL(),2) DT_NM 																	");
+    sql.append("	FROM FOOD_ST_DT_NM 																			");
+    sql.append("	WHERE DT_NO IN (FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5						");
+    sql.append("	, FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10)) AS DT_NM							");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("	    					XMLELEMENT(COL ,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()' 		");
+    sql.append("	).GETSTRINGVAL(),2) EX_NM 																	");
+    sql.append("	FROM FOOD_ST_EXPL																			");
+    sql.append("	WHERE EX_NO IN (FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5						");
+    sql.append("	, FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10									");
+    sql.append("	, FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15								");
+    sql.append("	, FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20								");
+    sql.append("	, FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25)) AS EX_NM						");
+    sql.append("	, (SELECT UNIT_NM FROM FOOD_ST_UNIT WHERE UNIT_NO = ITEM.FOOD_UNIT) AS UNIT_NM				");
+    sql.append("	, TO_CHAR(PRE.REG_DATE, 'YYYY-MM-DD') AS REG_DATE											");
+    sql.append("	, TO_CHAR(PRE.MOD_DATE, 'YYYY-MM-DD') AS MOD_DATE											");
+    sql.append("	, PRE.SHOW_FLAG																				");
+    sql.append("	, (SELECT REG_IP FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_IP						");
+    sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
+    sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO			");
+    sql.append(")A WHERE 1=1																					");
+    if(!"".equals(search1)){
+    	if("nm_food".equals(search1)){
+    		sql.append("AND A.NM_FOOD LIKE '%'||?||'%'															");
+    	}else if("dt_nm".equals(search1)){
+    		sql.append("AND A.DT_NM LIKE '%'||?||'%'															");
+    	}else if("ex_nm".equals(search1)){
+    		sql.append("AND A.EX_NM LIKE '%'||?||'%'															");
+    	}
+    	paging.setParams("search1", search1);
+    	paging.setParams("keyword", keyword);
+    	
+    	setList.add(keyword);
+    }
+    setObj = new Object[setList.size()];
+    for(int i=0; i<setList.size(); i++){
+    	setObj[i] = setList.get(i);
+    }
+    
+    totalCount = jdbcTemplate.queryForObject(sql.toString(), Integer.class, setObj);
+    
+    paging.setPageNo(Integer.parseInt(pageNo));
+	paging.setTotalCount(totalCount);
+	paging.setPageSize(10);
+	paging.makePaging();
+    
+    sql = new StringBuffer();
+	sql.append("SELECT * FROM(																                    ");
+	sql.append("	SELECT ROWNUM AS RNUM, A.* FROM (										                    ");
+    sql.append("SELECT																							");
+    sql.append("	  PRE.ITEM_NO																				");
+    sql.append("	, PRE.S_ITEM_NO																				");
+    sql.append("	, ITEM.FOOD_CODE																			");
+    sql.append("	, ITEM.FOOD_CAT_INDEX																		");
+    sql.append("	, (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM						");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("							XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()' 	");
+    sql.append("	).GETSTRINGVAL(),2) NM_FOOD 																");
+    sql.append("	FROM FOOD_ST_NM 																			");
+    sql.append("	WHERE NM_NO IN (FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5)) AS NM_FOOD      	");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("	    					XMLELEMENT(COL,',',DT_NM) ORDER BY DT_NM).EXTRACT('//text()' 		");
+    sql.append("	).GETSTRINGVAL(),2) DT_NM 																	");
+    sql.append("	FROM FOOD_ST_DT_NM 																			");
+    sql.append("	WHERE DT_NO IN (FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5						");
+    sql.append("	, FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10)) AS DT_NM							");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("	    					XMLELEMENT(COL ,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()' 		");
+    sql.append("	).GETSTRINGVAL(),2) EX_NM 																	");
+    sql.append("	FROM FOOD_ST_EXPL																			");
+    sql.append("	WHERE EX_NO IN (FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5						");
+    sql.append("	, FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10									");
+    sql.append("	, FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15								");
+    sql.append("	, FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20								");
+    sql.append("	, FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25)) AS EX_NM						");
+    sql.append("	, (SELECT UNIT_NM FROM FOOD_ST_UNIT WHERE UNIT_NO = ITEM.FOOD_UNIT) AS UNIT_NM				");
+    sql.append("	, TO_CHAR(PRE.REG_DATE, 'YYYY-MM-DD') AS REG_DATE											");
+    sql.append("	, TO_CHAR(PRE.MOD_DATE, 'YYYY-MM-DD') AS MOD_DATE											");
+    sql.append("	, PRE.SHOW_FLAG																				");
+    sql.append("	, (SELECT REG_IP FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_IP						");
+    sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
+    sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO			");
+    sql.append("	ORDER BY PRE.ITEM_NO																		");
+    sql.append("	) A WHERE ROWNUM <= " + paging.getEndRowNo() + "											");
+    if(!"".equals(search1)){
+    	if("nm_food".equals(search1)){
+    		sql.append("AND A.NM_FOOD LIKE '%'||?||'%'															");
+    	}else if("dt_nm".equals(search1)){
+    		sql.append("AND A.DT_NM LIKE '%'||?||'%'															");
+    	}else if("ex_nm".equals(search1)){
+    		sql.append("AND A.EX_NM LIKE '%'||?||'%'															");
+    	}
+    }
+	sql.append(") WHERE RNUM > " + paging.getStartRowNo() + " 													");
+    itemList = jdbcTemplate.query(sql.toString(), new FoodList(), setObj);
+    
+}catch(Exception e){
+	out.println(e.toString());
+}
+%>
+<script>
+    
+    function newWin(url, title, w, h){
+        var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+        var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+        var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+        var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+        var top = ((height / 2) - (h / 2)) + dualScreenTop;
+        var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+    }
+    function catPopup(){newWin("food_cat_popup.jsp", 'PRINTVIEW', '1000', '740');}
+    function unitPopup(){newWin("food_unit_popup.jsp", 'PRINTVIEW', '1000', '740');}
+    function itemPopup(){newWin("food_item_popup.jsp", 'PRINTVIEW', '1000', '740');}
+    function updatePopup(item_no){newWin("food_item_popup.jsp?item_no="+item_no, 'PRINTVIEW', '1000', '740');}
+    
+
+    //excel up
+    function upExcel() {
+        if (confirm("식품 엑셀을 업로드 하시겠습니까?\n식품 데이터 변경으로 공개식품의 변경이 생길 수 있습니다.")) {
+            $("#food_file").click();
+        }
+        return;
+    }
+    
+    //excel down
+    function downExcel(){
+    	location.href="food_down_excel.jsp";
+    }
+
+    function setFile () {
+        //파일 검증
+        var fileName    =   $("#food_file").val().split("\\")[$("#food_file").val().split("\\").length -1];
+        var fileExtName =   $("#food_file").val().split(".")[$("#food_file").val().split(".").length -1];
+        fileExtName     =   fileExtName.toLowerCase();
+        if ($.inArray(fileExtName, ['xls'/* , 'xlsx' */]) == -1) {
+            alert ("xls 형식의 엑셀 파일만 등록이 가능합니다.");
+            $(this).val("");
+            return;
+        }
+        
+        $("#food_excel_form").attr("action", "./food_up_excel.jsp");
+        $("#food_excel_form").submit();
+    }
+    
+
+</script>
+
+<div id="right_view">
+    <div class="top_view">
+        <p class="location"><strong><%=pageTitle %></strong></p>
+        <p class="loc_admin">
+            <a href="/iam/main/index.sko?lang=en_US" target="_top" class="white">ENGLISH</a> <span class="yellow">[<%=sessionManager.getSgroupNm() %>]<%=sessionManager.getName() %></span>님 안녕하세요.
+            <a href="/j_spring_security_logout?returnUrl=/iam/login/login_init.sko"><img src="/images/egovframework/rfc3/iam/images/logout.gif" alt="logout"  class="log_img"/></a>
+        </p>
+    </div>
+</div>
+<!-- S : #content -->
+<div id="content">
+	<div class="btn_area">
+		<p class="boxin">
+            <%for(FoodVO cat : catList) {%>
+                <button type="button" class="btn medium <% if(cat_no.equals(cat.cat_no)) {%>mako<%;}else{%>white<%;} %>" data-value="<%=cat.cat_no %>" onclick="location.href='food_item_list.jsp?cat_no=<%=cat.cat_no %>'"><%=cat.cat_nm %></button>
+            <%}%>
+		</p>
+		<span>공개 식품 388/500</span>
+		<p class="boxin f_r">
+            <form id="food_excel_form" enctype="multipart/form-data" method="post">
+                <input type="file" id="food_file" name="food_file" value="" onchange="setFile()" style="display: none;">
+                <button type="button" id="excel_up" class="btn medium mako" onclick="upExcel()">엑셀업로드</button>
+                <button type="button" id="excel_down" class="btn medium mako" onclick="downExcel()">엑셀다운로드</button>
+                <button type="button" class="btn medium mako" onclick="itemPopup()">식품추가</button>
+                <button type="button" class="btn medium mako" onclick="unitPopup()">단위수정</button>
+                <button type="button" class="btn medium mako" onclick="catPopup()">식품구분수정</button>
+            </form>
+		</p>
+	</div>
+	
+	<h2 class="tit">농산물</h2>
+	<div class="searchBox magB20">
+		<form id="searchForm" method="get" class="topbox2">
+			<fieldset>
+				<select id="search1" name="search1">
+					<option value="">검색분류 선택</option>
+					<option value="nm_food" <%if("nm_food".equals(search1)){out.println("selected");}%>>식품명</option>
+					<option value="dt_nm" <%if("dt_nm".equals(search1)){out.println("selected");}%>>상세식품명</option>
+					<option value="ex_nm" <%if("ex_nm".equals(search1)){out.println("selected");}%>>식품설명</option>
+				</select>
+				<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
+				<button class="btn small edge mako" onclick="searchSubmit();">검색하기</button>
+			</fieldset>
+		</form>
+	</div>
+	<div class="f_r">
+		<!-- <button type="button" class="btn small edge darkMblue" onclick="">추가</button> -->
+	</div>
+	<p class="clearfix"> </p>
+	<table class="bbs_list">
+		<caption><%=pageTitle%> 테이블</caption>
+		<colgroup>
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<%--<col style="width: 6.7%">--%>
+			<col>
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 5%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+		</colgroup>
+		<thead>
+			<tr>
+				<th scope="col">식품번호</th>
+				<th scope="col">구분</th>
+				<th scope="col">연번</th>
+				<th scope="col">식품코드</th>
+				<th scope="col">식품명</th>
+				<th scope="col">상세식품명</th>
+				<%--<th scope="col">규격</th>--%>
+				<th scope="col">식품설명</th>
+				<th scope="col">단위</th>
+				<th scope="col">등록일</th>
+				<th scope="col">수정일</th>
+				<th scope="col">등록ID</th>
+				<th scope="col">공개여부</th>
+				<th scope="col">수정</th>
+				<th scope="col">변경기록</th>
+			</tr>
+		</thead>
+		<tbody>	
+		<%
+		if(itemList!=null && itemList.size()>0){
+			for(FoodVO ob : itemList){
+		%>
+			<tr>
+				<td><%=ob.s_item_no %></td>
+				<td><%=ob.cat_nm%></td>
+				<td><%=ob.cat_nm%>-<%=ob.food_cat_index%></td>
+				<td><%=ob.food_code%></td>
+				<td><%=ob.nm_food %></td>
+				<td><%=ob.dt_nm %></td>
+				<%--<td></td>--%>
+				<td><%=ob.ex_nm %></td>
+				<td><%=ob.unit_nm %></td>
+				<td><%=ob.reg_date %></td>
+				<td><%=ob.mod_date %></td>
+				<td><%=ob.reg_id %></td>
+				<td><%=ob.show_flag %></td>
+				<td>
+					<button class="btn small edge mako" type="button" onclick="updatePopup('<%=ob.item_no %>')">수정</button>
+				</td>
+				<td>변경기록<%=ob.item_no %></td>
+			</tr>
+		<%
+			}
+		}else{
+		%>
+		<tr>
+			<td colspan="15">데이터가 없습니다.</td>
+		</tr>
+		<%
+		}
+		%>
+		</tbody>
+	</table>
+	
+	<% if(paging.getTotalCount() > 0) { %>
+	<div class="page_area">
+		<%=paging.getHtml() %>
+	</div>
+	<% } %>
+</div>
+<!-- // E : #content -->
+</body>
+</html>

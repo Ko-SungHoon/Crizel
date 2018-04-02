@@ -1,754 +1,432 @@
-<div class="Box">
-<ul class="h_li">
-<li>주최: 경상남도교육청</li>
-<li>주관: 경상남도교육청 소속 공공도서관</li>
-<li>목적: 여러 사람이 모여 함께 책을 읽고 다양한 독서체험과 건전한 토론 문화 형성을 유도하기 위함</li>
-<li>대상: 초·중·고·일반(주부, 직장인 등)</li>
-<li>내용: 독서토론, 북캠프, 독서발표회, 문학기행 등 동아리별자체 운영 지원</li>
-</ul>
-</div>
-<h4 class="title">독서동아리 현황</h4>	
-            <div class="mb_scroll">
-						<table class="t_typel">
-								<caption>도서관명별 독서동아리명, 계층, 인원, 운영횟수, 연락처의 독서동아리 현황표입니다.</caption>
-								<thead>
-									<tr>
-										<th scope="col">도서관명</th>
-										<th scope="col">독서동아리명</th>
-										<th scope="col">계층</th>
-										<th scope="col">인원</th>
-										<th scope="col">운영횟수</th>
-										<th scope="col">연락처</th>
-  </tr>
-  </thead>
-<tbody>
-  <tr>
-    <th scope="row" rowspan="4">거제도서관</th>
-    <td><a href="http://gjlib.gne.go.kr/menu.es?mid=c70303030000" target="_blank" title="새창열림"><strong class="col_blue">책사랑</strong></a></td>
-    <td>주부</td>
-    <td>10명</td>
-    <td>월2회</td>
-    <td rowspan="4">055-636-9211</td>
-  </tr>
-  <tr>
-    <td><a href="http://gjlib.gne.go.kr/menu.es?mid=c70303040000" target="_blank" title="새창열림"><strong class="col_blue">책벌레</strong></a></td>
-    <td>주부</td>
-    <td>8명</td>
-    <td>월2회</td>
-  </tr>
-  <tr>
-    <td><a href="http://gjlib.gne.go.kr/menu.es?mid=c70303020000" target="_blank" title="새창열림"><strong class="col_blue">체인지</strong></a></td>
-    <td>중등</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://gjlib.gne.go.kr/menu.es?mid=c70303010000" target="_blank" title="새창열림"><strong class="col_blue">꿈나무</strong></a></td>
-    <td>초등</td>
-    <td>16명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="3">거창도서관</th>
-    <td><a href="http://gclib.gne.go.kr/menu.es?mid=b90303000000" target="_blank" title="새창열림"><strong class="col_blue">책사랑</strong></a></td>
-    <td>성인</td>
-    <td>15명</td>
-    <td>월1회</td>
-    <td rowspan="3">055-944-8594</td>
-  </tr>
-  <tr>
-  	<td><a href="http://gclib.gne.go.kr/menu.es?mid=b90303000000" target="_blank" title="새창열림"><strong class="col_blue">책꾸러기</strong></a></td>
-  	<td>초등</td>
-  	<td>10명</td>
-  	<td>월2회</td>
-  </tr>
-  <tr>
-  	<td><a href="http://gclib.gne.go.kr/menu.es?mid=b90303000000" target="_blank" title="새창열림"><strong class="col_blue">피자</strong></a></td>
-  	<td>중등</td>
-  	<td>20명</td>
-  	<td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="6">고성도서관</th>
-    <td><a href="http://gslib.gne.go.kr/menu.es?mid=b30306000000" target="_blank" title="새창열림"><strong class="col_blue">책사랑</strong></a></td>
-    <td>어르신</td>
-    <td>21명</td>
-    <td>월1회</td>
-    <td rowspan="6">055-673-8437</td>
-  </tr>
-  <tr>
-    <td><a href="http://gslib.gne.go.kr/menu.es?mid=b30306000000" target="_blank" title="새창열림"><strong class="col_blue">참나</strong></a></td>
-    <td>주부</td>
-    <td>5명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://gslib.gne.go.kr/menu.es?mid=b30306000000" target="_blank" title="새창열림"><strong class="col_blue">참새방앗간</strong></a></td>
-    <td>중등</td>
-    <td>10명</td>
-    <td>주1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://gslib.gne.go.kr/menu.es?mid=b30306000000" target="_blank" title="새창열림"><strong class="col_blue">책그릇</strong></a></td>
-    <td>직장인</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://gslib.gne.go.kr/menu.es?mid=b30306000000" target="_blank" title="새창열림"><strong class="col_blue">도담도담</strong></a></td>
-    <td>초등</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-  	<td><a href="http://gslib.gne.go.kr/board.es?mid=b30306060000&bid=GSLIB_170407" target="_blank" title="새창열림"><strong class="col_blue">책마루</strong></a></td>
-  	<td>고등</td>
-  	<td>7명</td>
-  	<td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="12">김해도서관</th>
-    <td><a href="http://ghlib.gne.go.kr/menu.es?mid=a30403030000" target="_blank" title="새창열림"><strong class="col_blue">새김이</strong></a></td>
-    <td>고등</td>
-    <td>26명</td>
-    <td>월1회</td>
-    <td rowspan="12">055-320-5558</td>
-  </tr>
-  <tr>
-    <td><a href="http://ghlib.gne.go.kr/menu.es?mid=a30403040000" target="_blank" title="새창열림"><strong class="col_blue">비트인문</strong></a></td>
-    <td>일반</td>
-    <td>15명</td>
-    <td>월4회</td>
-  </tr>
-  <tr>
-    <td><a href="http://ghlib.gne.go.kr/menu.es?mid=a30403060000" target="_blank" title="새창열림"><strong class="col_blue">징검다리</strong></a></td>
-    <td>일반</td>
-    <td>12명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://ghlib.gne.go.kr/menu.es?mid=a30403050000" target="_blank" title="새창열림"><strong class="col_blue">울타리</strong></a></td>
-    <td>일반(주부)</td>
-    <td>19명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://ghlib.gne.go.kr/menu.es?mid=a30403020000" target="_blank" title="새창열림"><strong class="col_blue">느티나무</strong></a></td>
-    <td>중등</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://ghlib.gne.go.kr/menu.es?mid=a30403070000" target="_blank" title="새창열림"><strong class="col_blue">책풍경</strong></a></td>
-    <td>직장인</td>
-    <td>25명</td>
-    <td>월2회</td>
-  </tr>
-  <tr>
-    <td><a href="http://ghlib.gne.go.kr/menu.es?mid=a30403010000" target="_blank" title="새창열림"><strong class="col_blue">생각나무</strong></a></td>
-    <td>초등</td>
-    <td>16명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-  	<td><a href="http://ghlib.gne.go.kr/board.es?mid=a30512090000&bid=GHLIB_170228_1" target="_blank" title="새창열림"><strong class="col_blue">고전인문독서동아리</strong></a></td>
-  	 <td>성인</td>
-    <td>10명</td>
-    <td>월2회</td>
-  </tr>
-   <tr>
-  	<td><a href="http://ghlib.gne.go.kr/board.es?mid=a30512120000&bid=GHLIB_170228_4" target="_blank" title="새창열림"><strong class="col_blue">독서불패독서동아리</strong></a></td>
-  	<td>군인</td>
-    <td>15명</td>
-    <td>월2회</td>
-  </tr>
-   <tr>
-  	<td><a href="http://ghlib.gne.go.kr/board.es?mid=a30512100000&bid=GHLIB_170228_2" target="_blank" title="새창열림"><strong class="col_blue">리딩나르샤</strong></a></td>
-  	 <td>직원</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr>
-   <tr>
-  	<td><a href="http://ghlib.gne.go.kr/board.es?mid=a30512110000&bid=GHLIB_170228_3" target="_blank" title="새창열림"><strong class="col_blue">휴먼리딩독서동아리</strong></a></td>
-  	 <td>자원봉사자(성인)</td>
-    <td>15명</td>
-    <td>월2회</td>
-  </tr>
-   <tr>
-  	<td><a href="http://ghlib.gne.go.kr/board.es?mid=a30512130000&bid=GHLIB_170228_5" target="_blank" title="새창열림"><strong class="col_blue">꿈자람독서동아리</strong></a></td>
-  	 <td>소외계층어린이</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="4">남지도서관</th>
-    <td><a href="http://njlib.gne.go.kr/menu.es?mid=c40303000000" target="_blank" title="새창열림"><strong class="col_blue">웃개</strong></a></td>
-    <td>일반</td>
-    <td>13명</td>
-    <td>월1회</td>
-    <td rowspan="4">055-526-1490</td>
-  </tr>
-    <tr>
-    <td><a href="http://njlib.gne.go.kr/menu.es?mid=c40303000000" target="_blank" title="새창열림"><strong class="col_blue">책나래</strong></a></td>
-    <td>초등</td>
-    <td>6명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://njlib.gne.go.kr/menu.es?mid=c40303000000" target="_blank" title="새창열림"><strong class="col_blue">야(夜)심찬</strong></a></td>
-    <td>고등</td>
-    <td>13명</td>
-    <td>월2회</td>
-  </tr>  
-  <tr>
-    <td><a href="http://njlib.gne.go.kr/menu.es?mid=c40303000000" target="_blank" title="새창열림"><strong class="col_blue">인문학 함께 읽기</strong></a></td>
-    <td>일반</td>
-    <td>13명</td>
-    <td>월1회</td>
-  </tr>  
-  <tr>
-    <th scope="row" rowspan="4">남해도서관</th>
-    <td><a href="http://nhlib.gne.go.kr/board.es?mid=c11206000000&bid=C1_161121_3" target="_blank" title="새창열림"><strong class="col_blue">빛솔</strong></a></td>
-    <td>초등</td>
-    <td>10명</td>
-    <td>월1회</td>
-    <td rowspan="4">055-864-0972</td>
-  </tr>
-  <tr>
-  	<td><a href="http://nhlib.gne.go.kr/board.es?mid=c11206000000&bid=C1_161121_3" target="_blank" title="새창열림"><strong class="col_blue">책톡</strong></a></td>
-  	<td>중등</td>
-  	<td>15명</td>
-  	<td>월1회</td>
-  </tr>
-   <tr>
-  	<td><a href="http://nhlib.gne.go.kr/board.es?mid=c11206000000&bid=C1_161121_3" target="_blank" title="새창열림"><strong class="col_blue">책탐</strong></a></td>
-  	<td>고등</td>
-  	<td>15명</td>
-  	<td>월1회</td>
-  </tr>
-  <tr>
-  	<td><a href="http://nhlib.gne.go.kr/board.es?mid=c11206000000&bid=C1_161121_3" target="_blank" title="새창열림"><strong class="col_blue">탐서클럽</strong></a></td>
-  	<td>일반</td>
-  	<td>15명</td>
-  	<td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="7">마산도서관</th>
-    <td><a href="http://mslib.gne.go.kr/menu.es?mid=a40201030000" target="_blank" title="새창열림"><strong class="col_blue">하나리</strong></a></td>
-    <td>고등</td>
-    <td>10명</td>
-    <td>월1회</td>
-    <td rowspan="7">055-240-4551</td>
-  </tr>
-  <tr>
-    <td><a href="http://mslib.gne.go.kr/menu.es?mid=a40201060000" target="_blank" title="새창열림"><strong class="col_blue">은빛</strong></a></td>
-    <td>실버</td>
-    <td>13명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://mslib.gne.go.kr/menu.es?mid=a40201040000" target="_blank" title="새창열림"><strong class="col_blue">샘물</strong></a></td>
-    <td>주부</td>
-    <td>11명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://mslib.gne.go.kr/menu.es?mid=a40201020000" target="_blank" title="새창열림"><strong class="col_blue">온누리</strong></a></td>
-    <td>중등</td>
-    <td>21명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://mslib.gne.go.kr/menu.es?mid=a40201050000" target="_blank" title="새창열림"><strong class="col_blue">울림</strong></a></td>
-    <td>직장인</td>
-    <td>12명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://mslib.gne.go.kr/menu.es?mid=a40201010000" target="_blank" title="새창열림"><strong class="col_blue">글소리</strong></a></td>
-    <td>초등</td>
-    <td>16명</td>
-    <td>월2회</td>
-  </tr>
-  <tr>
-    <td><a href="http://mslib.gne.go.kr/menu.es?mid=a40201080000" target="_blank" title="새창열림"><strong class="col_blue">책파동</strong></a></td>
-    <td>학교사서</td>
-    <td>5명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="5">밀양도서관</th>
-    <td><a href="http://mrlib.gne.go.kr/menu.es?mid=b70501000000" target="_blank" title="새창열림"><strong class="col_blue">누리빛글 </strong></a></td>
-    <td>고등</td>
-    <td>12명</td>
-    <td>월2회</td>
-    <td rowspan="5">055-353-6980</td>
-  </tr>
-  <tr>
-    <td><a href="http://mrlib.gne.go.kr/menu.es?mid=b70501000000" target="_blank" title="새창열림"><strong class="col_blue">채송화 </strong></a></td>
-    <td>일반</td>
-    <td>11명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://mrlib.gne.go.kr/menu.es?mid=b70501000000" target="_blank" title="새창열림"><strong class="col_blue">수레바퀴 </strong></a></td>
-    <td>일반</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://mrlib.gne.go.kr/menu.es?mid=b70501000000" target="_blank" title="새창열림"><strong class="col_blue">우리</strong></a></td>
-    <td>중등</td>
-    <td>7명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://mrlib.gne.go.kr/menu.es?mid=b70501000000" target="_blank" title="새창열림"><strong class="col_blue">책꿈</strong></a></td>
-    <td>초등</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="5">사천도서관</th>
-    <td><a href="http://salib.gne.go.kr/menu.es?mid=c20403010000" target="_blank" title="새창열림"><strong class="col_blue">또록이</strong></a></td>
-    <td>중등</td>
-    <td>15명</td>
-    <td>월1회</td>
-    <td>055-853-8401</td>
-  </tr>
-  <tr>
-    <td><a href="http://salib.gne.go.kr/menu.es?mid=c20403010000" target="_blank" title="새창열림"><strong class="col_blue">글벗</strong></a></td>
-    <td>일반</td>
-    <td>11명</td>
-    <td>월1회</td>
-    <td rowspan="4">055-853-8402</td>
-  </tr>
-  <tr>
-    <td><a href="http://salib.gne.go.kr/menu.es?mid=c20403010000" target="_blank" title="새창열림"><strong class="col_blue">사과나무</strong></a></td>
-    <td>주부</td>
-    <td>13명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://salib.gne.go.kr/menu.es?mid=c20403010000" target="_blank" title="새창열림"><strong class="col_blue">봄날</strong></a></td>
-    <td>주부</td>
-    <td>11명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://salib.gne.go.kr/menu.es?mid=c20403010000" target="_blank" title="새창열림"><strong class="col_blue">책마법사</strong></a></td>
-    <td>초등</td>
-    <td>12명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="2">산청도서관</th>
-    <td><a href="http://sanlib.gne.go.kr/board.es?mid=c60304000000&bid=C6_BOD24" target="_blank" title="새창열림"><strong class="col_blue">개념있는 수다</strong></a></td>
-    <td>성인</td>
-    <td>12명</td>
-    <td>월1회</td>
-    <td rowspan="2">055-973-2547</td>
-  </tr>
-  <tr>
-    <td><a href="http://sanlib.gne.go.kr/board.es?mid=c60304000000&bid=C6_BOD24" target="_blank" title="새창열림"><strong class="col_blue">예담독서회</strong></a></td>
-    <td>청소년</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="5">삼천포도서관</th>
-    <td><a href="http://scplib.gne.go.kr/menu.es?mid=a60405000000" target="_blank" title="새창열림"><strong class="col_blue">청춘</strong></a></td>
-    <td>실버</td>
-    <td>12명</td>
-    <td>월1회</td>
-    <td rowspan="5">055-834-8925</td>
-  </tr>
-  <tr>
-    <td><a href="http://scplib.gne.go.kr/menu.es?mid=a60402000000" target="_blank" title="새창열림"><strong class="col_blue">3050</strong></a></td>
-    <td>주부</td>
-    <td>12명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://scplib.gne.go.kr/menu.es?mid=a60404000000" target="_blank" title="새창열림"><strong class="col_blue">청소년</strong></a></td>
-    <td>중등</td>
-    <td>8명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://scplib.gne.go.kr/menu.es?mid=a60403000000" target="_blank" title="새창열림"><strong class="col_blue">야(夜)한독서</strong></a></td>
-    <td>직장인</td>
-    <td>12명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://scplib.gne.go.kr/menu.es?mid=a60401000000" target="_blank" title="새창열림"><strong class="col_blue">어린이</strong></a></td>
-    <td>초등</td>
-    <td>17명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="3">양산도서관</th>
-    <td><a href="http://yslib.gne.go.kr/menu.es?mid=b10301020000" target="_blank" title="새창열림"><strong class="col_blue">사임당</strong></a></td>
-    <td>일반</td>
-    <td>18명</td>
-    <td>월1회</td>
-    <td rowspan="3">055-385-7056</td>
-  </tr>
-  <tr>
-    <td><a href="http://yslib.gne.go.kr/menu.es?mid=b10301030000" target="_blank" title="새창열림"><strong class="col_blue">글소리</strong></a></td>
-    <td>중등</td>
-    <td>8명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://yslib.gne.go.kr/menu.es?mid=b10301040000" target="_blank" title="새창열림"><strong class="col_blue">책의나무</strong></a></td>
-    <td>초등</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="5">의령도서관</th>
-    <td><a href="http://urlib.gne.go.kr/board.es?mid=c50407050100&bid=C5_BITNAN" target="_blank" title="새창열림"><strong class="col_blue">빛난</strong></a></td>
-    <td>초등</td>
-    <td>15명</td>
-    <td>월1회</td>
-    <td rowspan="5">055-572-0941</td>
-  </tr>
-  <tr>
-  	<td><a href="http://urlib.gne.go.kr/board.es?mid=c50407050100&bid=URLIB_170405" target="_blank" title="새창열림"><strong class="col_blue">꿈키움</strong></a></td>
-    <td>중등</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://urlib.gne.go.kr/board.es?mid=c50407050200&bid=C5_GRU" target="_blank" title="새창열림"><strong class="col_blue">그루터기</strong></a></td>
-    <td>고등</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-   	<td><a href="http://urlib.gne.go.kr/board.es?mid=c50407050300&bid=C5_SMELL" target="_blank" title="새창열림"><strong class="col_blue">책향기</strong></a></td>
-    <td>주부</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr> 
-  <tr>
-   	<td><a href="http://urlib.gne.go.kr/board.es?mid=c50407050300&bid=C5_GRIMCHACK" target="_blank" title="새창열림"><strong class="col_blue">그림책바라기</strong></a></td>
-    <td>일반</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="5">진동도서관</th>
-    <td><a href="http://jdlib.gne.go.kr/menu.es?mid=b60306010000" target="_blank" title="새창열림"><strong class="col_blue">채움</strong></a></td>
-    <td>고등</td>
-    <td>12명</td>
-    <td>월1회</td>
-    <td rowspan="5">055-271-8145</td>
-  </tr>
-  <tr>
-    <td><a href="http://jdlib.gne.go.kr/menu.es?mid=b60306010000" target="_blank" title="새창열림"><strong class="col_blue">불꽃</strong></a></td>
-    <td>주부</td>
-    <td>9명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://jdlib.gne.go.kr/menu.es?mid=b60306010000" target="_blank" title="새창열림"><strong class="col_blue">돋을볕</strong></a></td>
-    <td>주부</td>
-    <td>12명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://jdlib.gne.go.kr/menu.es?mid=b60306010000" target="_blank" title="새창열림"><strong class="col_blue">드림</strong></a></td>
-    <td>중등</td>
-    <td>7명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://jdlib.gne.go.kr/menu.es?mid=b60306010000" target="_blank" title="새창열림"><strong class="col_blue">샛별</strong></a></td>
-    <td>초등</td>
-    <td>18명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="3">진양도서관</th>
-    <td><a href="http://jinlib.gne.go.kr/menu.es?mid=b41304000000" target="_blank" title="새창열림"><strong class="col_blue">글사랑</strong></a></td>
-    <td>성인</td>
-    <td>12명</td>
-    <td>월1회</td>
-    <td rowspan="3">055-761-2722</td>
-  </tr>
-  <tr>
-    <td><a href="http://jinlib.gne.go.kr/menu.es?mid=b41304000000" target="_blank" title="새창열림"><strong class="col_blue">생각리턴</strong></a></td>
-    <td>성인</td>
-    <td>7명</td>
-    <td>주1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://jinlib.gne.go.kr/menu.es?mid=b41304000000" target="_blank" title="새창열림"><strong class="col_blue">청소년</strong></a></td>
-    <td>중등</td>
-    <td>16명</td>
-    <td>월1회</td>
-  </tr>
+<%@page import="org.springframework.web.context.WebApplicationContext"%>
+<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
+<%@page import="egovframework.rfc3.iam.manager.ViewManager"%>
+<%@page import="egovframework.rfc3.user.web.SessionManager"%>
+<%@page import="org.springframework.jdbc.core.*" %>
+<%@page import="java.util.*"%>
+<%@page import="java.text.*"%>
+<%@page import="java.sql.*"%>
+<%@page import="javax.sql.DataSource" %>
+<%@ page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper" %>
+
+<%!
+  public String formatDate(String str) {
+    if( str == null || str.length() < 8 ) return str;
+    StringBuilder sb = new StringBuilder(str);
+    sb.insert(6, "-");
+    sb.insert(4, "-");
+    return sb.toString();
+  }
+
+  public String formatTime(String str) {
+    if( str == null || str.length() < 6 ) return str;
+    StringBuilder sb = new StringBuilder(str);
+    sb.insert(4, ":");
+    sb.insert(2, ":");
+    return sb.toString();
+  }
+
+  // 수강 접수 여부
+  private boolean isRcrtAble(GsndStoryTelling entity) {
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHH:mm");
+    boolean result = false;
+    try {
+      java.util.Date now = Calendar.getInstance().getTime();
+      java.util.Date rcrt_sdate = sdf.parse(entity.rcrt_sdate + entity.rcrt_stime);
+      java.util.Date rcrt_edate = sdf.parse(entity.rcrt_edate + entity.rcrt_etime);
+      result = now.after(rcrt_sdate) && now.before(rcrt_edate) &&  entity.rcrt_total > entity.getRgstTotal();
+    } catch(Exception e) {
+      System.out.println(e);
+    }
+    return result;
+  }
+
+    private class GsndStoryTelling {
+      public String stno;
+	  public String titleimg;
+      public String title;
+      public String lecturer;
+      public String attendee;
+      public String charge;
+      public String chargetel;
+      public String stdate;
+      public String sttime;
+      public String stloc;
+      public String status;
+      public String stdesc;
+      public String rcrt_sdate;
+      public String rcrt_stime;
+      public String rcrt_edate;
+      public String rcrt_etime;
+      public String rcrt_method;
+      public int rcrt_total;
+      public int rcrt_online;
+      public int rcrt_add;
+      public int rgst_visit;
+      public int rgst_online;
+      public int rgst_tel;
+
+      public int getRgstTotal() {
+        return this.rgst_visit + this.rgst_online + this.rgst_tel;
+      }
+    }
+
+    private class GsndStoryTellingFile {
+      public int stfileno;
+      public int stno;
+	  public String titleimg;
+      public String filename;
+      public long filesize;
+      public String realname;
+      public String regdate;
+      public String regtime;
+    }
+
+    private class GsndStoryTellingRegister {
+      public String stno;
+      public String userid;
+      public String username;
+      public String usertel1;
+      public String usertel2;
+      public String usertel3;
+      public String rgst_method;
+      public String regdate;
+      public String regtime;
+      public String statecd;
+      public String moddate;
+      public String modtime;
+
+      public String printRgstMethod() {
+        if( "VISIT".equals(rgst_method) ) return "방문접수";
+        if( "ONLINE".equals(rgst_method) ) return "온라인접수";
+        if( "TEL".equals(rgst_method) ) return "전화접수";
+        
+        return "";
+      }
+
+      public String printStatecd() {
+        if("RGST".equals(statecd)) return "접수";
+        else if("CNCL_USER".equals(statecd)) return "취소(사용자)";
+        else if("CNCL_ADMIN".equals(statecd)) return "취소(관리자)";
+        else return "";
+      }
+
+      public String printUserTel() {
+  	    StringBuilder sb = new StringBuilder();
+        if( usertel1 != null ) sb.append(usertel1);
+        if( usertel2 != null ) sb.append("-").append(usertel2);
+        if( usertel3 != null ) sb.append("-").append(usertel3);
+        return sb.toString();
+      }
+    }
+
+    private class GsndStoryTellingMapper implements RowMapper<GsndStoryTelling> {
+      public GsndStoryTelling mapRow(ResultSet rs, int rowNum) throws SQLException {
+        GsndStoryTelling vo = new GsndStoryTelling();
+        vo.stno = rs.getString("stno");
+        vo.titleimg = rs.getString("titleimg");
+        vo.title = rs.getString("title");
+        vo.lecturer = rs.getString("lecturer");
+        vo.attendee = rs.getString("attendee");
+        vo.charge = rs.getString("charge");
+        vo.chargetel = rs.getString("chargetel");
+        vo.stdate = rs.getString("stdate");
+        vo.sttime = rs.getString("sttime");
+        vo.stloc = rs.getString("stloc");
+        vo.status = rs.getString("status");
+        vo.stdesc = rs.getString("stdesc");
+        vo.rcrt_sdate = rs.getString("rcrt_sdate");
+        vo.rcrt_stime = rs.getString("rcrt_stime");
+        vo.rcrt_edate = rs.getString("rcrt_edate");
+        vo.rcrt_etime = rs.getString("rcrt_etime");
+        vo.rcrt_method = rs.getString("rcrt_method");
+        vo.rcrt_total = rs.getInt("rcrt_total");
+        vo.rcrt_online = rs.getInt("rcrt_online");
+        vo.rcrt_add = rs.getInt("rcrt_add");
+        vo.rgst_visit = rs.getInt("rgst_visit");
+        vo.rgst_online = rs.getInt("rgst_online");
+        vo.rgst_tel = rs.getInt("rgst_tel");
+        return vo;
+      }
+    }
+
+    private class GsndStoryTellingRegisterMapper implements RowMapper<GsndStoryTellingRegister> {
+      public GsndStoryTellingRegister mapRow(ResultSet rs, int rowNum) throws SQLException {
+        GsndStoryTellingRegister vo = new GsndStoryTellingRegister();
+        vo.stno = rs.getString("stno");
+        vo.userid = rs.getString("userid");
+        vo.username = rs.getString("username");
+        vo.usertel1 = rs.getString("usertel1");
+        vo.usertel2 = rs.getString("usertel2");
+        vo.usertel3 = rs.getString("usertel3");
+        vo.rgst_method = rs.getString("rgst_method");
+        vo.regdate = rs.getString("regdate");
+        vo.regtime = rs.getString("regtime");
+        vo.statecd = rs.getString("statecd");
+        vo.moddate = rs.getString("moddate");
+        vo.modtime = rs.getString("modtime");
+        return vo;
+      }
+    }
+%>
+
+<%
+
+SessionManager sessionManager = new SessionManager(request);
+ViewManager viewManager = new ViewManager(request, response);
+boolean isRole = sessionManager.isRoleAdmin() || viewManager.isGranted(request, "DOM_000000203006000000", "WRITE");
+
+  String stno = request.getParameter("stno");
+  WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(application);
+  DataSource dataSource = (DataSource) context.getBean("dataSource");
+  JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
   
-  <tr>
-    <th scope="row" rowspan="4">진영도서관</th>
-    <td><a href="http://jylib.gne.go.kr/menu.es?mid=a90201010000" target="_blank" title="새창열림"><strong class="col_blue">감꽃</strong></a></td>
-    <td>성인</td>
-    <td>16명</td>
-    <td>월1회</td>
-    <td rowspan="4">055-345-1995</td>
-  </tr>
-  <tr>
-    <td><a href="http://jylib.gne.go.kr/menu.es?mid=a90201020000" target="_blank" title="새창열림"><strong class="col_blue">진영</strong></a></td>
-    <td>성인</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://jylib.gne.go.kr/menu.es?mid=a90201030000" target="_blank" title="새창열림"><strong class="col_blue">누리봄</strong></a></td>
-    <td>중등</td>
-    <td>15명</td>
-    <td>월2회</td>
-  </tr>
-  <tr>
-    <td><a href="http://jylib.gne.go.kr/menu.es?mid=a90201040000" target="_blank" title="새창열림"><strong class="col_blue">책나무</strong></a></td>
-    <td>초등</td>
-    <td>15명</td>
-    <td>월2회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="9">창원도서관</th>
-    <td><a href="http://cwlib.gne.go.kr/menu.es?mid=a20502010000" target="_blank" title="새창열림"><strong class="col_blue">한알A</strong></a></td>
-    <td>초등 저</td>
-    <td>15명</td>
-    <td>월1회</td>
-    <td rowspan="9">055-278-28﻿72</td>
-  </tr>
-  <tr>
-    <td><a href="http://cwlib.gne.go.kr/menu.es?mid=a20502010000" target="_blank" title="새창열림"><strong class="col_blue">한알B</strong></a></td>
-    <td>초등 고</td>
-    <td>15명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://cwlib.gne.go.kr/menu.es?mid=a20502010000" target="_blank" title="새창열림"><strong class="col_blue">글밭</strong></a></td>
-    <td>중등</td>
-    <td>22명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://cwlib.gne.go.kr/menu.es?mid=a20502010000" target="_blank" title="새창열림"><strong class="col_blue">한울림</strong></a></td>
-    <td>고등</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://cwlib.gne.go.kr/menu.es?mid=a20502010000" target="_blank" title="새창열림"><strong class="col_blue">넝쿨</strong></a></td>
-    <td>일반</td>
-    <td>16명</td>
-    <td>월2회</td>
-  </tr>
-  <tr>
-    <td><a href="http://cwlib.gne.go.kr/menu.es?mid=a20502010000" target="_blank" title="새창열림"><strong class="col_blue">한마음</strong></a></td>
-    <td>일반</td>
-    <td>15명</td>
-    <td>월2회</td>
-  </tr>
-  <tr>
-    <td><a href="http://cwlib.gne.go.kr/menu.es?mid=a20502010000" target="_blank" title="새창열림"><strong class="col_blue">섬돌</strong></a></td>
-    <td>일반</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://cwlib.gne.go.kr/menu.es?mid=a20502010000" target="_blank" title="새창열림"><strong class="col_blue">소나기</strong></a></td>
-    <td>일반</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://cwlib.gne.go.kr/menu.es?mid=a20502010000" target="_blank" title="새창열림"><strong class="col_blue">별밤</strong></a></td>
-    <td>일반</td>
-    <td>8명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="4">창녕도서관</th>
-    <td><a href="http://cnlib.gne.go.kr/menu.es?mid=c30304000000" target="_blank" title="새창열림"><strong class="col_blue">소벌</strong></a></td>
-    <td>성인</td>
-    <td>10명</td>
-    <td>월1회</td>
-    <td>055-532-9501</td>
-  </tr>
-    <tr>
-    <td><a href="http://cnlib.gne.go.kr/menu.es?mid=c30304000000" target="_blank" title="새창열림"><strong class="col_blue">푸르미</strong></a></td>
-    <td>어린이</td>
-    <td>15명</td>
-    <td>월1회</td>
-    <td>055-532-9502</td>
-  </tr>
-    <tr>
-    <td><a href="http://cnlib.gne.go.kr/menu.es?mid=c30304000000" target="_blank" title="새창열림"><strong class="col_blue">청소년</strong></a></td>
-    <td>청소년</td>
-    <td>20명</td>
-    <td>월1회</td>
-    <td rowspan="2">055-532-9501</td>
-  </tr>  
-    <tr>
-    <td><a href="http://cnlib.gne.go.kr/menu.es?mid=c30304000000" target="_blank" title="새창열림"><strong class="col_blue">화왕</strong></a></td>
-    <td>직장인</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>  
-  <tr>
-    <th scope="row" rowspan="3">통영도서관</th>
-    <td><a href="http://tylib.gne.go.kr/board.es?mid=b20303010000&bid=B2_10" target="_blank" title="새창열림"><strong class="col_blue">서린</strong></a></td>
-    <td>주부</td>
-    <td>11명</td>
-    <td>월2회</td>
-    <td rowspan="3">055-648-8093</td>
-  </tr>
-  <tr>
-    <td><a href="http://tylib.gne.go.kr/board.es?mid=b20303030000&bid=B2_12" target="_blank" title="새창열림"><strong class="col_blue">청소년</strong></a></td>
-    <td>중등</td>
-    <td>7명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://tylib.gne.go.kr/board.es?mid=b20303020000&bid=B2_11" target="_blank" title="새창열림"><strong class="col_blue">직장인</strong></a></td>
-    <td>청장년</td>
-    <td>8명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="3">하남도서관</th>
-    <td><a href="http://hnlib.gne.go.kr/menu.es?mid=b50405000000" target="_blank" title="새창열림"><strong class="col_blue">우리동네북카페</strong></a></td>
-    <td>성인</td>
-    <td>5명</td>
-    <td>월1회</td>
-    <td rowspan="3">055-391-1848</td>
-  </tr>
-  <tr>
-    <td><a href="http://hnlib.gne.go.kr/menu.es?mid=b50405000000" target="_blank" title="새창열림"><strong class="col_blue">늘봄</strong></a></td>
-    <td>어린이</td>
-    <td>6명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://hnlib.gne.go.kr/menu.es?mid=b50405000000" target="_blank" title="새창열림"><strong class="col_blue">하늘과 별과 시와 </strong></a></td>
-    <td>중등</td>
-    <td>7명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="9">하동도서관</th>
-    <td><a href="http://hdlib.gne.go.kr/board.es?mid=a50303000000&bid=A5_READING&cg_code=C06" target="_blank" title="새창열림"><strong class="col_blue">책나무 </strong></a></td>
-    <td>초등</td>
-    <td>7명</td>
-    <td>월1회</td>
-    <td rowspan="9">055-884-7984</td>
-  </tr>
-  <tr>
-    <td><a href="http://hdlib.gne.go.kr/board.es?mid=a50303000000&bid=A5_READING&cg_code=C05" target="_blank" title="새창열림"><strong class="col_blue">가온</strong></a></td>
-    <td>중등</td>
-    <td>10명</td>
-    <td>월2회</td>
-  </tr>
-  <tr>
-    <td><a href="http://hdlib.gne.go.kr/board.es?mid=a50303000000&bid=A5_READING&cg_code=C02" target="_blank" title="새창열림"><strong class="col_blue">느티나무</strong></a></td>
-    <td>일반</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://hdlib.gne.go.kr/board.es?mid=a50303000000&bid=A5_READING&cg_code=C03" target="_blank" title="새창열림"><strong class="col_blue">주경야독</strong></a></td>
-    <td>일반</td>
-    <td>9명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://hdlib.gne.go.kr/board.es?mid=a50303000000&bid=A5_READING&cg_code=C07" target="_blank" title="새창열림"><strong class="col_blue">2PM</strong></a></td>
-    <td>일반</td>
-    <td>5명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://hdlib.gne.go.kr/board.es?mid=a50303000000&bid=A5_READING" target="_blank" title="새창열림"><strong class="col_blue">하동문협</strong></a></td>
-    <td>일반</td>
-    <td>11명</td>
-    <td>월2회</td>
-  </tr>
-  <tr>
-    <td><a href="http://hdlib.gne.go.kr/board.es?mid=a50303000000&bid=A5_READING" target="_blank" title="새창열림"><strong class="col_blue">하동문학아카데미</strong></a></td>
-    <td>일반</td>
-    <td>21명</td>
-    <td>월2회</td>
-  </tr>
-  <tr>
-    <td><a href="http://hdlib.gne.go.kr/board.es?mid=a50303000000&bid=A5_READING" target="_blank" title="새창열림"><strong class="col_blue">차꽃수필 문학회</strong></a></td>
-    <td>노년</td>
-    <td>10명</td>
-    <td>주1회</td>
-  </tr>
-  <tr>
-    <td><a href="http://hdlib.gne.go.kr/board.es?mid=a50303000000&bid=A5_READING" target="_blank" title="새창열림"><strong class="col_blue">섬호 인문학</strong></a></td>
-    <td>노년</td>
-    <td>11명</td>
-    <td>주1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="3">함안도서관</th>
-    <td><a href="http://hmlib.gne.go.kr/menu.es?mid=a70304000000" target="_blank" title="새창열림"><strong class="col_blue">들꽃</strong></a></td>
-    <td>주부</td>
-    <td>13명</td>
-    <td>월1회</td>
-    <td rowspan="3">055-583-6919</td>
-  </tr>
-  <tr>
-    <td><a href="http://hmlib.gne.go.kr/menu.es?mid=a70304000000" target="_blank" title="새창열림"><strong class="col_blue">마음의 열매 </strong></a></td>
-    <td>초등</td>
-    <td>7명</td>
-    <td>월1회</td>
-  </tr>
-    <tr>
-    <td><a href="http://hmlib.gne.go.kr/menu.es?mid=a70304000000" target="_blank" title="새창열림"><strong class="col_blue">아라</strong></a></td>
-    <td>중등</td>
-    <td>20명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="2">함양도서관</th>
-    <td><a href="http://hylib.gne.go.kr/menu.es?mid=a80306010000" target="_blank" title="새창열림"><strong class="col_blue">느티나무 </strong></a></td>
-    <td>주부</td>
-    <td>13명</td>
-    <td>월2회</td>
-    <td rowspan="2">055-963-3186</td>
-  </tr>
-  <tr>
-    <td><a href="http://hylib.gne.go.kr/menu.es?mid=a80306010000" target="_blank" title="새창열림"><strong class="col_blue">함양 청소년 </strong></a></td>
-    <td>고등</td>
-    <td>10명</td>
-    <td>월1회</td>
-  </tr>
-  <tr>
-    <th scope="row" rowspan="2">합천도서관</th>
-    <td><a href="http://hclib.gne.go.kr/menu.es?mid=b80206000000" target="_blank" title="새창열림"><strong class="col_blue">책사이 </strong></a></td>
-    <td>주부</td>
-    <td>10명</td>
-    <td>월2회</td>
-    <td rowspan="2">055-932-0936</td>
-  </tr>
-  <tr>
-    <td><a href="http://hclib.gne.go.kr/menu.es?mid=b80206000000" target="_blank" title="새창열림"><strong class="col_blue">책을 읽는 아이들</strong></a></td>
-    <td>초등</td>
-    <td>7명</td>
-    <td>월1회</td>
-  </tr>
-  </tbody>
-</table>
+  StringBuilder query = new StringBuilder();
+  query.append(" SELECT A1.* ");
+  query.append("     , (SELECT COUNT(*) FROM GSND_STORY_TELLING_REGISTER WHERE STNO = A1.STNO AND RGST_METHOD='VISIT') RGST_VISIT");
+  query.append("     , (SELECT COUNT(*) FROM GSND_STORY_TELLING_REGISTER WHERE STNO = A1.STNO AND RGST_METHOD='ONLINE') RGST_ONLINE");
+  query.append("     , (SELECT COUNT(*) FROM GSND_STORY_TELLING_REGISTER WHERE STNO = A1.STNO AND RGST_METHOD='TEL') RGST_TEL");
+  query.append("     , (SELECT MAX(STFILENO) FROM GSND_STORY_TELLING_FILE WHERE TITLEIMG = 'Y' AND STNO = A1.STNO) TITLEIMG");
+  query.append(" FROM GSND_STORY_TELLING A1 WHERE STNO = ? ");
+
+  GsndStoryTelling entity = jdbcTemplate.queryForObject(query.toString(), new Object[]{ stno }, new GsndStoryTellingMapper() );
+  
+  List<GsndStoryTellingFile> stFiles = jdbcTemplate.query(
+    "SELECT * FROM GSND_STORY_TELLING_FILE WHERE TITLEIMG = 'N' AND STNO = ?", 
+    new Object[]{stno}, 
+    new RowMapper<GsndStoryTellingFile>() {
+      public GsndStoryTellingFile mapRow(ResultSet rs, int rowNum) throws SQLException {
+        GsndStoryTellingFile stfile = new GsndStoryTellingFile();
+        int idx = 1;
+        stfile.stfileno = rs.getInt(idx++);
+        stfile.stno = rs.getInt(idx++);
+        stfile.titleimg = rs.getString(idx++);
+        stfile.filename = rs.getString(idx++);
+        stfile.filesize = rs.getLong(idx++);
+        stfile.realname = rs.getString(idx++);
+        stfile.regdate = rs.getString(idx++);
+        stfile.regtime = rs.getString(idx++);
+        return stfile;
+      }
+    });
+
+%>
+
+<style>
+	label[for] { cursor: default;}
+</style>
+
+<div class="con">
+    <form id="viewForm" action="lect-write-do.jsp" method="post">
+        <input type="hidden" name="stno" value="<%= entity.stno%>">
+        <div class="board">
+            <fieldset>
+                <legend>게시글 입력</legend>
+                <table class="board_view">
+                    <caption>게시글에 대한 정보 입력</caption>
+                    <colgroup>
+                      <col style="width:20%">
+                      <col style="width:30%">
+                      <col style="width:20%">
+                      <col style="width:30%">
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row" class="topline"><label for="title">대표이미지</label></th>
+                            <td colspan="3" class="topline"><img src="<%=request.getContextPath() %>/index.lib?contentsSid=171&stno=<%= entity.stno %>&stfileno=<%= entity.titleimg %>" id="titleimg" style="width:50% !important;"></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="title">강좌명</label></th>
+                            <td colspan="3"><%=entity.title%></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="lecturer">강사</label></th>
+                            <td><%=entity.lecturer%></td>
+                            <th scope="row"><label for="attendee">교육대상</label></th>
+                            <td><%=entity.attendee%></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="stdate">교육일시</label></th>
+                            <td><%= formatDate( entity.stdate )%> <%= entity.sttime %></td>
+                            <th scope="row"><label for="stloc">강의장소</label></th>
+                            <td><%=entity.stloc%></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="charge">담당자</label></th>
+                            <td><%=entity.charge%></td>
+                            <th scope="row"><label for="chargetel">담당자 연락처</label></th>
+                            <td><%=entity.chargetel%></td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="rcrt_total">모집인원</label></th>
+                            <td>
+                              <%=entity.rcrt_total%>명
+                              (온라인:<%=entity.rcrt_online%>명)
+                            </td>
+                            <th scope="row"><label for="rcrt_method">접수방법</label></th>
+                            <td>
+							<div class="etc_ico">
+							<p class="badge_guide">
+								<%if(entity.rcrt_method != null && entity.rcrt_method.indexOf("RCRT_ONLINE") != -1) { %><span class="badge_i ca1">온라인접수</span> <%	} %>
+								<%if(entity.rcrt_method != null && entity.rcrt_method.indexOf("RCRT_VISIT") != -1) { %><span class="badge_i ca2">방문접수</span> <%	} %>
+								<%if(entity.rcrt_method != null && entity.rcrt_method.indexOf("RCRT_TEL") != -1) { %><span class="badge_i ca3">전화접수</span> <%	} %>
+							</p>
+							</div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="rcrt_sdate">모집기간</label></th>
+                            <td colspan="3">
+                              <%=formatDate( entity.rcrt_sdate )%>
+                              <%=entity.rcrt_stime%>
+                              ~
+                              <%=formatDate( entity.rcrt_edate )%>
+                              <%=entity.rcrt_etime%>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="stdesc">강의소개</label></th>
+                            <td colspan="3" height="200" valign="top">
+                                <%=entity.stdesc.replaceAll("\n", "<br>")%>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="file1">첨부파일</label></th>
+                            <td colspan="3">
+
+                            <% if(stFiles.size() == 0) { %>
+                              <div>첨부된 파일이 없습니다.</div>
+                            <% } %>
+
+                            <% for(GsndStoryTellingFile stfile : stFiles) {%>
+                                <div id="uploadfield">
+                                    <p class="file">
+                                        <a href="<%=request.getContextPath() %>/index.lib?contentsSid=170&stno=<%= stfile.stno %>&stfileno=<%= stfile.stfileno %>"><%= stfile.filename %></a>
+                                        <span class="file_size">(파일크기: <%= (stfile.filesize / 1024) %> kb)</span>
+                                    </p>
+                                </div>
+                            <% } %>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- 버튼 영역 -->
+                <div class="btn_area">
+		<%//if( isRcrtAble(entity) ) { %>
+                    <button type="button" class="btn medium color1" onclick="openDialogStoryRegister('<%= entity.stno %>')">접수</button>
+		<% //} %>
+                    <button type="button" class="btn medium white" onclick="location.hash='list'">목록</button>
+
+                    <% if(isRole) { %>
+                    <!-- 수정, 삭제 -->
+                    <button type="button" class="btn medium white" onclick="loadModify(<%= entity.stno %>)">수정</button>
+                    <button type="button" id="btnLectDelete" class="btn medium white">삭제</button>
+                    <% } %>
+                </div>
+                <!-- //버튼 영역 끝 -->
+            </fieldset>
+        </div>
+        <!-- //board_write -->
+    </form>
+
+
+    <% 
+      if(isRole) { 
+        String queryRegisters = "SELECT * FROM GSND_STORY_TELLING_REGISTER WHERE STNO = ? ORDER BY REGDATE, REGTIME";
+        List<GsndStoryTellingRegister> rgstList = jdbcTemplate.query(queryRegisters, new Object[]{ stno }, new GsndStoryTellingRegisterMapper() );
+    %>
+    <div>
+      <h3 class="bl_h3">수강신청 내역</h3>
+      <table class="tb_board lecture">
+        <thead>
+          <tr>
+            <th>번호</th>
+            <th>이름(아이디)</th>
+            <th>연락처</th>
+            <th>등록방법</th>
+            <th>등록일자</th>
+            <th>등록시간</th>
+            <th>상태</th>
+            <th>비고</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% int i=1; for(GsndStoryTellingRegister rgst : rgstList) { %>
+          <tr>
+            <td><%= i++ %></td>
+            <td><%= rgst.username %> (<%= rgst.userid %>)</td>
+            <td><%= rgst.printUserTel() %></td>
+            <td><%= rgst.printRgstMethod() %></td>
+            <td><%= formatDate( rgst.regdate ) %></td>
+            <td><%= formatTime( rgst.regtime ) %></td>
+            <td><%= rgst.printStatecd() %></td>
+            <td>
+            <% if( "RGST".equals(rgst.statecd) ) { %>
+              <button type="button" onclick="cancelRegister('<%= rgst.stno %>', '<%= rgst.userid %>')">취소</button>
+            <% } %>
+            </td>
+          </tr>
+          <% } %>
+	  <% if(rgstList.size() == 0 ) {%>
+	  <tr><td colspan="8" height="100" align="center"> 등록된 수강신청 내역이 없습니다.</td></tr>
+	  <% } %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+    <!-- 레이어 콘텐츠 -->
 </div>
 
-<div class="txt_center mt30"><span class="btn01 ic3"><a href="http://bookclub.kpipa.or.kr/" target="_blank" title="새창열림">전국 독서동아리 활동 지원 바로가기</a></span></div>
+<script language="javascript">
+  $(function() {
+    if( $("#titleimg").width() > 500 ) {
+	$("#titleimg").css("width", 500);
+    }
 
+    $("#btnLectDelete").click(function(){
+      if( confirm("삭제 하시겠습니까?") ) {
+        $.ajax({
+          url:"?contentsSid=163&stno=<%= entity.stno %>"
+        }).done(function(data){
+          loadList();
+        });
+      }
+    });
+  });
+</script>
+
+<% if(isRole) {  %>
+<form name="frmCancelRegister" action="<%= request.getContextPath()%>/index.lib?contentsSid=169">
+  <input type="hidden" name="rgstmode" value="ADMIN_CANCEL_REGISTER">
+  <input type="hidden" name="stno" value="">
+  <input type="hidden" name="userid" value="">
+</form>
+
+<script language="javascript">
+  $(function() {
+  	$("form[name='frmCancelRegister']").ajaxForm({
+      beforeSubmit: function(arr, $form, options) {
+        return true;
+      },
+      success: function(response,status){
+  		  alert('접수 취소 하였습니다.');
+	  	  location.reload();
+      },
+      error: function(response, status){
+        alert("오류가 발생하였습니다. 잠시후 다시 시도 하십시오.");
+      }
+    });
+  });
+
+  function cancelRegister(stno, userid) {
+    if( confirm(userid + ' 님의 접수 내역을 취소 하시겠습니까?') ) {
+      $("form[name='frmCancelRegister']").find("input[name='stno']").val(stno);
+      $("form[name='frmCancelRegister']").find("input[name='userid']").val(userid);
+      $("form[name='frmCancelRegister']").submit();
+    }
+  }
+</script>
+<% } %>
+                  
+                                                 

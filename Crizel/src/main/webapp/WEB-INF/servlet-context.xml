@@ -8,7 +8,8 @@
 	xmlns:util="http://www.springframework.org/schema/util"
 	>
 	<!-- <util:properties id="config" location="/WEB-INF/config.properties" /> -->
-	<context:component-scan base-package="controller" />
+	<context:component-scan base-package="common" />
+	<context:component-scan base-package="money" />
 	<context:component-scan base-package="diary" />
 	<context:component-scan base-package="girls" />
 	<context:component-scan base-package="model" />

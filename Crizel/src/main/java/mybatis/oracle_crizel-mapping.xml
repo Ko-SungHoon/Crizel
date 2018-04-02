@@ -8,7 +8,7 @@
 		addr from twitter where name=#{name} order by name
 	</select>
 
-	<select id="twitterProc" resultType="vo.CrizelVo">
+	<select id="twitterProc" resultType="common.CrizelVo">
 		select * from twitter order
 		by name
 	</select>
@@ -28,12 +28,12 @@
 		count(addr) from twitter
 	</select>
 
-	<insert id="twitterInsert" parameterType="vo.CrizelVo">
+	<insert id="twitterInsert" parameterType="common.CrizelVo">
 		insert into twitter
 		values(#{name}, #{addr})
 	</insert>
 
-	<delete id="twitterDelete" parameterType="vo.CrizelVo">
+	<delete id="twitterDelete" parameterType="common.CrizelVo">
 		delete from twitter
 		where name=#{name}
 	</delete>
@@ -43,7 +43,7 @@
 		addr from insta where name=#{name} order by name
 	</select>
 
-	<select id="instaProc" resultType="vo.CrizelVo">
+	<select id="instaProc" resultType="common.CrizelVo">
 		select * from insta order
 		by name
 	</select>
@@ -63,43 +63,43 @@
 		count(addr) from insta
 	</select>
 
-	<insert id="instaInsert" parameterType="vo.CrizelVo">
+	<insert id="instaInsert" parameterType="common.CrizelVo">
 		insert into insta
 		values(#{name}, #{addr})
 	</insert>
 
-	<delete id="instaDelete" parameterType="vo.CrizelVo">
+	<delete id="instaDelete" parameterType="common.CrizelVo">
 		delete from insta
 		where name=#{name}
 	</delete>
 
-	<select id="list" resultType="vo.CrizelVo" parameterType="String">
+	<select id="list" resultType="common.CrizelVo" parameterType="String">
 		select * 
 		from ani 
 		where day=#{day} 
 		order by ani_time
 	</select>
 
-	<insert id="listInsert" parameterType="vo.CrizelVo">
+	<insert id="listInsert" parameterType="common.CrizelVo">
 		insert into ani
 		values((select nvl(max(ani_id)+1,1) from ani), #{title}, #{ani_time}, #{day},
 		#{keyword}, #{site})
 	</insert>
 	
-	<select id="listInsertDetail" resultType="vo.CrizelVo">
+	<select id="listInsertDetail" resultType="common.CrizelVo">
 		select * from ani;
 	</select>
 
-	<delete id="listDelete" parameterType="vo.CrizelVo">
+	<delete id="listDelete" parameterType="common.CrizelVo">
 		delete from ani where
 		ani_id=#{ani_id}
 	</delete>
 
-	<select id="login" parameterType="vo.CrizelVo" resultType="vo.CrizelVo">
+	<select id="login" parameterType="common.CrizelVo" resultType="common.CrizelVo">
 		select * from login where id=#{id} and pw=#{pw}
 	</select>
 
-	<select id="board" parameterType="int" resultType="vo.CrizelVo">
+	<select id="board" parameterType="int" resultType="common.CrizelVo">
 		select
 		X.rnum, X.nick, X.subject, X.content, X.write_date, X.board_id
 		from (
@@ -121,14 +121,14 @@
 		select count(*) from board
 	</select>
 
-	<insert id="boardInsert" parameterType="vo.CrizelVo">
+	<insert id="boardInsert" parameterType="common.CrizelVo">
 		insert into board
 		values((select nvl(max(board_id)+1,1) from board), #{nick}, #{subject}, #{content},
 		to_char(sysdate,'yyyy.mm.dd') )
 	</insert>
 
-	<select id="boardContent" resultType="vo.CrizelVo"
-		parameterType="vo.CrizelVo">
+	<select id="boardContent" resultType="common.CrizelVo"
+		parameterType="common.CrizelVo">
 		select * from board where board_id=#{board_id}
 	</select>
 
@@ -141,18 +141,18 @@
 		select max(board_id) from board
 	</select>
 
-	<insert id="fileInsert" parameterType="vo.CrizelVo">
+	<insert id="fileInsert" parameterType="common.CrizelVo">
 		insert into fileUpload
 		values((select * from (select ifnull(max(file_id)+1,1) from fileUpload)tmp), #{board_id}, 
 		#{file_directory}, #{realFile}, #{saveFile}	)
 	</insert>
 	
-	<select id="fileAllDel" parameterType="vo.CrizelVo">
+	<select id="fileAllDel" parameterType="common.CrizelVo">
 		delete from fileUpload where board_id=#{board_id}
 	</select>
 	
-	<select id="boardContentFile" resultType="vo.CrizelVo"
-		parameterType="vo.CrizelVo">		
+	<select id="boardContentFile" resultType="common.CrizelVo"
+		parameterType="common.CrizelVo">		
 		select * from fileUpload where board_id=#{board_id}
 	</select>
 
@@ -166,16 +166,16 @@
 		board_id=#{board_id}
 	</delete>
 	
-	<update id="boardUpdate" parameterType="vo.CrizelVo">
+	<update id="boardUpdate" parameterType="common.CrizelVo">
 		 update board set nick=#{nick}, subject=#{subject}, content=#{content}, write_date=to_char(sysdate,'yyyy.mm.dd')
 		 where board_id=#{board_id}
 	</update>
 	
-	<delete id="boardFileDel" parameterType="vo.CrizelVo">
+	<delete id="boardFileDel" parameterType="common.CrizelVo">
 		delete from fileUpload where saveFile=#{saveFile}
 	</delete>
 
-	<insert id="register" parameterType="vo.CrizelVo">
+	<insert id="register" parameterType="common.CrizelVo">
 		insert into login
 		values(#{id}, #{pw}, #{name}, #{email}, #{phone}, #{nick},
 		to_char(sysdate,'yyyy.mm.dd'))
@@ -185,7 +185,7 @@
 		select id from login where id=#{re_id}
 	</select>
 	
-	<select id="json" parameterType="String" resultType="vo.CrizelVo">
+	<select id="json" parameterType="String" resultType="common.CrizelVo">
 		select * 
 		from girls 
 		where name in ('경리', '나나', '설현', '수지', '윤태진')
@@ -196,11 +196,11 @@
 		order by name
 	</select>
 	
-	<select id="comicList" resultType="vo.CrizelVo">
+	<select id="comicList" resultType="common.CrizelVo">
 		select * from comic order by title
 	</select>
 	
-	<insert id="comicInsert" parameterType="vo.CrizelVo">
+	<insert id="comicInsert" parameterType="common.CrizelVo">
 		INSERT INTO COMIC(
 			COMIC_ID,
 			TITLE,
@@ -215,7 +215,7 @@
 		)
 	</insert>
 	
-	<delete id="comicDelete" parameterType="vo.CrizelVo">
+	<delete id="comicDelete" parameterType="common.CrizelVo">
 		DELETE FROM COMIC WHERE COMIC_ID = #{comic_id}
 	</delete>
 	
@@ -230,7 +230,7 @@
 		  VALUES((SELECT NVL(MAX(CHECK_ID)+1,1) FROM COMIC_CHECK), #{title}, #{addr}, SYSDATE )
 	</insert>
 	
-	<select id="comicViewList" parameterType="String" resultType="vo.CrizelVo">
+	<select id="comicViewList" parameterType="String" resultType="common.CrizelVo">
 		SELECT *
 		FROM COMIC_CHECK
 		WHERE ADDR = #{addr}

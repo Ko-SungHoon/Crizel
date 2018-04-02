@@ -7,11 +7,11 @@
 		select sum(price) from money where day like '%'||#{month}||'%' and id=#{id}
 	</select>
 
-	<select id="moneyDetail" parameterType="Hashmap" resultType="vo.MoneyVO">
+	<select id="moneyDetail" parameterType="Hashmap" resultType="money.MoneyVO">
 		select * from money where day=#{day} and id=#{id}
 	</select>
 
-	<insert id="insert" parameterType="vo.MoneyVO">
+	<insert id="insert" parameterType="money.MoneyVO">
 		insert into money values(#{item}, #{price}, #{day},(select nvl(max(money_id)+1,1) from money), #{id})
 	</insert>
 
@@ -19,12 +19,12 @@
 		delete from money where money_id=#{money_id} and id=#{id}
 	</delete>
 
-	<select id="login" parameterType="vo.MoneyVO" resultType="vo.MoneyVO">
+	<select id="login" parameterType="money.MoneyVO" resultType="money.MoneyVO">
 		select *
 		from moneyLogin where id=#{id} and pw=#{pw}
 	</select>
 	
-	<insert id="register" parameterType="vo.MoneyVO">
+	<insert id="register" parameterType="money.MoneyVO">
 		insert into moneyLogin
 		values(#{id}, #{pw})
 	</insert>
@@ -33,7 +33,7 @@
 		select id from moneyLogin where id=#{re_id}
 	</select>
 	
-	<select id="totalList" parameterType="Hashmap" resultType="vo.MoneyVO">
+	<select id="totalList" parameterType="Hashmap" resultType="money.MoneyVO">
 		select item, sum(price) as price from money where day like '%'||#{day}||'%' and id=#{id} group by item order by price desc
 	</select>
 </mapper>
