@@ -39,7 +39,7 @@ function allNewTap(){
 	<c:forEach items="${list}" var="ob">
 		<tr>
 			<td>
-				<a href="${ob.magnet}">${ob.text} ${ob.time}</a>  
+				<a href="${ob.magnet}" target="_blank">${ob.text} ${ob.time}</a>  
 			</td>
 		</tr>
 	</c:forEach>
