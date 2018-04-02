@@ -363,11 +363,10 @@ public class CrizelController {
 	
 	@RequestMapping("torrent")
 	public ModelAndView torrent(
-			@RequestParam(value="addr", required=false, defaultValue="https://manstorrent.com/bbs/board.php?bo_table=javcensored")String addr,
-			@RequestParam(value="page", required=false, defaultValue="1")String page){
+			@RequestParam(value="addr", required=false, defaultValue="https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=1")String addr){
 		ModelAndView mav = new ModelAndView();
 		Torrent t1 = new Torrent();
-		List<Map<String,Object>> list = t1.getList(addr, page); 
+		List<Map<String,Object>> list = t1.getList(addr); 
 		
 		mav.addObject("list", list);
 		mav.setViewName("torrent");

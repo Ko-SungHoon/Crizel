@@ -46,6 +46,7 @@ $(function(){
 				<li><a href="/comic.do">만화</a></li>
 				<li><a href="/nyaa.do">Nyaa</a></li>
 				<li><a href="/music.do">MUSIC</a></li>
+				<li><a href="/torrent.do">TORRENT</a></li>
 				<li><a href="/directory.do">파일</a></li>
 				<li><a href="/diary.do">일기</a></li>
 				<li><a href="http://www.youtube-audio.com/" target="blank">유튜브 mp3 추출</a></li>

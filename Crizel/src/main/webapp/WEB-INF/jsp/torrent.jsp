@@ -7,15 +7,7 @@
 <head>
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <title>
-<c:choose>
-	<c:when test="${name eq ''}">
-		사진
-	</c:when>
-	<c:otherwise>
-		${name}
-	</c:otherwise>
-</c:choose>
-
+TORRENT
 </title>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <style type="text/css">
@@ -26,6 +18,10 @@ function girlsDownload(url, name, name2){
 		name = name2;
 	}
 	location.href="/girlsDownload.do?url="+url+"&name="+encodeURIComponent(name);
+}
+
+function getPage(addr){
+	location.href = "/torrent.do?addr=" + encodeURIComponent(addr); 
 }
 </script>
 </head>
@@ -49,12 +45,12 @@ function allNewTap(){
 	</c:forEach>
 	</table>
 	<div class="paging">
-		<a href="/torrent.do?page=1">1</a>
-		<a href="/torrent.do?page=2">2</a>
-		<a href="/torrent.do?page=3">3</a>
-		<a href="/torrent.do?page=4">4</a>
-		<a href="/torrent.do?page=5">5</a>
-		<a href="/torrent.do?page=6">6</a>	
+		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=1')">1</a>
+		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=2')">2</a>
+		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=3')">3</a>
+		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=4')">4</a>
+		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=5')">5</a>
+		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=6')">6</a>
 	</div>
 </div>
 </body>

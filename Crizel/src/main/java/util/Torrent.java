@@ -13,8 +13,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 public class Torrent {
-	public List<Map<String,Object>> getList(String addr, String page){
-		String URL 						= addr + "&" + page;
+	public List<Map<String,Object>> getList(String addr){
+		String URL 						= addr;
         Document doc 					= null;
         Elements elem					= null;
 		List<Map<String,Object>> list 	= null;
