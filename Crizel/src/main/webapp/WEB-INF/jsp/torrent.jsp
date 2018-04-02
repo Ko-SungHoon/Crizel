@@ -49,12 +49,12 @@ function allNewTap(){
 	</c:forEach>
 	</table>
 	<div class="paging">
-		<a href="/torrent.do?addr=https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=1">1</a>
-		<a href="/torrent.do?addr=https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=2">2</a>
-		<a href="/torrent.do?addr=https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=3">3</a>
-		<a href="/torrent.do?addr=https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=4">4</a>
-		<a href="/torrent.do?addr=https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=5">5</a>
-		<a href="/torrent.do?addr=https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=6">6</a>	
+		<a href="/torrent.do?page=1">1</a>
+		<a href="/torrent.do?page=2">2</a>
+		<a href="/torrent.do?page=3">3</a>
+		<a href="/torrent.do?page=4">4</a>
+		<a href="/torrent.do?page=5">5</a>
+		<a href="/torrent.do?page=6">6</a>	
 	</div>
 </div>
 </body>
