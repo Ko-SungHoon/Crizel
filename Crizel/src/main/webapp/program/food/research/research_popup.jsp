@@ -22,6 +22,7 @@ StringBuffer sql    =   null;
 String sql_str      =   "";
 
 List<FoodVO> researchItem   =   null;   //수정 정보
+List<FoodVO> catList		=	null;	// 구분 리스트
 
 String pageTitle    =   "조사개시";
 if (mode != null && "mod".equals(mode)) {
@@ -38,6 +39,12 @@ try {
         researchItem    =   jdbcTemplate.query(sql.toString(), new FoodList());
         
     }
+    
+    
+    sql = new StringBuffer();
+    sql.append("SELECT * FROM FOOD_ST_CAT WHERE SHOW_FLAG = 'Y' ORDER BY CAT_NM	 ");
+    catList = jdbcTemplate.query(sql.toString(), new FoodList());
+    
     
 } catch(Exception e) {
 	out.println(e.toString());
@@ -134,9 +141,13 @@ try {
     
     //form submit
     function researchForm () {
-    
-        return false;
-    
+    	if(confirm("조사개시를 시작하시겠습니까? ")){
+    		$("#researchForm").attr("action", "research_excel_up.jsp");
+    		$("#researchForm").attr("method", "post");    		
+    		return true;
+    	}else{
+    		return false;
+    	}
     }
 </script>
 </head>
@@ -151,7 +162,7 @@ try {
 <!-- S : #content -->
 <div id="content">
 	<div>
-		<form id="researchForm" onsubmit="return researchForm();">
+		<form id="researchForm" onsubmit="return researchForm();" enctype="multipart/form-data">
             <fieldset>
                 <input type="hidden" id="mode" name="mode" value="<%=mode%>">
                 <input type="hidden" id="rsch_year" name="rsch_year" value="">
@@ -173,7 +184,23 @@ try {
                         </tr>
                         <tr>
                             <th scope="row">조사 명</th>
-                            <td colspan="3"><input type="text" class="rsch_nm wps_75" id="rsch_nm" name="rsch_nm"></td>
+                            <td colspan="3"><input type="text" class="rsch_nm wps_75" id="rsch_nm" name="rsch_nm" required></td>
+                        </tr>
+                        <tr>
+                        	<th scope="row">조사 구분</th>
+                        	<td colspan="3">
+                        	<%
+                        	if(catList!=null && catList.size()>0){
+                        		int i=0;
+                        		for(FoodVO ob : catList){
+                        	%>
+                        		<input type="checkbox" id=cat_nm_<%=i++%> name="cat_nm" value="<%=ob.cat_nm%>">
+                        		<label for="cat_nm_<%=i-1%>"><%=ob.cat_nm%></label>
+                        	<% 
+                        		}
+                        	}
+                        	%>
+                        	</td>
                         </tr>
                         <tr>
                             <th scope="row">

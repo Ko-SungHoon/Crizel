@@ -29,8 +29,10 @@ String sch_tel		= parseNull(request.getParameter("sch_tel"));
 String nu_tel		= parseNull(request.getParameter("nu_tel"));
 String sch_grade	= parseNull(request.getParameter("sch_grade"));
 String nu_mail		= parseNull(request.getParameter("nu_mail"));
-String zone_no		= parseNull(request.getParameter("zone_no"), "0");
-String team_no		= parseNull(request.getParameter("team_no"), "0");
+String zone_no		= parseNull(request.getParameter("zone_no"));
+String team_no		= parseNull(request.getParameter("team_no"));
+String jo_no		= parseNull(request.getParameter("jo_no"));
+String area_no		= parseNull(request.getParameter("area_no"));
 String sch_gen		= parseNull(request.getParameter("sch_gen"));
 String sch_fax 		= parseNull(request.getParameter("sch_fax"));
 String sch_post 	= parseNull(request.getParameter("sch_post"));
@@ -68,11 +70,14 @@ try{
 		sql.append("	REG_DATE,					");	// 등록 날짜시간
 		sql.append("	ZONE_NO,					");	// 권역 번호
 		sql.append("	TEAM_NO,					");	// 팀 번호
+		sql.append("	JO_NO,						");	// 조 번호
+		sql.append("	AREA_NO,					");	// 지역 번호
 		sql.append("	SCH_GRADE,					");	// 팀장 여부 'R' = researcher, 'T' = 'super visor'
 		sql.append("	SCH_LV,						");	// 팀 등급(여분)
 		sql.append("	SCH_PW,						");	// 비밀번호
 		sql.append("	SCH_APP_FLAG,				");	// 승인여부
 		sql.append("	APP_DATE,					");	// 승인일시
+		sql.append("	MOD_DATE,					");	// 수정일시
 		sql.append("	ETC1,						");	// 여분1
 		sql.append("	ETC2,						");	// 여분2
 		sql.append("	ETC3						");	// 여분3
@@ -95,18 +100,22 @@ try{
 		sql.append("	SYSDATE,												"); // REG_DATE
 		sql.append("	?,														"); // ZONE_NO
 		sql.append("	?,														"); // TEAM_NO
+		sql.append("	?,														"); // JO_NO
+		sql.append("	?,														"); // AREA_NO
 		sql.append("	?,														");	// SCH_GRADE
 		sql.append("	'',														"); // SCH_LV
 		sql.append("	?,														");	// SCH_PW
 		sql.append("	'N',													");	// SCH_APP_FLAG
 		sql.append("	null,													");	// APP_DATE
+		sql.append("	SYSDATE,												");	// MOD_DATE
 		sql.append("	'',														"); // ETC1
 		sql.append("	'',														"); // ETC2
 		sql.append("	''														"); // ETC3
 		sql.append(")															");
 		
 		result = jdbcTemplate.update(sql.toString(), new Object[]{
-			sch_no, sch_org_sid, sch_type, sch_id, sch_nm, sch_tel, sch_area, sch_addr, sch_found, sch_gen, zone_no, team_no, sch_grade, sch_pw
+			  sch_no, sch_org_sid, sch_type, sch_id, sch_nm, sch_tel, sch_area, sch_addr
+			, sch_found, sch_gen, zone_no, team_no, jo_no, area_no, sch_grade, sch_pw
 		});
 		
 		
@@ -156,13 +165,16 @@ try{
 		sql.append("	SHOW_FLAG 	= ?,			");	// 노출여부
 		sql.append("	ZONE_NO 	= ?,			");	// 권역 번호
 		sql.append("	TEAM_NO 	= ?,			");	// 팀 번호
+		sql.append("	JO_NO	 	= ?,			");	// 조 번호
+		sql.append("	AREA_NO	 	= ?,			");	// 지역 번호
 		sql.append("	SCH_GRADE 	= ?,			");	// 팀장 여부 'R' = researcher, 'T' = 'super visor'
 		//sql.append("	SCH_PW 		= ?,			");	// 비밀번호
-		sql.append("	SCH_LV 		= ?			");	// 팀 등급(여분)
+		sql.append("	SCH_LV 		= ?,			");	// 팀 등급(여분)
+		sql.append("	MOD_DATE	= SYSDATE		");	// 수정일시
 		sql.append("WHERE SCH_NO 	= ?				");
 		result = jdbcTemplate.update(sql.toString(), new Object[]{
 			sch_type, sch_nm, sch_tel, sch_fax, sch_area, sch_post, sch_addr, sch_found, sch_url, sch_gen,
-			show_flag, zone_no, team_no, sch_grade, 
+			show_flag, zone_no, team_no, jo_no, area_no, sch_grade, 
 			//sch_pw,
 			sch_lv, sch_no
 		});

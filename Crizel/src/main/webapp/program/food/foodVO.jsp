@@ -198,6 +198,98 @@ public class FoodVO{
 	public String fail_reason	=	"";
 	public String file_type		=	"";
 	
+	public String rsch_no		=	"";
+	//public String cat_no		=	"";
+	//public String etc1		=	"";
+	//public String etc2		=	"";
+	
+	public String rsch_item_no		=	"";
+	//public String item_no		=	"";
+	//public String sch_no		=	"";
+	//public String nu_no		=	"";
+	//public String file_no		=	"";
+	public String reg_year		=	"";
+	public String reg_mon		=	"";
+	
+	//public String rsch_item_no		=	"";
+	//public String item_no		=	"";
+	//public String sch_no		=	"";
+	//public String nu_no		=	"";
+	//public String file_no		=	"";
+	//public String reg_year		=	"";
+	//public String reg_mon		=	"";
+	
+	//public String rsch_no		=	"";
+	public String rsch_nm		=	"";
+	public String rsch_year		=	"";
+	public String rsch_month		=	"";
+	public String str_date		=	"";
+	public String mid_date		=	"";
+	public String end_date		=	"";
+	//public String file_no		=	"";
+	//public String reg_id		=	"";
+	//public String reg_ip		=	"";
+	//public String reg_date		=	"";
+	//public String mod_date		=	"";
+	//public String show_flag		=	"";
+	//public String sts_flag		=	"";
+	
+	//public String rsch_no		=	"";
+	//public String team_no		=	"";
+	//public String etc1		=	"";
+	//public String etc2		=	"";
+	
+	public String rsch_val_no		=	"";
+	//public String rsch_no		=	"";
+	//public String item_no		=	"";
+	//public String sch_no		=	"";
+	//public String nu_no		=	"";
+	public String rsch_reason		=	"";
+	public String t_rj_reason		=	"";
+	public String rj_reason		=	"";
+	public String non_season		=	"";
+	public String non_distri		=	"";
+	public String rsch_val1		=	"";
+	public String rsch_val2		=	"";
+	public String rsch_val3		=	"";
+	public String rsch_val4		=	"";
+	public String rsch_val5		=	"";
+	public String rsch_loc1		=	"";
+	public String rsch_loc2		=	"";
+	public String rsch_loc3		=	"";
+	public String rsch_loc4		=	"";
+	public String rsch_loc5		=	"";
+	public String rsch_com1		=	"";
+	public String rsch_com2		=	"";
+	public String rsch_com3		=	"";
+	public String rsch_com4		=	"";
+	public String rsch_com5		=	"";
+	public String sp_reason		=	"";
+	//public String reg_date		=	"";
+	public String rsch_date		=	"";
+	//public String mod_date		=	"";
+	public String rj_date		=	"";
+	public String rsch_t_date		=	"";
+	public String sp_chk		=	"";
+	//public String sts_flag		=	"";
+	public String low_val		=	"";
+	public String avr_val		=	"";
+	public String center_val		=	"";
+	public String null_rsch_flag		=	"";
+	
+	public String jo_no		=	"";
+	//public String team_no		=	"";
+	public String jo_nm		=	"";
+	//public String reg_date		=	"";
+	//public String mod_date		=	"";
+	//public String order1		=	"";
+	//public String order2		=	"";
+	//public String order3		=	"";
+	
+	public String area_no = "";
+	public String area_nm = "";
+	
+	
 }
 
 public class FoodList implements RowMapper<FoodVO> {
@@ -336,7 +428,50 @@ public class FoodList implements RowMapper<FoodVO> {
     		else if("ITEM_GRP_ORDER".equals(column)){   vo.item_grp_order   =   parseNull(rs.getString("ITEM_GRP_ORDER"));	    }
     		else if("ITEM_COMP_NO".equals(column)){     vo.item_comp_no     =   parseNull(rs.getString("ITEM_COMP_NO"));	    }
     		else if("ITEM_COMP_VAL".equals(column)){    vo.item_comp_val    =   parseNull(rs.getString("ITEM_COMP_VAL"));	    }
-            
+    		else if("RSCH_NO".equals(column)){		    vo.rsch_no			=   parseNull(rs.getString("RSCH_NO"));	    }
+   			else if("RSCH_ITEM_NO".equals(column)){		vo.rsch_item_no		=   parseNull(rs.getString("RSCH_ITEM_NO"));	    }
+   			else if("REG_YEAR".equals(column)){		    vo.reg_year		    =   parseNull(rs.getString("REG_YEAR"));	    }
+   			else if("REG_MON".equals(column)){		    vo.reg_mon		    =   parseNull(rs.getString("REG_MON"));	    }
+   			else if("RSCH_NM".equals(column)){		    vo.rsch_nm		    =   parseNull(rs.getString("RSCH_NM"));	    }
+   			else if("RSCH_YEAR".equals(column)){		vo.rsch_year		=   parseNull(rs.getString("RSCH_YEAR"));	    }
+   			else if("RSCH_MONTH".equals(column)){		vo.rsch_month		=   parseNull(rs.getString("RSCH_MONTH"));	    }
+   			else if("STR_DATE".equals(column)){		    vo.str_date		    =   parseNull(rs.getString("STR_DATE"));	    }
+   			else if("MID_DATE".equals(column)){		    vo.mid_date		    =   parseNull(rs.getString("MID_DATE"));	    }
+   			else if("END_DATE".equals(column)){		    vo.end_date		    =   parseNull(rs.getString("END_DATE"));	    }
+    		else if("RSCH_VAL_NO".equals(column)){		vo.rsch_val_no		=   parseNull(rs.getString("RSCH_VAL_NO"));	    }
+    		else if("RSCH_REASON".equals(column)){		vo.rsch_reason		=   parseNull(rs.getString("RSCH_REASON"));	    }
+    		else if("T_RJ_REASON".equals(column)){		vo.t_rj_reason		=   parseNull(rs.getString("T_RJ_REASON"));	    }
+    		else if("RJ_REASON".equals(column)){		vo.rj_reason		=   parseNull(rs.getString("RJ_REASON"));	    }
+    		else if("NON_SEASON".equals(column)){		vo.non_season		=   parseNull(rs.getString("NON_SEASON"));	    }
+    		else if("NON_DISTRI".equals(column)){		vo.non_distri		=   parseNull(rs.getString("NON_DISTRI"));	    }
+    		else if("RSCH_VAL1".equals(column)){		vo.rsch_val1		=   parseNull(rs.getString("RSCH_VAL1"));	    }
+    		else if("RSCH_VAL2".equals(column)){		vo.rsch_val2		=   parseNull(rs.getString("RSCH_VAL2"));	    }
+    		else if("RSCH_VAL3".equals(column)){		vo.rsch_val3		=   parseNull(rs.getString("RSCH_VAL3"));	    }
+    		else if("RSCH_VAL4".equals(column)){		vo.rsch_val4		=   parseNull(rs.getString("RSCH_VAL4"));	    }
+    		else if("RSCH_VAL5".equals(column)){		vo.rsch_val5		=   parseNull(rs.getString("RSCH_VAL5"));	    }
+    		else if("RSCH_LOC1".equals(column)){		vo.rsch_loc1		=   parseNull(rs.getString("RSCH_LOC1"));	    }
+    		else if("RSCH_LOC2".equals(column)){		vo.rsch_loc2		=   parseNull(rs.getString("RSCH_LOC2"));	    }
+    		else if("RSCH_LOC3".equals(column)){		vo.rsch_loc3		=   parseNull(rs.getString("RSCH_LOC3"));	    }
+    		else if("RSCH_LOC4".equals(column)){		vo.rsch_loc4		=   parseNull(rs.getString("RSCH_LOC4"));	    }
+    		else if("RSCH_LOC5".equals(column)){		vo.rsch_loc5		=   parseNull(rs.getString("RSCH_LOC5"));	    }
+    		else if("RSCH_COM1".equals(column)){		vo.rsch_com1		=   parseNull(rs.getString("RSCH_COM1"));	    }
+    		else if("RSCH_COM2".equals(column)){		vo.rsch_com2		=   parseNull(rs.getString("RSCH_COM2"));	    }
+    		else if("RSCH_COM3".equals(column)){		vo.rsch_com3		=   parseNull(rs.getString("RSCH_COM3"));	    }
+    		else if("RSCH_COM4".equals(column)){		vo.rsch_com4		=   parseNull(rs.getString("RSCH_COM4"));	    }
+    		else if("RSCH_COM5".equals(column)){		vo.rsch_com5		=   parseNull(rs.getString("RSCH_COM5"));	    }
+    		else if("SP_REASON".equals(column)){		vo.sp_reason		=   parseNull(rs.getString("SP_REASON"));	    }
+    		else if("RSCH_DATE".equals(column)){		vo.rsch_date		=   parseNull(rs.getString("RSCH_DATE"));	    }
+    		else if("RJ_DATE".equals(column)){		    vo.rj_date		    =	 parseNull(rs.getString("RJ_DATE"));	    }
+    		else if("RSCH_T_DATE".equals(column)){		vo.rsch_t_date		=   parseNull(rs.getString("RSCH_T_DATE"));	    }
+    		else if("SP_CHK".equals(column)){		    vo.sp_chk		    =   parseNull(rs.getString("SP_CHK"));	    }
+    		else if("LOW_VAL".equals(column)){		    vo.low_val		    =   parseNull(rs.getString("LOW_VAL"));	    }
+    		else if("AVR_VAL".equals(column)){		    vo.avr_val		    =   parseNull(rs.getString("AVR_VAL"));	    }
+    		else if("CENTER_VAL".equals(column)){		vo.center_val	=   parseNull(rs.getString("CENTER_VAL"));	    }
+    		else if("NULL_RSCH_FLAG".equals(column)){	vo.null_rsch_flag	=   parseNull(rs.getString("NULL_RSCH_FLAG"));	    }
+    		else if("JO_NO".equals(column)){			vo.jo_no			=   parseNull(rs.getString("JO_NO"));	    }
+    		else if("JO_NM".equals(column)){			vo.jo_nm			=   parseNull(rs.getString("JO_NM"));	    }
+    		else if("AREA_NO".equals(column)){			vo.area_no			=   parseNull(rs.getString("AREA_NO"));	    }
+    		else if("AREA_NM".equals(column)){			vo.area_nm			=   parseNull(rs.getString("AREA_NM"));	    }
 
 		}
         return vo;

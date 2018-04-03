@@ -1,7 +1,7 @@
 <%
 /**
-*   PURPOSE :   팀수정 팝업
-*   CREATE  :   20180321_wed    Ko
+*   PURPOSE :   조수정 팝업
+*   CREATE  :   20180403_tue    Ko
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -16,7 +16,7 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
-String pageTitle = "팀 추가/수정";
+String pageTitle = "조 추가/수정";
 %>
 
 <!DOCTYPE html>
@@ -37,7 +37,6 @@ String zone_no				= parseNull(request.getParameter("zone_no"));
 StringBuffer sql 			= null;
 List<FoodVO> list 			= null;
 List<FoodVO> zoneList		= null;
-List<FoodVO> catList		= null;
 
 try{
 	sql = new StringBuffer();
@@ -55,13 +54,6 @@ try{
 		sql.append("ORDER BY ORDER1							");
 		list = jdbcTemplate.query(sql.toString(), new FoodList(), zone_no);
 	}
-	
-	sql = new StringBuffer();
-	sql.append("SELECT * 				");
-	sql.append("FROM FOOD_ST_CAT 		");
-	sql.append("WHERE SHOW_FLAG = 'Y'	");
-	sql.append("ORDER BY CAT_NM			");
-	catList = jdbcTemplate.query(sql.toString(), new FoodList());
 	
 }catch(Exception e){
 	out.println(e.toString());
@@ -122,6 +114,10 @@ $(function(){
 				<legend><%=pageTitle%> 입력테이블</legend>
 				<table class="bbs_list2">
 					<colgroup>
+						<col style="width:20%">
+						<col style="width:20%">
+						<col style="width:20%">
+						<col>
 					</colgroup>
 					<tbody>
 						<tr>

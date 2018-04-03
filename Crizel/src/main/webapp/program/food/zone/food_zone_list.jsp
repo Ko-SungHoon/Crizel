@@ -266,6 +266,7 @@ try{
 
 	function zonePopup(){newWin("food_zone_popup.jsp", 'PRINTVIEW', '1000', '740');}
 	function teamPopup(zone_no){newWin("food_team_popup.jsp?zone_no="+zone_no, 'PRINTVIEW', '1000', '740');}
+	function joPopup(zone_no, team_no){newWin("food_jo_popup.jsp?zone_no="+zone_no+"&team_no="+team_no, 'PRINTVIEW', '1000', '740');}
 	function researcherPopup(){newWin("food_researcher_popup.jsp", 'PRINTVIEW', '1000', '740');}
 	function detailPopup(sch_no){newWin("food_researcher_detail_popup.jsp?sch_no="+sch_no, 'PRINTVIEW', '1000', '740');}
 	
@@ -321,6 +322,7 @@ try{
 	
 	<div class="f_r">
 		<button type="button" class="btn small edge mako" onclick="teamPopup('<%=zone_no%>');">팀 추가/수정</button>
+		<button type="button" class="btn small edge mako" onclick="joPopup('<%=zone_no%>', '<%=team_no%>');">조 추가/수정</button>
 		<button type="button" class="btn small edge mako" onclick="researcherPopup();">조사자등록</button>
 	</div>
 	

@@ -1,24 +1,24 @@
 @CHARSET "UTF-8";
 @media all and (max-width:768px) { /* 모바일 CSS 작성 */
 .content{width: 100%; margin-top: 30px;}
-.header{width: 100%; text-align: center; vertical-align: middle; background: #ff9b99; }
+.header{width: 100%; text-align: center; vertical-align: middle; background: #8ad4ff; }
 
-.logo{width: 9%; line-height: 50px; margin: 0; padding: 0; display: inline-block; background: #ff9b99; color: white; font-weight: bold;} 
+.logo{width: 9%; line-height: 50px; margin: 0; padding: 0; display: inline-block; background: #8ad4ff; color: white; font-weight: bold;} 
 
 .menu, .menu ul{list-style: none;}
-.menu{width: 100%; margin: 0; padding: 0; display: none; background: #ff7a78; }	
+.menu{width: 100%; margin: 0; padding: 0; display: none; background: #45bbff; }	
 .menu a{color: white; display: block;}
 .menu li{width: 100%; line-height: 50px; margin: 0; padding: 0; display: inline-block; }
-.menu li:hover{background: #ff7a78;}
+.menu li:hover{background: #45bbff;}
 .menu li:hover > ul{display: block;}
-.menu ul{width: 100%; line-height: 50px; margin: 0; padding: 0; display: block; background: #ff9b99; z-index: 1000;}
+.menu ul{width: 100%; line-height: 50px; margin: 0; padding: 0; display: block; background: #8ad4ff; z-index: 1000;}
 .menu ul li{width: 100%; line-height: 50px; margin: 0; padding: 0; display: block;}
 
-.mobMenu{display: block; width: 100%; margin: 0; padding: 0; background: #ff9b99; list-style: none;}
+.mobMenu{display: block; width: 100%; margin: 0; padding: 0; background: #8ad4ff; list-style: none;}
 .mobMenu li{width: 100%; line-height: 50px; margin: 0; padding: 0; display: block; }
 .mobMenu span{color: white; display: block; cursor: pointer;}
  
-.login_menu{width: 9%; line-height: 50px; margin: 0; padding: 0; display: none; background: #ff9b99;}
+.login_menu{width: 9%; line-height: 50px; margin: 0; padding: 0; display: none; background: #8ad4ff;}
 .login_menu a{color:white;}
 
 .modal{display: none;}
@@ -33,25 +33,25 @@
 .ul_type01 li{list-style: none; margin: 0; padding: 0;}
 .ul_type01 li a{color: black;}
 
-.ul_type02{list-style: none; margin: 0; padding: 0; background: #ff9b99;}
+.ul_type02{list-style: none; margin: 0; padding: 0; background: #8ad4ff;}
 .ul_type02 li{width:19%; line-height: 50px; list-style: none; margin: 0; padding: 0; display: inline-block; text-align: center;}
-.ul_type02 li a:hover{background: #ff7a78;}
+.ul_type02 li a:hover{background: #45bbff;}
 .ul_type02 li a{color: white; display: block;}
 
 .ul_type03{width:100%; list-style: none; margin: 0 auto; padding: 0;}
 .ul_type03 li{width:100%; text-align: center; margin-top: 30px;}
 .ul_type03 img{width:100%;}
 
-.ul_type04{list-style: none; margin: 0; padding: 0; background: #ff9b99;}
+.ul_type04{list-style: none; margin: 0; padding: 0; background: #8ad4ff;}
 .ul_type04 li{width:19%; line-height: 50px; list-style: none; margin: 0; padding: 0; display: inline-block; text-align: center;}
-.ul_type04 li a:hover{background: #ff7a78;}
+.ul_type04 li a:hover{background: #45bbff;}
 .ul_type04 li a{color: white; display: inline-block; padding: 0 10px 0 10px;}
 
 
 .tbl_main{width: 90%; margin: 0 auto; padding: 0; text-align: center; margin-top: 30px; border-collapse: collapse; border-spacing: 0;}
 .tbl_main, .tbl_main th, .tbl_main td{border: 1px solid black;}
 .tbl_main th, .tbl_main td{padding : 10px;}
-.tbl_main th{background: #ff9b99; color: white; font-weight: bold;}
+.tbl_main th{background: #8ad4ff; color: white; font-weight: bold;}
 .tbl_main th a{color: white;}
 .tbl_main .left{text-align: left;}
 
@@ -61,14 +61,14 @@
 .tbl_type01{width: 90%; margin: 0 auto; padding: 0; text-align: center; margin-top: 30px; border-collapse: collapse; border-spacing: 0;}
 .tbl_type01, .tbl_type01 th, .tbl_type01 td{border: 1px solid black;}
 .tbl_type01 th, .tbl_type01 td{line-height: 40px;}
-.tbl_type01 th{background: #ff9b99; color: white; font-weight: bold;}
-.tbl_type01 th a:hover{background: #ff7a78;}
+.tbl_type01 th{background: #8ad4ff; color: white; font-weight: bold;}
+.tbl_type01 th a:hover{background: #45bbff;}
 .tbl_type01 th a{color: white; display: block;}
 .tbl_type01 th span{display: block; cursor: pointer;}
 .tbl_type01 td{cursor: pointer;}
-.tbl_type01 a:hover{background: #ff9b99;}
+.tbl_type01 a:hover{background: #8ad4ff;}
 .tbl_type01 td a{display: block; color:black; margin: 0; padding: 0;}
-.tbl_type01 .on{background: #ff7a78;}
+.tbl_type01 .on{background: #45bbff;}
 .tbl_type01 .left{text-align: left;}
 .tbl_type01 ul{list-style: none; margin: 0; padding: 0;}
 .tbl_type01 ul li{display: inline-block;}
@@ -78,7 +78,7 @@
 .tbl_type02{width: 90%; margin: 0 auto; padding: 0; text-align: center; margin-top: 30px; border-collapse: collapse; border-spacing: 0;}
 .tbl_type02, .tbl_type02 th, .tbl_type02 td{border: 1px solid black;}
 .tbl_type02 th, .tbl_type02 td{line-height: 40px;}
-.tbl_type02 th{background: #ff9b99; color: white; font-weight: bold;}
+.tbl_type02 th{background: #8ad4ff; color: white; font-weight: bold;}
 .tbl_type02 th a{color: white;}
 .tbl_type02 td a{color:black;}
 

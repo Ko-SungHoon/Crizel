@@ -3,6 +3,7 @@
 *   PURPOSE :   조사자(팀장) 관리 - 목록
 *   CREATE  :   20180319_mon    Ko
 *   MODIFY  :   체크박스 추가 20180327_tue    JI
+*               엑셀업로드 추가 20180403_tue   KO
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -293,6 +294,30 @@ try{
             }
         });
     }
+    
+    
+  	//excel up
+    function upExcel() {
+        if (confirm("조사자(팀장) 엑셀을 업로드 하시겠습니까?")) {
+            $("#researcher_file").click();
+        }
+        return;
+    }
+  
+    function setFile () {
+        //파일 검증
+        var fileName    =   $("#researcher_file").val().split("\\")[$("#researcher_file").val().split("\\").length -1];
+        var fileExtName =   $("#researcher_file").val().split(".")[$("#researcher_file").val().split(".").length -1];
+        fileExtName     =   fileExtName.toLowerCase();
+        if ($.inArray(fileExtName, ['xls'/* , 'xlsx' */]) == -1) {
+            alert ("xls 형식의 엑셀 파일만 등록이 가능합니다.");
+            $(this).val("");
+            return;
+        }
+        
+        $("#researcher_excel_form").attr("action", "./researcher_excel_up.jsp");
+        $("#researcher_excel_form").submit();
+    }
 
 </script>
 
@@ -308,6 +333,10 @@ try{
 <!-- S : #content -->
 	<div id="content">
 	<div class="searchBox magB20">
+		<form id="researcher_excel_form" enctype="multipart/form-data" method="post">
+           <input type="file" id="researcher_file" name="researcher_file" value="" onchange="setFile()" style="display: none;">
+       </form>
+	
 		<form id="searchForm" method="get" class="topbox2">
 			<fieldset>
                 <select id="search0" name="search0" onchange="teamSelect(this.value)">
@@ -350,6 +379,9 @@ try{
 				</select>
 				<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
 				<button class="btn small edge mako" onclick="searchSubmit();">검색하기</button>
+				<div class="f_r">
+					<button type="button" class="btn small edge mako" onclick="researchMod('new');">엑셀업로드</button>
+				</div>
 			</fieldset>
 		</form>
 	</div>

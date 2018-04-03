@@ -84,6 +84,8 @@
 	String[] dt_nm		= null;
 	String[] ex_nm		= null;
 	
+	String returnPage 	= "food_item_list.jsp";
+	
 	String catCell 		= "cell1";		// 구분 셀	(50byte)
 	String codeCell		= "cell2";		// 식품코드 셀 (50 byte)
 	String nmCell		= "cell3";		// 식품명 셀 (100 byte)
@@ -97,6 +99,8 @@
 	String lowRatCell	= "cell11";		// 최저가 비율 셀 
 	String avrRatCell	= "cell12";		// 평균가 비율 셀
 	String lbRaCell		= "cell13";		// 최저가/최고가 비율 셀
+	
+	List<String> catDupCheckList = null;
 
 %>
 
@@ -109,47 +113,66 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 %>
 <%
 	try{
+		catDupCheckList = new ArrayList<String>();
 		if(excelList!=null && excelList.size()>0){
 			byte[] b = null;
 			int exceptionCheck = 0;
 			for(Map<String,Object> ob : excelList){
+				// 구분값 형식 체크 (구분명-번호)
+				if(ob.get(catCell).toString().split("-").length<2){
+					out.println("<script>alert('구분 형식을 확인하여 주시기 바랍니다.\\nex)농산물-1');location.replace('" + returnPage + "');</script>"); return;
+				}
+				
+				catDupCheckList.add(ob.get(catCell).toString().split("-")[0].trim() + ob.get(catCell).toString().split("-")[1].trim());
 				// DB 데이터 길이보다 글자가 많을 때 오류처리
-				if(getException(ob, catCell, 50)){out.println("<script>alert('구분명 값이 너무 큽니다');location.replace('food_item_list.jsp');</script>"); return;}
-				if(getException(ob, codeCell, 50)){out.println("<script>alert('식품코드 값이 너무 큽니다');location.replace('food_item_list.jsp');</script>"); return;}
-				if(getException(ob, nmCell, 100*5)){out.println("<script>alert('식품명 값이 너무 큽니다');location.replace('food_item_list.jsp');</script>"); return;}
-				if(getException(ob, dtCell, 100*10)){out.println("<script>alert('상세식품명 값이 너무 큽니다');location.replace('food_item_list.jsp');</script>"); return;}
-				if(getException(ob, exCell, 200*25)){out.println("<script>alert('식품설명 값이 너무 큽니다');location.replace('food_item_list.jsp');</script>"); return;}
-				if(getException(ob, unitCell, 20)){out.println("<script>alert('단위 값이 너무 큽니다');location.replace('food_item_list.jsp');</script>"); return;}
-				if(getException(ob, compValCell, 2)){out.println("<script>alert('비교 값이 너무 큽니다');location.replace('food_item_list.jsp');</script>"); return;}
+				if(getException(ob, catCell, 50)){out.println("<script>alert('구분명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+				if(getException(ob, codeCell, 50)){out.println("<script>alert('식품코드 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+				if(getException(ob, nmCell, 100*5)){out.println("<script>alert('식품명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+				if(getException(ob, dtCell, 100*10)){out.println("<script>alert('상세식품명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+				if(getException(ob, exCell, 200*25)){out.println("<script>alert('식품설명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+				if(getException(ob, unitCell, 20)){out.println("<script>alert('단위 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+				if(getException(ob, compValCell, 2)){out.println("<script>alert('비교 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
 				
 				// 숫자값이 필요한 데이터가 숫자가 아닐경우 오류처리
 				try{if(!"".equals(ob.get(grpNoCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(grpNoCell).toString());}}
-				catch(Exception e){out.println("<script>alert('그룹번호의 값이 숫자가 아닙니다.');location.replace('food_item_list.jsp');</script>"); return;}
+				catch(Exception e){out.println("<script>alert('그룹번호의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
 				try{if(!"".equals(ob.get(grpOrderCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(grpOrderCell).toString());}}
-				catch(Exception e){out.println("<script>alert('그룹순서의 값이 숫자가 아닙니다.');location.replace('food_item_list.jsp');</script>"); return;}
+				catch(Exception e){out.println("<script>alert('그룹순서의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
 				try{if(!"".equals(ob.get(compNoCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(compNoCell).toString());}}
-				catch(Exception e){out.println("<script>alert('비교번호의 값이 숫자가 아닙니다.');</script>"); return;}
+				catch(Exception e){out.println("<script>alert('비교번호의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
 				try{if(!"".equals(ob.get(lowRatCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(lowRatCell).toString());}}
-				catch(Exception e){out.println("<script>alert('최저가 비율의 값이 숫자가 아닙니다.');location.replace('food_item_list.jsp');</script>"); return;}
+				catch(Exception e){out.println("<script>alert('최저가 비율의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
 				try{if(!"".equals(ob.get(avrRatCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(avrRatCell).toString());}}
-				catch(Exception e){out.println("<script>alert('평균가 비율의 값이 숫자가 아닙니다.');location.replace('food_item_list.jsp');</script>"); return;}
+				catch(Exception e){out.println("<script>alert('평균가 비율의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
 				try{if(!"".equals(ob.get(lbRaCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(lbRaCell).toString());}}
-				catch(Exception e){out.println("<script>alert('최저가/최고가의 값이 숫자가 아닙니다.');location.replace('food_item_list.jsp');</script>"); return;}
+				catch(Exception e){out.println("<script>alert('최저가/최고가의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
 				
 				// 모든셀이 빈칸이 아니면서 필수입력값 데이터가 비어있을 경우 오류처리
 				if(!(   "".equals(ob.get(codeCell).toString()) 	&& "".equals(ob.get(catCell).toString())
 					&& 	"".equals(ob.get(nmCell).toString()) 	&& "".equals(ob.get(dtCell).toString())
 					&& 	"".equals(ob.get(exCell).toString()) )){
-					if("".equals(ob.get(codeCell).toString())){ out.println("<script>alert('식품코드 데이터가 비어있습니다.');location.replace('food_item_list.jsp');</script>"); return;}
-					if("".equals(ob.get(catCell).toString())){out.println("<script>alert('구분 데이터가 비어있습니다.');location.replace('food_item_list.jsp');</script>"); return;}
-					if("".equals(ob.get(nmCell).toString())){out.println("<script>alert('식품명 데이터가 비어있습니다.');location.replace('food_item_list.jsp');</script>"); return;}
-					if("".equals(ob.get(dtCell).toString())){out.println("<script>alert('상세식품명 데이터가 비어있습니다.');location.replace('food_item_list.jsp');</script>"); return;}
-					if("".equals(ob.get(exCell).toString())){out.println("<script>alert('식품설명 데이터가 비어있습니다.');location.replace('food_item_list.jsp');</script>"); return;}
-					if("".equals(ob.get(grpNoCell).toString())){out.println("<script>alert('그룹번호 데이터가 비어있습니다.');location.replace('food_item_list.jsp');</script>"); return;}
-					if("".equals(ob.get(grpOrderCell).toString())){out.println("<script>alert('그룹순서 데이터가 비어있습니다.');location.replace('food_item_list.jsp');</script>"); return;}
-					if("".equals(ob.get(lowRatCell).toString())){out.println("<script>alert('최저가 비율 데이터가 비어있습니다.');location.replace('food_item_list.jsp');</script>"); return;}
-					if("".equals(ob.get(avrRatCell).toString())){out.println("<script>alert('평균가 비율 데이터가 비어있습니다.');location.replace('food_item_list.jsp');</script>"); return;}
-					if("".equals(ob.get(lbRaCell).toString())){out.println("<script>alert('최저가/최고가 비율 데이터가 비어있습니다.');location.replace('food_item_list.jsp');</script>"); return;}
+					if("".equals(ob.get(codeCell).toString())){ out.println("<script>alert('식품코드 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+					if("".equals(ob.get(catCell).toString())){out.println("<script>alert('구분 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+					if("".equals(ob.get(nmCell).toString())){out.println("<script>alert('식품명 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+					if("".equals(ob.get(dtCell).toString())){out.println("<script>alert('상세식품명 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+					if("".equals(ob.get(exCell).toString())){out.println("<script>alert('식품설명 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+					if("".equals(ob.get(grpNoCell).toString())){out.println("<script>alert('그룹번호 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+					if("".equals(ob.get(grpOrderCell).toString())){out.println("<script>alert('그룹순서 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+					if("".equals(ob.get(lowRatCell).toString())){out.println("<script>alert('최저가 비율 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+					if("".equals(ob.get(avrRatCell).toString())){out.println("<script>alert('평균가 비율 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+					if("".equals(ob.get(lbRaCell).toString())){out.println("<script>alert('최저가/최고가 비율 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+				}
+			}
+			
+			
+			// 구분값 중복 체크
+			if(catDupCheckList!=null && catDupCheckList.size()>0){
+				for(int i=0; i<catDupCheckList.size(); i++){
+					for(int j=i+1; j<catDupCheckList.size(); j++){
+						if(catDupCheckList.get(i).equals(catDupCheckList.get(j))){
+							out.println("<script>alert('구분값이 중복되어 있습니다.');location.replace('" + returnPage + "');</script>"); return;
+						}
+					}
 				}
 			}
 		}
@@ -157,7 +180,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		if("".equals(regId)){
 			out.println("<script>");
 			out.println("alert('로그인 후 다시 시도 하십시오.');");
-			out.println("location.replace('food_item_list.jsp');");
+			out.println("location.replace('" + returnPage + "');");
 			out.println("</script>");
 		}
 		
@@ -766,7 +789,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			if(itemPreBatch.length>0){
 				out.println("<script>");
 				out.println("alert('정상적으로 처리되었습니다.');");
-				out.println("location.replace('food_item_list.jsp');");
+				out.println("location.replace('" + returnPage + "');");
 				out.println("</script>");
 			}
 			
@@ -791,7 +814,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			out.println("복원에러 : " + e.toString());
 			out.println("<script>");
 			out.println("alert('" + errMsg + "');");
-			out.println("location.replace('food_item_list.jsp');");
+			out.println("location.replace('" + returnPage + "');");
 			out.println("</script>");
 		}
 		

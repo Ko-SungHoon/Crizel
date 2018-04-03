@@ -13,31 +13,45 @@ TORRENT
 <style type="text/css">
 </style>
 <script>
-function girlsDownload(url, name, name2){
-	if(name ==  ""){
-		name = name2;
-	}
-	location.href="/girlsDownload.do?url="+url+"&name="+encodeURIComponent(name);
-}
-
 function getPage(addr){
 	location.href = "/torrent.do?addr=" + encodeURIComponent(addr); 
 }
+function allNewTap(){
+	$("input:checkbox[name='select']:checked").each(function(){
+	    window.open($(this).val(), "_blank");
+	});
+}
+
+function allCheck(){
+	if($("#allCheck").is(":checked")){
+		$("input:checkbox[name=select]").attr("checked", "checked");
+	}else{
+		$("input:checkbox[name=select]").removeAttr("checked");
+	}
+}
+
 </script>
 </head>
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
-<script>
-function allNewTap(){
-	<c:forEach items="${nameList}" var="ob">
-		window.open('/girls.do?name=${ob.name}', "_blank");
-	</c:forEach>
-}
-</script>
+	<div class="search center">
+		<button type="button" onclick="allNewTap()">전체 다운</button>
+	</div>
 	<table class="tbl_type01">
+	<colgroup>
+		<col width="5%">
+		<col width="95%">
+	</colgroup>
+		<tr>
+			<th><input type="checkbox" id="allCheck" onclick="allCheck()"></th>
+			<th>주소</th>
+		</tr>
 	<c:forEach items="${list}" var="ob">
 		<tr>
+			<td>
+				<input type="checkbox" name="select" value="${ob.magnet}">
+			</td>
 			<td>
 				<a href="${ob.magnet}" target="_blank">${ob.text} ${ob.time}</a>  
 			</td>
