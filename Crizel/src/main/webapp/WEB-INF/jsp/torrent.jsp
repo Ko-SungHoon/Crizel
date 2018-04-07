@@ -29,7 +29,6 @@ function allCheck(){
 		$("input:checkbox[name=select]").removeAttr("checked");
 	}
 }
-
 </script>
 </head>
 <body>
@@ -40,12 +39,15 @@ function allCheck(){
 	</div>
 	<table class="tbl_type01">
 	<colgroup>
-		<col width="5%">
-		<col width="95%">
+		<col width="10%">
+		<col width="70%">
+		<col width="20%">
+		<col>
 	</colgroup>
 		<tr>
 			<th><input type="checkbox" id="allCheck" onclick="allCheck()"></th>
-			<th>주소</th>
+			<th>사진</th>
+			<th>시간</th>
 		</tr>
 	<c:forEach items="${list}" var="ob">
 		<tr>
@@ -53,18 +55,27 @@ function allCheck(){
 				<input type="checkbox" name="select" value="${ob.magnet}">
 			</td>
 			<td>
-				<a href="${ob.magnet}" target="_blank">${ob.text} ${ob.time}</a>  
+				<a href="${ob.magnet}" target="_blank">
+					<img src="${ob.img}">
+					<%-- ${ob.text} --%> 
+				</a>  
+			</td>
+			<td>
+				${ob.time}
 			</td>
 		</tr>
 	</c:forEach>
 	</table>
 	<div class="paging">
-		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=1')">1</a>
-		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=2')">2</a>
-		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=3')">3</a>
-		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=4')">4</a>
-		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=5')">5</a>
-		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=6')">6</a>
+	<%
+	int torrentPage = Integer.parseInt((String)request.getAttribute("page"));
+	for(int i=1; i<10; i++){
+	%>
+		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=<%=i%>')"
+		<%if(i == torrentPage){out.println("style='background:#45bbff; color:white;'");} %>><%=i%></a>
+	<%
+	}
+	%>
 	</div>
 </div>
 </body>
