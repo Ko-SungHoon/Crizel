@@ -1,3 +1,11 @@
+<%
+/**
+*   PURPOSE :   set the db column variables
+*   CREATE  :   201804??_???    KO
+*   MODIFY  :   20180404_wed    JI  학교별 조사식품수 column(RSCH_ITEM_CNT) 추가
+**/
+%>
+
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
 <%@page import="java.sql.ResultSetMetaData"%>
@@ -63,6 +71,8 @@ public class FoodVO{
 	public String order3 = "";
 	
 	public String cnt = "";
+	public String cnt2 = "";
+	public String cnt3 = "";
 	
 	public String sid = "";
 	public String title = "";
@@ -289,6 +299,10 @@ public class FoodVO{
 	public String area_no = "";
 	public String area_nm = "";
 	
+    //학교별 조사식품수
+    public String rsch_item_cnt =   "";
+    
+    public String item_nm   =   "";
 	
 }
 
@@ -335,6 +349,8 @@ public class FoodList implements RowMapper<FoodVO> {
 			else if("ORDER2".equals(column)){			vo.order2			=	parseNull(rs.getString("ORDER2"));			}
 			else if("ORDER3".equals(column)){			vo.order3			=	parseNull(rs.getString("ORDER3"));			}
 			else if("CNT".equals(column)){				vo.cnt				=	parseNull(rs.getString("CNT"));				}
+			else if("CNT2".equals(column)){				vo.cnt2				=	parseNull(rs.getString("CNT2"));			}
+			else if("CNT3".equals(column)){				vo.cnt3				=	parseNull(rs.getString("CNT3"));			}
 			else if("SID".equals(column)){				vo.sid				=	parseNull(rs.getString("SID"));				}
 			else if("TITLE".equals(column)){			vo.title			=	parseNull(rs.getString("TITLE"));			}
 			else if("USER_NM".equals(column)){			vo.user_nm			=	parseNull(rs.getString("USER_NM"));			}
@@ -472,6 +488,11 @@ public class FoodList implements RowMapper<FoodVO> {
     		else if("JO_NM".equals(column)){			vo.jo_nm			=   parseNull(rs.getString("JO_NM"));	    }
     		else if("AREA_NO".equals(column)){			vo.area_no			=   parseNull(rs.getString("AREA_NO"));	    }
     		else if("AREA_NM".equals(column)){			vo.area_nm			=   parseNull(rs.getString("AREA_NM"));	    }
+
+            //학교별 조사식품수
+            else if("RSCH_ITEM_CNT".equals(column)){    vo.rsch_item_cnt    =   parseNull(rs.getString("RSCH_ITEM_CNT"));   }
+    		
+            else if("ITEM_NM".equals(column)){          vo.item_nm          =   parseNull(rs.getString("ITEM_NM"));     }
 
 		}
         return vo;

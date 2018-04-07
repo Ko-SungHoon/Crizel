@@ -18,11 +18,14 @@ request.setCharacterEncoding("UTF-8");
 
 
 String mode         =   parseNull(request.getParameter("mode"), "new");
+String rsch_no      =   parseNull(request.getParameter("rsch_no"), "0");
 StringBuffer sql    =   null;
 String sql_str      =   "";
 
-List<FoodVO> researchItem   =   null;   //수정 정보
+FoodVO	rschVO				= 	new FoodVO();
+List<FoodVO> researchItem   =   null;   // 수정 정보
 List<FoodVO> catList		=	null;	// 구분 리스트
+List<FoodVO> teamList		= 	null;	// 팀 리스트
 
 String pageTitle    =   "조사개시";
 if (mode != null && "mod".equals(mode)) {
@@ -40,10 +43,46 @@ try {
         
     }
     
+    // 수정 시 정보
+    sql = new StringBuffer();
+    sql.append("SELECT  											");
+    sql.append("      A.RSCH_NO										");
+    sql.append("    , A.RSCH_NM										");
+    sql.append("    , A.RSCH_YEAR									");
+    sql.append("    , A.RSCH_MONTH									");
+    sql.append("    , TO_CHAR(A.STR_DATE, 'YYYYMMDD') AS STR_DATE	");
+    sql.append("    , TO_CHAR(A.MID_DATE, 'YYYYMMDD') AS MID_DATE	");
+    sql.append("    , TO_CHAR(A.END_DATE, 'YYYYMMDD') AS END_DATE	");
+    sql.append("    , A.FILE_NO										");
+    sql.append("    , B.FILE_NM										");
+    sql.append("    , B.FILE_ORG_NM									");
+    sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_UP_FILE B ON A.FILE_NO = B.FILE_NO	");
+    sql.append("WHERE RSCH_NO = ?														");
+    try{
+    	rschVO = jdbcTemplate.queryForObject(sql.toString(), new FoodList(), rsch_no);
+    }catch(Exception e){
+    	rschVO = new FoodVO();
+    }
     
     sql = new StringBuffer();
-    sql.append("SELECT * FROM FOOD_ST_CAT WHERE SHOW_FLAG = 'Y' ORDER BY CAT_NM	 ");
-    catList = jdbcTemplate.query(sql.toString(), new FoodList());
+    sql.append("SELECT 																						");
+    sql.append("    CAT_NO																					");
+    sql.append("  , CAT_NM																					");
+    sql.append("  , (SELECT COUNT(*) FROM FOOD_RSCH_CAT WHERE CAT_NO = A.CAT_NO AND RSCH_NO = ?) AS CNT		");
+    sql.append("FROM FOOD_ST_CAT A																			");
+    sql.append("WHERE SHOW_FLAG = 'Y' 																		");
+    sql.append("ORDER BY CAT_NM																				");
+    catList = jdbcTemplate.query(sql.toString(), new FoodList(), rsch_no);
+    
+    sql = new StringBuffer();
+    sql.append("SELECT  																						");
+    sql.append("    TEAM_NO																						");
+    sql.append("  , TEAM_NM																						");
+    sql.append("  , (SELECT COUNT(*) FROM FOOD_RSCH_TEAM WHERE TEAM_NO = A.TEAM_NO AND RSCH_NO = ?) AS CNT		");
+    sql.append("FROM FOOD_TEAM A																				");
+    sql.append("WHERE SHOW_FLAG = 'Y' 																			");
+    sql.append("ORDER BY ORDER1, TEAM_NM																		");
+    teamList = jdbcTemplate.query(sql.toString(), new FoodList(), rsch_no);
     
     
 } catch(Exception e) {
@@ -141,8 +180,52 @@ try {
     
     //form submit
     function researchForm () {
-    	if(confirm("조사개시를 시작하시겠습니까? ")){
-    		$("#researchForm").attr("action", "research_excel_up.jsp");
+    	var msg;
+    	
+    	if($("#mode").val() == "new"){
+    		msg = "조사개시를 시작하시겠습니까?";
+    	}else{
+    		msg = "조사내용을 수정하시겠습니까?\n조사내용을 수정하시면, 지금까지 조사한 내용이 사라집니다.\n조사를 처음부터 다시 시작해야 합니다.";
+    	}
+    	
+    	if($("input:checkbox[name=cat_nm]:checked").length == 0){
+    		alert("조사 식품구분을 선택하여 주시기 바랍니다.");
+    		return false;
+    	}
+    	
+    	if($("input:checkbox[name=team_no]:checked").length == 0){
+    		alert("조사팀 배정을 선택하여 주시기 바랍니다.");
+    		return false;
+    	}
+    	
+    	if($.trim($("#str_date").val()) == ""){
+    		alert("조사 개시일을 선택하여 주시기 바랍니다.");
+    		focus($("#str_date").focus());
+    		return false;
+    	}else if($.trim($("#mid_date").val()) == ""){
+    		alert("중간 검토일을 선택하여 주시기 바랍니다.");
+    		focus($("#mid_date").focus());
+    		return false;
+    	}else if($.trim($("#end_date").val()) == ""){
+    		alert("조사 종료일을 선택하여 주시기 바랍니다.");
+    		focus($("#end_date").focus());
+    		return false;
+    	}
+    	
+    	if(confirm(msg)){
+    		var year = $("#str_date").val().substring(0,4);
+    		var month = $("#str_date").val().substring(4,6);
+    		var mode;
+    		
+    		$("#rsch_year").val(year);
+    		$("#rsch_month").val(month);
+    		
+    		if($("#mode").val() == "new"){
+    			mode = "?mode=researchStart";
+    		}else{
+    			mode = "?mode=researchUpdate";
+    		}
+    		$("#researchForm").attr("action", "food_research_act.jsp" + mode);
     		$("#researchForm").attr("method", "post");    		
     		return true;
     	}else{
@@ -162,11 +245,12 @@ try {
 <!-- S : #content -->
 <div id="content">
 	<div>
-		<form id="researchForm" onsubmit="return researchForm();" enctype="multipart/form-data">
+		<form id="researchForm" onsubmit="return researchForm();">
             <fieldset>
                 <input type="hidden" id="mode" name="mode" value="<%=mode%>">
-                <input type="hidden" id="rsch_year" name="rsch_year" value="">
-                <input type="hidden" id="rsch_month" name="rsch_month" value="">
+                <input type="hidden" id="rsch_no" name="rsch_no" value="<%=rsch_no%>">
+                <input type="hidden" id="rsch_year" name="rsch_year" value="<%=rschVO.rsch_year%>">
+                <input type="hidden" id="rsch_month" name="rsch_month" value="<%=rschVO.rsch_month%>">
                 <legend><%=pageTitle%> 테이블</legend>
                 <table class="bbs_list2">
                     <colgroup>
@@ -178,37 +262,64 @@ try {
                     <tbody>
                         <tr>
                             <th scope="row">조사개시일</th>
-                            <td><input type="text" class="str_date" id="str_date" name="str_date" placeholder="조사 개시일" required readonly></td>
-                            <td><input type="text" class="mid_date" id="mid_date" name="mid_date" placeholder="중간 컴토일" required readonly></td>
-                            <td><input type="text" class="end_date" id="end_date" name="end_date" placeholder="조사 종료일" required readonly></td>
+                            <td><input type="text" class="str_date" id="str_date" name="str_date" placeholder="조사 개시일" 
+                            	value="<%=rschVO.str_date %>" required readonly></td>
+                            <td><input type="text" class="mid_date" id="mid_date" name="mid_date" placeholder="중간 검토일"
+                                value="<%=rschVO.mid_date %>" required readonly></td>
+                            <td><input type="text" class="end_date" id="end_date" name="end_date" placeholder="조사 종료일" 
+                            	value="<%=rschVO.end_date %>" required readonly></td>
                         </tr>
                         <tr>
                             <th scope="row">조사 명</th>
-                            <td colspan="3"><input type="text" class="rsch_nm wps_75" id="rsch_nm" name="rsch_nm" required></td>
+                            <td colspan="3"><input type="text" class="rsch_nm wps_75" id="rsch_nm" name="rsch_nm"
+                            				value="<%=rschVO.rsch_nm %>" required></td>
                         </tr>
                         <tr>
-                        	<th scope="row">조사 구분</th>
-                        	<td colspan="3">
+                        	<td colspan="2">
+                        	<ul>
                         	<%
                         	if(catList!=null && catList.size()>0){
                         		int i=0;
                         		for(FoodVO ob : catList){
                         	%>
-                        		<input type="checkbox" id=cat_nm_<%=i++%> name="cat_nm" value="<%=ob.cat_nm%>">
-                        		<label for="cat_nm_<%=i-1%>"><%=ob.cat_nm%></label>
+                        		<li>
+                        			<input type="checkbox" id=cat_nm_<%=i++%> name="cat_nm" value="<%=ob.cat_nm%>"
+                        			<%if(!"0".equals(ob.cnt)){out.println("checked");} %>>
+                        			<label for="cat_nm_<%=i-1%>"><%=ob.cat_nm%></label>
+                        		</li>
                         	<% 
                         		}
                         	}
                         	%>
+                        	</ul>
+                        	</td>
+                        	<td colspan="2">
+                        	<ul>
+                        	<%
+                        	if(teamList!=null && teamList.size()>0){
+                        		int i=0;
+                        		for(FoodVO ob : teamList){
+                        	%>
+                        		<li>
+                        			<input type="checkbox" id="team_no_<%=i++%>" name="team_no" value="<%=ob.team_no%>"
+                        			<%if(!"0".equals(ob.cnt)){out.println("checked");} %>>
+                        			<label for="team_no_<%=i-1%>"><%=ob.team_nm%></label>
+                        		</li>
+                        	<%
+                        		}
+                        	}
+                        	%>
+                        	</ul>
                         	</td>
                         </tr>
-                        <tr>
+                       <%--  <tr>
                             <th scope="row">
                                 조사 파일 등록
                                 <input type="hidden" id="file_no" name="file_no" value="">
                             </th>
-                            <td colspan="3"><input type="file" class="file_nm wps_75" id="file_nm" name="file_nm"></td>
-                        </tr>
+                            <td colspan="3"><input type="file" class="file_nm wps_75" id="file_nm" name="file_nm"
+                            				<%if("new".equals(mode)){out.println("required");} %>></td>
+                        </tr> --%>
                     </tbody>
                 </table>
                 <p class="btn_area txt_c">

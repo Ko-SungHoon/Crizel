@@ -30,6 +30,7 @@ String nu_tel		= parseNull(request.getParameter("nu_tel"));
 String sch_grade	= parseNull(request.getParameter("sch_grade"));
 String nu_mail		= parseNull(request.getParameter("nu_mail"));
 String zone_no		= parseNull(request.getParameter("zone_no"));
+String cat_no		= parseNull(request.getParameter("cat_no"));
 String team_no		= parseNull(request.getParameter("team_no"));
 String jo_no		= parseNull(request.getParameter("jo_no"));
 String area_no		= parseNull(request.getParameter("area_no"));
@@ -69,6 +70,7 @@ try{
 		sql.append("	SHOW_FLAG,					");	// 노출여부
 		sql.append("	REG_DATE,					");	// 등록 날짜시간
 		sql.append("	ZONE_NO,					");	// 권역 번호
+		sql.append("	CAT_NO,						");	// 품목 번호
 		sql.append("	TEAM_NO,					");	// 팀 번호
 		sql.append("	JO_NO,						");	// 조 번호
 		sql.append("	AREA_NO,					");	// 지역 번호
@@ -99,6 +101,7 @@ try{
 		sql.append("	'Y',													"); // SHOW_FLAG
 		sql.append("	SYSDATE,												"); // REG_DATE
 		sql.append("	?,														"); // ZONE_NO
+		sql.append("	?,														"); // CAT_NO
 		sql.append("	?,														"); // TEAM_NO
 		sql.append("	?,														"); // JO_NO
 		sql.append("	?,														"); // AREA_NO
@@ -115,7 +118,7 @@ try{
 		
 		result = jdbcTemplate.update(sql.toString(), new Object[]{
 			  sch_no, sch_org_sid, sch_type, sch_id, sch_nm, sch_tel, sch_area, sch_addr
-			, sch_found, sch_gen, zone_no, team_no, jo_no, area_no, sch_grade, sch_pw
+			, sch_found, sch_gen, zone_no, cat_no, team_no, jo_no, area_no, sch_grade, sch_pw
 		});
 		
 		
@@ -164,6 +167,7 @@ try{
 		sql.append("	SCH_GEN 	= ?,			");	// 남녀공학 여부
 		sql.append("	SHOW_FLAG 	= ?,			");	// 노출여부
 		sql.append("	ZONE_NO 	= ?,			");	// 권역 번호
+		sql.append("	CAT_NO 		= ?,			");	// 품목번호
 		sql.append("	TEAM_NO 	= ?,			");	// 팀 번호
 		sql.append("	JO_NO	 	= ?,			");	// 조 번호
 		sql.append("	AREA_NO	 	= ?,			");	// 지역 번호
@@ -174,7 +178,7 @@ try{
 		sql.append("WHERE SCH_NO 	= ?				");
 		result = jdbcTemplate.update(sql.toString(), new Object[]{
 			sch_type, sch_nm, sch_tel, sch_fax, sch_area, sch_post, sch_addr, sch_found, sch_url, sch_gen,
-			show_flag, zone_no, team_no, jo_no, area_no, sch_grade, 
+			show_flag, zone_no, cat_no, team_no, jo_no, area_no, sch_grade, 
 			//sch_pw,
 			sch_lv, sch_no
 		});

@@ -75,7 +75,7 @@
 	int item_pre_no = 0;	// item_no 최대값(FOOD_ST_ITEM_PRE)
 	
 	String mode				= parseNull(mr.getParameter("mode"), "new");	// 	new:등록, mod:수정	
-	List<FoodVO> cat_nm_arr = null;
+	String[] cat_nm_arr 	= mr.getParameterValues("cat_nm");				//	조사할 구분 
 	String[] team_no_arr	= mr.getParameterValues("team_no");				// 	조사할 팀
 	String rsch_year 		= parseNull(mr.getParameter("rsch_year"));		// 	조사 년
 	String rsch_month 		= parseNull(mr.getParameter("rsch_month"));		//	조사 월
@@ -86,7 +86,6 @@
 	int rsch_no				= Integer.parseInt(parseNull(mr.getParameter("rsch_no"), "0"));	//	조사번호
 	int rsch_val_no			= 0;
 	String file_no			= "";
-	int rsch_item_no		= 0;
 	
 	String nm_food_str 	= "";	
 	String dt_nm_str 	= "";
@@ -101,7 +100,7 @@
 	String[] dt_nm		= null;
 	String[] ex_nm		= null;
 	
-	String returnPage 	= "research_excel_popup.jsp";
+	String returnPage 	= "research_popup.jsp";
 	
 	String catCell 		= "cell1";		// 구분 셀	(50byte)
 	String codeCell		= "cell2";		// 식품코드 셀 (50 byte)
@@ -163,11 +162,6 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 <%
 	try{
 		catDupCheckList = new ArrayList<String>();
-		
-		sql = new StringBuffer();
-		sql.append("SELECT * FROM FOOD_ST_CAT WHERE SHOW_FLAG = 'Y' ORDER BY CAT_NM		");
-		cat_nm_arr = jdbcTemplate.query(sql.toString(), new FoodList());
-		
 		if(excelList!=null && excelList.size()>0){
 			byte[] b = null;
 			int exceptionCheck = 0;
@@ -175,9 +169,9 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 			for(Map<String,Object> ob : excelList){
 				continueCheck = false;
 				
-				if(cat_nm_arr!=null && cat_nm_arr.size()>0){
-					for(FoodVO ob2 : cat_nm_arr){
-						if(ob.get(catCell).toString().split("-")[0].trim().equals(ob2.cat_nm)){
+				if(cat_nm_arr!=null && cat_nm_arr.length>0){
+					for(String ob2 : cat_nm_arr){
+						if(ob.get(catCell).toString().split("-")[0].trim().equals(ob2)){
 							continueCheck = true;
 						}
 					}
@@ -243,6 +237,7 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 					}
 				}
 			}
+			
 		}
 				
 		if("".equals(regId)){
@@ -253,12 +248,27 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 			return;
 		}
 		
-		// 조사가 진행중일 경우
+		
+		// 선택한 년, 월에 이미 조사가 되어있거나 조사중일 경우
+		sql = new StringBuffer();
+		sql.append("SELECT COUNT(*) AS CNT					");
+		sql.append("FROM FOOD_RSCH_TB						");
+		sql.append("WHERE RSCH_YEAR = ? AND RSCH_MONTH = ? 	");
+		sql.append("  AND STS_FLAG = 'Y'				  	");
+		cnt = jdbcTemplate.queryForObject(sql.toString(), Integer.class, rsch_year, rsch_month);
+		if(cnt>0){
+			out.println("<script>");
+			out.println("alert('해당 기간은 조사가 완료되었습니다.');");
+			out.println("location.replace('" + returnPage + "');");
+			out.println("</script>");
+			return;
+		}
+		
 		sql = new StringBuffer();
 		sql.append("SELECT COUNT(*) AS CNT		");
 		sql.append("FROM FOOD_RSCH_TB			");
 		sql.append("WHERE STS_FLAG = 'N'		");
-		cnt = jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+		cnt = jdbcTemplate.queryForObject(sql.toString(), Integer.class, rsch_year, rsch_month);
 		if(cnt>0){
 			out.println("<script>");
 			out.println("alert('조사가 진행중입니다.');");
@@ -298,112 +308,247 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 			result = jdbcTemplate.update(sql.toString(), saveFile, realFile, regIp, regId);
 		}
 		
-		// 구분,학교명 저장 테이블을 삭제
-		sql = new StringBuffer();
-		sql.append("DELETE FROM FOOD_RSCH_SCH			");
-		jdbcTemplate.update(sql.toString());
+		if("mod".equals(mode) && file!=null){
+			// 조사내용 수정 시 기존 데이터는 삭제처리
+			sql = new StringBuffer();
+			sql.append("DELETE FROM FOOD_RSCH_TEAM WHERE RSCH_NO = ?	 ");
+			jdbcTemplate.update(sql.toString(), rsch_no);
+			sql = new StringBuffer();
+			sql.append("DELETE FROM FOOD_RSCH_CAT WHERE RSCH_NO = ?	 	");
+			jdbcTemplate.update(sql.toString(), rsch_no);
+			sql = new StringBuffer();
+			sql.append("DELETE FROM FOOD_RSCH_VAL WHERE RSCH_NO = ?	 	");
+			jdbcTemplate.update(sql.toString(), rsch_no);
+		}
 		
-		// 구분,학교명을 저장
-		sql = new StringBuffer();
-		sql.append("INSERT INTO FOOD_RSCH_SCH(CAT_NM, SCH_NM, ITEM_NO, SCH_NO, TEAM_NO)											");
-		sql.append("VALUES(   ?, ?																								");
-		sql.append("		, (SELECT B.ITEM_NO 																				");
-		sql.append("		   FROM FOOD_ITEM_PRE A LEFT JOIN FOOD_ST_ITEM B ON A.S_ITEM_NO = B.ITEM_NO 						");
-		sql.append("		   WHERE B.CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ?) 								");
-		sql.append("		     AND B.FOOD_CAT_INDEX = ?) 																		");
-		sql.append("		, (SELECT SCH_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y' AND SCH_APP_FLAG = 'Y')		");
-		sql.append("		, (SELECT TEAM_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y' AND SCH_APP_FLAG = 'Y')	)	");
-		batch = new ArrayList<Object[]>();
-		if(catList!=null && catList.size()>0){
-			for(Map<String,Object> ob : catList){
-				String[] sch_nm_split = ob.get("sch_nm").toString().split(",");
-				for(int i=0; i<sch_nm_split.length; i++){
-					if(!"".equals(sch_nm_split[i].trim())){
-						value = new Object[]{
-								  ob.get("cat_nm").toString().trim()
-							    , sch_nm_split[i].trim()
-							    , ob.get("cat_nm").toString().split("-")[0].trim()
-							    , ob.get("cat_nm").toString().split("-")[1].trim()
-							    , sch_nm_split[i].trim()
-							    , sch_nm_split[i].trim()
-						};
-						batch.add(value);
+		
+		if("new".equals(mode)){			// 새로 조사개시를 할 때
+			sql = new StringBuffer();
+			sql.append("SELECT NVL(MAX(RSCH_NO)+1,1) AS RSCH_NO		");
+			sql.append("FROM FOOD_RSCH_TB							");
+			rsch_no = jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+			
+			sql = new StringBuffer();
+			sql.append("INSERT INTO FOOD_RSCH_TB(RSCH_NO, RSCH_NM, RSCH_YEAR, RSCH_MONTH		");
+			sql.append("          , STR_DATE, MID_DATE, END_DATE, FILE_NO, REG_ID, REG_IP		");
+			sql.append("          , REG_DATE, MOD_DATE, SHOW_FLAG, STS_FLAG)					");
+			sql.append("VALUES(																	");
+			sql.append("    ?  																	");		// RSCH_NO
+			sql.append("  , ?																	");		// RSCH_NM
+			sql.append("  , ?, ?																");		// RSCH_YEAR, RSCH_MONTH
+			sql.append("  , ?, ?, ?																");		// STR_DATE, MID_DATE, END_DATE
+			sql.append("  , ( SELECT FILE_NO													");		// FILE_NO
+			sql.append("	  FROM FOOD_UP_FILE													");
+			sql.append("	  WHERE FILE_NM = ?)												");
+			sql.append("  , ? ,?																");		// REG_ID, REG_IP
+			sql.append("  , SYSDATE, SYSDATE													");		// REG_DATE, MID_DATE
+			sql.append("  , 'Y', 'N'															");		// SHOW_FLAG, STS_FLAG
+			sql.append(")																		");
+			result = jdbcTemplate.update(sql.toString(), 
+					  rsch_no
+					, rsch_nm
+					, rsch_year, rsch_month
+					, str_date, mid_date, end_date
+					, saveFile
+					, regId, regIp
+					);
+		}else if("mod".equals(mode)){		// 기존 조사개시를 수정할 때
+			if(file == null){
+				sql = new StringBuffer();
+				sql.append("SELECT FILE_NO FROM FOOD_RSCH_TB WHERE RSCH_NO = ?		");
+				saveFile = jdbcTemplate.queryForObject(sql.toString(), String.class, rsch_no);
+			}
+			sql = new StringBuffer();
+			sql.append("UPDATE FOOD_RSCH_TB SET RSCH_NM 	= ?						");
+			sql.append("					,	RSCH_YEAR 	= ?						");
+			sql.append("					,	RSCH_MONTH 	= ?						");
+			sql.append("					,	STR_DATE 	= ?						");
+			sql.append("					,	MID_DATE 	= ?						");
+			sql.append("					,	END_DATE 	= ?						");
+			if(file != null){
+				sql.append("				,	FILE_NO 	= ( SELECT FILE_NO		");
+				sql.append("	  								FROM FOOD_UP_FILE	");
+				sql.append("	  								WHERE FILE_NM = ?)	");
+			}else{
+				sql.append("				,	FILE_NO 	= ?						");
+			}
+			sql.append("					,	REG_ID 		= ?						");
+			sql.append("					,	REG_IP 		= ?						");
+			sql.append("					,	REG_DATE 	= SYSDATE				");
+			sql.append("					,	MOD_DATE 	= SYSDATE				");
+			sql.append("					,	SHOW_FLAG 	= 'Y'					");
+			sql.append("					,	STS_FLAG 	= 'N'					");
+			sql.append("WHERE RSCH_NO = ?											");
+			result = jdbcTemplate.update(sql.toString(), 
+						  rsch_nm
+						, rsch_year, rsch_month
+						, str_date, mid_date, end_date
+						, saveFile
+						, regId, regIp
+						, rsch_no
+					);
+		}
+		
+		
+		if(file!=null){
+			// 구분,학교명 저장 테이블을 삭제
+			sql = new StringBuffer();
+			sql.append("DELETE FROM FOOD_RSCH_SCH			");
+			jdbcTemplate.update(sql.toString());
+			
+			// 구분,학교명을 저장
+			sql = new StringBuffer();
+			sql.append("INSERT INTO FOOD_RSCH_SCH(CAT_NM, SCH_NM, ITEM_NO, SCH_NO, TEAM_NO)											");
+			sql.append("VALUES(   ?, ?																								");
+			sql.append("		, (SELECT B.ITEM_NO 																				");
+			sql.append("		   FROM FOOD_ITEM_PRE A LEFT JOIN FOOD_ST_ITEM B ON A.S_ITEM_NO = B.ITEM_NO 						");
+			sql.append("		   WHERE B.CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ?) 								");
+			sql.append("		     AND B.FOOD_CAT_INDEX = ?) 																		");
+			sql.append("		, (SELECT SCH_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y' AND SCH_APP_FLAG = 'Y')		");
+			sql.append("		, (SELECT TEAM_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y' AND SCH_APP_FLAG = 'Y')	)	");
+			batch = new ArrayList<Object[]>();
+			if(catList!=null && catList.size()>0){
+				for(Map<String,Object> ob : catList){
+					String[] sch_nm_split = ob.get("sch_nm").toString().split(",");
+					for(int i=0; i<sch_nm_split.length; i++){
+						if(!"".equals(sch_nm_split[i].trim())){
+							value = new Object[]{
+									  ob.get("cat_nm").toString().trim()
+								    , sch_nm_split[i].trim()
+								    , ob.get("cat_nm").toString().split("-")[0].trim()
+								    , ob.get("cat_nm").toString().split("-")[1].trim()
+								    , sch_nm_split[i].trim()
+								    , sch_nm_split[i].trim()
+							};
+							batch.add(value);
+						}
 					}
 				}
 			}
-		}
-		jdbcTemplate.batchUpdate(sql.toString(), batch);
-		
-		
-		sql = new StringBuffer();
-		sql.append("SELECT *					");
-		sql.append("FROM FOOD_RSCH_SCH			");
-		sql.append("WHERE SCH_NO IS NOT NULL	");
-		sql.append("ORDER BY ITEM_NO			");
-		rschSchList = jdbcTemplate.query(sql.toString(), new FoodList());
-		
-		
-		// 월별조사 항목 백업
-		sql = new StringBuffer();
-		sql.append("INSERT INTO FOOD_RSCH_ITEM_B		");
-		sql.append("SELECT * FROM FOOD_RSCH_ITEM		");
-		jdbcTemplate.update(sql.toString());
-		
-		try{
-			// 월별조사 항목 삭제
-			sql = new StringBuffer();
-			sql.append("DELETE FROM FOOD_RSCH_ITEM		");
-			jdbcTemplate.update(sql.toString());
+			jdbcTemplate.batchUpdate(sql.toString(), batch);
 			
-			// 월별조사 항목 등록
+			/* // 엑셀데이터 중 FOOD_SCH_TB에 등록되지 않은 학교가 있을 경우 오류처리
 			sql = new StringBuffer();
-			sql.append("SELECT NVL(MAX(RSCH_ITEM_NO)+1, 1) AS RSCH_ITEM_NO FROM FOOD_RSCH_ITEM		");
-			rsch_item_no = jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+			sql.append("SELECT 									");
+			sql.append("	SCH_NM, 							");
+			sql.append("	(SELECT COUNT(*) 					");
+			sql.append("	 FROM FOOD_SCH_TB 					");
+			sql.append("	 WHERE SCH_NM = A.SCH_NM) AS CNT	");
+			sql.append("FROM FOOD_RSCH_SCH A					");
+			sql.append("GROUP BY SCH_NM							");
+			sql.append("ORDER BY SCH_NM							");
+			schNmList = jdbcTemplate.query(sql.toString(), new FoodList());
 			
+			if(schNmList!=null && schNmList.size()>0){
+				for(FoodVO ob : schNmList){
+					if("0".equals(ob.cnt)){
+						out.println("<script>");
+						out.println("alert('등록되지 않은 학교가 포함되어 있습니다.');");
+						out.println("location.replace('" + returnPage + "');");
+						out.println("</script>");
+						return;
+					}
+				}
+			} */
+			
+			
+		
 			sql = new StringBuffer();
-			sql.append("INSERT INTO FOOD_RSCH_ITEM( RSCH_ITEM_NO, ITEM_NO, SCH_NO, NU_NO	");
-			sql.append("						,	FILE_NO, REG_YEAR, REG_MON)				");
-			sql.append("VALUES( ?															");	// RSCH_ITEM_NO
-			sql.append("	,	?															"); // ITEM_NO
-			sql.append("	,	?															"); // SCH_NO
-			sql.append("	,	(SELECT MAX(NU_NO) FROM FOOD_SCH_NU WHERE SCH_NO = ?)		"); // NU_NO
-			sql.append("  	,   (SELECT FILE_NO												");	// FILE_NO	
-			sql.append("	  	 FROM FOOD_UP_FILE											");
-			sql.append("	  	 WHERE FILE_NM = ?)											");
-			sql.append("	,	(SELECT TO_CHAR(SYSDATE, 'YYYY') FROM DUAL)					"); // REG_YEAR
-			sql.append("	,	(SELECT TO_CHAR(SYSDATE, 'MM') FROM DUAL)					"); // REG_MON
-			sql.append(")																	");
+			sql.append("INSERT INTO FOOD_RSCH_CAT(RSCH_NO, CAT_NO)						");
+			sql.append("VALUES(?, (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ?)	) 	");
 			batch = new ArrayList<Object[]>();
-			if(rschSchList!=null && rschSchList.size()>0){
-				for(FoodVO ob : rschSchList){
+			if(cat_nm_arr!=null && cat_nm_arr.length>0){
+				for(String ob : cat_nm_arr){
 					value = new Object[]{
-							  rsch_item_no++
-						    , ob.item_no
-						    , ob.sch_no
-						    , ob.sch_no
-						    , saveFile
+							  rsch_no
+							, ob
 					};
 					batch.add(value);
 				}
 			}
-			result = jdbcTemplate.batchUpdate(sql.toString(), batch).length;
-		}catch(Exception e){
-			sql = new StringBuffer();
-			sql.append("DELETE FROM FOOD_RSCH_ITEM		");
-			jdbcTemplate.update(sql.toString());
+			jdbcTemplate.batchUpdate(sql.toString(), batch);
+			
+			
+			if(team_no_arr!=null && team_no_arr.length>0){
+				// 배정된 조사 팀
+				sql = new StringBuffer();
+				sql.append("INSERT INTO FOOD_RSCH_TEAM(RSCH_NO, TEAM_NO)	");
+				sql.append("VALUES(?, ?)									");
+				batch = new ArrayList<Object[]>();
+				for(String ob : team_no_arr){
+					value = new Object[]{
+							  rsch_no
+							, ob
+					};
+					batch.add(value);
+				}
+				jdbcTemplate.batchUpdate(sql.toString(), batch);
+			}
+			
 			
 			sql = new StringBuffer();
-			sql.append("INSERT INTO FOOD_RSCH_ITEM		");
-			sql.append("SELECT * FROM FOOD_RSCH_ITEM_B	");
-			jdbcTemplate.update(sql.toString());
+			sql.append("SELECT *					");
+			sql.append("FROM FOOD_RSCH_SCH			");
+			sql.append("WHERE SCH_NO IS NOT NULL	");
+			rschSchList = jdbcTemplate.query(sql.toString(), new FoodList());
+			
+			if(rschSchList!=null && rschSchList.size()>0){
+				sql = new StringBuffer();
+				sql.append("SELECT NVL(MAX(RSCH_VAL_NO)+1,1) FROM FOOD_RSCH_VAL		");
+				rsch_val_no = jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+				
+				sql = new StringBuffer();
+				sql.append("INSERT INTO FOOD_RSCH_VAL(		");
+				sql.append("			  RSCH_VAL_NO		");
+				sql.append("			, RSCH_NO			");
+				sql.append("			, ITEM_NO			");
+				sql.append("			, SCH_NO			");
+				sql.append("			, CAT_NO			");
+				sql.append("			, REG_DATE			");
+				sql.append("		)						");
+				sql.append("VALUES(							");
+				sql.append("		?						");
+				sql.append("		, ?						");
+				sql.append("		, ?						");
+				sql.append("		, ?						");
+				sql.append("		, (SELECT CAT_NO 		");
+				sql.append("		   FROM FOOD_ST_CAT 	");
+				sql.append("		   WHERE CAT_NM = ?)	");
+				sql.append("		, SYSDATE				");
+				sql.append("		)						");
+				batch = new ArrayList<Object[]>();
+				boolean teamCheck = false;
+				for(FoodVO ob : rschSchList){
+					teamCheck = false;
+					for(String ob2 : team_no_arr){
+						if(ob.team_no.equals(ob2)){
+							teamCheck = true;
+						}
+					}
+					if(teamCheck){
+						value = new Object[]{
+								rsch_val_no++
+								, rsch_no
+								, ob.item_no
+								, ob.sch_no
+								, ob.cat_nm.split("-")[0].trim()
+						};
+						batch.add(value);
+					}
+				}
+				
+				result = jdbcTemplate.batchUpdate(sql.toString(), batch).length;
+				
+			}
 		}
+		
 		
 		if(result>0){
 			out.println("<script>");
 			out.println("alert('정상적으로 처리되었습니다.');");
 			out.println("opener.location.reload()");
 			out.println("window.close()");
-			out.println("location.replace('" + returnPage + "');");
+			//out.println("location.replace('" + returnPage + "');");
 			out.println("</script>");
 		}
 		

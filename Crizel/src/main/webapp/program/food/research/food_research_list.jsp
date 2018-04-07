@@ -2,14 +2,15 @@
 /**
 *   PURPOSE :   조사자(팀장) 관리 - 목록
 *   CREATE  :   20180319_mon    Ko
-*   MODIFY  :   체크박스 추가 20180327_tue    JI
-*               엑셀업로드 추가 20180403_tue   KO
+*   MODIFY  :   체크박스 추가	20180327_tue	JI
+*   MODIFY  :   엑셀업로드 추가	20180403_tue	KO
+*   MODIFY  :   학교/기관 select 추가 set the query where setting value	20180404_wed	JI
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="egovframework.rfc3.user.web.SessionManager" %>
-<%@ include file="/program/class/UtilClass.jsp"%>
-<%@ include file="/program/class/PagingClass.jsp"%>
+<%@ include file="/program/class/UtilClass.jsp" %>
+<%@ include file="/program/class/PagingClass.jsp" %>
 <%@ page import="org.springframework.jdbc.core.*" %>
 <%@ include file="/program/food/food_util.jsp" %>
 <%@ include file="/program/food/foodVO.jsp" %>
@@ -33,6 +34,11 @@ String pageTitle = "조사자(팀장) 관리";
 </head>
 <body>
 <%
+String searchSch	= parseNull(request.getParameter("searchSch"), "sch");   //권역
+String whereSchType	= " AND A.SCH_TYPE NOT IN ('Z', 'Y', 'X', 'V')";
+if ("ang".equals(searchSch)) {
+	whereSchType	= " AND A.SCH_TYPE IN ('Z', 'Y', 'X', 'V')";
+}
 String search0		= parseNull(request.getParameter("search0"));   //권역
 String search2		= parseNull(request.getParameter("search2"));   //팀
 String search3		= parseNull(request.getParameter("search3"));   //조사자/조사팀장 여부
@@ -52,36 +58,37 @@ int totalCount = 0;
 int cnt = 0;
 int num = 0;
 
-
 try{
+
 	sql = new StringBuffer();
-	sql.append("SELECT COUNT(*)										");
-	sql.append("FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B			");
-	sql.append("ON A.SCH_NO = B.SCH_NO								");
-	sql.append("WHERE 1=1											");
+	sql.append(" SELECT COUNT(*)									");
+	sql.append(" FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B			");
+	sql.append(" ON A.SCH_NO = B.SCH_NO								");
+	sql.append(" WHERE 1=1											");
+	sql.append(whereSchType);
 	
 	if(!"".equals(search0)){
-		sql.append("AND A.ZONE_NO = ?								");
+		sql.append(" AND A.ZONE_NO = ?								");
 		setList.add(search0);
 		paging.setParams("search0", search0);
 	}
 	if(!"".equals(search1) && !"".equals(keyword) ){
 		if("sch_nm".equals(search1)){
-			sql.append("AND A.SCH_NM LIKE '%'||?||'%'				");
+			sql.append(" AND A.SCH_NM LIKE '%'||?||'%'				");
 		}else if("nu_nm".equals(search1)){
-			sql.append("AND B.NU_NM LIKE '%'||?||'%'				");
+			sql.append(" AND B.NU_NM LIKE '%'||?||'%'				");
 		}
 		setList.add(keyword);
 		paging.setParams("search1", search1);
 		paging.setParams("keyword", keyword);
 	}
 	if(!"".equals(search2)){
-		sql.append("AND A.TEAM_NO = ?								");
+		sql.append(" AND A.TEAM_NO = ?								");
 		setList.add(search2);
 		paging.setParams("search2", search2);
 	}
 	if(!"".equals(search3)){
-		sql.append("AND A.SCH_GRADE = ?								");
+		sql.append(" AND A.SCH_GRADE = ?							");
 		setList.add(search3);
 		paging.setParams("search3", search3);
 	}
@@ -103,9 +110,9 @@ try{
 	paging.makePaging();
 
 	sql = new StringBuffer();
-	sql.append("SELECT * FROM(												");
+	sql.append(" SELECT * FROM(												");
 	sql.append("	SELECT ROWNUM AS RNUM, C.* FROM (						");
-	sql.append("SELECT														");
+	sql.append(" SELECT														");
 	sql.append("	A.SCH_NO,												");
 	sql.append("	A.SCH_ORG_SID,											");
 	sql.append("	A.SCH_TYPE,												");
@@ -122,6 +129,7 @@ try{
 	sql.append("	A.SHOW_FLAG,											");
 	sql.append("	TO_CHAR(A.REG_DATE, 'YYYY-MM-DD') AS REG_DATE,			");
 	sql.append("	A.ZONE_NO,												");
+	sql.append("	A.CAT_NO,												");
 	sql.append("	A.TEAM_NO,												");
 	sql.append("	A.SCH_GRADE,											");
 	sql.append("	A.SCH_LV,												");
@@ -138,53 +146,65 @@ try{
 	sql.append("	(	SELECT ZONE_NM 										");
 	sql.append("		FROM FOOD_ZONE										");
 	sql.append("		WHERE ZONE_NO = A.ZONE_NO	) AS ZONE_NM,			");
+	sql.append("	(	SELECT CAT_NM 										");
+	sql.append("		FROM FOOD_ST_CAT									");
+	sql.append("		WHERE CAT_NO = A.CAT_NO	) AS CAT_NM,				");
 	sql.append("	(	SELECT TEAM_NM 										");
 	sql.append("		FROM FOOD_TEAM										");
-	sql.append("		WHERE TEAM_NO = A.TEAM_NO	) AS TEAM_NM			");
-	sql.append("FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B					");
-	sql.append("ON A.SCH_NO = B.SCH_NO										");
-	sql.append("WHERE 1=1													");
+	sql.append("		WHERE TEAM_NO = A.TEAM_NO	) AS TEAM_NM,			");
+	sql.append("	(	SELECT JO_NM 										");
+	sql.append("		FROM FOOD_JO										");
+	sql.append("		WHERE JO_NO = A.JO_NO	) AS JO_NM,					");
+    sql.append("	(	SELECT AREA_NM 										");
+	sql.append("		FROM FOOD_AREA										");
+	sql.append("		WHERE AREA_NO = A.AREA_NO	) AS AREA_NM,			");
+	sql.append("	(	SELECT NVL(COUNT(RSCH_ITEM_NO), 0)					");
+	sql.append("		FROM FOOD_RSCH_ITEM									");
+	sql.append("		WHERE SCH_NO = A.SCH_NO	) AS RSCH_ITEM_CNT			");
+	sql.append(" FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B					");
+	sql.append(" ON A.SCH_NO = B.SCH_NO										");
+	sql.append(" WHERE 1=1													");
+	sql.append(whereSchType);
 	
 	if(!"".equals(search0)){
-		sql.append("AND A.ZONE_NO = ?										");
+		sql.append(" AND A.ZONE_NO = ?										");
 	}
-	if(!"".equals(search1) && !"".equals(keyword) ){
-		if("sch_nm".equals(search1)){
-			sql.append("AND A.SCH_NM LIKE '%'||?||'%'						");
-		}else if("nu_nm".equals(search1)){
-			sql.append("AND B.NU_NM LIKE '%'||?||'%'						");
+	if(!"".equals(search1) && !"".equals(keyword) ) {
+		if("sch_nm".equals(search1)) {
+			sql.append(" AND A.SCH_NM LIKE '%'||?||'%'						");
+		}else if("nu_nm".equals(search1)) {
+			sql.append(" AND B.NU_NM LIKE '%'||?||'%'						");
 		}
 	}
 	if(!"".equals(search2)){
-		sql.append("AND A.TEAM_NO = ?										");
+		sql.append(" AND A.TEAM_NO = ?										");
 	}
 	if(!"".equals(search3)){
-		sql.append("AND A.SCH_GRADE = ?										");
+		sql.append(" AND A.SCH_GRADE = ?									");
 	}
 	
 	
-	sql.append("ORDER BY DECODE(A.SCH_APP_FLAG, 'N', 1, 'Y', 2), SCH_NM		");
-	sql.append("	) C WHERE ROWNUM <= ").append(paging.getEndRowNo()).append(" 	");
-	sql.append(") WHERE RNUM > ").append(paging.getStartRowNo()).append(" 			");
-	
+	sql.append(" ORDER BY DECODE(A.SCH_APP_FLAG, 'N', 1, 'Y', 2), SCH_NM		");
+	sql.append("	) C WHERE ROWNUM <= ").append(paging.getEndRowNo()).append("	");
+	sql.append(" ) WHERE RNUM > ").append(paging.getStartRowNo()).append(" 			");
+
 	foodList = jdbcTemplate.query(sql.toString(), new FoodList(), setObj);
-	
+
 	sql = new StringBuffer();
-	sql.append("SELECT *				 ");
-	sql.append("FROM FOOD_ZONE 			 ");
-	sql.append("WHERE SHOW_FLAG = 'Y'	 ");
-	sql.append("ORDER BY ZONE_NM 		 ");
+	sql.append(" SELECT *				 ");
+	sql.append(" FROM FOOD_ZONE 			 ");
+	sql.append(" WHERE SHOW_FLAG = 'Y'	 ");
+	sql.append(" ORDER BY ZONE_NM 		 ");
 	zoneList = jdbcTemplate.query(sql.toString(), new FoodList());
 	
 	if(!"".equals(search0)){
 		sql = new StringBuffer();
-		sql.append("SELECT *				 					");
-		sql.append("FROM FOOD_TEAM 			 					");	
-		sql.append("WHERE SHOW_FLAG = 'Y' AND ZONE_NO = ?		");
-		sql.append("ORDER BY ORDER1, TEAM_NM	");
+		sql.append(" SELECT *				 					");
+		sql.append(" FROM FOOD_TEAM 			 					");	
+		sql.append(" WHERE SHOW_FLAG = 'Y' AND ZONE_NO = ?		");
+		sql.append(" ORDER BY ORDER1, TEAM_NM	");
 		teamList = jdbcTemplate.query(sql.toString(), new FoodList(), search0);
 	}
-	
 	
 }catch(Exception e){
 	out.println(e.toString());
@@ -205,8 +225,9 @@ try{
                     if(data.trim() == "OK"){
                         alert('정상적으로 처리되었습니다.');
                         location.reload();
+					}else if(data.trim() == "OVER"){
+						alert("조사식품이 있는 학교는 취소처리할 수 없습니다.\n조사식품을 모두 삭제 후 취소처리하세요.");
                     }else{
-                        alert(data.trim());
                         alert("처리 중 오류가 발생하였습니다.");				
                     }
                 },
@@ -217,9 +238,13 @@ try{
         }else{
             return;
         }
-
     }
 
+	function schSelect (value) {
+		location.href	=	"/program/food/research/food_research_list.jsp?searchSch="+ value;
+	}
+
+	/* 권역 선택 select */
     function teamSelect(value){
         var zone_no = value;
         $.ajax({
@@ -255,7 +280,7 @@ try{
         //1st check cnt
         var chk_class   =   $(".sch_chk");
         if (chk_class.length < 1) {
-            alert("체크할 계정이 없습니다.");
+            alert("승인대상이 없습니다.");
             return;
         }
         var chk_val     =   "";
@@ -270,35 +295,52 @@ try{
         
         //3rd check value chk
         if (chk_val.length < 1) {
-            alert("체크된 계정이 없습니다.");
+            alert("승인대상을 선택하세요.");
             return;
         }
         //4th submit
-        var sch_app_flag    =   "Y";
-        $.ajax({
-            type : "POST",
-            url : "/program/food/research/researcher_approval.jsp",
-            data : {"sch_no" : chk_val,
-                    "sch_app_flag" : sch_app_flag},
-            success : function(data){
-                if(data.trim() == "OK") {
-                    alert('정상적으로 처리되었습니다.');
-                    location.reload();
-                }else{
-                    alert(data.trim());
-                    alert("처리 중 오류가 발생하였습니다.");
-                }
-            },
-            error : function(request, status, error){
-                alert("처리 중 오류가 발생하였습니다..");
-            }
-        });
+		if (confirm("선택한 대상을 승인 하시겠습니까?") == true) {
+			var sch_app_flag    =   "Y";
+			$.ajax({
+				type : "POST",
+				url : "/program/food/research/researcher_approval.jsp",
+				data : {"sch_no" : chk_val,
+						"sch_app_flag" : sch_app_flag},
+				success : function(data){
+					if(data.trim() == "OK") {
+						alert('정상적으로 처리되었습니다.');
+						location.reload();
+					}else{
+						alert(data.trim());
+						alert("처리 중 오류가 발생하였습니다.");
+					}
+				},
+				error : function(request, status, error){
+					alert("처리 중 오류가 발생하였습니다..");
+				}
+			});
+		}
     }
     
+	//excel sample
+	function sampleExcel () {
+		if (confirm("조사자, 권역 샘플 엑셀을 다운로드 하시겠습니까?")) {
+			location.href	=	"/img/food/food_zone_sample.xls";
+		}
+		return;
+	}
+
+	//excel dw
+	function downExcel () {
+		if (confirm("조사자 엑셀을 다운로드 하시겟습니까?")) {
+
+		}
+		return;
+	}
     
   	//excel up
-    function upExcel() {
-        if (confirm("조사자(팀장) 엑셀을 업로드 하시겠습니까?")) {
+    function upExcel () {
+        if (confirm("조사자, 권역 엑셀을 업로드 하시겠습니까?\n전반적인 조사자 설정이 변경됩니다.")) {
             $("#researcher_file").click();
         }
         return;
@@ -318,17 +360,31 @@ try{
         $("#researcher_excel_form").attr("action", "./researcher_excel_up.jsp");
         $("#researcher_excel_form").submit();
     }
+    
+    function newWin(url, title, w, h){
+        var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+        var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+        var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+        var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+        var top = ((height / 2) - (h / 2)) + dualScreenTop;
+        var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+    }
+    
+    function zonePopup(){newWin("food_zone_popup.jsp", 'PRINTVIEW', '1000', '740');}
 
 </script>
 
 <div id="right_view">
-		<div class="top_view">
-				<p class="location"><strong><%=pageTitle %></strong></p>
-				<p class="loc_admin">
-                    <a href="/iam/main/index.sko?lang=en_US" target="_top" class="white">ENGLISH</a> <span class="yellow">[<%=sessionManager.getSgroupNm() %>]<%=sessionManager.getName() %></span>님 안녕하세요.
-                    <a href="/j_spring_security_logout?returnUrl=/iam/login/login_init.sko"><img src="/images/egovframework/rfc3/iam/images/logout.gif" alt="logout"  class="log_img"/></a>
-                </p>
-		</div>
+	<div class="top_view">
+		<p class="location"><strong><%=pageTitle %></strong></p>
+		<p class="loc_admin">
+			<a href="/iam/main/index.sko?lang=en_US" target="_top" class="white">ENGLISH</a> <span class="yellow">[<%=sessionManager.getSgroupNm() %>]<%=sessionManager.getName() %></span>님 안녕하세요.
+			<a href="/j_spring_security_logout?returnUrl=/iam/login/login_init.sko"><img src="/images/egovframework/rfc3/iam/images/logout.gif" alt="logout"  class="log_img"/></a>
+		</p>
+	</div>
 </div>
 <!-- S : #content -->
 	<div id="content">
@@ -337,8 +393,17 @@ try{
            <input type="file" id="researcher_file" name="researcher_file" value="" onchange="setFile()" style="display: none;">
        </form>
 	
+		<p class="boxin">
+            <button type="button" class="btn medium mako" onclick="zonePopup()">권역/팀 수정</button>
+		</p>
+		
 		<form id="searchForm" method="get" class="topbox2">
 			<fieldset>
+				<select id="searchSch" name="searchSch" onchange="schSelect(this.value)">
+					<option value="sch" <%if ("sch".equals(searchSch)) {out.println("selected");}%>>학교</option>
+					<option value="ang" <%if ("ang".equals(searchSch)) {out.println("selected");}%>>기관</option>
+				</select>
+		<%if ("sch".equals(searchSch)) {%>
                 <select id="search0" name="search0" onchange="teamSelect(this.value)">
 					<option value="">권역선택</option>
 					<%
@@ -367,6 +432,7 @@ try{
 					}
 					%>
 				</select>
+		<%}/** END IF searchSch **/%>
                 <select id="search3" name="search3">
 					<option value="">조사자/팀장</option>
 					<option value="R" <%if("R".equals(search3)){out.println("selected");}%>>조사자</option>
@@ -380,7 +446,9 @@ try{
 				<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
 				<button class="btn small edge mako" onclick="searchSubmit();">검색하기</button>
 				<div class="f_r">
-					<button type="button" class="btn small edge mako" onclick="researchMod('new');">엑셀업로드</button>
+					<button type="button" class="btn small edge mako" onclick="sampleExcel();">샘플엑셀</button>
+					<button type="button" class="btn small edge mako" onclick="upExcel();">엑셀업로드</button>
+					<button type="button" class="btn small edge mako" onclick="downExcel();">엑셀다운로드</button>
 				</div>
 			</fieldset>
 		</form>
@@ -398,28 +466,36 @@ try{
 		<caption>조사자(팀장) 정보 테이블</caption>
 		<colgroup>
             <col style="width: 2%">
+			<col style="width: 2%">
+			<col style="width: 5%">
+			<col style="width: 5%">
+			<col style="width: 5%">
+			<col style="width: 5%">
+			<col style="width: 5%">
+			<col style="width: 8%">
+			<col style="width: 5%">
+			<col>
 			<col style="width: 5%">
 			<col style="width: 10%">
 			<col style="width: 10%">
-			<col>
-			<col style="width: 10%">
-			<col style="width: 10%">
-			<col style="width: 10%">
-			<col style="width: 10%">
-			<col style="width: 10%">
+			<col style="width: 5%">
 			<col style="width: 10%">
 		</colgroup>
 		<thead>
 			<tr>
                 <th><input type="checkbox" value="all" class="all_chk"></th>
 				<th scope="col">순서</th>
+				<th scope="col">기관/학교</th>
 				<th scope="col">권역</th>
+				<th scope="col">품목</th>
 				<th scope="col">팀</th>
-				<th scope="col">학교명</th>
-				<th scope="col">학교 전화</th>
-				<th scope="col">영양사</th>
-				<th scope="col">직위</th>
-				<th scope="col">영양사 전화</th>
+				<th scope="col">조</th>
+				<th scope="col">지역</th>
+				<th scope="col">조사 식품 수</th>
+				<th scope="col">학교/기관명</th>
+				<th scope="col">조사자/조사팀장</th>
+				<th scope="col">영양사명</th>
+				<th scope="col">등록일</th>
 				<th scope="col">승인여부</th>
 				<th scope="col">승인일시</th>
 			</tr>
@@ -433,13 +509,17 @@ try{
 			<tr>
                 <td><input type="checkbox" class="sch_chk" value="<%=vo.sch_no %>"></td>
 				<td><%=num-- %></td>
+				<td><%if("ang".equals(searchSch)){out.println("기관");}else{out.println("학교");}%></td>
 				<td><%=vo.zone_nm%></td>
+				<td><%=vo.cat_nm%></td>
 				<td><%=vo.team_nm %></td>
+				<td><%=vo.jo_nm %></td>
+				<td><%=vo.area_nm %></td>
+                <td><%=vo.rsch_item_cnt %></td>
 				<td><a href="food_research_view.jsp?sch_no=<%=vo.sch_no%>"><%=vo.sch_nm %></a></td>
-				<td><%=telSet(vo.sch_tel)%></td>
-				<td><%=vo.nu_nm %></td>
 				<td><%=outSchGrade(vo.sch_grade) %></td>
-				<td><%=telSet(vo.nu_tel) %></td>
+				<td><%=vo.nu_nm %></td>
+				<td><%=vo.reg_date%></td>
 				<td>
 				<%
 				if("N".equals(vo.sch_app_flag)){
@@ -456,7 +536,7 @@ try{
 		}else{
 		%>	
 			<tr>
-				<td colspan="11">데이터가 없습니다.</td>			
+				<td colspan="15">데이터가 없습니다.</td>			
 			</tr>
 		<%} %>
 		</tbody>

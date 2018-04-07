@@ -8,7 +8,7 @@ response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
 String sch_no 		= parseNull(request.getParameter("sch_no"));
-String sch_app_flag	= parseNull(request.getParameter("sch_app_flag"));
+String sch_app_flag	= parseNull(request.getParameter("sch_app_flag"));	//Y=승인,N=취소
 String returnVal	= "NO";
 
 StringBuffer sql 		= null;
@@ -41,6 +41,25 @@ try {
         }
     //단건 승인
     } else {
+
+		//단건 취소 전 확인
+		if ("N".equals(sch_app_flag)) {
+			sql	=	new StringBuffer();
+			sql.append("SELECT NVL(COUNT(RSCH_ITEM_NO), 0) ");
+			sql.append("FROM FOOD_RSCH_ITEM                ");
+			sql.append("WHERE SCH_NO = ?				   ");
+			int rsch_item_cnt	=	jdbcTemplate.queryForObject(
+									sql.toString(),
+									new Object[]{sch_no},
+									Integer.class
+									);
+			if (rsch_item_cnt > 0) {
+				returnVal	=	"OVER";
+				out.println(returnVal);
+				return;
+			}
+		}
+
         sql = new StringBuffer();
         sql.append("UPDATE FOOD_SCH_TB SET			");
         sql.append("	  SCH_APP_FLAG = ?			");
@@ -64,5 +83,5 @@ try {
 	e.printStackTrace();
 	//alertBack(out, "처리중 오류가 발생하였습니다.");
 }
-%>      
-<%=returnVal%>                                                                                                  
+%>
+<%=returnVal%>

@@ -1,18 +1,21 @@
 package util;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 public class Torrent {
+	/*public static void main(String[] args) {
+		Torrent t1 = new Torrent();
+		
+		t1.getList("https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=1");
+	}*/
+	
 	public List<Map<String,Object>> getList(String addr){
 		String URL 						= addr;
         Document doc 					= null;
@@ -22,6 +25,7 @@ public class Torrent {
         List<String> hrefList 			= null;
         List<String> textList 			= null;
         List<String> timeList 			= null;
+        List<String> imgList			= null;
         
 		try {
 			doc = Jsoup.connect(URL).get();
@@ -42,15 +46,21 @@ public class Torrent {
         
         timeList = new ArrayList<String>();
         elem = doc.select(".table.div-table.list-pc.bg-white tbody tr .text-center.en.font-11");
-        
         list = new ArrayList<Map<String,Object>>();
         for (org.jsoup.nodes.Element e : elem) {
         	map = new HashMap<String,Object>();     
         	if(e.text()!=null && !"".equals(e.text())){
-        		if(e.text().length()>2){
+        		if(e.text().indexOf("전") > 0){
                 	timeList.add(e.text());
         		}
         	}
+		}
+
+        elem = doc.select(".table.div-table.list-pc.bg-white tbody tr .list-img.text-center img");
+        
+        imgList = new ArrayList<String>();
+        for (org.jsoup.nodes.Element e : elem) {
+        	imgList.add(e.attr("src"));
 		}
         
         list = new ArrayList<Map<String,Object>>();
@@ -60,6 +70,7 @@ public class Torrent {
         	map.put("text", textList.get(i));
         	map.put("time", timeList.get(i));
         	map.put("magnet", getMagnet(hrefList.get(i)));
+        	map.put("img", imgList.get(i));
         	list.add(map);
         }
         

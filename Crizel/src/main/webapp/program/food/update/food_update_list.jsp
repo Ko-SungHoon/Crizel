@@ -61,8 +61,6 @@ try{
     	newWin("food_update_popup.jsp"+url, 'PRINTVIEW', '1000', '740');
     }
 
-    //
-
 </script>
 
 <div id="right_view">

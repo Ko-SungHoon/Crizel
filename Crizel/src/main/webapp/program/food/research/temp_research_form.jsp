@@ -34,6 +34,7 @@ String pageTitle = "조사자 추가/수정";
 String sch_no 	= parseNull(request.getParameter("sch_no"));
 String zone_no 	= "";
 String team_no	= "";
+String cat_no	= "";
 
 StringBuffer sql 		= null;
 FoodVO foodVO	 		= new FoodVO();
@@ -41,6 +42,7 @@ List<FoodVO> zoneList	= null;
 List<FoodVO> teamList	= null;
 List<FoodVO> joList		= null;
 List<FoodVO> areaList	= null;
+List<FoodVO> catList	= null;
 
 
 try{
@@ -63,7 +65,10 @@ try{
 		sql.append("	A.SHOW_FLAG,									");
 		sql.append("	TO_CHAR(A.REG_DATE, 'YYYY-MM-DD') AS REG_DATE,	");
 		sql.append("	A.ZONE_NO,										");
+		sql.append("	A.CAT_NO,										");
 		sql.append("	A.TEAM_NO,										");
+		sql.append("	A.JO_NO,										");
+		sql.append("	A.AREA_NO,										");
 		sql.append("	A.SCH_GRADE,									");
 		sql.append("	A.SCH_LV,										");
 		sql.append("	A.SCH_PW,										");
@@ -96,22 +101,26 @@ try{
 	if(foodVO!=null && !"".equals(sch_no)){
 		zone_no = foodVO.zone_no;
 		team_no = foodVO.team_no;
+		cat_no	= foodVO.cat_no;
 		
 		sql = new StringBuffer();
-		sql.append("SELECT *				 	");
-		sql.append("FROM FOOD_TEAM 			 	");
-		sql.append("WHERE 	SHOW_FLAG ='Y'	 	");
-		sql.append("	AND ZONE_NO = ?	 		");
-		sql.append("ORDER BY ORDER1, TEAM_NM 	");
-		teamList = jdbcTemplate.query(sql.toString(), new FoodList(), zone_no);
+		sql.append("SELECT * FROM FOOD_ST_CAT WHERE SHOW_FLAG = 'Y' ORDER BY CAT_NM 	");
+		catList = jdbcTemplate.query(sql.toString(), new FoodList());
+		
+		sql = new StringBuffer();
+		sql.append("SELECT *				 			");
+		sql.append("FROM FOOD_TEAM 			 			");
+		sql.append("WHERE 	SHOW_FLAG ='Y'	 			");
+		sql.append("	AND ZONE_NO = ? AND CAT_NO = ?	");
+		sql.append("ORDER BY ORDER1, TEAM_NM 			");
+		teamList = jdbcTemplate.query(sql.toString(), new FoodList(), zone_no, cat_no);
 		
 		sql = new StringBuffer();
 		sql.append("SELECT * 				");
 		sql.append("FROM FOOD_JO			");
-		sql.append("WHERE 	ZONE_NO = ? 	");
-		sql.append("	AND TEAM_NO = ?		");
+		sql.append("WHERE 	TEAM_NO = ? 	");
 		sql.append("ORDER BY ORDER1, JO_NM	");
-		joList = jdbcTemplate.query(sql.toString(), new FoodList(), zone_no, team_no);
+		joList = jdbcTemplate.query(sql.toString(), new FoodList(), team_no);
 	}
 	
 	sql = new StringBuffer();
@@ -163,42 +172,66 @@ function searchSch(str){
 	});
 }
 
-function teamSelect(value){
-	var zone_no = value;
-	var mode = "team";
+
+
+function catSelect(zone_no){
+	var html = "<option value=''>품목 선택</option>";
 	$.ajax({
 		type : "POST",
 		url : "/program/food/research/team_list.jsp",
 		data : {
 			"zone_no" : zone_no,
-			"mode"	  : mode    
+			"mode"	  : "cat"    
 			},
 		async : false,
 		success : function(data){
-			$("#team_no").html(data.trim());
+			html += data.trim();
+			$("#cat_no").html(html);
+			$("#team_no").html("<option value=''>팀 선택</option>");
+			$("#jo_no").html("<option value=''>조 선택</option>");
 		},
 		error : function(request, status, error){
 		}
-	}); 
+	});
 }
-
-function joSelect(value){
-	var team_no = value;
-	var mode = "jo";
+function teamSelect(cat_no){
+	var html = "<option value=''>팀 선택</option>";
+	var zone_no = $("#zone_no").val();
+	$.ajax({
+		type : "POST",
+		url : "/program/food/research/team_list.jsp",
+		data : {
+			"zone_no" : zone_no,
+			"cat_no"  : cat_no,
+			"mode"	  : "team"    
+			},
+		async : false,
+		success : function(data){
+			html += data.trim();
+			$("#team_no").html(html);
+			$("#jo_no").html("<option value=''>조 선택</option>");
+		},
+		error : function(request, status, error){
+		}
+	});
+}
+function joSelect(team_no){
+	var html = "<option value=''>조 선택</option>";
 	$.ajax({
 		type : "POST",
 		url : "/program/food/research/team_list.jsp",
 		data : {
 			"team_no" : team_no,
-			"mode"	  : mode    
+			"mode"	  : "jo"    
 			},
 		async : false,
 		success : function(data){
-			$("#jo_no").html(data.trim());
+			html += data.trim();
+			$("#jo_no").html(html);
 		},
 		error : function(request, status, error){
 		}
-	}); 
+	});
 }
 
 function selInput(sch_org_sid, sch_nm, sch_addr, sch_tel, sch_area, found, sch_gen){
@@ -216,20 +249,22 @@ $(function(){
 });
 
 function rstPass(sch_no) {
-    var mode        =   "reset";
-    var sendUrl     =   "temp_research_action.jsp";
-    location.href   =   sendUrl + "?sch_no=" + sch_no + "&mode=" + mode;
+	if (confirm("비밀번호를 초기화 하시겠습니까?")) {
+		var mode        =   "reset";
+		var sendUrl     =   "temp_research_action.jsp";
+		location.href   =   sendUrl + "?sch_no=" + sch_no + "&mode=" + mode;
+	}
 }
 </script>
 
 <div id="right_view">
-		<div class="top_view">
-				<p class="location"><strong><%=pageTitle%></strong></p>
-				<p class="loc_admin">
-                    <a href="/iam/main/index.sko?lang=en_US" target="_top" class="white">ENGLISH</a> <span class="yellow">[<%=sessionManager.getSgroupNm() %>]<%=sessionManager.getName() %></span>님 안녕하세요.
-                    <a href="/j_spring_security_logout?returnUrl=/iam/login/login_init.sko"><img src="/images/egovframework/rfc3/iam/images/logout.gif" alt="logout"  class="log_img"/></a>
-                </p>
-		</div>
+	<div class="top_view">
+		<p class="location"><strong><%=pageTitle%></strong></p>
+		<p class="loc_admin">
+			<a href="/iam/main/index.sko?lang=en_US" target="_top" class="white">ENGLISH</a> <span class="yellow">[<%=sessionManager.getSgroupNm() %>]<%=sessionManager.getName() %></span>님 안녕하세요.
+			<a href="/j_spring_security_logout?returnUrl=/iam/login/login_init.sko"><img src="/images/egovframework/rfc3/iam/images/logout.gif" alt="logout"  class="log_img"/></a>
+		</p>
+	</div>
 </div>
 <!-- S : #content -->
 	<div id="content">
@@ -255,31 +290,20 @@ function rstPass(sch_no) {
                     </colgroup>
                     <tbody>
                         <tr>
-                            <th scope="row"><span class="red">*</span><label for="sch_id">학교아이디</label></th>
-                            <td colspan="3">
+                            <th scope="row"><span class="red">*</span><label for="sch_id">아이디</label></th>
+                            <td>
                             	<input type="text" id="sch_id" name="sch_id" value="<%=foodVO.sch_id%>" required
-                   	        	onkeyup="javascript:searchSch(this);">
+                   	        	onkeyup="javascript:searchSch(this);" 
+									<%if(sch_no != null && sch_no.length() > 0){out.println("readonly");} %>
+								>
                    	        </td>
-                        </tr>
-                        <tr>
-                        	<th scope="row"><span class="red">*</span><label for="sch_pw">패스워드</label></th>
-                            <td>
-                            	<input type="password" id="sch_pw" name="sch_pw" value="" 
-                            	<%if("".equals(foodVO.sch_no)){out.println("required");} %> >
-                                <button type="button" class="btn small edge darkMblue" onclick="rstPass('<%=foodVO.sch_no %>')">초기화</button>
-                            </td>
-                            <th scope="row"><span class="red">*</span><label for="sch_pw">패스워드 확인</label></th>
-                            <td>
-                            	<input type="password" id="sch_pw2" name="sch_pw2" value="" 
-								<%if("".equals(foodVO.sch_no)){out.println("required");} %> >
-                            </td>
-                        </tr>
-                        <tr>
                             <th scope="row"><span class="red">*</span><label for="sch_nm">학교명</label></th>
                             <td>
                             	<input type="text" id="sch_nm" name="sch_nm" value="<%=foodVO.sch_nm %>" required>
                             	<div id="searchDiv" style="position:absolute;"></div>
                             </td>
+                        </tr>
+                        <tr>
                             <th scope="row"><span class="red">*</span><label for="sch_type">학교단위</label></th>
                             <td>
 								<select id="sch_type" name="sch_type" required>
@@ -290,6 +314,21 @@ function rstPass(sch_no) {
 	                               	<option value="4" <%if("4".equals(foodVO.sch_type)){out.println("selected");} %>>고등학교</option>
                                 </select>
 							</td>
+							<th scope="row"><span class="red">*</span><label for="sch_tel">학교 연락처</label></th>
+                            <td><input type="text" id="sch_tel" name="sch_tel" value="<%=foodVO.sch_tel %>" required></td>
+                        </tr>
+						<tr>
+                            <th scope="row"><span class="red">*</span><label for="sch_gradeR">등급</label></th>
+                            <td>
+                            	<input type="radio" id="sch_gradeR" name="sch_grade" value="R" required 
+                            		<%if("R".equals(foodVO.sch_grade)){out.println("checked");} %>>
+                            		<label for="sch_gradeR">조사자</label>
+                            	<input type="radio" id="sch_gradeT" name="sch_grade" value="T" required
+                            		<%if("T".equals(foodVO.sch_grade)){out.println("checked");} %>>
+                            		<label for="sch_gradeT">조사팀장</label>
+                            </td>
+							<th scope="row"><span class="red">*</span><label for="sch_gradeR">등록일</label></th>
+							<td></td>
                         </tr>
                         <tr>
                             <th scope="row"><span class="red">*</span><label for="sch_addr">학교주소</label></th>
@@ -308,31 +347,25 @@ function rstPass(sch_no) {
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><span class="red">*</span><label for="nu_nm">영양사 성명</label></th>
-                            <td><input type="text" id="nu_nm" name="nu_nm" value="<%=foodVO.nu_nm %>" required></td>
-                            <th scope="row"><span class="red">*</span><label for="sch_tel">학교 연락처</label></th>
-                            <td><input type="text" id="sch_tel" name="sch_tel" value="<%=foodVO.sch_tel %>" required></td>
-                            
-                        </tr>
-                        <tr>
-                            <th scope="row"><span class="red">*</span><label for="nu_tel">영양사 연락처</label></th>
-                            <td><input type="text" id="nu_tel" name="nu_tel" value="<%=foodVO.nu_tel%>" required></td>
-                            <th scope="row"><span class="red">*</span><label for="sch_gradeR">직위</label></th>
-                            <td>
-                            	<input type="radio" id="sch_gradeR" name="sch_grade" value="R" required 
-                            		<%if("R".equals(foodVO.sch_grade)){out.println("checked");} %>>
-                            		<label for="sch_gradeR">조사자</label>
-                            	<input type="radio" id="sch_gradeT" name="sch_grade" value="T" required
-                            		<%if("T".equals(foodVO.sch_grade)){out.println("checked");} %>>
-                            		<label for="sch_gradeT">조사팀장</label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <th scope="row"><span class="red">*</span><label for="nu_mail">영양사 이메일</label></th>
-                            <td><input type="text" id="nu_mail" name="nu_mail" value="<%=foodVO.nu_mail%>" required></td>
-                            <th scope="row"><label for="zone_no">권역선택</label></th>
-                            <td>
-								<select id="zone_no" name="zone_no" onchange="teamSelect(this.value)" >
+							<th scope="row"><label for="area_no">지역선택</label></th>
+							<td>
+								<select id="area_no" name="area_no" >
+	                                <option value="">지역선택 </option>
+									<%
+									if(areaList!=null && areaList.size()>0){
+										for(FoodVO ob : areaList){
+									%>
+										<option value="<%=ob.area_no%>" 
+										<%if(foodVO.area_no.equals(ob.area_no)){out.println("selected");}%>><%=ob.area_nm%></option>
+									<%
+										}
+									}
+									%>
+								</select>
+							</td>
+							<th scope="row"><label for="zone_no">권역선택</label></th>
+							<td>
+								<select id="zone_no" name="zone_no" onchange="catSelect(this.value)" >
 									<option value="">권역선택</option>
 									<%
 									if(zoneList!=null && zoneList.size()>0){
@@ -346,10 +379,27 @@ function rstPass(sch_no) {
 										}
 									}
 									%>
-	                                
                                 </select>
-                                <select id="team_no" name="team_no" onchange="joSelect(this.value)">
-	                                <option value="">팀선택</option>
+								<select id="cat_no" name="cat_no" onchange="teamSelect(this.value)">
+	                                <option value="">품목선택</option>
+									<%
+									if(catList!=null && catList.size()>0){
+										for(FoodVO ob : catList){
+									%>
+										<option value="<%=ob.cat_no%>" 
+										<%if(foodVO.cat_no.equals(ob.cat_no)){out.println("selected");}%>><%=ob.cat_nm%></option>
+									<%
+										}
+									}
+									%>
+                                </select>
+							</td>
+						</tr>
+                        <tr>
+                            <th scope="row"><label for="zone_no">팀 선택</label></th>
+                            <td>
+								<select id="team_no" name="team_no" onchange="joSelect(this.value)">
+	                                <option value="">팀 선택</option>
 	                            <%
 	                            if(teamList!=null && teamList.size()>0){
 	                            	for(FoodVO ob : teamList){
@@ -361,7 +411,10 @@ function rstPass(sch_no) {
 	                            }
 	                            %>
                                 </select>
-                                <select id="jo_no" name="jo_no" >
+							</td>
+							<th scope="row"><label for="zone_no">조 선택</label></th>
+							<td>
+								<select id="jo_no" name="jo_no" >
 	                                <option value="">조선택</option>
 	                            <%
 	                            if(joList!=null && joList.size()>0){
@@ -374,36 +427,32 @@ function rstPass(sch_no) {
 	                            }
 	                            %>
                                 </select>
-                                <select id="area_no" name="area_no" >
-	                                <option value="">지역선택</option>
-	                            <%
-	                            if(areaList!=null && areaList.size()>0){
-	                            	for(FoodVO ob : areaList){
-	                            %>
-	                            	<option value="<%=ob.area_no%>" 
-	                            	<%if(foodVO.area_no.equals(ob.area_no)){out.println("selected");}%>><%=ob.area_nm%></option>
-	                            <%
-	                            	}
-	                            }
-	                            %>
-                                </select>
 							</td>
                         </tr>
-                       <%--  
-                        <%
-                        if("".equals(sch_no)){
-                        %>
-                        <tr>
-                            <th scope="row"><span class="red">*</span><label for="nu_mail">개인정보동의체크</label></th>
-                            <td colspan="3">
-                            	<input type="checkbox" id="agree" name="agree" required>
-                            	<label for="agree">개인정보동의</label>
-							</td>
+						<tr>
+                        	<th scope="row"><span class="red">*</span><label for="sch_pw">패스워드</label></th>
+                            <td>
+                            	<input type="password" id="sch_pw" name="sch_pw" value="" 
+                            	<%if("".equals(foodVO.sch_no)){out.println("required");} %> >
+                                <button type="button" class="btn small edge darkMblue" onclick="rstPass('<%=foodVO.sch_no %>')">초기화</button>
+                            </td>
+                            <th scope="row"><span class="red">*</span><label for="sch_pw">패스워드 확인</label></th>
+                            <td>
+                            	<input type="password" id="sch_pw2" name="sch_pw2" value="" 
+								<%if("".equals(foodVO.sch_no)){out.println("required");} %> >
+                            </td>
                         </tr>
-                        <%
-                        } 
-                        %>
-                         --%>
+						<tr>
+                            <th scope="row"><span class="red">*</span><label for="nu_nm">영양사 성명</label></th>
+                            <td><input type="text" id="nu_nm" name="nu_nm" value="<%=foodVO.nu_nm %>" required></td>
+                            <th scope="row"><span class="red">*</span><label for="nu_tel">영양사 연락처</label></th>
+                            <td><input type="text" id="nu_tel" name="nu_tel" value="<%=foodVO.nu_tel%>" required></td>
+                        </tr>
+						<tr>
+							<th scope="row"><span class="red">*</span><label for="nu_mail">영양사 이메일</label></th>
+                            <td><input type="text" id="nu_mail" name="nu_mail" value="<%=foodVO.nu_mail%>" required></td>
+							<th scope="row" colspan="2"></th>
+						</tr>
                     </tbody>
                 </table>
                 <p class="btn_area txt_c">
