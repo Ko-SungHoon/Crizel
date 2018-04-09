@@ -66,6 +66,9 @@ function allCheck(){
 		</tr>
 	</c:forEach>
 	</table>
+	<div class="search center">
+		<button type="button" onclick="allNewTap()">전체 다운</button>
+	</div>
 	<div class="paging">
 	<%
 	int torrentPage = Integer.parseInt((String)request.getAttribute("page"));

@@ -209,6 +209,8 @@ try{
 	sql.append("  , B.RSCH_COM1, B.RSCH_COM2, B.RSCH_COM3, B.RSCH_COM4, B.RSCH_COM5																"); 
 	sql.append("  , B.RSCH_REASON																												");
 	sql.append("  , A.STS_FLAG																													");
+	sql.append("  , B.SP_CHK																													");
+	sql.append("  , B.RJ_DATE																													");
 	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
 	sql.append("                    LEFT JOIN FOOD_ST_ITEM C ON B.ITEM_NO = C.ITEM_NO															");
 	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.RSCH_NO = ?																						");
@@ -370,6 +372,8 @@ try{
 	sql.append("  , B.RSCH_COM1, B.RSCH_COM2, B.RSCH_COM3, B.RSCH_COM4, B.RSCH_COM5																"); 
 	sql.append("  , B.RSCH_REASON																												");
 	sql.append("  , A.STS_FLAG																													");
+	sql.append("  , B.SP_CHK																													");
+	sql.append("  , B.RJ_DATE																													");
 	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
 	sql.append("                    LEFT JOIN FOOD_ST_ITEM C ON B.ITEM_NO = C.ITEM_NO															");
 	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.RSCH_NO = ?																						");
@@ -571,14 +575,19 @@ try{
 	%>
 	
 	<h2 class="tit"><%=rschVO.rsch_year%>년 <%=rschVO.rsch_month%>월 조사기간입니다.</h2>
-	<span>시작일 : <%=rschVO.str_date %></span>
-	<span>제출종료일 : <%=rschVO.mid_date %></span>
-	<span>마감종료일 : <%=rschVO.end_date%></span>
-	<span>D-<%=rschVO.rnum%></span>
-	<span>조사품목 <%=rschVO.cnt3 %>/<%=rschVO.cnt%> 완료</span>
-	<button type="button" class="btn small edge mako" onclick="researchMod('mod');">조사내용수정</button>
-	<button type="button" class="btn small edge mako" onclick="researchCom('<%=rschVO.rsch_no%>')" >조사완료</button>
-	<button type="button" class="btn small edge mako" onclick="researchCan('<%=rschVO.rsch_no%>')" >조사취소</button>
+	<div class="txt_c">
+		<span>시작일 : <%=rschVO.str_date %></span>
+		<span>제출종료일 : <%=rschVO.mid_date %></span>
+		<span>마감종료일 : <%=rschVO.end_date%></span>
+		<span>D-<%=rschVO.rnum%></span>
+		<span>조사품목 <%=rschVO.cnt3 %>/<%=rschVO.cnt%> 완료</span>
+	</div>
+	
+	<div class="txt_r">
+		<button type="button" class="btn small edge mako" onclick="researchMod('mod');">조사내용수정</button>
+		<button type="button" class="btn small edge mako" onclick="researchCom('<%=rschVO.rsch_no%>')" >조사완료</button>
+		<button type="button" class="btn small edge mako" onclick="researchCan('<%=rschVO.rsch_no%>')" >조사취소</button>
+	</div>
 	
 	<div class="searchBox magB20">
 		<form id="searchForm" method="get" class="topbox2">
@@ -618,7 +627,7 @@ try{
 				</select>
 				<select id="search5" name="search5">
 					<option value="">구분 선택</option>
-				<%
+				<%			
 				if(catList!=null && catList.size()>0){
 					for(FoodVO ob : catList){
 						out.println("<option value='"+ ob.cat_no +"'");
@@ -704,11 +713,21 @@ try{
 				<td><%=ob.rsch_loc1 %></td>
 				<td><%=ob.rsch_com1 %></td>
 				<td><%=ob.rsch_reason %></td>
-				<td><%=ob.sts_flag %></td>
-				<td>승인/반려</td>
+				<td><%=ob.sp_chk %></td>
+				<td>
+				<%
+				if("Y".equals(ob.sts_flag)){
+					if("".equals(ob.rj_date)){
+						out.println("승인");
+					}else{
+						out.println("반려");
+					}
+				}
+				%>
+				</td>
 			</tr>
 		<%
-			}
+			}	
 		}else{
 		%>
 		<tr>
@@ -939,7 +958,7 @@ try{
 				<td><%=ob.rsch_loc1 %></td>
 				<td><%=ob.rsch_com1 %></td>
 				<td><%=ob.rsch_reason %></td>
-				<td><%=ob.sts_flag %></td>
+				<td><%=ob.sp_chk %></td>
 			</tr>
 		<%
 			}

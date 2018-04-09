@@ -49,7 +49,7 @@ List<FoodVO> foodList 	=	null;	//조사식품 리스트
 try{
 
 	//학교, 영양사 정보 출력
-	sql = new StringBuffer();
+	sql =	new StringBuffer();
 	sql.append("SELECT												");
 	sql.append("	A.SCH_NO,										");
 	sql.append("	A.SCH_ORG_SID,									");
@@ -67,7 +67,10 @@ try{
 	sql.append("	A.SHOW_FLAG,									");
 	sql.append("	TO_CHAR(A.REG_DATE, 'YYYY-MM-DD') AS REG_DATE,	");
 	sql.append("	A.ZONE_NO,										");
+	sql.append("	A.CAT_NO,										");
 	sql.append("	A.TEAM_NO,										");
+	sql.append("	A.JO_NO,										");
+	sql.append("	A.AREA_NO,										");
 	sql.append("	A.SCH_GRADE,									");
 	sql.append("	A.SCH_LV,										");
 	sql.append("	A.SCH_PW,										");
@@ -96,65 +99,88 @@ try{
 		foodVO = null;
 	}
 
-	//전체 식품 수 출력
-	sql =	new StringBuffer();
-	sql.append("SELECT NVL(COUNT(RSCH_ITEM_NO), 0) 					");
-	sql.append("FROM FOOD_RSCH_ITEM				 					");
-	sql.append("WHERE SCH_NO = ?				 					");
-	try{
-		rschTotalFood	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{sch_no});
-	}catch(Exception e){
-		rschTotalFood	=	0;
+	//조사팀장 일 경우
+	if ("T".equals(foodVO.sch_grade)) {
+
+		//전체 식품 수 출력
+		sql =	new StringBuffer();
+		sql.append("SELECT NVL(COUNT(RSCH_ITEM_NO), 0) 					");
+		sql.append("FROM FOOD_RSCH_ITEM				 					");
+		sql.append("WHERE SCH_NO IN (SELECT SCH_NO	 					");
+		sql.append("	SELECT SCH_NO	 								");
+		sql.append("	FROM FOOD_SCH_TB	 							");
+		sql.append("	WHERE JO_NO = ?				 					");
+		try{
+			rschTotalFood	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{foodVO.jo_no});
+		}catch(Exception e){
+			rschTotalFood	=	0;
+		}
+
+	//조사자 일 경우
+	} else {
+
+		//전체 식품 수 출력
+		sql =	new StringBuffer();
+		sql.append("SELECT NVL(COUNT(RSCH_ITEM_NO), 0) 					");
+		sql.append("FROM FOOD_RSCH_ITEM				 					");
+		sql.append("WHERE SCH_NO = ?				 					");
+		try{
+			rschTotalFood	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{sch_no});
+		}catch(Exception e){
+			rschTotalFood	=	0;
+		}
+
+		//전체 식품 리스트 출력
+		sql	=	new StringBuffer();
+		sql.append("SELECT 													                                ");
+		sql.append("	A.RSCH_ITEM_NO,										                                ");
+		sql.append("    C.ITEM_NO,                                                                          ");
+		sql.append("    (SELECT CAT_NM FROM FOOD_ST_CAT                                                     ");
+		sql.append("    WHERE CAT_NO = C.CAT_NO) AS CAT_NM,                                                 ");
+		sql.append("    C.FOOD_CAT_INDEX,                                                                   ");
+		sql.append("    C.FOOD_CODE,                                                                        ");
+		sql.append("    (SELECT SUBSTR(XMLAGG(                                                              ");
+		sql.append("        XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()'              ");
+		sql.append("    ).GETSTRINGVAL(),2) NM_FOOD                                                         ");
+		sql.append("    FROM FOOD_ST_NM                                                                     ");
+		sql.append("    WHERE NM_NO IN (FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5)) AS NM_FOOD, ");
+		sql.append("    (SELECT SUBSTR( XMLAGG(                                                             ");
+		sql.append("        XMLELEMENT(COL ,',', DT_NM) ORDER BY DT_NM).EXTRACT('//text()'                  ");
+		sql.append("        ).GETSTRINGVAL(),2) DT_NM                                                       ");
+		sql.append("    FROM FOOD_ST_DT_NM                                                                  ");
+		sql.append("    WHERE DT_NO IN (FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5,              ");
+		sql.append("    FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10)) AS DT_NM,                  ");
+		sql.append("    (SELECT SUBSTR( XMLAGG(                                                             ");
+		sql.append("        XMLELEMENT(COL,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()'                   ");
+		sql.append("        ).GETSTRINGVAL(),2) EX_NM                                                       ");
+		sql.append("    FROM FOOD_ST_EXPL                                                                   ");
+		sql.append("    WHERE EX_NO IN (FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,              ");
+		sql.append("    FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, FOOD_EP_11,                 ");
+		sql.append("    FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15, FOOD_EP_16, FOOD_EP_17,             ");
+		sql.append("    FOOD_EP_18, FOOD_EP_19, FOOD_EP_20, FOOD_EP_21, FOOD_EP_22, FOOD_EP_23,             ");
+		sql.append("    FOOD_EP_24, FOOD_EP_25)) AS EX_NM,                                                  ");
+		sql.append("    B.ITEM_COMP_NO,                                                                     ");
+		sql.append("    B.ITEM_COMP_VAL,                                                                    ");
+
+		sql.append("	(SELECT SUBSTR( XMLAGG(																");
+		sql.append("		XMLELEMENT(COL,',', SCH_NM) ORDER BY SCH_NM).EXTRACT('//text()'					");
+		sql.append("		).GETSTRINGVAL(),2) SCH_NM														");
+		sql.append("	FROM FOOD_SCH_TB																	");
+		sql.append("	WHERE SCH_NO IN																		");
+		sql.append("	(SELECT SCH_NO FROM FOOD_RSCH_ITEM WHERE ITEM_NO = C.ITEM_NO)) AS SCH_NM			");
+		
+		sql.append("FROM FOOD_RSCH_ITEM A LEFT JOIN FOOD_ITEM_PRE B			                                ");
+		sql.append("	ON A.ITEM_NO = B.ITEM_NO LEFT JOIN FOOD_ST_ITEM C	                                ");
+		sql.append("	ON A.ITEM_NO = C.ITEM_NO 							                                ");
+		sql.append("WHERE A.SCH_NO = ?										                                ");
+		try {
+			foodList		=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{sch_no});
+		}catch(Exception e) {
+			foodList		=	null;
+		}
+
 	}
 
-	//전체 식품 리스트 출력
-	sql	=	new StringBuffer();
-	sql.append("SELECT 													                                ");
-	sql.append("	A.RSCH_ITEM_NO,										                                ");
-	sql.append("    C.ITEM_NO,                                                                          ");
-    sql.append("    (SELECT CAT_NM FROM FOOD_ST_CAT                                                     ");
-    sql.append("    WHERE CAT_NO = C.CAT_NO) AS CAT_NM,                                                 ");
-    sql.append("    C.FOOD_CAT_INDEX,                                                                   ");
-    sql.append("    C.FOOD_CODE,                                                                        ");
-    sql.append("    (SELECT SUBSTR(XMLAGG(                                                              ");
-    sql.append("        XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()'              ");
-    sql.append("    ).GETSTRINGVAL(),2) NM_FOOD                                                         ");
-    sql.append("    FROM FOOD_ST_NM                                                                     ");
-    sql.append("    WHERE NM_NO IN (FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5)) AS NM_FOOD, ");
-    sql.append("    (SELECT SUBSTR( XMLAGG(                                                             ");
-    sql.append("        XMLELEMENT(COL ,',', DT_NM) ORDER BY DT_NM).EXTRACT('//text()'                  ");
-    sql.append("        ).GETSTRINGVAL(),2) DT_NM                                                       ");
-    sql.append("    FROM FOOD_ST_DT_NM                                                                  ");
-    sql.append("    WHERE DT_NO IN (FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5,              ");
-    sql.append("    FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10)) AS DT_NM,                  ");
-    sql.append("    (SELECT SUBSTR( XMLAGG(                                                             ");
-    sql.append("        XMLELEMENT(COL,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()'                   ");
-    sql.append("        ).GETSTRINGVAL(),2) EX_NM                                                       ");
-    sql.append("    FROM FOOD_ST_EXPL                                                                   ");
-    sql.append("    WHERE EX_NO IN (FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,              ");
-    sql.append("    FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, FOOD_EP_11,                 ");
-    sql.append("    FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15, FOOD_EP_16, FOOD_EP_17,             ");
-    sql.append("    FOOD_EP_18, FOOD_EP_19, FOOD_EP_20, FOOD_EP_21, FOOD_EP_22, FOOD_EP_23,             ");
-    sql.append("    FOOD_EP_24, FOOD_EP_25)) AS EX_NM,                                                  ");
-    sql.append("    B.ITEM_COMP_NO,                                                                     ");
-    sql.append("    B.ITEM_COMP_VAL,                                                                    ");
-
-    sql.append("	(SELECT SUBSTR( XMLAGG(																");
-    sql.append("		XMLELEMENT(COL,',', SCH_NM) ORDER BY SCH_NM).EXTRACT('//text()'					");
-	sql.append("		).GETSTRINGVAL(),2) SCH_NM														");
-	sql.append("	FROM FOOD_SCH_TB																	");
-	sql.append("	WHERE SCH_NO = 																		");
-	sql.append("	(SELECT SCH_NO FROM FOOD_RSCH_ITEM WHERE ITEM_NO = C.ITEM_NO)) AS SCH_NM			");
-	
-	sql.append("FROM FOOD_RSCH_ITEM A LEFT JOIN FOOD_ITEM_PRE B			                                ");
-	sql.append("	ON A.ITEM_NO = B.ITEM_NO LEFT JOIN FOOD_ST_ITEM C	                                ");
-	sql.append("	ON A.ITEM_NO = C.ITEM_NO 							                                ");
-	sql.append("WHERE A.SCH_NO = ?										                                ");
-	try {
-		foodList		=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{sch_no});
-	}catch(Exception e) {
-		foodList		=	null;
-	}
 
 }catch(Exception e){
 	out.println(e.toString());
@@ -324,7 +350,9 @@ try{
 	    <section>
 			<h2 class="tit">조사식품</h2>
 			<div class="f_r">
+			<%if ("T".equals(foodVO.sch_grade)) {} else {%>
 				<button type="button" class="btn small edge darkMblue" onclick="addFood('<%=foodVO.sch_id %>');">+</button>
+			<%}%>
 			</div>
 			<p class="f_l magT10">
 				<strong>총  조사식품 <span><%=rschTotalFood %></span> 건</strong>
@@ -371,7 +399,11 @@ try{
                             <%if(vo.item_comp_no != null && vo.item_comp_no.length() > 0) {%>비교 <%=vo.item_comp_no%> / <%=vo.item_comp_val%><%}%>
                         </span></td>
 						<td><%=vo.sch_nm %></td>
-						<td><button type="button" class="btn small edge mako selItem" data-value="<%=vo.rsch_item_no %>">-</button></td>
+						<td>
+							<%if ("T".equals(foodVO.sch_grade)) {} else {%>
+							<button type="button" class="btn small edge mako selItem" data-value="<%=vo.rsch_item_no %>">-</button>
+							<%}%>
+						</td>
 					</tr>
 					<%}/*END FOR*/
 					}/*END IF*/else {%>
