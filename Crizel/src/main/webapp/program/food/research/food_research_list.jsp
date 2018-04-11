@@ -35,9 +35,9 @@ String pageTitle = "조사자(팀장) 관리";
 <body>
 <%
 String searchSch	= parseNull(request.getParameter("searchSch"), "sch");   //권역
-String whereSchType	= " AND A.SCH_TYPE NOT IN ('Z', 'Y', 'X', 'V')";
+String whereSchType	= " AND A.SCH_TYPE NOT IN ('Z', 'Y', 'X', 'V')		";
 if ("ang".equals(searchSch)) {
-	whereSchType	= " AND A.SCH_TYPE IN ('Z', 'Y', 'X', 'V')";
+	whereSchType	= " AND A.SCH_TYPE IN ('Z', 'Y', 'X', 'V')		";
 }
 String search0		= parseNull(request.getParameter("search0"));   //권역
 String search2		= parseNull(request.getParameter("search2"));   //팀
@@ -61,10 +61,14 @@ int num = 0;
 try{
 
 	sql = new StringBuffer();
-	sql.append(" SELECT COUNT(*)									");
-	sql.append(" FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B			");
-	sql.append(" ON A.SCH_NO = B.SCH_NO								");
-	sql.append(" WHERE 1=1											");
+	sql.append(" SELECT COUNT(*)																		");
+	sql.append(" FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B												");
+	sql.append(" ON A.SCH_NO = B.SCH_NO																	");
+	sql.append(" WHERE (B.SHOW_FLAG = 'Y'																");
+	sql.append(" 	OR A.SCH_NO IN (SELECT A.SCH_NO														");
+	sql.append("        			FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B ON A.SCH_NO = B.SCH_NO	");
+	sql.append("         		 	GROUP BY A.SCH_NO, B.NU_NO											");
+	sql.append("         		 	HAVING NVL(B.NU_NO,0) = 0))											");
 	sql.append(whereSchType);
 	
 	if(!"".equals(search0)){
@@ -163,7 +167,11 @@ try{
 	sql.append("		WHERE SCH_NO = A.SCH_NO	) AS RSCH_ITEM_CNT			");
 	sql.append(" FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B					");
 	sql.append(" ON A.SCH_NO = B.SCH_NO										");
-	sql.append(" WHERE 1=1													");
+	sql.append(" WHERE (B.SHOW_FLAG = 'Y'									");
+	sql.append(" 	OR A.SCH_NO IN (SELECT A.SCH_NO														");
+	sql.append("        			FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B ON A.SCH_NO = B.SCH_NO	");
+	sql.append("         		 	GROUP BY A.SCH_NO, B.NU_NO											");
+	sql.append("         		 	HAVING NVL(B.NU_NO,0) = 0))											");
 	sql.append(whereSchType);
 	
 	if(!"".equals(search0)){

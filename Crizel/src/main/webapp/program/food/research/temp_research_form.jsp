@@ -1,7 +1,8 @@
 <%
 /**
 *   PURPOSE :   회원신청 및 수정
-*   CREATE  :   20180319_mon    Ko
+*   CREATE  :   20180319_mon    KO
+*	MODIFY  :   영양사 다중 추가 20180409_mon    KO
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -35,9 +36,11 @@ String sch_no 	= parseNull(request.getParameter("sch_no"));
 String zone_no 	= "";
 String team_no	= "";
 String cat_no	= "";
+String mode		= "".equals(sch_no)?"insert":"update";
 
 StringBuffer sql 		= null;
 FoodVO foodVO	 		= new FoodVO();
+List<FoodVO> nuList		= null;
 List<FoodVO> zoneList	= null;
 List<FoodVO> teamList	= null;
 List<FoodVO> joList		= null;
@@ -89,6 +92,13 @@ try{
 		}catch(Exception e){
 			foodVO = null;
 		}
+		
+		sql = new StringBuffer();
+		sql.append("SELECT *								");
+		sql.append("FROM FOOD_SCH_NU						");
+		sql.append("WHERE SHOW_FLAG = 'Y' AND SCH_NO = ?	");
+		sql.append("ORDER BY NU_NO							");
+		nuList = jdbcTemplate.query(sql.toString(), new FoodList(), sch_no);
 	}
 	
 	sql = new StringBuffer();
@@ -256,6 +266,33 @@ function rstPass(sch_no) {
 	}
 }
 </script>
+<script>
+function nuAdd(){
+	var index = $(".nuInsert").length+1;
+	var html = "";
+	html += "<tr class='nuInsert' id='nuInsert_1_"+index+"'>";
+	html += "	<th scope='row'><span class='red'>*</span><label for='nu_nm_"+index+"'>영양사 성명</label></th>";
+	html += "	<td><input type='text' id='nu_nm_"+index+"' name='nu_nm' value='' required></td>";
+	html += "	<th scope='row'><span class='red'>*</span><label for='nu_tel_"+index+"'>영양사 연락처</label></th>";
+	html += "	<td><input type='text' id='nu_tel_"+index+"' name='nu_tel' value='' required>";
+	html += "	<div class='f_r'>";
+	html += "		<button type='button' class='btn small edge darkMblue' onclick=\"nuRemove('"+index+"')\">-</button>";
+	html += "	</div>";
+	html += "	</td>";
+	html += "</tr>";
+	html += "<tr id='nuInsert_2_"+index+"'>";
+	html += "	<th scope='row'><span class='red'>*</span><label for='nu_mail_"+index+"'>영양사 이메일</label></th>";
+	html += "	<td><input type='text' id='nu_mail_"+index+"' name='nu_mail' value='' required></td>";
+	html += "	<th scope='row' colspan='2'></th>";
+	html += "</tr>";
+	
+	$(".bbs_list2").append(html);
+}
+function nuRemove(index){
+	$("#nuInsert_1_"+index).remove();
+	$("#nuInsert_2_"+index).remove();
+}
+</script>
 
 <div id="right_view">
 	<div class="top_view">
@@ -272,7 +309,6 @@ function rstPass(sch_no) {
 			<form action="temp_research_action.jsp" method="post" onsubmit="return submitForm();">
 			<input type="hidden" id="sch_org_sid" name="sch_org_sid" value="<%=foodVO.sch_org_sid%>">
 			<input type="hidden" id="sch_gen" name="sch_gen" value="<%=foodVO.sch_gen%>">
-			<input type="hidden" id="nu_no" name="nu_no" value="<%=foodVO.nu_no%>">
 			<input type="hidden" id="sch_no" name="sch_no" value="<%=foodVO.sch_no%>">
 			<%if("".equals(sch_no)){ %>
 			<input type="hidden" id="mode" name="mode" value="insert">
@@ -284,9 +320,9 @@ function rstPass(sch_no) {
 					<caption><%=pageTitle%> 정보입력</caption>
                     <colgroup>
                         <col style="width:22%">
-                        <col>
+                        <col style="width:28%">
                         <col style="width:22%">
-                        <col>
+                        <col style="width:28%">
                     </colgroup>
                     <tbody>
                         <tr>
@@ -429,6 +465,7 @@ function rstPass(sch_no) {
                                 </select>
 							</td>
                         </tr>
+                        <%if("insert".equals(mode)){ %>
 						<tr>
                         	<th scope="row"><span class="red">*</span><label for="sch_pw">패스워드</label></th>
                             <td>
@@ -442,17 +479,73 @@ function rstPass(sch_no) {
 								<%if("".equals(foodVO.sch_no)){out.println("required");} %> >
                             </td>
                         </tr>
-						<tr>
-                            <th scope="row"><span class="red">*</span><label for="nu_nm">영양사 성명</label></th>
-                            <td><input type="text" id="nu_nm" name="nu_nm" value="<%=foodVO.nu_nm %>" required></td>
-                            <th scope="row"><span class="red">*</span><label for="nu_tel">영양사 연락처</label></th>
-                            <td><input type="text" id="nu_tel" name="nu_tel" value="<%=foodVO.nu_tel%>" required></td>
+                        <%}else{ %>
+                        <tr>
+                        	<th scope="row">패스워드 초기화</th>
+                            <td>
+                                <button type="button" class="btn small edge darkMblue" onclick="rstPass('<%=foodVO.sch_no %>')">초기화</button>
+                            </td>
                         </tr>
+                        <%} %>
 						<tr>
-							<th scope="row"><span class="red">*</span><label for="nu_mail">영양사 이메일</label></th>
-                            <td><input type="text" id="nu_mail" name="nu_mail" value="<%=foodVO.nu_mail%>" required></td>
-							<th scope="row" colspan="2"></th>
+							<th scope="row" colspan="4">
+								영양사 정보
+								<div class="f_r">
+									<button type="button" class="btn small edge darkMblue" onclick="nuAdd()">+</button>
+								</div>
+							</th>
 						</tr>
+						<%
+						if("insert".equals(mode)){
+						%>
+							<tr class="nuInsert" id="nuInsert_1_1">
+	                            <th scope="row"><span class="red">*</span><label for="nu_nm">영양사 성명</label></th>
+	                            <td><input type="text" id="nu_nm" name="nu_nm" value="" required></td>
+	                            <th scope="row"><span class="red">*</span><label for="nu_tel">영양사 연락처</label></th>
+	                            <td><input type="text" id="nu_tel" name="nu_tel" value="" required>
+	                            	<div class="f_r">
+										<button type="button" class="btn small edge darkMblue" onclick="nuRemove('1')">-</button>
+									</div>
+	                            </td>
+	                        </tr>
+							<tr id="nuInsert_2_1">
+								<th scope="row"><span class="red">*</span><label for="nu_mail">영양사 이메일</label></th>
+	                            <td><input type="text" id="nu_mail" name="nu_mail" value="" required></td>
+								<th scope="row" colspan="2"></th>
+							</tr>
+						<%
+						}else if("update".equals(mode)){
+							if(nuList!=null && nuList.size()>0){
+								for(int i=0; i<nuList.size(); i++){
+									FoodVO nuVO = nuList.get(i);
+						%>
+							<tr class="nuInsert" id="nuInsert_1_<%=i+1%>">
+	                            <th scope="row"><span class="red">*</span><label for="nu_nm_<%=i+1%>">영양사 성명</label></th>
+	                            <td>
+	                            	<input type="text" id="nu_nm_<%=i+1%>" name="nu_nm" value="<%=nuVO.nu_nm %>" required>
+	                            	<input type="hidden" id="nu_no_<%=i+1%>" name="nu_no" value="<%=nuVO.nu_no%>">
+	                            </td>
+	                            <th scope="row"><span class="red">*</span><label for="nu_tel_<%=i+1%>">영양사 연락처</label></th>
+	                            <td><input type="text" id="nu_tel_<%=i+1%>" name="nu_tel" value="<%=nuVO.nu_tel%>" required>
+	                            <%
+	                            if(i>0){
+	                            %>
+	                            	<div class="f_r">
+										<button type="button" class="btn small edge darkMblue" onclick="nuRemove('<%=i+1%>')">-</button>
+									</div>
+								<%} %>
+	                            </td>
+	                        </tr>
+							<tr id="nuInsert_2_<%=i+1%>">
+								<th scope="row"><span class="red">*</span><label for="nu_mail_<%=i+1%>">영양사 이메일</label></th>
+	                            <td><input type="text" id="nu_mail_<%=i+1%>" name="nu_mail" value="<%=nuVO.nu_mail%>" required></td>
+								<th scope="row" colspan="2"></th>
+							</tr>
+						<%
+								}
+							}
+						}
+						%>
                     </tbody>
                 </table>
                 <p class="btn_area txt_c">

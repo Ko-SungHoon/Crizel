@@ -49,7 +49,7 @@
 			if("xls".equals(fileExt)){
 				excelList = getExcelRead(file, 4);
 			}else if("xlsx".equals(fileExt)){
-				excelList = getExcelRead2(file, 4);
+				//excelList = getExcelRead2(file, 4);
 			}
 		}
 		

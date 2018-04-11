@@ -627,7 +627,7 @@ try{
 				</select>
 				<select id="search5" name="search5">
 					<option value="">구분 선택</option>
-				<%			
+				<%
 				if(catList!=null && catList.size()>0){
 					for(FoodVO ob : catList){
 						out.println("<option value='"+ ob.cat_no +"'");

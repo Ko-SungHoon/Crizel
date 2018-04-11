@@ -3,6 +3,7 @@
 *   PURPOSE :   회원신청 - 액션
 *   CREATE  :   20180319_mon    Ko
 *   MODIFY  :   비밀번호 리셋 20180327_tue    JI
+*	MODIFY  :   영양사 다중 추가 20180409_mon    KO
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -24,11 +25,8 @@ String sch_type		= parseNull(request.getParameter("sch_type"));
 String sch_addr		= parseNull(request.getParameter("sch_addr"));
 String sch_area		= parseNull(request.getParameter("sch_area"));
 String sch_found	= parseNull(request.getParameter("sch_found"));
-String nu_nm		= parseNull(request.getParameter("nu_nm"));
 String sch_tel		= parseNull(request.getParameter("sch_tel"));
-String nu_tel		= parseNull(request.getParameter("nu_tel"));
 String sch_grade	= parseNull(request.getParameter("sch_grade"));
-String nu_mail		= parseNull(request.getParameter("nu_mail"));
 String zone_no		= parseNull(request.getParameter("zone_no"));
 String cat_no		= parseNull(request.getParameter("cat_no"));
 String team_no		= parseNull(request.getParameter("team_no"));
@@ -40,10 +38,18 @@ String sch_post 	= parseNull(request.getParameter("sch_post"));
 String sch_url 		= parseNull(request.getParameter("sch_url"));
 String show_flag 	= parseNull(request.getParameter("show_flag"), "Y");
 String sch_lv 		= parseNull(request.getParameter("sch_lv"));
-String nu_no 		= parseNull(request.getParameter("nu_no"));
 
-StringBuffer sql 	= null;
-int result 			= 0;
+String[] nu_no 		= request.getParameterValues("nu_no");
+String[] nu_nm		= request.getParameterValues("nu_nm");
+String[] nu_mail	= request.getParameterValues("nu_mail");
+String[] nu_tel		= request.getParameterValues("nu_tel");
+
+int max_nu_no		= 0;
+
+StringBuffer sql 			= null;
+List<Object[]> batch 		= null;
+Object[] value				= null;
+int result 					= 0;
 
 try{
 	
@@ -120,9 +126,8 @@ try{
 			  sch_no, sch_org_sid, sch_type, sch_id, sch_nm, sch_tel, sch_area, sch_addr
 			, sch_found, sch_gen, zone_no, cat_no, team_no, jo_no, area_no, sch_grade, sch_pw
 		});
-		
-		
-		if(result > 0){
+
+		if(nu_nm!=null && nu_nm.length>0){
 			sql = new StringBuffer();
 			sql.append("INSERT INTO FOOD_SCH_NU(	");
 			sql.append("	NU_NO,					");
@@ -140,10 +145,17 @@ try{
 			sql.append("	?,														");
 			sql.append("	'Y'														");
 			sql.append(")															");
-			
-			result = jdbcTemplate.update(sql.toString(), new Object[]{
-				sch_no, nu_nm, nu_tel, nu_mail
-			});
+			batch = new ArrayList<Object[]>();
+			for(int i=0; i<nu_nm.length; i++){
+				value = new Object[]{
+						sch_no
+						, nu_nm[i]
+						, nu_tel[i]
+						, nu_mail[i]
+				};
+				batch.add(value);
+			}
+			result = jdbcTemplate.batchUpdate(sql.toString(), batch).length;
 		}
 		
 		if(result > 0){
@@ -183,19 +195,59 @@ try{
 			sch_lv, sch_no
 		});
 		
-		if(result > 0){
+		if(nu_nm!=null && nu_nm.length>0){
+			// 현재 모든 영양사의 show_flag를 N으로 설정
 			sql = new StringBuffer();
-			sql.append("UPDATE FOOD_SCH_NU SET 		");
-			sql.append("	NU_NM		= ?,		");
-			sql.append("	NU_TEL		= ?,		");
-			sql.append("	NU_MAIL		= ?,		");
-			sql.append("	SHOW_FLAG	= ?			");
-			sql.append("WHERE NU_NO		= ?			");
+			sql.append("UPDATE FOOD_SCH_NU SET		");
+			sql.append("	SHOW_FLAG = 'N'			");
+			sql.append("WHERE SCH_NO = ?			");
+			jdbcTemplate.update(sql.toString(), sch_no);
 			
-			result = jdbcTemplate.update(sql.toString(), new Object[]{
-				nu_nm, nu_tel, nu_mail, show_flag, nu_no
-			});
+			sql = new StringBuffer();
+			sql.append("SELECT NVL(MAX(NU_NO)+1,1) FROM FOOD_SCH_NU					");
+			max_nu_no = jdbcTemplate.queryForObject(sql.toString(), Integer.class); 
+
+			sql = new StringBuffer();
+			sql.append("MERGE INTO FOOD_SCH_NU USING DUAL									");
+			sql.append("	ON(NU_NO = ?)													");
+			sql.append("	WHEN MATCHED THEN												");
+			sql.append("		UPDATE SET													");
+			sql.append("			NU_NM		= ?											");
+			sql.append("			, NU_TEL	= ?											");
+			sql.append("			, NU_MAIL	= ?											");
+			sql.append("			, SHOW_FLAG	= ?											");
+			sql.append("	WHEN NOT MATCHED THEN											");
+			sql.append("		INSERT(														");
+			sql.append("				NU_NO, SCH_NO, NU_NM, NU_TEL, NU_MAIL, SHOW_FLAG	");
+			sql.append("				)													");
+			sql.append("		VALUES(														");
+			sql.append("				?, ?, ?, ?, ?, ?									");
+			sql.append("				)													");
+			batch = new ArrayList<Object[]>();
+			for(int i=0; i<nu_nm.length; i++){
+				// i가 nu_no 배열의 갯수보다 적을때는 nu_no에 배열값을 넣고
+				// 그렇지 않을 경우(추가 insert) nu_no에 -1값을 주어 매칭되는 데이터가 없게 처리
+				if(i<nu_no.length){
+					value = new Object[]{
+							nu_no[i] , nu_nm[i] , nu_tel[i] , nu_mail[i] , show_flag
+							, max_nu_no , sch_no , nu_nm[i] , nu_tel[i] , nu_mail[i] , show_flag
+					};
+				}else{
+					value = new Object[]{
+							-1 , nu_nm[i] , nu_tel[i] , nu_mail[i] , show_flag
+							, max_nu_no , sch_no , nu_nm[i] , nu_tel[i] , nu_mail[i] , show_flag
+					};
+				}
+				batch.add(value);
+			}
+			result = jdbcTemplate.batchUpdate(sql.toString(), batch).length;
 		}
+		
+		/* // show_flag 값이 N인 데이터를 삭제
+		sql = new StringBuffer();
+		sql.append("DELETE FROM FOOD_SCH_NU WHERE SCH_NO = ? AND SHOW_FLAG = 'N'	");
+		jdbcTemplate.update(sql.toString(), sch_no); */
+		
 		
 		if(result > 0){
 			out.println("<script>");

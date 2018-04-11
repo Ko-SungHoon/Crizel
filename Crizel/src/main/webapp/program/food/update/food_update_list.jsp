@@ -2,7 +2,7 @@
 /**
 *   PURPOSE :   업데이트 요청관리
 *   CREATE  :   20180323_fri    Ko
-*   MODIFY  :   ...
+*   MODIFY  :   20180410_tue    JI
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -18,7 +18,7 @@ response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
 SessionManager sessionManager = new SessionManager(request);
-String pageTitle = "접수요청 리스트";
+String pageTitle = "업데이트 요청관리";
 %>
 <!DOCTYPE html>
 <html lang="ko">
@@ -35,10 +35,181 @@ String pageTitle = "접수요청 리스트";
 </head>
 <body>
 <%
-String keyword = parseNull(request.getParameter("keyword"));
-String search1 = parseNull(request.getParameter("search1"));
+StringBuffer sql	=	null;
+//검색 form
+String search1		=	parseNull(request.getParameter("search1"));	//검색어 분류
+String keyword		=	parseNull(request.getParameter("keyword"));	//검색어
+String rftData		=	parseNull(request.getParameter("rftData"));	//checkbox
+//where
+Object[] setObj         = null;
+List<String> setList	= new ArrayList<String>();
+//출력 List
+List<FoodVO> updateList 	= null;
+
+//set the paging
+Paging paging = new Paging();
+String pageNo = parseNull(request.getParameter("pageNo"), "1");
+int totalCount = 0;
 
 try{
+	//totalCount
+	sql	=	new StringBuffer();
+	sql.append(" SELECT COUNT(*) FROM (														");
+	sql.append(" SELECT 																	");
+	sql.append(" 	(SELECT SUBSTR(XMLAGG(													");
+	sql.append(" 		XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()'	");
+	sql.append(" 	).GETSTRINGVAL(),2) NM_FOOD												");
+	sql.append(" 	FROM FOOD_ST_NM															");
+	sql.append(" 	WHERE NM_NO IN (FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5))	");
+	sql.append(" 	AS NM_FOOD,																");
+	sql.append(" 	(SELECT SUBSTR( XMLAGG(													");
+	sql.append(" 	XMLELEMENT(COL ,',', DT_NM) ORDER BY DT_NM).EXTRACT('//text()'			");
+	sql.append(" 	).GETSTRINGVAL(),2) DT_NM												");
+	sql.append(" 	FROM FOOD_ST_DT_NM														");
+	sql.append(" 	WHERE DT_NO IN (FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5,	");
+	sql.append(" 	FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10)) AS DT_NM,		");
+	sql.append(" 	(SELECT SUBSTR( XMLAGG(													");
+	sql.append(" 		XMLELEMENT(COL,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()'		");
+	sql.append(" 		).GETSTRINGVAL(),2) EX_NM											");
+	sql.append(" 	FROM FOOD_ST_EXPL														");
+	sql.append(" 	WHERE EX_NO IN (FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,	");
+	sql.append(" 	FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, FOOD_EP_11,		");
+	sql.append(" 	FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15, FOOD_EP_16, FOOD_EP_17,	");
+	sql.append(" 	FOOD_EP_18, FOOD_EP_19, FOOD_EP_20, FOOD_EP_21, FOOD_EP_22, FOOD_EP_23,	");
+	sql.append(" 	FOOD_EP_24, FOOD_EP_25)) AS EX_NM										");
+
+	sql.append(" FROM FOOD_UPDATE A LEFT JOIN 												");
+	sql.append(" (SELECT * FROM FOOD_ITEM_PRE WHERE SHOW_FLAG = 'Y') B						");
+	sql.append(" ON A.S_ITEM_NO = B.S_ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
+	sql.append(" ON B.ITEM_NO = C.ITEM_NO													");
+	sql.append(" WHERE 1=1																	");
+
+	if(!"".equals(search1) && !"".equals(keyword) ){
+		if("nm_food".equals(search1)){
+			sql.append(" AND NM_FOOD LIKE '%'||?||'%'										");
+		}else if("dt_nm".equals(search1)){
+			sql.append(" AND DT_NM LIKE '%'||?||'%'											");
+		}else if("ex_nm".equals(search1)){
+			sql.append(" AND EX_NM LIKE '%'||?||'%'											");
+		}
+		setList.add(keyword);
+		paging.setParams("search1", search1);
+		paging.setParams("keyword", keyword);
+	}
+	if("on".equals(rftData)){
+		sql.append(" AND A.STS_FLAG NOT IN ('')												");
+	}else {
+		sql.append(" AND A.STS_FLAG NOT IN ('Y')											");
+	}
+	sql.append(")																			");
+
+	setObj = new Object[setList.size()];
+	for(int i=0; i<setList.size(); i++){
+		setObj[i] = setList.get(i);
+	}
+
+	try{
+		totalCount	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, setObj);
+	}catch(Exception e){
+		totalCount	=	0;
+	}
+
+	//request update list
+	sql	=	new StringBuffer();
+	sql.append(" SELECT * FROM(																");
+	sql.append("	SELECT ROWNUM AS RNUM, C.* FROM (										");
+
+	sql.append("    A.UPD_NO,																");
+	sql.append("    A.SCH_NO,																");
+	sql.append("    A.NU_NO,																");
+	sql.append("    (SELECT NU_NM FROM FOOD_SCH_NU                                     		");
+	sql.append("    WHERE NU_NO = A.NU_NO) AS NU_NM, 		                                ");
+	sql.append("    A.N_ITEM_CODE,															");
+	sql.append("    A.N_ITEM_NM,															");
+	sql.append("    A.N_ITEM_DT_NM,															");
+	sql.append("    A.N_ITEM_EXPL,															");
+	sql.append("    A.N_ITEM_UNIT,															");
+	sql.append("    C.FOOD_UNIT,															");
+	sql.append("    (SELECT UNIT_NM FROM FOOD_ST_UNIT                                 		");
+	sql.append("    WHERE UNIT_NO = C.FOOD_UNIT) AS UNIT_NM,	                            ");
+	sql.append("    A.UPD_FLAG,																");
+	sql.append("    A.UPD_REASON,															");
+	sql.append("    A.STS_FLAG,																");
+	sql.append("    A.RJC_REASON,															");
+	sql.append("    A.REG_DATE,																");
+	sql.append("    A.RJC_DATE,																");
+	sql.append("    A.MOD_DATE,																");
+	sql.append("    A.STS_DATE,																");
+	sql.append("    A.SHOW_FLAG,															");
+	sql.append("    C.ITEM_NO,                                                              ");
+	sql.append("    C.FOOD_CODE,                                                            ");
+	sql.append("    C.FOOD_CAT_INDEX,                                                       ");
+	sql.append("    C.CAT_NO,																");
+	sql.append("    (SELECT CAT_NM FROM FOOD_ST_CAT                                         ");
+	sql.append("    WHERE CAT_NO = C.CAT_NO) AS CAT_NM,                                     ");
+	sql.append("    D.ZONE_NO,                               							    ");
+	sql.append("    (SELECT ZONE_NM FROM FOOD_ZONE                                     		");
+	sql.append("    WHERE ZONE_NO = D.ZONE_NO) AS ZONE_NM,                                  ");
+	sql.append("    D.TEAM_NO,                               							    ");
+	sql.append("    (SELECT TEAM_NM FROM FOOD_TEAM                                     		");
+	sql.append("    WHERE TEAM_NO = D.TEAM_NO) AS TEAM_NM,                                  ");
+	sql.append("    D.SCH_TEL,                               							    ");
+
+	sql.append(" 	(SELECT SUBSTR(XMLAGG(													");
+	sql.append(" 		XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()'	");
+	sql.append(" 	).GETSTRINGVAL(),2) NM_FOOD												");
+	sql.append(" 	FROM FOOD_ST_NM															");
+	sql.append(" 	WHERE NM_NO IN (FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5))	");
+	sql.append(" 	AS NM_FOOD,																");
+	sql.append(" 	(SELECT SUBSTR( XMLAGG(													");
+	sql.append(" 	XMLELEMENT(COL ,',', DT_NM) ORDER BY DT_NM).EXTRACT('//text()'			");
+	sql.append(" 	).GETSTRINGVAL(),2) DT_NM												");
+	sql.append(" 	FROM FOOD_ST_DT_NM														");
+	sql.append(" 	WHERE DT_NO IN (FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5,	");
+	sql.append(" 	FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10)) AS DT_NM,		");
+	sql.append(" 	(SELECT SUBSTR( XMLAGG(													");
+	sql.append(" 		XMLELEMENT(COL,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()'		");
+	sql.append(" 		).GETSTRINGVAL(),2) EX_NM											");
+	sql.append(" 	FROM FOOD_ST_EXPL														");
+	sql.append(" 	WHERE EX_NO IN (FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,	");
+	sql.append(" 	FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, FOOD_EP_11,		");
+	sql.append(" 	FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15, FOOD_EP_16, FOOD_EP_17,	");
+	sql.append(" 	FOOD_EP_18, FOOD_EP_19, FOOD_EP_20, FOOD_EP_21, FOOD_EP_22, FOOD_EP_23,	");
+	sql.append(" 	FOOD_EP_24, FOOD_EP_25)) AS EX_NM										");
+
+	sql.append(" FROM (SELECT * FROM FOOD_UPDATE WHERE SHOW_FLAG = 'Y') A LEFT JOIN 		");
+	sql.append(" (SELECT * FROM FOOD_ITEM_PRE WHERE SHOW_FLAG = 'Y') B						");
+	sql.append(" ON A.S_ITEM_NO = B.S_ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
+	sql.append(" ON B.ITEM_NO = C.ITEM_NO LEFT JOIN FOOD_SCH_TB D							");
+	sql.append(" ON A.SCH_NO = D.SCH_NO														");
+	sql.append(" WHERE 1=1																	");
+
+	if(!"".equals(search1) && !"".equals(keyword) ){
+		if("nm_food".equals(search1)){
+			sql.append(" AND NM_FOOD LIKE '%'||?||'%'										");
+		}else if("dt_nm".equals(search1)){
+			sql.append(" AND DT_NM LIKE '%'||?||'%'											");
+		}else if("ex_nm".equals(search1)){
+			sql.append(" AND EX_NM LIKE '%'||?||'%'											");
+		}
+	}
+
+	if("on".equals(rftData)){
+		sql.append(" AND A.STS_FLAG NOT IN ('')												");
+	}else {
+		sql.append(" AND A.STS_FLAG NOT IN ('Y')											");
+	}
+
+	sql.append(" ORDER BY DECODE(A.STS_FLAG, 'N', 1, 'Y', 2), UPD_NO						");
+	sql.append("	) C WHERE ROWNUM <= ").append(paging.getEndRowNo()).append("			");
+	sql.append(" ) WHERE RNUM > ").append(paging.getStartRowNo()).append(" 					");
+
+	try{
+		updateList	=	jdbcTemplate.query(sql.toString(), new FoodList(), setObj);
+	}catch(Exception e){
+		updateList	=	null;
+	}
+
 }catch(Exception e){
 	out.println(e.toString());
 }
@@ -56,10 +227,23 @@ try{
         var top = ((height / 2) - (h / 2)) + dualScreenTop;
         var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
     }
-    function updatePopup(upd_no, upd_flag, sts_flag){
-    	var url = "?upd_no="+upd_no+"&upd_flag="+upd_flag+"&sts_flag="+sts_flag
+
+	function updateAction (upd_no) {
+		location.href	=	"food_update_act.jsp?mode=acc"+"&upd_no="+upd_no;
+	}
+
+    function updatePopup(rft_type, upd_no, upd_flag, sts_flag){
+    	var url = "?upd_no="+upd_no+"&upd_flag="+upd_flag+"&sts_flag="+sts_flag+"&rft_type="+rft_type
     	newWin("food_update_popup.jsp"+url, 'PRINTVIEW', '1000', '740');
     }
+
+	$(function () {
+		$("#rftData").click(function (){
+			$("#searchForm").attr("action", "./food_update_list.jsp");
+       		$("#searchForm").submit();
+			return;
+		});
+	});
 
 </script>
 
@@ -86,10 +270,19 @@ try{
 				</select>
 				<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
 				<button class="btn small edge mako" onclick="searchSubmit();">검색하기</button>
+				<input type="checkbox" id="rftData" name="rftData" <%if("on".equals(rftData)){out.println("checked");}else{out.println("");}%> >
+				<label for="rftData">반영처리 보이기</label>
 			</fieldset>
 		</form>
 	</div>
+
 	<p class="clearfix"> </p>
+
+	<p class="f_l magT10">
+		<strong>총 <span><%=totalCount%></span> 건
+		</strong> [ Page <%=pageNo %>/<%=paging.getFinalPageNo() %>]
+	</p>
+
 	<table class="bbs_list">
 		<caption><%=pageTitle%> 테이블</caption>
 		<colgroup>
@@ -138,6 +331,52 @@ try{
 			</tr>
 		</thead>
 		<tbody>
+		<%if (updateList != null && updateList.size() > 0) {
+			for(FoodVO vo : updateList) {%>
+			<tr>
+				<td rowspan="2"><%=vo.cat_nm %>-<%=vo.food_cat_index %></td>
+				<td>기존</td>
+				<td><%=vo.food_code %></td>
+				<td><%=vo.nm_food %></td>
+				<td><%=vo.dt_nm %></td>
+				<td><%=vo.ex_nm %></td>
+				<td><%=vo.unit_nm %></td>
+				<td rowspan="2"><%=vo.nu_nm %></td>
+				<td rowspan="2"><%=vo.zone_nm %></td>
+				<td rowspan="2"><%=vo.team_nm %></td>
+				<td rowspan="2"><%=vo.sch_tel %></td>
+				<td rowspan="2"><%=outUpdFlag(vo.upd_flag) %></td>
+				<td rowspan="2"><%=vo.upd_reason %></td>
+				<td rowspan="2"><%=vo.reg_date %></td>
+				<td rowspan="2"><%if(vo.sts_date != null && vo.sts_date.length() > 0) {out.println(vo.sts_date);} else {out.println("-");}%></td>
+				<td rowspan="2"><%=outUpdStsFlag(vo.sts_flag) %></td>
+				<td rowspan="2">
+					<%if("N".equals(vo.sts_flag)){%>
+					<button class="btn small edge green" type="button" onclick="updateAction('<%=vo.upd_no %>')">접수처리</button>
+					<%}else if("Y".equals(vo.sts_flag)) {%>
+					<button class="btn small edge green" type="button" onclick="updatePopup('A','<%=vo.upd_no %>', '<%=vo.upd_flag %>','<%=vo.sts_flag %>')">반영처리</button>
+					<button class="btn small edge mako" type="button" onclick="updatePopup('R','<%=vo.upd_no %>', '<%=vo.upd_flag %>','<%=vo.sts_flag %>')">미반영처리</button>
+					<%}else if("R".equals(vo.sts_flag)) {%>
+					<span>미반영</span>
+					<%}else if("A".equals(vo.sts_flag)) {%>
+					<span>반영</span>
+					<%}%>
+				</td>
+			</tr>
+			<tr>
+				<td>변경</td>
+				<td><%=vo.n_item_code %></td>
+				<td><%=vo.n_item_nm %></td>
+				<td><%=vo.n_item_dt_nm %></td>
+				<td><%=vo.n_item_expl %></td>
+				<td><%=vo.n_item_unit %></td>
+			</tr>
+			<%}/*END FOR*/%>
+		<%} else {%>
+		<tr>
+			<td colspan="17">데이터가 없습니다.</td>
+		</tr>
+		<%}%>
 		<tr>
 			<td>공산품-1</td>
 			<td>기존</td>
@@ -156,8 +395,8 @@ try{
 			<td>-</td>
 			<td>대기</td>
 			<td>
-				<button class="btn small edge green" type="button" onclick="updatePopup('1', 'M')">변경</button>
-				<button class="btn small edge mako" type="button" onclick="updatePopup('1', 'M', 'R')">반려</button>
+				<button class="btn small edge green" type="button" onclick="updatePopup('A','1', 'M', 'Y')">변경</button>
+				<button class="btn small edge mako" type="button" onclick="updatePopup('R','1', 'M', 'Y')">반려</button>
 			</td>
 		</tr>
 		<tr>
@@ -178,8 +417,8 @@ try{
 			<td>-</td>
 			<td>대기</td>
 			<td>
-				<button class="btn small edge green" type="button" onclick="updatePopup('1', 'A')">추가</button>
-				<button class="btn small edge mako" type="button" onclick="updatePopup('1', 'A', 'R')">반려</button>
+				<button class="btn small edge green" type="button" onclick="updatePopup('A','1', 'M', 'Y')">추가</button>
+				<button class="btn small edge mako" type="button" onclick="updatePopup('R','1', 'M', 'Y')">반려</button>
 			</td>
 		</tr>
 		<tr>
@@ -200,8 +439,8 @@ try{
 			<td>-</td>
 			<td>대기</td>
 			<td>
-				<button class="btn small edge green" type="button" onclick="updatePopup('1', 'D')">삭제</button>
-				<button class="btn small edge mako" type="button" onclick="updatePopup('1', 'D', 'R')">반려</button>
+				<button class="btn small edge green" type="button" onclick="updatePopup('A','1', 'M', 'Y')">삭제</button>
+				<button class="btn small edge mako" type="button" onclick="updatePopup('R','1', 'M', 'Y')">반려</button>
 			</td>
 		</tr>
 		<tr>
@@ -225,12 +464,15 @@ try{
 				-
 			</td>
 		</tr>
-		<tr>
-			<td colspan="17">데이터가 없습니다.</td>
-		</tr>
 		</tbody>
 	</table>
 </div>
-<!-- // E : #content -->
+
+<% if(paging.getTotalCount() > 0) { %>
+	<div class="page_area">
+		<%=paging.getHtml() %>
+	</div>
+<% } %>
+
 </body>
 </html>

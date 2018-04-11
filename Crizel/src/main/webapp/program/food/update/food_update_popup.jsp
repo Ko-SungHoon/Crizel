@@ -41,9 +41,10 @@ input[type="number"] {
 </head>
 <body>
 	<%
-String upd_no			= parseNull(request.getParameter("upd_no"));
-String upd_flag			= parseNull(request.getParameter("upd_flag")); // "A=추가,D=삭제,M=변경"
-String sts_flag			= parseNull(request.getParameter("sts_flag")); // "N=대기,Y=완료,R=반려"
+String rft_type			= parseNull(request.getParameter("rft_type"));	// A=반영 처리, R=미반영 처리
+String upd_no			= parseNull(request.getParameter("upd_no"));	// 업데이트 번호
+String upd_flag			= parseNull(request.getParameter("upd_flag"));	// "A=추가,D=삭제,M=변경"
+String sts_flag			= parseNull(request.getParameter("sts_flag"));	// "N=접수,Y=접수완료,R=미반영,A=반영"
 
 StringBuffer sql 		= null;
 FoodVO foodVO	 		= new FoodVO();

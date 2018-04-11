@@ -1,3 +1,12 @@
+<%
+/**
+*	PURPOSE	:	set the general function page
+*	CREATE	:	201803??_???	KO
+*	MODIFY	:	20180410_tue	JI	add function outUpdStsFlag() 업데이트 요청 상태 function 추가
+*	MODIFY	:	20180410_tue	JI	mod function outUpdFlag() 업데이트 요청 상태 function 수정
+**/
+%>
+
 <%@page import="java.io.PrintWriter"%>
 <%@page import="org.apache.poi.xssf.usermodel.XSSFCell"%>
 <%@page import="org.apache.poi.xssf.usermodel.XSSFRow"%>
@@ -49,9 +58,18 @@ public String outSchFound (String value) {
 
 public String outUpdFlag(String value){
 	String rtnString    =   "";
-    if("A".equals(value)) {rtnString   =   "추가";}
-    else if("D".equals(value)) {rtnString   =   "삭제";}
-    else if("M".equals(value)) {rtnString   =   "변경";}
+    if("A".equals(value)) {rtnString   =   "<span class=\"badge bg-add\">추가</span>";}
+    else if("D".equals(value)) {rtnString   =   "<span class=\"badge bg-del\">삭제</span>";}
+    else if("M".equals(value)) {rtnString   =   "<span class=\"badge bg-modify\">변경</span>";}
+    return rtnString;
+}
+
+public String outUpdStsFlag(String value){
+	String rtnString    =   "";
+    if("N".equals(value)) {rtnString   =   "접수";}
+    else if("Y".equals(value)) {rtnString   =   "접수완료";}
+    else if("R".equals(value)) {rtnString   =   "반영";}
+    else if("A".equals(value)) {rtnString   =   "미반영";}
     return rtnString;
 }
 
@@ -123,7 +141,7 @@ public List<Map<String, Object>> getExcelRead(File file, int startRow){
 	}
 	return list;
 }
-
+/*
 public List<Map<String, Object>> getExcelRead2(File file, int startRow){
 	List<Map<String,Object>> list 	= new ArrayList<Map<String,Object>>();
 	Map<String,Object> map			= null;
@@ -183,7 +201,7 @@ public List<Map<String, Object>> getExcelRead2(File file, int startRow){
 	}
 	return list;
 }
-
+*/
 //select option 출력
 public String printOption(String value, String text, String nowSel){
 	String nowSelect	=	"";

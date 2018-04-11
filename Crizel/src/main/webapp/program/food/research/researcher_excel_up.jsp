@@ -48,9 +48,9 @@
 		fileExt = realFile.split("\\.")[1];
 
 		if("xls".equals(fileExt)){
-			excelList = getExcelRead(file, 4);
+			excelList = getExcelRead(file, 2);
 		}else if("xlsx".equals(fileExt)){
-			excelList = getExcelRead2(file, 4);
+			//excelList = getExcelRead2(file, 2);
 		}
 	}
 	
@@ -60,7 +60,7 @@
 	List<Object> setList 		= null;			
 	Object[] value				= null;	
 	List<String> itemNoList 	= null;
-	int key = 0;
+	int cnt = 0;
 	int result = 0;
 	
 	int cat_no 		= 0;	// cat_no 최대값
@@ -83,6 +83,14 @@
 	String dt_nm_str 	= "";
 	String ex_nm_str 	= "";
 	
+	List<String> schList 	= new ArrayList<String>();
+	List<String> areaList	= new ArrayList<String>();
+	List<FoodVO> areaList_t	= null;
+	int zone_no 		= 0;
+	int team_no			= 0;
+	int jo_no			= 0;
+	String sch_grade 	= "";
+	
 	SessionManager sessionManager = new SessionManager(request);
 	
 	String regIp = request.getRemoteAddr();
@@ -104,7 +112,6 @@
 	
 	Map<String,Object> catMap 			= null;
 	List<Map<String,Object>> catList 	= new ArrayList<Map<String,Object>>();
-	List<String> catDupCheckList 		= null;
 
 %>
 
@@ -117,21 +124,11 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 %>
 <%
 	try{
-		catDupCheckList = new ArrayList<String>();
 		if(excelList!=null && excelList.size()>0){
-			byte[] b = null;
-			int exceptionCheck = 0;
-			boolean continueCheck = false;
 			for(Map<String,Object> ob : excelList){
-				continueCheck = false;
-				
-				if(cat_nm_arr!=null && cat_nm_arr.length>0){
-					for(String ob2 : cat_nm_arr){
-						if(ob.get(catCell).toString().split("-")[0].trim().equals(ob2)){
-							continueCheck = true;
-						}
-					}
-				}
+				// 학교명을 리스트에 저장
+				schList.add(ob.get(schCell).toString().trim());
+				areaList.add(ob.get(areaCell).toString().trim());
 				
 				// DB 데이터 길이보다 글자가 많을 때 오류처리
 				if(getException(ob, zoneCell, 50)){out.println("<script>alert('권역명 값이 너무 큽니다');location.replace('"+returnPage+"');</script>"); return;}
@@ -142,22 +139,60 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 				if(getException(ob, schCell, 1000)){out.println("<script>alert('학교 값이 너무 큽니다');location.replace('"+returnPage+"');</script>"); return;}
 				
 				// 모든셀이 빈칸이 아니면서 필수입력값 데이터가 비어있을 경우 오류처리
-				if(!(   "".equals(ob.get(zoneCell).toString()) 	&& "".equals(ob.get(catCell).toString())
-					&& 	"".equals(ob.get(teamCell).toString()) 	&& "".equals(ob.get(joCell).toString())
-					&& 	"".equals(ob.get(areaCell).toString())  && 	"".equals(ob.get(schCell).toString())
-					&& 	"".equals(ob.get(gradeCell).toString())	)){
-					if("".equals(ob.get(zoneCell).toString())){ out.println("<script>alert('권역 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
-					if("".equals(ob.get(catCell).toString())){out.println("<script>alert('구분 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
-					if("".equals(ob.get(teamCell).toString())){out.println("<script>alert('팀 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
-					if("".equals(ob.get(joCell).toString())){out.println("<script>alert('조 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
-					if("".equals(ob.get(areaCell).toString())){out.println("<script>alert('지역 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
-					if("".equals(ob.get(schCell).toString())){out.println("<script>alert('학교 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
-					if("".equals(ob.get(gradeCell).toString())){out.println("<script>alert('등급 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
+				if(!(   "".equals(ob.get(zoneCell).toString().trim()) 	&& "".equals(ob.get(catCell).toString().trim())
+					&& 	"".equals(ob.get(teamCell).toString().trim()) 	&& "".equals(ob.get(joCell).toString().trim())
+					&& 	"".equals(ob.get(areaCell).toString().trim())  && 	"".equals(ob.get(schCell).toString().trim())
+					&& 	"".equals(ob.get(gradeCell).toString().trim())	)){
+					if("".equals(ob.get(zoneCell).toString().trim())){ out.println("<script>alert('권역 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
+					if("".equals(ob.get(catCell).toString().trim())){out.println("<script>alert('구분 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
+					if("".equals(ob.get(teamCell).toString().trim())){out.println("<script>alert('팀 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
+					if("".equals(ob.get(joCell).toString().trim())){out.println("<script>alert('조 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
+					if("".equals(ob.get(areaCell).toString().trim())){out.println("<script>alert('지역 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
+					if("".equals(ob.get(schCell).toString().trim())){out.println("<script>alert('학교 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
+					if("".equals(ob.get(gradeCell).toString().trim())){out.println("<script>alert('등급 데이터가 비어있습니다.');location.replace('"+returnPage+"');</script>"); return;}
 				}
 			}
 			
+			// 학교명이 중복될 경우 오류처리
+			for(int i=0; i<schList.size(); i++){
+				for(int j=i+1; j<schList.size(); j++){
+					if(schList.get(i).equals(schList.get(j)) && areaList.get(i).equals(areaList.get(j))){
+						out.println("<script>");
+						out.println("alert('학교명이 중복됩니다.\\n"+schList.get(i)+"');");
+						out.println("location.replace('"+returnPage+"');");
+						out.println("</script>");
+						return;
+					}
+				}
+			}
 		}
-				
+		
+		// FOOD_AREA에 저장된 지역명과 엑셀의 지역명이 일치하는지 확인
+		
+		sql = new StringBuffer();
+		sql.append("SELECT * FROM FOOD_AREA WHERE SHOW_FLAG = 'Y' 	");
+		areaList_t = jdbcTemplate.query(sql.toString(), new FoodList());
+		
+		if(excelList!=null && excelList.size()>0){
+			for(Map<String,Object> ob : excelList){
+				cnt = 0;
+				for(FoodVO ob2 : areaList_t){
+					if(ob.get(areaCell).toString().trim().equals(ob2.area_nm)){
+						cnt++;
+					}
+				}
+				if(cnt == 0){
+					out.println("<script>");
+					out.println("alert('지역명을 확인하여 주시기 바랍니다.\\n"+ob.get(areaCell).toString().trim()+"');");
+					out.println("location.replace('"+returnPage+"');");
+					out.println("</script>");
+					return;
+				}
+			}
+		}
+		
+		 	
+		
 		if("".equals(regId)){
 			out.println("<script>");
 			out.println("alert('로그인 후 다시 시도 하십시오.');");
@@ -193,35 +228,214 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		sql.append(")															");
 		result = jdbcTemplate.update(sql.toString(), saveFile, realFile, regIp, regId);
 		
+		// 권역 추가
+		if(excelList!=null && excelList.size()>0){
+			sql = new StringBuffer();
+			sql.append("SELECT NVL(MAX(ZONE_NO)+1,1) FROM FOOD_ZONE		");
+			zone_no = jdbcTemplate.queryForObject(sql.toString(), Integer.class);
 		
-		sql = new StringBuffer();
-		
-		
-		// 구분,학교명을 저장
-		sql = new StringBuffer();
-		sql.append("INSERT INTO FOOD_RSCH_SCH(CAT_NM, SCH_NM)		");
-		sql.append("VALUES(?, ?)									");
-		batch = new ArrayList<Object[]>();
-		if(catList!=null && catList.size()>0){
-			for(Map<String,Object> ob : catList){
-				String[] sch_nm_split = ob.get("sch_nm").toString().split(",");
-				for(int i=0; i<sch_nm_split.length; i++){
-					if(!"".equals(sch_nm_split[i].trim())){
-						value = new Object[]{
-								  ob.get("cat_nm").toString().trim()
-							    , sch_nm_split[i].trim()
-						};
-						batch.add(value);
-					}
-				}
+			sql = new StringBuffer();
+			sql.append("MERGE INTO FOOD_ZONE USING DUAL									");
+			sql.append("	ON(ZONE_NM = ? AND SHOW_FLAG = 'Y')							");
+			sql.append("	WHEN NOT MATCHED THEN										");
+			sql.append("	INSERT(ZONE_NO, ZONE_NM, REG_DATE, MOD_DATE, SHOW_FLAG)		");
+			sql.append("	VALUES(?, ?, SYSDATE, SYSDATE, 'Y')							");
+			batch = new ArrayList<Object[]>();
+			for(Map<String,Object> ob : excelList){
+				value = new Object[]{
+						ob.get(zoneCell).toString().trim()
+						, zone_no++
+						, ob.get(zoneCell).toString().trim()
+				};
+				batch.add(value);
 			}
+			jdbcTemplate.batchUpdate(sql.toString(), batch);
 		}
-		jdbcTemplate.batchUpdate(sql.toString(), batch);
+		
+		// 품목 추가
+		if(excelList!=null && excelList.size()>0){
+			sql = new StringBuffer();
+			sql.append("SELECT NVL(MAX(CAT_NO)+1,1) FROM FOOD_ST_CAT		");
+			cat_no = jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+		
+			sql = new StringBuffer();
+			sql.append("MERGE INTO FOOD_ST_CAT USING DUAL								");
+			sql.append("	ON(CAT_NM = ? AND SHOW_FLAG = 'Y')							");
+			sql.append("	WHEN NOT MATCHED THEN										");
+			sql.append("	INSERT(CAT_NO, CAT_NM, REG_DATE, MOD_DATE, SHOW_FLAG)		");
+			sql.append("	VALUES(?, ?, SYSDATE, SYSDATE, 'Y')							");
+			batch = new ArrayList<Object[]>();
+			for(Map<String,Object> ob : excelList){
+				value = new Object[]{
+						ob.get(catCell).toString().trim()
+						, cat_no++
+						, ob.get(catCell).toString().trim()
+				};
+				batch.add(value);
+			}
+			jdbcTemplate.batchUpdate(sql.toString(), batch);
+		}
+		
+		// 팀 추가
+		if(excelList!=null && excelList.size()>0){
+			sql = new StringBuffer();
+			sql.append("SELECT NVL(MAX(TEAM_NO)+1,1) FROM FOOD_TEAM		");
+			team_no = jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+		
+			sql = new StringBuffer();
+			sql.append("MERGE INTO FOOD_TEAM USING DUAL																			");
+			sql.append("	ON(TEAM_NM = ? AND SHOW_FLAG = 'Y'																	");
+			sql.append("		AND ZONE_NO = (SELECT ZONE_NO FROM FOOD_ZONE WHERE ZONE_NM = ? AND SHOW_FLAG = 'Y')				");
+			sql.append("		AND CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y'))				");
+			sql.append("	WHEN NOT MATCHED THEN																				");
+			sql.append("	INSERT(TEAM_NO, ZONE_NO, CAT_NO, TEAM_NM, REG_DATE, MOD_DATE, SHOW_FLAG, ORDER1)					");
+			sql.append("	VALUES(?																							");
+			sql.append("		, (SELECT ZONE_NO FROM FOOD_ZONE WHERE ZONE_NM = ? AND SHOW_FLAG = 'Y')							");
+			sql.append("		, (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y')							");
+			sql.append("		, ?, SYSDATE, SYSDATE, 'Y'																		");
+			sql.append("		, (SELECT NVL(MAX(ORDER1)+1,1) 																	");
+			sql.append("			FROM FOOD_TEAM 																				");
+			sql.append("			WHERE ZONE_NO = (SELECT ZONE_NO FROM FOOD_ZONE WHERE ZONE_NM = ? AND SHOW_FLAG = 'Y')		");
+			sql.append("				AND CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y')		");
+			sql.append("				AND SHOW_FLAG = 'Y')	)																");
+			batch = new ArrayList<Object[]>();
+			for(Map<String,Object> ob : excelList){
+				value = new Object[]{
+						ob.get(teamCell).toString().trim()
+						, ob.get(zoneCell).toString().trim()
+						, ob.get(catCell).toString().trim()
+						
+						, team_no++
+						, ob.get(zoneCell).toString().trim()
+						, ob.get(catCell).toString().trim()
+						, ob.get(teamCell).toString().trim()
+						, ob.get(zoneCell).toString().trim()
+						, ob.get(catCell).toString().trim()
+				};
+				batch.add(value);
+			}
+			jdbcTemplate.batchUpdate(sql.toString(), batch);
+		}
+		
+		// 조 추가
+		if(excelList!=null && excelList.size()>0){
+			sql = new StringBuffer();
+			sql.append("SELECT NVL(MAX(JO_NO)+1,1) FROM FOOD_JO		");
+			jo_no = jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+		
+			sql = new StringBuffer();
+			sql.append("MERGE INTO FOOD_JO USING DUAL																			");
+			sql.append("	ON(JO_NM = ?																						");
+			sql.append("		AND TEAM_NO = (SELECT TEAM_NO FROM FOOD_TEAM WHERE TEAM_NM = ? AND SHOW_FLAG = 'Y' 				");
+			sql.append("    	AND ZONE_NO = (SELECT ZONE_NO FROM FOOD_ZONE WHERE ZONE_NM = ? AND SHOW_FLAG = 'Y') 			");
+			sql.append("    	AND CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y')))			");
+			sql.append("	WHEN NOT MATCHED THEN																				");
+			sql.append("	INSERT(JO_NO, TEAM_NO, JO_NM, REG_DATE, MOD_DATE, ORDER1)											");
+			sql.append("	VALUES(?																							");
+			sql.append("		, (SELECT TEAM_NO FROM FOOD_TEAM WHERE TEAM_NM = ? AND SHOW_FLAG = 'Y'							");
+			sql.append("				AND ZONE_NO = (SELECT ZONE_NO FROM FOOD_ZONE WHERE ZONE_NM = ? AND SHOW_FLAG = 'Y')		"); 
+	        sql.append("        		AND CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y')) 	");
+			sql.append("		, ?, SYSDATE, SYSDATE																			");
+			sql.append("		, (SELECT NVL(MAX(ORDER1)+1,1) 																	");
+			sql.append("			FROM FOOD_JO																				");
+			sql.append("			WHERE TEAM_NO = (SELECT TEAM_NO FROM FOOD_TEAM WHERE TEAM_NM = ? AND SHOW_FLAG = 'Y'		");
+			sql.append("				AND ZONE_NO = (SELECT ZONE_NO FROM FOOD_ZONE WHERE ZONE_NM = ? AND SHOW_FLAG = 'Y')		"); 
+	        sql.append("        		AND CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y')) 	");
+			sql.append("			)																							");
+			sql.append("		)																								");
+			batch = new ArrayList<Object[]>();
+			for(Map<String,Object> ob : excelList){
+				value = new Object[]{
+						ob.get(joCell).toString().trim()
+						, ob.get(teamCell).toString().trim()
+						, ob.get(zoneCell).toString().trim()
+						, ob.get(catCell).toString().trim()
+						
+						, jo_no++
+						
+						, ob.get(teamCell).toString().trim()
+						, ob.get(zoneCell).toString().trim()
+						, ob.get(catCell).toString().trim()
+						
+						, ob.get(joCell).toString().trim()
+						
+						, ob.get(teamCell).toString().trim()
+						, ob.get(zoneCell).toString().trim()
+						, ob.get(catCell).toString().trim()
+				};
+				batch.add(value);
+			}
+			jdbcTemplate.batchUpdate(sql.toString(), batch);
+		}
 		
 		
+		// 권역, 품목, 팀, 조 초기화 (엑셀에서 빠진 학교는 팀에서도 빠짐)
+		sql = new StringBuffer();
+		sql.append("UPDATE FOOD_SCH_TB SET ZONE_NO = NULL, CAT_NO = NULL, TEAM_NO = NULL, JO_NO = NULL		");
+		sql.append("WHERE SCH_TYPE NOT IN ('Z', 'Y', 'X', 'V')												");
+		jdbcTemplate.update(sql.toString());
+		
+		// 권역, 품목, 팀, 조 재설정
+		sql = new StringBuffer();
+		sql.append("MERGE INTO FOOD_SCH_TB USING DUAL																");
+		sql.append("	ON(SCH_NM = ? AND AREA_NO = (SELECT AREA_NO FROM FOOD_AREA WHERE AREA_NM = ?))				");
+		sql.append("	WHEN MATCHED THEN																			");
+		sql.append("	UPDATE SET																					");
+		sql.append("		ZONE_NO 	= (SELECT ZONE_NO FROM FOOD_ZONE WHERE ZONE_NM = ? AND SHOW_FLAG = 'Y')		");		
+		sql.append("		, CAT_NO 	= (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y')		");
+		sql.append("		, TEAM_NO 	= (SELECT TEAM_NO FROM FOOD_TEAM WHERE TEAM_NM = ? AND SHOW_FLAG = 'Y'										");
+		sql.append("							AND ZONE_NO = (SELECT ZONE_NO FROM FOOD_ZONE WHERE ZONE_NM = ? AND SHOW_FLAG = 'Y')					"); 
+        sql.append("        					AND CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y')) 				");
+		sql.append("		, JO_NO 	= (SELECT JO_NO FROM FOOD_JO WHERE JO_NM = ? 																");
+		sql.append("						AND TEAM_NO = (SELECT TEAM_NO FROM FOOD_TEAM WHERE TEAM_NM = ? AND SHOW_FLAG = 'Y' 						");
+		sql.append("       							AND ZONE_NO = (SELECT ZONE_NO FROM FOOD_ZONE WHERE ZONE_NM = ? AND SHOW_FLAG = 'Y') 			");
+		sql.append("        						AND CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y')))			");
+		sql.append("		, SCH_GRADE = ?																			");
+		batch = new ArrayList<Object[]>();
+		for(Map<String,Object> ob : excelList){
+			if("조사자".equals(ob.get(gradeCell).toString().trim())){
+				sch_grade = "R";
+			}else{
+				sch_grade = "T";
+			}
+			
+			value = new Object[]{
+				ob.get(schCell).toString().trim()		// 같은 이름의 학교가 있는지 확인
+				, ob.get(areaCell).toString().trim()	// 같은 지역의학교가 있는지 확인
+				, ob.get(zoneCell).toString().trim()	// 권역 번호 구하기
+				, ob.get(catCell).toString().trim()		// 품목 번호 구하기
+				
+				, ob.get(teamCell).toString().trim()	// 해당 이름에 맞는 팀 번호 구하기
+				, ob.get(zoneCell).toString().trim()	// 팀이 속한 권역 구하기
+				, ob.get(catCell).toString().trim()		// 팀이 속한 품목 구하기
+
+				, ob.get(joCell).toString().trim()		// 해당 이름에 맞는 조 번호 구하기
+				, ob.get(teamCell).toString().trim()	// 조가 속한 팀 구하기
+				, ob.get(zoneCell).toString().trim()	// 조가 속한 팀이 속한 권역 구하기
+				, ob.get(catCell).toString().trim()		// 조가 속한 팀이 속한 품번 구하기
+				
+				, sch_grade
+			};
+			
+			batch.add(value);
+		}
+		
+		result = jdbcTemplate.batchUpdate(sql.toString(), batch).length;
+		
+		if(result>0){
+			out.println("<script>");
+			out.println("alert('정상적으로 처리되었습니다.');");
+			out.println("location.replace('" + returnPage + "');");
+			out.println("</script>");
+		}else{
+			out.println("<script>");
+			out.println("alert('처리중 오류가 발생하였습니다.');");
+			out.println("location.replace('" + returnPage + "');");
+			out.println("</script>");
+		}
 	}catch(Exception e){
 		out.println(e.toString());
-	}
+	} 
 	
 	/* if(excelList!=null && excelList.size()>0){
 		for(Map<String,Object> ob : excelList){
@@ -275,5 +489,5 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			out.println(" cell78 : " + ob.get("cell78") + "<br>");
 			out.println(" cell80 : " + ob.get("cell80") + "<br>");
 		}
-	}  */
+	} */
 %>
