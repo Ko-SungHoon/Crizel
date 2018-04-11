@@ -228,9 +228,9 @@ public class BoardController {
 		String realname = filename;
 		
 		String docName = URLEncoder.encode(realname, "UTF-8").replaceAll("\\+", " ");
-		directory = URLEncoder.encode(directory, "UTF-8").replaceAll("\\+", " ");
+		//directory = URLEncoder.encode(directory, "UTF-8").replaceAll("\\+", " ");
 
-		String filePath = directory + realname;
+		String filePath = directory + "/" + realname;
 		
 		try {
 			File file = new File(filePath);

@@ -57,7 +57,8 @@ String[] schTypeT	=	{"유치원", "초등학교", "중학교", "고등학교", "
 String[] selTypeO	=	{"Z", "Y", "X", "V"};
 String[] selTypeT	=	{"도교육청(본청)", "직속기관", "소속기관", "교육지원청"};
 
-String type	= "";
+String type		= "";
+String type2 	= parseNull(request.getParameter("type2"), "S");
 
 
 try{
@@ -290,8 +291,12 @@ function nuRemove(index){
 	$("#nuInsert_1_"+index).remove();
 	$("#nuInsert_2_"+index).remove();
 }
+function insertTypeChange(){
+	$("#searchForm").attr("action", "");
+	$("#searchForm").attr("method", "get");
+	$("#searchForm").submit();
+}
 </script>
-
 <div id="right_view">
 	<div class="top_view">
 		<p class="location"><strong><%=pageTitle%></strong></p>
@@ -304,6 +309,19 @@ function nuRemove(index){
 <!-- S : #content -->
 <div id="content">
 	<section>
+		<h2 class="tit"><%=pageTitle%></h2>
+        <%
+		if("insert".equals(mode)){
+		%>
+			<form id="searchForm" class="topbox2">
+				<select id="type2" name="type2" onchange="insertTypeChange()">
+					<option value="S" <%if("S".equals(type2)){out.println("selected");} %>>학교</option>
+					<option value="O" <%if("O".equals(type2)){out.println("selected");} %>>기관</option>
+				</select>
+			</form>
+		<%
+		}
+		%>
 		<form action="temp_research_action.jsp" method="post" onsubmit="return submitForm();">
 		<input type="hidden" id="sch_org_sid" name="sch_org_sid" value="<%=foodVO.sch_org_sid%>">
 		<input type="hidden" id="sch_gen" name="sch_gen" value="<%=foodVO.sch_gen%>">
@@ -313,7 +331,6 @@ function nuRemove(index){
 		<%}else{ %>
 		<input type="hidden" id="mode" name="mode" value="update">
 		<%} %>
-               <h2 class="tit"><%=pageTitle%></h2>
                <table class="bbs_list2">
 				<caption><%=pageTitle%> 정보입력</caption>
                    <colgroup>
@@ -343,7 +360,7 @@ function nuRemove(index){
 							<select id="sch_type" name="sch_type" required>
 								<option value="">단위</option>
 							<%
-							if("S".equals(type)){
+							if("S".equals(type) || ("insert".equals(mode) && "S".equals(type2))){
 								for(int i=0; i<schTypeO.length; i++){
 									out.println(printOption(schTypeO[i], schTypeT[i], foodVO.sch_type));
 								}
@@ -363,7 +380,7 @@ function nuRemove(index){
                            <th scope="row"><span class="red">*</span><label for="sch_addr">주소</label></th>
                            <td>
                            <%
-                           if("S".equals(type)){
+                           if("S".equals(type) || ("insert".equals(mode) && "S".equals(type2))){
                            %>
                            	<input type="hidden" id="sch_area" name="sch_area" value="<%=foodVO.sch_area%>">
                            <%
@@ -383,7 +400,7 @@ function nuRemove(index){
                            </td> --%>
                        </tr>
                        <%
-                       if("S".equals(type)){
+                       if("S".equals(type) || ("insert".equals(mode) && "S".equals(type2))){
                        %>
 						<tr>
                            <th scope="row"><label for="sch_gradeR">등급</label></th>
@@ -507,7 +524,7 @@ function nuRemove(index){
                        </tr>
                        <%} %>
 					<%
-					if("S".equals(type)){
+					if("S".equals(type) || ("insert".equals(mode) && "S".equals(type2))){
 					%>
 					<tr>
 						<th scope="row" colspan="4">
