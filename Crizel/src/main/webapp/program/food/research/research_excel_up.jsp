@@ -311,8 +311,8 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 		sql.append("		   FROM FOOD_ITEM_PRE A LEFT JOIN FOOD_ST_ITEM B ON A.S_ITEM_NO = B.ITEM_NO 						");
 		sql.append("		   WHERE B.CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ?) 								");
 		sql.append("		     AND B.FOOD_CAT_INDEX = ?) 																		");
-		sql.append("		, (SELECT SCH_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y' AND SCH_APP_FLAG = 'Y')		");
-		sql.append("		, (SELECT TEAM_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y' AND SCH_APP_FLAG = 'Y')	)	");
+		sql.append("		, (SELECT SCH_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y')								");
+		sql.append("		, (SELECT TEAM_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y')	)						");
 		batch = new ArrayList<Object[]>();
 		if(catList!=null && catList.size()>0){
 			for(Map<String,Object> ob : catList){
