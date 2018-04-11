@@ -23,10 +23,12 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.stringtemplate.v4.ModelAdaptor;
 import org.xml.sax.SAXException;
 
 import util.DirectoryView;
 import util.ImageView;
+import util.Mars;
 import util.Music;
 import util.Saramin;
 import util.Torrent;
@@ -373,6 +375,21 @@ public class CrizelController {
 		mav.addObject("page", URLDecoder.decode(addr, "UTF-8").substring(URLDecoder.decode(addr, "UTF-8").length()-1, URLDecoder.decode(addr, "UTF-8").length()));
 		mav.addObject("list", list);
 		mav.setViewName("torrent");
+		return mav;
+	}
+	
+	@RequestMapping("mars")
+	public ModelAndView mars(	@RequestParam(value="addr", defaultValue="https://5siri.com/xe/index.php?mid=manko") String addr
+							,	@RequestParam(value="type", defaultValue="list") String type) throws Exception{
+		ModelAndView mav = new ModelAndView();
+		Mars mars = new Mars();
+		if("list".equals(type)){
+			mav.addObject("list", mars.getList(addr));
+		}else{
+			mav.addObject("view", mars.getView(addr));
+		}
+		mav.addObject("addr", URLDecoder.decode(addr, "UTF-8"));
+		mav.setViewName("mars");
 		return mav;
 	}
 	

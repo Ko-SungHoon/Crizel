@@ -46,6 +46,8 @@ List<FoodVO> nuList 	=	null;	//영양사 리스트
 int rschTotalFood		=	0;		//조사식품 수
 List<FoodVO> foodList 	=	null;	//조사식품 리스트
 
+String type = "";
+
 try{
 
 	//학교, 영양사 정보 출력
@@ -86,9 +88,15 @@ try{
 	sql.append("	(	SELECT ZONE_NM 								");
 	sql.append("		FROM FOOD_ZONE								");
 	sql.append("		WHERE ZONE_NO = A.ZONE_NO	) AS ZONE_NM,	");
+	sql.append("	(	SELECT CAT_NM 								");
+	sql.append("		FROM FOOD_ST_CAT							");
+	sql.append("		WHERE CAT_NO = A.CAT_NO	) AS CAT_NM,		");
 	sql.append("	(	SELECT TEAM_NM 								");
 	sql.append("		FROM FOOD_TEAM								");
-	sql.append("		WHERE TEAM_NO = A.TEAM_NO	) AS TEAM_NM	");
+	sql.append("		WHERE TEAM_NO = A.TEAM_NO	) AS TEAM_NM,	");
+	sql.append("	(	SELECT JO_NM 								");
+	sql.append("		FROM FOOD_JO								");
+	sql.append("		WHERE JO_NO = A.JO_NO	) AS JO_NM			");
 	sql.append("FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B			");
 	sql.append("ON A.SCH_NO = B.SCH_NO								");
 	sql.append("WHERE A.SCH_NO = ? AND (B.SHOW_FLAG = 'Y'			");
@@ -101,6 +109,13 @@ try{
 		nuList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{sch_no});
 	}catch(Exception e){
 		foodVO = new FoodVO();
+	}
+	
+	if("Z".equals(foodVO.sch_type) || "Y".equals(foodVO.sch_type)
+		|| "X".equals(foodVO.sch_type)|| "V".equals(foodVO.sch_type)){
+		type = "O";
+	}else{
+		type = "S";
 	}
 
 	//조사팀장 일 경우
@@ -334,42 +349,52 @@ try{
                     </colgroup>
                     <tbody>
                         <tr>
-                            <th scope="row"><label for="sch_id">학교아이디</label></th>
+                            <th scope="row"><label for="sch_id">아이디</label></th>
                             <td>
                             	<%=foodVO.sch_id%>
                    	        </td>
-                            <th scope="row"><label for="sch_nm">학교명</label></th>
+                            <th scope="row"><label for="sch_nm">기관명</label></th>
                             <td>
                             	<%=foodVO.sch_nm%>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row"><label for="sch_type">학교단위</label></th>
+                            <th scope="row"><label for="sch_type">단위</label></th>
                             <td>
                             	<%=outSchType(foodVO.sch_type) %>
 							</td>
-                            <th scope="row"><label for="sch_found">설립구분</label></th>
-                            <td>
-                            	<%=outSchFound(foodVO.sch_found) %>
-                            </td>
+							<th scope="row"><label for="sch_tel">연락처</label></th>
+                            <td><%=telSet(foodVO.sch_tel)%></td>
+                            
                         </tr>
                         <tr>
-                            <th scope="row"><label for="sch_addr">학교주소</label></th>
+                            <th scope="row"><label for="sch_addr">주소</label></th>
                             <td>
                             	<%=foodVO.sch_area %> &nbsp;
                             	<%=foodVO.sch_addr %>
                             </td>
-                            <th scope="row"><label for="sch_tel">급식소 연락처</label></th>
-                            <td><%=telSet(foodVO.sch_tel)%></td>
-                        </tr>
-						<tr>
+                            <%-- <th scope="row"><label for="sch_found">설립구분</label></th>
+                            <td>
+                            	<%=outSchFound(foodVO.sch_found) %>
+                            </td> --%>
                             <th scope="row"><label for="sch_addr">등급</label></th>
                             <td><label for="sch_gradeR"><%=outSchGrade(foodVO.sch_grade) %></label></td>
+                        </tr>
+						<tr>
 							<th scope="row"><label for="zone_no">권역/품목/팀/조</label></th>
-                            <td>
-                            	<%=foodVO.zone_nm %> / <%=foodVO.team_nm %>
+                            <td colspan="3">
+                            	<%
+                            	if(!"".equals(foodVO.zone_nm)){out.println(foodVO.zone_nm);}
+                            	if(!"".equals(foodVO.cat_nm)){out.println(" / " + foodVO.cat_nm);}
+                            	if(!"".equals(foodVO.team_nm)){out.println(" / " + foodVO.team_nm);}
+                            	if(!"".equals(foodVO.jo_nm)){out.println(" / " + foodVO.jo_nm);}
+                            	%>
+                            	<%-- <%=foodVO.zone_nm %> / <%=foodVO.cat_nm %> / <%=foodVO.team_nm %> / <%=foodVO.jo_nm %> --%>
 							</td>
                         </tr>
+                        <%
+                        if("S".equals(type)){
+                        %>
 						<tr>
 							<th></th><th></th><th></th><th></th>
 						</tr>
@@ -390,6 +415,8 @@ try{
                         </tr>
 						<%}/*END FOR*/
 						}/*END IF*/%>
+						
+						<%} %>
                     </tbody>
                 </table>
                 <p class="btn_area txt_c">

@@ -4,6 +4,7 @@
 *	CREATE	:	201803??_???	KO
 *	MODIFY	:	20180410_tue	JI	add function outUpdStsFlag() 업데이트 요청 상태 function 추가
 *	MODIFY	:	20180410_tue	JI	mod function outUpdFlag() 업데이트 요청 상태 function 수정
+*	MODIFY	:	20180410_tue	JI	mod function outSchType() 학교단위 값 수정
 **/
 %>
 
@@ -41,10 +42,15 @@ public String outSchGrade (String value) {
 
 public String outSchType (String value) {
     String rtnString    =   "";
-    if("1".equals(value)) {rtnString   =   "유치원";}
-    else if("2".equals(value)) {rtnString   =   "초등학교";}
-    else if("3".equals(value)) {rtnString   =   "중학교";}
-    else if("4".equals(value)) {rtnString   =   "고등학교";}
+    if("A".equals(value)) {rtnString   =   "유치원";}
+    else if("B".equals(value)) {rtnString   =   "초등학교";}
+    else if("C".equals(value)) {rtnString   =   "중학교";}
+    else if("D".equals(value)) {rtnString   =   "고등학교";}
+    else if("E".equals(value)) {rtnString   =   "대안학교";}
+    else if("F".equals(value)) {rtnString   =   "특수학교";}
+    else if("G".equals(value)) {rtnString   =   "고등기술학교";}
+    else if("H".equals(value)) {rtnString   =   "고등공민학교";}
+    else if("I".equals(value)) {rtnString   =   "외국인학교";}
     return rtnString;
 }
 
