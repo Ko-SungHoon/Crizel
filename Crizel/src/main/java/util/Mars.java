@@ -15,12 +15,6 @@ public class Mars {
 	/*
 	public static void main(String[] args) {
 		Mars mars = new Mars();
-		
-		https://5siri.com/xe/
-		https://5siri.com/xe/index.php?mid=korean
-		https://5siri.com/xe/index.php?mid=manko
-		https://5siri.com/xe/index.php?mid=anime	
-			
 			
 		//mars.getList("https://5siri.com/xe/index.php?mid=manko");
 		//mars.getView("https://5siri.com/xe/index.php?mid=manko&document_srl=6207347");

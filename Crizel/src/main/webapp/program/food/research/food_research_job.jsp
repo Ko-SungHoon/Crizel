@@ -717,11 +717,9 @@ try{
 				<td>
 				<%
 				if("Y".equals(ob.sts_flag)){
-					if("".equals(ob.rj_date)){
-						out.println("승인");
-					}else{
-						out.println("반려");
-					}
+					out.println("승인");
+				}else if("RR".equals(ob.sts_flag) || "RT".equals(ob.sts_flag)){
+					out.println("반려");
 				}
 				%>
 				</td>

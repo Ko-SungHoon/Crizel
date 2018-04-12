@@ -15,6 +15,10 @@ function getView(addr){
 	addr = encodeURIComponent(addr);
 	location.href="/mars.do?addr="+addr+"&type=view";
 }
+
+function getDown(addr){
+	location.href="";
+}
 </script>
 </head>
 <body>
@@ -34,10 +38,17 @@ function getView(addr){
 	</div>
 	<c:if test="${list ne null}">
 		<table class="tbl_type01">
+		<colgroup>
+			<col width="85%">
+			<col width="15%">
+		</colgroup>
 		<c:forEach items="${list}" var="ob">
 			<tr>
 				<td>
 					<a href="javascript:getView('${ob.addr}')"><img src="${ob.img}"></a>
+				</td>
+				<td>
+					<a href="${ob.addr}" target="_blank">링크</a>
 				</td>
 			</tr>
 		</c:forEach>
@@ -46,10 +57,17 @@ function getView(addr){
 	
 	<c:if test="${view ne null}">
 		<table class="tbl_type01">
+		<colgroup>
+			<col width="50%">
+			<col width="50%">
+		</colgroup>
 		<c:forEach items="${view}" var="ob"> 
 			<tr>
 				<td>
 					<a href="${ob.addr}">${ob.text }</a>
+				</td>
+				<td>
+					<input type="text" value="${ob.addr}" style="width: 90%;">
 				</td>
 			</tr>
 		</c:forEach>

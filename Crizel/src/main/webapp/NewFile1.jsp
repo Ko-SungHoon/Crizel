@@ -1,165 +1,274 @@
-<%@ page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper" %>
-  <!-- vuetable-2 dependencies -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.5.9/vue.min.js"></script>
-  <script src="/gnlib/lcms/component/vue-simple-spinner.min.js"></script>
-  <script src="/gnlib/lcms/component/vuejs-uib-pagination.js"></script>
-  <script src="/gnlib/lcms/component/detail-info.js"></script>
-  <script src="/gnlib/lcms/component/placement-info.js"></script>
-  <script src="/gnlib/lcms/component/api-image.js"></script>
-  <script src="/gnlib/lcms/main.js"></script>  
-  
-  <style>
-    .con{margin-bottom:80px; overflow:hidden;font-weight: 100;line-height:1.6em;}
-    .pagination {display: inline-flex;}
-    .pagination li a {display:inline-block; width:45px; height:45px;font-size:1.1em;  border:1px solid #dedede;line-height:45px;margin:0 2px 0 2px;}
-    .active > a {color:#fff;background-color: #085dc0;text-decoration:none;}
-    .pagination > .disabled > span,
-    .pagination > .disabled > span:hover,
-    .pagination > .disabled > span:focus,
-    .pagination > .disabled > a,
-    .pagination > .disabled > a:hover,
-    .pagination > .disabled > a:focus {
-      color: #777777;
-      background-color: #fff;
-      border-color: #ddd;
-      cursor: not-allowed;
-    }
-    .pageing_top img { cursor: pointer }
-    [v-cloak] { display: none; }
-  </style>
-
-  <div id="spinner">
-      <vue-simple-spinner
-        size="big" message="로딩중..."
-        v-show="loading"
-      ></vue-simple-spinner>
-  </div>
-
-<div class="con" id="new-book-list" 
-	v-if="records"
-	v-cloak>
-    <div class="search sort mb_30 mt_20" v-if="records.LIST_DATA != null">
-        <form name="rfc_bbs_searchForm" class="searchForm board_srch">
-            <fieldset>
-                <legend>전체검색</legend>
-                <label for="align_num2" class="blind">쪽당 출력 건수</label>
-                <select id="align_num2" name="align_num" class="base small last" v-model="perPage">
-            <option value="0" disabled selected>출력 건수</option>
-            <option :value="5">5</option>
-            <option :value="10">10</option>
-            <option :value="15">15</option>
-            <option :value="20">20</option>
-            <option :value="30">30</option>
-            <option :value="50">50</option>
-            <option :value="100">100</option>
-                </select>
-            </fieldset>
-        </form>
-    </div>
-
-    <!-- 상단 페이징 -->
-    <div class="pageing_top" v-if="records.LIST_DATA != null">
-      <img v-if="pagination.currentPage != 1" @click="setPage(pagination.currentPage-1)" src="/images/common/btn_arr_l.gif" alt="이전페이지">
-      <span class="current">{{(pagination.currentPage-1)*perPage+1}}</span> - <span>{{pagination.currentPage*perPage}}</span>
-      <img v-if="pagination.currentPage != pagination.numPages" @click="setPage(pagination.currentPage+1)" src="/images/common/btn_arr_r.gif" alt="다음페이지">
-    </div>
-    <!-- //상단 페이징 -->
-   <!--  total -->
-    <div class="total_area line" v-if="records.LIST_DATA != null">
-      <p class="total">총 <strong>{{records.LIST_DATA[0].SEARCH_COUNT}}</strong>건
-      [page {{pagination.currentPage}}/{{pagination.numPages}}]</p>
-    </div> 
-    <!--// total-->
-
-    <form>
-        <fieldset>
-            <legend>도서 정보</legend>
-            <ul class="result_search basic">
-
-                <!-- 개발자 : 등록된 자료가 없을 경우 안내 -->
-                <li class="no_item" v-if="records.LIST_DATA == null">등록된 자료가 없습니다.</li>
-
-                <li v-for="(record, index) in records.LIST_DATA" class="item" v-if="index > 0">
-            <dl>
-              <dt class="tit blind">표지</dt>
-              <dd class="book_img">
-                <img :src="record.IMAGE" alt="표지이미지">
-                <!--<api-image 
-                  :api-url="'http://lib.gyeongnam.go.kr/kdotapi/ksearchapi/getbookinfo?manage_code=MA&book_type=BOOK&'+'reg_no='+record.REG_NO">
-                </api-image>-->
-              </dd>
-              <dt class="tit blind">번호 : </dt>
-              <dd class="num">[No.{{ record.RNUM }}]</dd>
-              <dt class="tit blind">제목 : </dt>
-              <dd class="tit book_name expand1">
-               
-		{{record.TITLE_INFO}}
-                <button type="button" title="상세보기" class="btn"
-                  @click="toggleDetailInfo(record.BOOK_KEY)">상세보기</button>
-              </dd>
-              <dt class="tit">저자 : </dt>
-              <dd class="info">{{record.AUTHOR}}</dd>
-              <dt class="tit">출판사 : </dt>
-              <dd class="info">{{record.PUBLISHER}}</dd>
-              <dt class="tit">청구기호 : </dt>
-              <dd class="info">{{record.CALL_NO}}</dd>
-              <dt class="tit">출판년도 : </dt>
-              <dd class="info">{{ record.PUB_YEAR}}</dd>
-              <dt class="tit">자료유형 : </dt>
-              <dd class="type info">{{ record.FORM_CODE}}</dd>
-              <dt class="tit blind preview_tit">상세정보</dt>
-              <dd class="preview" style="display:block">
-                <template v-if="isVisibleDetailInfo(record.BOOK_KEY)">
-                  <detail-info 
-                    :record="record">
-                  </detail-info>
-                </template>
-              </dd>
-            </dl>
-            <div>
-              <div class="info_table expand2">
-                  
-                <p class="txt_s100p">
-                  <strong>소장정보</strong>
-                  <span class="c_red">{{ record.SHELF_LOC_NAME}}</span>
-                  <span class="btn small arr_down" 
-                    @click="togglePlacementInfo(record.BOOK_KEY)">펼쳐보기</span>
-                </p>
-                <div class="table_area expand2_con" style="display: block;">
-                  <template v-if="isVisiblePlacementInfo(record.BOOK_KEY)">
-                    <placement-info
-		      userkey="<%= EgovUserDetailsHelper.getUniqId() %>"
-                      :record="record">
-                    </placement-info>
-                  </template>
-                </div>
-              </div>
-            </div>
-                </li>
-            </ul>
+<%@ page import = "java.util.*, egovframework.rfc3.board.vo.CommentVO,java.text.SimpleDateFormat" %>
+<%@ page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper"%>
+<%@ page import="egovframework.rfc3.board.vo.BoardDataVO"%>
+<%@ page import="egovframework.rfc3.board.vo.BoardCategoryVO"%>
+<%@ page import="egovframework.rfc3.common.util.EgovStringUtil"%>
+<%
+	List<BoardCategoryVO> categoryList1 = bm.getCategoryList1();
+	List<BoardCategoryVO> categoryList2 = bm.getCategoryList2();
+	List<BoardCategoryVO> categoryList3 = bm.getCategoryList3();
+%>
+<script type="text/javascript">
+function showCommentReply(id)
+{
+	var reply = document.getElementById(id);
+	if(reply.style.display == 'none')
+	{
+		reply.style.display = 'block';
+	}else{
+		reply.style.display = 'none';
+	}
+}
+</script>
+			<!-- board_read -->
+			<section class="board">
+			<%
+			String userNick = "";
+			int userNickCnt	= 0;
+			if(bm.isSecret()){
+				userNickCnt = bm.getUserNick().length();
+				userNick = bm.getUserNick().substring(0,1);
+				for(int userCnt = 1; userCnt < userNickCnt; userCnt++){
+					userNick += "*";
+				}
+			}else{
+				userNick = bm.getUserNick();
+			}
+			%>
+			<table class="board_read02" summary="제목, 작성자, 전화번호, 전자우편, 개인정보동의여부, 내용, 첨부파일 등의 알림마당>채용정보>구직 게시글에 대한 정보를 입력함.">
+				<caption>알림마당&gt;채용정보&gt;구직 게시글 입력</caption>
+				<thead>
+					<tr>
+					<th colspan="4"  class="topline"><%=bm.getDataTitle()%></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+					<th scope="row" width="20%">작성자</th>
+					<td width="30%"><%=userNick%></td>
+					<th scope="row" class="lline" width="20%">등록일</th>
+					<td width="30%"><%=bm.getRegister_dt("yyyy/MM/dd")%></td>
+					</tr>
+				<tr>
+				<th scope="row">첨부파일</th>
+				<td colspan="3">
+		<%
+					String userAgent = request.getHeader("user-agent");
+					if(bm.getFileCount() > 0){
+					for(int fcnt = 0;fcnt<bm.getFileCount();fcnt++)
+					{
+						boolean isMobile = false;
+						boolean isHtml5 = !(userAgent.toLowerCase().indexOf("msie 6.0")>-1||userAgent.toLowerCase().indexOf("msie 7.0")>-1||userAgent.toLowerCase().indexOf("msie 8.0")>-1);
+						if(userAgent.toLowerCase().indexOf("mobile") >=0)
+						{
+							isMobile = true;
+						}
+						if(fcnt > 0)
+						{
+							%>
+							<br/>
+							<%
+						}
+						if(bm.getBoardFileVO(fcnt) != null)
+						{
+							out.print(bm.getFileList(bm.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
+							if(bm.getBoardFileVO(fcnt).getFileId()!=null && !bm.getBoardFileVO(fcnt).getFileId().equals("")){
+							out.print(bm.getHtmlViewerIcon(bm.getBoardFileVO(fcnt),"",isMobile).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
+							}else{
+							out.print(bm.getConvertIcon(bm.getBoardFileVO(fcnt),null).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
+							}
 
 
-            <!-- 페이징 -->
-        <div class="pageing" v-if="records.LIST_DATA != null">
-          <uib-pagination 
-          :total-items="records.LIST_DATA[0].SEARCH_COUNT"
-          :items-per-page="perPage"
-          v-model="pagination"
-          :max-size="5" 
-          class="pageing" 
-          :boundary-links="true"
-          @change="pageChanged()"
-          first-text="&lt;&lt;"
-          previous-text="&lt;"
-          next-text="&gt;"
-          last-text="&gt;&gt;"
-          ></uib-pagination>
-        </div> 
-        </fieldset>
-    </form>
+						}
+					}
+					}
+					%>
+					</td>
+					</tr>
+			<%
+			int tdCnt = 0;
+			%>
+			<%if(bm.isViewItem("USER_EMAIL") && tdCnt == 0){ out.print("<tr>");}%>
+			<% if(bm.isViewItem("USER_EMAIL")) { tdCnt++; %>
+				<th scope="row" width="20%">전자우편</th>
+					<td width="30%"><%=EgovStringUtil.isNullToString(bm.getUserEmail())%></td>
+			<% } %>
+			<%if(bm.isViewItem("USER_EMAIL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
+
+		<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
+		<% if(bm.isViewItem("USER_HOMEPAGE")) { %>
+			<tr>
+			<th scope="row">전화번호</th>
+			<td colspan="3"><%=EgovStringUtil.isNullToString(bm.getUserHomepage())%></td>
+			<tr>
+		<% } %>
+
+		<%if(bm.isViewItem("USER_TEL") && tdCnt == 0){ out.print("<tr>");}%>
+		<% if(bm.isViewItem("USER_TEL")) { tdCnt++; %>
+			<th scope="row" width="20%">전화번호</th>
+				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getUserTel())%></td>
+		<% } %>
+		<%if(bm.isViewItem("USER_TEL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
+
+		<%if(bm.isViewItem("USER_CEL") && tdCnt == 0){ out.print("<tr>");}%>
+		<% if(bm.isViewItem("USER_CEL")) {  tdCnt++;%>
+			<th scope="row" width="20%">휴대전화</th>
+				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getUserCel())%></td>
+		<% } %>
+		<%if(bm.isViewItem("USER_CEL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
+
+		<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
+		<% if(bm.isViewItem("USER_ZIPCODE") || bm.isViewItem("USER_ADDRESS") || bm.isViewItem("USER_DETAILADDR")) { %>
+			<tr>
+			<th scope="row">주소</th>
+			<td colspan="3">
+				<% if(bm.isViewItem("USER_ZIPCODE")){ %>
+			(<%=EgovStringUtil.isNullToString(bm.getUserZipcode())%>)
+			<% } %>
+
+			<% if(bm.isViewItem("USER_ADDRESS")){ %>
+			<%=EgovStringUtil.isNullToString(bm.getUserAddress())%>
+			<% } %>
+
+			<% if(bm.isViewItem("USER_DETAILADDR")){ %>
+			&nbsp;&nbsp;<%=EgovStringUtil.isNullToString(bm.getUserDetailAddr())%>
+			<% } %>
+			</td>
+			</tr>
+		<% } %>
+
+
+		<%
+						if(bm.isViewItem("CATEGORY_CODE1") && categoryList1 != null && categoryList1.size() > 0){
+							if(bm.getMenuIsBoard1Cate()){
+								if(tdCnt == 0){ out.print("<tr>");}
+								tdCnt++;
+								for(BoardCategoryVO category : categoryList1){
+									if(bm.getCategoryCode1().equals(category.getCategoryCode())){
+						%>
+								<th scope="row" width="20%">카테고리1</th>
+									<td width="30%"><%=category.getCategoryName()%></td>
+						<%
+								if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
+									}
+								}
+							}
+						}
+						%>
+
+
+						<%
+						if(bm.isViewItem("CATEGORY_CODE2") && categoryList2 != null && categoryList2.size() > 0){
+							if(bm.getMenuIsBoard2Cate()){
+								if(tdCnt == 0){ out.print("<tr>");}
+								tdCnt++;
+							for(BoardCategoryVO category2 : categoryList2){
+								if(bm.getCategoryCode2().equals(category2.getCategoryCode())){
+						%>
+								<th scope="row" width="20%">카테고리2</th>
+									<td width="30%"><%=category2.getCategoryName()%></td>
+						<%
+						if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
+								}
+							}
+							}
+						}
+						%>
+
+						<%
+						if(bm.isViewItem("CATEGORY_CODE3") && categoryList3 != null && categoryList3.size() > 0){
+							if(bm.getMenuIsBoard3Cate()){
+								if(tdCnt == 0){ out.print("<tr>");}
+								tdCnt++;
+							for(BoardCategoryVO category3 : categoryList3){
+								if(bm.getCategoryCode3().equals(category3.getCategoryCode())){
+						%>
+								<th scope="row" width="20%">카테고리3</th>
+									<td width="30%"><%=category3.getCategoryName()%></td>
+						<%
+						if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
+								}
+							}
+							}
+						}
+						%>
+
+
+
+
+		<%if(bm.isViewItem("TMP_FIELD1") && tdCnt == 0){ out.print("<tr>");}%>
+		<% if(bm.isViewItem("TMP_FIELD1")) { tdCnt++; %>
+			<th scope="row" width="20%">임시필드1</th>
+				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getTmpField1())%></td>
+		<% } %>
+		<%if(bm.isViewItem("TMP_FIELD1") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
+
+		<%if(bm.isViewItem("TMP_FIELD2") && tdCnt == 0){ out.print("<tr>");}%>
+		<% if(bm.isViewItem("TMP_FIELD2")) { tdCnt++; %>
+			<th scope="row" width="20%">임시필드2</th>
+				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getTmpField2())%></td>
+		<% } %>
+		<%if(bm.isViewItem("TMP_FIELD2") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
+
+		<%if(bm.isViewItem("TMP_FIELD3") && tdCnt == 0){ out.print("<tr>");}%>
+		<% if(bm.isViewItem("TMP_FIELD3")) { tdCnt++; %>
+			<th scope="row" width="20%">임시필드3</th>
+				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getTmpField3())%></td>
+		<% } %>
+		<%if(bm.isViewItem("TMP_FIELD3") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
+
+		<%if(bm.isViewItem("TMP_FIELD4") && tdCnt == 0){ out.print("<tr>");}%>
+		<% if(bm.isViewItem("TMP_FIELD4")) { tdCnt++; %>
+			<th scope="row" width="20%">임시필드4</th>
+				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getTmpField4())%></td>
+		<% } %>
+		<%if(bm.isViewItem("TMP_FIELD4") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
+
+		<%if(bm.isViewItem("TMP_FIELD5") && tdCnt == 0){ out.print("<tr>");}%>
+		<% if(bm.isViewItem("TMP_FIELD5")) { tdCnt++; %>
+			<th scope="row" width="20%">임시필드5</th>
+				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getTmpField5())%></td>
+		<% } %>
+		<%if(bm.isViewItem("TMP_FIELD5") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
+
+		<%
+			int extensionCount = bm.extensionCount();
+			for(int i=0;i<extensionCount;i++)
+			{
+				if(tdCnt == 0){ out.print("<tr>");}
+				tdCnt++;
+				bm.setExtensionVO(i);
+				%>
+				<th scope="row" width="20%"><%=bm.getExtensionDesc() %></th>
+					<td width="30%"><%=bm.getExtensionValue(bm.getExtensionKey())%></td>
+				<%
+				if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
+			}
+			%>
+			<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
+			<tr>
+			<th scope="row">내용</th>
+			<td colspan="3"><%=bm.getDataContent().replace("\r\n","<br>")%><br>
+				<%
+					int [] ext = bm.searchFileNameExt("jpg|bmp|png");
+					for(int i=0;i<ext.length;i++)
+					{
+						%>
+						<img src="<%=bm.getThumbnailPath(ext[i]) %>"  onError="this.src='<%=bm.getFilePath(ext[i]) %>'" style="max-width:500px;" />	<br>
+						<%
+					}
+					%>
+
+			</td>
+			<tr>
+				</tbody>
+				</table>
+				<p class="read_page" style="margin:20px 0px;">
+<!--RFC 공통 버튼 시작-->
+<div class="rfc_bbs_btn">
+	<%=bm.getViewIcons()%>
 </div>
-  <script src="/gnlib/lcms/component/vuejs-uib-pagination.js"></script>
-  <script src="/gnlib/lcms/component/detail-info.js"></script>
-  <script src="/gnlib/lcms/component/placement-info.js"></script>
-  <script src="/gnlib/lcms/component/api-image.js"></script>
-  <script src="/gnlib/lcms/main.js"></script>                                                                                                                                                                                                                                                        
+<!--RFC 공통 버튼 끝-->
+				</p>
+			</section>
+			<!-- board_read -->

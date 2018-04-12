@@ -62,6 +62,7 @@
 	List<String> itemNoList 	= null;
 	int key = 0;
 	int result = 0;
+	int cnt	= 0;
 	
 	int cat_no 		= 0;	// cat_no 최대값
 	int nm_no		= 0;	// nm_no 최대값
@@ -182,6 +183,20 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			out.println("alert('로그인 후 다시 시도 하십시오.');");
 			out.println("location.replace('" + returnPage + "');");
 			out.println("</script>");
+		}
+		
+		// 조사가 진행중일 경우
+		sql = new StringBuffer();
+		sql.append("SELECT COUNT(*) AS CNT		");
+		sql.append("FROM FOOD_RSCH_TB			");
+		sql.append("WHERE STS_FLAG = 'N'		");
+		cnt = jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+		if(cnt>0){
+			out.println("<script>");
+			out.println("alert('조사가 진행중입니다.');");
+			out.println("location.replace('" + returnPage + "');");
+			out.println("</script>");
+			return;
 		}
 		
 		// 업로드한 파일 정보 
