@@ -44,7 +44,7 @@ function selectViewPage(){
 
 function allCheck(){
 	if($("#allCheck").is(":checked")){
-		$("input:checkbox[name=select]").attr("checked", "checked");
+		$("input:checkbox[name=select]").prop("checked", "true");
 	}else{
 		$("input:checkbox[name=select]").removeAttr("checked");
 	}
