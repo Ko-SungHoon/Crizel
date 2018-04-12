@@ -1,274 +1,478 @@
-<%@ page import = "java.util.*, egovframework.rfc3.board.vo.CommentVO,java.text.SimpleDateFormat" %>
 <%@ page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper"%>
-<%@ page import="egovframework.rfc3.board.vo.BoardDataVO"%>
-<%@ page import="egovframework.rfc3.board.vo.BoardCategoryVO"%>
-<%@ page import="egovframework.rfc3.common.util.EgovStringUtil"%>
-<%
-	List<BoardCategoryVO> categoryList1 = bm.getCategoryList1();
-	List<BoardCategoryVO> categoryList2 = bm.getCategoryList2();
-	List<BoardCategoryVO> categoryList3 = bm.getCategoryList3();
-%>
+<%@ page import="java.util.*, egovframework.rfc3.board.vo.BoardVO, egovframework.rfc3.board.vo.BoardCategoryVO"%>
+<%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <script type="text/javascript">
-function showCommentReply(id)
-{
-	var reply = document.getElementById(id);
-	if(reply.style.display == 'none')
-	{
-		reply.style.display = 'block';
-	}else{
-		reply.style.display = 'none';
+function changeCate(sn,objCode){
+	if(sn == '1'){
+		document.rfc_bbs_searchForm.categoryCode1.value=objCode;
+	}else if(sn == '2'){
+		document.rfc_bbs_searchForm.categoryCode2.value=objCode;
+	}else if(sn == '3'){
+		document.rfc_bbs_searchForm.categoryCode3.value=objCode;
+	}
+	document.rfc_bbs_searchForm.submit();
+}	
+
+</script>
+<%
+List<BoardCategoryVO> categoryList1 = bm.getCategoryList1();
+List<BoardCategoryVO> categoryList2 = bm.getCategoryList2();
+List<BoardCategoryVO> categoryList3 = bm.getCategoryList3();
+
+boolean cate1 = true;
+boolean cate2 = true;
+boolean cate3 = true;
+boolean cate1Type = true;
+boolean cate2Type = true;
+boolean cate3Type = true;
+if(categoryList1 != null && categoryList1.size() > 0){
+	BoardCategoryVO cate1Print = (BoardCategoryVO)categoryList1.get(categoryList1.size()-1);
+	if(cate1Print.getCategoryName().equals("noview")){
+		String[] code1 = cate1Print.getCategoryCode().split("_");
+		String checkString =cate1Print.getCategoryCode();
+		if(code1.length ==2){
+			checkString = code1[1];
+		}
+		
+		if(checkString.indexOf("L") > -1){
+			cate1=false;
+		}
+		if(checkString.indexOf("B") > -1){
+			cate1Type=false;
+		}
+		//categoryList1.remove(categoryList1.size()-1);
 	}
 }
-</script>
-			<!-- board_read -->
+
+if(categoryList2 != null && categoryList2.size() > 0){
+	BoardCategoryVO cate2Print = (BoardCategoryVO)categoryList2.get(categoryList2.size()-1);
+	if(cate2Print.getCategoryName().equals("noview")){
+		String[] code2 = cate2Print.getCategoryCode().split("_");
+		String checkString =cate2Print.getCategoryCode();
+		if(code2.length ==2){
+			checkString = code2[1];
+		}
+		if(checkString.indexOf("L") > -1){
+			cate2=false;
+		}
+		if(checkString.indexOf("B") > -1){
+			cate2Type=false;
+		}
+		//categoryList2.remove(categoryList2.size()-1);
+	}
+}
+
+if(categoryList3 != null && categoryList3.size() > 0){
+	BoardCategoryVO cate3Print = (BoardCategoryVO)categoryList3.get(categoryList3.size()-1);
+	if(cate3Print.getCategoryName().equals("noview")){
+		String[] code3 = cate3Print.getCategoryCode().split("_");
+		String checkString =cate3Print.getCategoryCode();
+		if(code3.length ==2){
+			checkString = code3[1];
+		}
+		if(checkString.indexOf("L") > -1){
+			cate3=false;
+		}
+		if(checkString.indexOf("B") > -1){
+			cate3Type=false;
+		}
+		//categoryList3.remove(categoryList3.size()-1);
+	}
+}
+//목록 항목 갯수	
+int listCount = bm.listItemCount();
+%>
 			<section class="board">
-			<%
-			String userNick = "";
-			int userNickCnt	= 0;
-			if(bm.isSecret()){
-				userNickCnt = bm.getUserNick().length();
-				userNick = bm.getUserNick().substring(0,1);
-				for(int userCnt = 1; userCnt < userNickCnt; userCnt++){
-					userNick += "*";
-				}
-			}else{
-				userNick = bm.getUserNick();
-			}
-			%>
-			<table class="board_read02" summary="제목, 작성자, 전화번호, 전자우편, 개인정보동의여부, 내용, 첨부파일 등의 알림마당>채용정보>구직 게시글에 대한 정보를 입력함.">
-				<caption>알림마당&gt;채용정보&gt;구직 게시글 입력</caption>
-				<thead>
-					<tr>
-					<th colspan="4"  class="topline"><%=bm.getDataTitle()%></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-					<th scope="row" width="20%">작성자</th>
-					<td width="30%"><%=userNick%></td>
-					<th scope="row" class="lline" width="20%">등록일</th>
-					<td width="30%"><%=bm.getRegister_dt("yyyy/MM/dd")%></td>
-					</tr>
-				<tr>
-				<th scope="row">첨부파일</th>
-				<td colspan="3">
-		<%
-					String userAgent = request.getHeader("user-agent");
-					if(bm.getFileCount() > 0){
-					for(int fcnt = 0;fcnt<bm.getFileCount();fcnt++)
-					{
-						boolean isMobile = false;
-						boolean isHtml5 = !(userAgent.toLowerCase().indexOf("msie 6.0")>-1||userAgent.toLowerCase().indexOf("msie 7.0")>-1||userAgent.toLowerCase().indexOf("msie 8.0")>-1);
-						if(userAgent.toLowerCase().indexOf("mobile") >=0)
-						{
-							isMobile = true;
-						}
-						if(fcnt > 0)
-						{
-							%>
-							<br/>
-							<%
-						}
-						if(bm.getBoardFileVO(fcnt) != null)
-						{
-							out.print(bm.getFileList(bm.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
-							if(bm.getBoardFileVO(fcnt).getFileId()!=null && !bm.getBoardFileVO(fcnt).getFileId().equals("")){
-							out.print(bm.getHtmlViewerIcon(bm.getBoardFileVO(fcnt),"",isMobile).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
-							}else{
-							out.print(bm.getConvertIcon(bm.getBoardFileVO(fcnt),null).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
-							}
+			<h3 class="blind">게시판 목록</h3>
+				<div class="search">
+<form action="<%=request.getContextPath() %>/board/list.<%=bm.getUrlExt()%>" name="rfc_bbs_searchForm" class="rfc_bbs_searchForm" method="get">
+				<fieldset>
+					<legend>전체검색</legend>
 
+						<input type="hidden" name="orderBy" value="<%=bm.getOrderBy()%>" />
+						<input type="hidden" name="boardId" value="<%=bm.getBoardId()%>" />
 
-						}
-					}
-					}
-					%>
-					</td>
-					</tr>
-			<%
-			int tdCnt = 0;
-			%>
-			<%if(bm.isViewItem("USER_EMAIL") && tdCnt == 0){ out.print("<tr>");}%>
-			<% if(bm.isViewItem("USER_EMAIL")) { tdCnt++; %>
-				<th scope="row" width="20%">전자우편</th>
-					<td width="30%"><%=EgovStringUtil.isNullToString(bm.getUserEmail())%></td>
-			<% } %>
-			<%if(bm.isViewItem("USER_EMAIL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
-		<% if(bm.isViewItem("USER_HOMEPAGE")) { %>
-			<tr>
-			<th scope="row">전화번호</th>
-			<td colspan="3"><%=EgovStringUtil.isNullToString(bm.getUserHomepage())%></td>
-			<tr>
-		<% } %>
-
-		<%if(bm.isViewItem("USER_TEL") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("USER_TEL")) { tdCnt++; %>
-			<th scope="row" width="20%">전화번호</th>
-				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getUserTel())%></td>
-		<% } %>
-		<%if(bm.isViewItem("USER_TEL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("USER_CEL") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("USER_CEL")) {  tdCnt++;%>
-			<th scope="row" width="20%">휴대전화</th>
-				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getUserCel())%></td>
-		<% } %>
-		<%if(bm.isViewItem("USER_CEL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
-		<% if(bm.isViewItem("USER_ZIPCODE") || bm.isViewItem("USER_ADDRESS") || bm.isViewItem("USER_DETAILADDR")) { %>
-			<tr>
-			<th scope="row">주소</th>
-			<td colspan="3">
-				<% if(bm.isViewItem("USER_ZIPCODE")){ %>
-			(<%=EgovStringUtil.isNullToString(bm.getUserZipcode())%>)
-			<% } %>
-
-			<% if(bm.isViewItem("USER_ADDRESS")){ %>
-			<%=EgovStringUtil.isNullToString(bm.getUserAddress())%>
-			<% } %>
-
-			<% if(bm.isViewItem("USER_DETAILADDR")){ %>
-			&nbsp;&nbsp;<%=EgovStringUtil.isNullToString(bm.getUserDetailAddr())%>
-			<% } %>
-			</td>
-			</tr>
-		<% } %>
-
-
-		<%
-						if(bm.isViewItem("CATEGORY_CODE1") && categoryList1 != null && categoryList1.size() > 0){
-							if(bm.getMenuIsBoard1Cate()){
-								if(tdCnt == 0){ out.print("<tr>");}
-								tdCnt++;
-								for(BoardCategoryVO category : categoryList1){
-									if(bm.getCategoryCode1().equals(category.getCategoryCode())){
+						
+<%
+				if( (categoryList1 != null && categoryList1.size() > 0) || (categoryList2 != null && categoryList2.size() > 0) || (categoryList3 != null && categoryList3.size() > 0))
+					{ 
+							/*-------------------------------------- 카테고리 버튼 시작   --------------------------------------*/
+					if(categoryList1 != null && categoryList1.size() > 0){ 
+							if(bm.getMenuIsBoard1Cate() && cate1 && !cate1Type){
 						%>
-								<th scope="row" width="20%">카테고리1</th>
-									<td width="30%"><%=category.getCategoryName()%></td>
+								<input type="hidden" name="categoryCode1" id="categoryCode1" value="<%=bm.getSearchCategoryCode1() %>"  title="카테고리1"/>
+								<section  class="buseo_list">
+									<ul>
+									<li><a href="#" <%if(bm.getSearchCategoryCode1().equals(""))out.print("class='on'");%>   onclick="changeCate('1','');">전체보기</a></li>
+						<% 
+								for(BoardCategoryVO category : categoryList1){
+									if(!category.getCategoryName().equals("noview")){
+						%>			
+									<li><a href="#" <%if(bm.getSearchCategoryCode1().equals(category.getCategoryCode()))out.print("class='on'");%> onclick="changeCate('1','<%=category.getCategoryCode()%>');"><%=category.getCategoryName()%></a></li>
+						<% 	
+									}
+								} 
+						%>
+								</ul>
+									<div class="clr"></div>
+								</section>
 						<%
-								if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
+							}
+						}
+						%>
+
+									<% 
+						if(categoryList2 != null && categoryList2.size() > 0){ 
+							if(bm.getMenuIsBoard2Cate() && cate2 && !cate2Type){
+						%>
+								<input type="hidden" name="categoryCode2" id="categoryCode2" value="<%=bm.getSearchCategoryCode2() %>"  title="카테고리2"/>
+								<section  class="buseo_list">
+									<ul>
+									<li><a href="#" <%if(bm.getSearchCategoryCode2().equals(""))out.print("class='on'");%>   onclick="changeCate('2','');">전체보기</a></li>
+						<% 
+								for(BoardCategoryVO category2 : categoryList2){
+									if(!category2.getCategoryName().equals("noview")){
+						%>			
+									<li><a href="#" <%if(bm.getSearchCategoryCode2().equals(category2.getCategoryCode()))out.print("class='on'");%> onclick="changeCate('2','<%=category2.getCategoryCode()%>');"><%=category2.getCategoryName()%></a></li>
+						<% 
+									}
+								} 
+						%>
+								</ul>
+									<div class="clr"></div>
+								</section>
+						<%
+							}
+						}
+						%>
+						
+								<% 
+						if(categoryList3 != null && categoryList3.size() > 0){ 
+							if(bm.getMenuIsBoard3Cate() && cate3 && !cate3Type){
+						%>
+							<input type="hidden" name="categoryCode3" id="categoryCode3" value="<%=bm.getSearchCategoryCode3() %>"  title="카테고리3"/>
+							<section  class="buseo_list">
+									<ul>
+									<li><a href="#" <%if(bm.getSearchCategoryCode3().equals(""))out.print("class='on'");%>   onclick="changeCate('3','');">전체보기</a></li>
+						<% 
+								for(BoardCategoryVO category3 : categoryList3){
+									if(!category3.getCategoryName().equals("noview")){
+						%>			
+									<li><a href="#" <%if(bm.getSearchCategoryCode3().equals(category3.getCategoryCode()))out.print("class='on'");%> onclick="changeCate('3','<%=category3.getCategoryCode()%>');"><%=category3.getCategoryName()%></a></li>
+						<% 
+									}
+								} 
+						%>
+								</ul>
+									<div class="clr"></div>
+								</section>
+						<%
+								}
+							}
+								/*  -------------------------------------- 카테고리 버튼 끝    --------------------------------------*/
+						%>
+						
+						
+						<% /*  -------------------------------------- 카테고리 select 시작   --------------------------------------*/
+						if(categoryList1 != null && categoryList1.size() > 0){ 
+							if(bm.getMenuIsBoard1Cate()&& cate1 && cate1Type){
+						%>
+                        <label for="categoryCode1" class="hidden">카테고리1</label>
+								<select name="categoryCode1" id="categoryCode1" class="layout_select" title="카테고리1" onchange="changeCate(this);">
+								<option value="">
+									<%
+									for(int i=0;i<listCount;i++) {
+										if(bm.getItemField(i).equals("CATEGORY_CODE1")) {
+											out.println(bm.getItemName(i));
+										}
+									}
+									%>
+								</option>
+						<% 
+								for(BoardCategoryVO category : categoryList1){ 
+									if(!category.getCategoryName().equals("noview")){
+						%>
+									<option value="<%=category.getCategoryCode()%>" <%if(bm.getSearchCategoryCode1().equals(category.getCategoryCode()))out.print("selected");%>><%=category.getCategoryName()%></option>
+						<% 
+									}
+								} 
+						%>
+								</select>
+						<%
+							}else{
+						%>
+								<input type="hidden" name="categoryCodeData1" id="categoryCodeData1" value="<%=bm.getCategoryCode1()%>"  title="카테고리1"/>
+						<%
+							}
+						}
+						%>
+
+									<% 
+						if(categoryList2 != null && categoryList2.size() > 0){ 
+							if(bm.getMenuIsBoard2Cate()&& cate2 && cate2Type){
+						%>
+							<select name="categoryCode2" id="categoryCode2" class="layout_select"  title="카테고리2">
+							<option value="">
+								<%
+								for(int i=0;i<listCount;i++) {
+									if(bm.getItemField(i).equals("CATEGORY_CODE2")) {
+										out.println(bm.getItemName(i));
 									}
 								}
-							}
-						}
-						%>
-
-
-						<%
-						if(bm.isViewItem("CATEGORY_CODE2") && categoryList2 != null && categoryList2.size() > 0){
-							if(bm.getMenuIsBoard2Cate()){
-								if(tdCnt == 0){ out.print("<tr>");}
-								tdCnt++;
+								%>
+							</option>
+						<% 
 							for(BoardCategoryVO category2 : categoryList2){
-								if(bm.getCategoryCode2().equals(category2.getCategoryCode())){
+								if(!category2.getCategoryName().equals("noview")){
 						%>
-								<th scope="row" width="20%">카테고리2</th>
-									<td width="30%"><%=category2.getCategoryName()%></td>
-						<%
-						if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
+								<option value="<%=category2.getCategoryCode()%>" <%if(bm.getSearchCategoryCode2().equals(category2.getCategoryCode()))out.print("selected");%>><%=category2.getCategoryName()%></option>
+						<% 
 								}
-							}
+							} 
+						%>
+							</select>
+						<%
+							}else{
+						%>
+							<input type="hidden" name="categoryCodeData2" id="categoryCodeData2" value="<%=bm.getCategoryCode2()%>"  title="카테고리2"/>
+						<%
 							}
 						}
 						%>
-
-						<%
-						if(bm.isViewItem("CATEGORY_CODE3") && categoryList3 != null && categoryList3.size() > 0){
-							if(bm.getMenuIsBoard3Cate()){
-								if(tdCnt == 0){ out.print("<tr>");}
-								tdCnt++;
-							for(BoardCategoryVO category3 : categoryList3){
-								if(bm.getCategoryCode3().equals(category3.getCategoryCode())){
+						
+								<% 
+						if(categoryList3 != null && categoryList3.size() > 0){ 
+							if(bm.getMenuIsBoard3Cate()&& cate3 && cate3Type){
 						%>
-								<th scope="row" width="20%">카테고리3</th>
-									<td width="30%"><%=category3.getCategoryName()%></td>
-						<%
-						if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
+							<select name="categoryCode3" id="categoryCode3" class="layout_select"  title="카테고리3">
+							<option value="">
+								<%
+								for(int i=0;i<listCount;i++) {
+									if(bm.getItemField(i).equals("CATEGORY_CODE3")) {
+										out.println(bm.getItemName(i));
+									}
 								}
-							}
-							}
-						}
+								%>
+							</option>
+						<% 
+							for(BoardCategoryVO category3 : categoryList3){ 
+								if(!category3.getCategoryName().equals("noview")){
 						%>
-
-
-
-
-		<%if(bm.isViewItem("TMP_FIELD1") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD1")) { tdCnt++; %>
-			<th scope="row" width="20%">임시필드1</th>
-				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getTmpField1())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD1") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD2") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD2")) { tdCnt++; %>
-			<th scope="row" width="20%">임시필드2</th>
-				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getTmpField2())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD2") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD3") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD3")) { tdCnt++; %>
-			<th scope="row" width="20%">임시필드3</th>
-				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getTmpField3())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD3") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD4") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD4")) { tdCnt++; %>
-			<th scope="row" width="20%">임시필드4</th>
-				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getTmpField4())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD4") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD5") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD5")) { tdCnt++; %>
-			<th scope="row" width="20%">임시필드5</th>
-				<td width="30%"><%=EgovStringUtil.isNullToString(bm.getTmpField5())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD5") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%
-			int extensionCount = bm.extensionCount();
-			for(int i=0;i<extensionCount;i++)
-			{
-				if(tdCnt == 0){ out.print("<tr>");}
-				tdCnt++;
-				bm.setExtensionVO(i);
+								<option value="<%=category3.getCategoryCode()%>" <%if(bm.getSearchCategoryCode3().equals(category3.getCategoryCode()))out.print("selected");%>><%=category3.getCategoryName()%></option>
+						<% 
+								}
+							} 
+						%>
+							</select>
+						<%
+							}else{
+						%>
+							<input type="hidden" name="categoryCodeData3" id="categoryCodeData3" value="<%=bm.getCategoryCode3()%>"  title="카테고리3"/>
+						<%
+							}
+						} /*  -------------------------------------- 카테고리 select 끝   --------------------------------------*/
+					}
 				%>
-				<th scope="row" width="20%"><%=bm.getExtensionDesc() %></th>
-					<td width="30%"><%=bm.getExtensionValue(bm.getExtensionKey())%></td>
+
+
+
+<!--
+
+
+						<select name="key" id="key" class="text" title="검색항목을 선택하세요">
+						<option value="subject">제목</option>
+						<option value="content">내용</option>
+						<option value="all">제목+내용</option>
+						</select>
+						<label for="keyword">검색어 입력</label><input type="text" name="keyword" id="keyword" placeholder="검색어 입력" class="text" style="ime-mode:active;"/>
+						<button>검색</button>
+					</form>
+
+-->
+
+
+
+
+
+
+
+
+
+						<input type="hidden" name="searchStartDt" value="<%=bm.getSearchStartDt()%>" />
+						<input type="hidden" name="searchEndDt" value="<%=bm.getSearchEndDt()%>" />
+						<input type="hidden" name="startPage" value="1" />
+						
+						<input type="hidden" name="menuCd" value="${menuCd}" />
+						<input type="hidden" name="contentsSid" value="${contentsSid}" />
+                        <label for="searchType" class="blind">검색항목</label>
+						<select id="searchType" name="searchType" class="text" title="검색항목을 선택하세요" >
+							<!-- <option value="">선택</option> -->
+							<option value="DATA_TITLE" <%=bm.getSearchType().equals("DATA_TITLE") ? "selected" : "" %>>제목</option>
+							<option value="DATA_CONTENT" <%=bm.getSearchType().equals("DATA_CONTENT") ? "selected" : "" %>>내용</option>
+							<option value="USER_NICK" <%=bm.getSearchType().equals("USER_NICK") ? "selected" : "" %>>작성자</option>
+<!--							<option value="ADDR" <%=bm.getSearchType().equals("ADDR") ? "selected" : "" %>>주소</option>
+							<option value="TEL" <%=bm.getSearchType().equals("TEL") ? "selected" : "" %>>연락처</option>
+							<option value="ENJOY" <%=bm.getSearchType().equals("ENJOY") ? "selected" : "" %>>취미</option>-->
+						</select>
+<!--						<select name="searchOperation" title="검색조건" >
+							<option value="">선택</option>
+							<option value="OR" <%=bm.getSearchOperation().equals("OR") ? "selected" : "" %>>OR</option>
+							<option value="AND" <%=bm.getSearchOperation().equals("AND") ? "selected" : "" %>>AND</option>
+						</select>-->
+					<label for="keyword" class="hidden">검색어 입력</label>
+					<input id="keyword" type="text" name="keyword" title="검색어를 입력하세요" value="<%=bm.getKeyword()%>" />
+<!--					<input type="image" src="<%=request.getContextPath() %>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_btn_search.gif" alt="검색" class="button11"/>-->
+<button onclick="javascript:return searchingCheck();">검색하기</button>
+
+				</fieldset>
+			</form>
+
+
+</div>
+					<p><strong>총 <span><%=bm.getDataCount()%></span> 건</strong> [ Page <%=bm.getPageNum()%>/<%=bm.getPageCount()%> ]</p>
+				
+<%
+String boardTitle = (bm.getBoardVO()).getBoardTitle();
+%>
+				<table class="tb_board">
+				<caption><%=boardTitle%>의 글번호, 제목, 작성자, 작성일, 조회수 목록표입니다.</caption>
+<colgroup>
+	<%
+	//목록 항목별 넓이 비율
+	for(int i=0;i<listCount;i++)
+	{
+		%>
+		<col style="width:<%=bm.getItemWidth(i) != null && !"0".equals(bm.getItemWidth(i) ) ? bm.getItemWidth(i)+"%"  : ""%>"/>
+		<%
+	}
+	%>
+</colgroup>				
+					<thead>
+						<tr>
 				<%
-				if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
+				//각 항목별 사용자 지정명 출력
+				for(int i=0;i<listCount;i++)
+				{
+					%>
+					<th scope="col" <%= (i+1) == listCount ? "class=\"rfc_bbs_list_last\"" : ""%>><%=bm.getItemName(i)%></th>
+					<%
+				}
+				%>
+							
+						</tr>
+					</thead>
+					<tbody>
+			<%
+			//게시물이 없을경우 메시지
+			if(bm.getListCount() == 0) {
+				if(bm.getEmptyMessage() != null && !"".equals(bm.getEmptyMessage())) {
+				%>
+					<tr>
+						<td colspan="<%=listCount%>"><%=bm.getEmptyMessage()%></td>
+					</tr>
+				<%
+				}
 			}
 			%>
-			<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
-			<tr>
-			<th scope="row">내용</th>
-			<td colspan="3"><%=bm.getDataContent().replace("\r\n","<br>")%><br>
-				<%
-					int [] ext = bm.searchFileNameExt("jpg|bmp|png");
-					for(int i=0;i<ext.length;i++)
-					{
-						%>
-						<img src="<%=bm.getThumbnailPath(ext[i]) %>"  onError="this.src='<%=bm.getFilePath(ext[i]) %>'" style="max-width:500px;" />	<br>
-						<%
-					}
+			<%
+			//게시물 Index
+			int index = 0;
+			//게시판의 행 만큼 반복
+			for(int i=0; i<bm.getListCount() && i< bm.getBoardRow(); i++) {
+				//게시물의 열 만큼 반복
+				for(int j=0; j<bm.getListCount() && j< bm.getBoardCell(); j++) {
+					//게시물 객채 설정
+					BoardDataVO dataVO = bm.getBoardDataVOList(index++);
+					bm.setDataVO(dataVO);
 					%>
+					<tr>
+						<%
+						//목록 항목에 지정된 항목 값 호출 메서드 실행
+						for(int k=0;k<listCount;k++)
+						{
+							ArrayList<BoardDataVO> answerList = (ArrayList<BoardDataVO>)bm.getBoardReplyDataList(bm.getDataIdx());
+							if(bm.getItemMethod(k).equals("getDataNum") && bm.isNotice())
+							{
+								%>
+								<td><img src="/images/common/s3_menu01_on.gif" alt="공지" /></td>
+								<%
+								continue;
+							}%>
+							<td <%if(bm.getItemMethod(k).equals("getViewTitle"))out.print("class=\"l\""); %>>
+								<%	if(bm.getItemMethod(k).equals("getViewTitle") && bm.isSecret()){	%>
+									<img src="/img/common/icon_lock.png" alt="비밀글"/>
+								<% } %>
+								<%=egovframework.rfc3.common.util.EgovStringUtil.isNullToString(bm.getMethodValue(bm.getItemMethod(k),bm.getItemField(k),(Object)bm))%>								<%	if(bm.getItemMethod(k).equals("getViewTitle") ){	%><%=answerList.size() > 0 ? "[답변:"+answerList.size()+"]":""%><% } %>
+</td>
+							<%
+						}
+						%>
+					</tr>					
+					<%
+				}
+			}
+			%>
 
-			</td>
-			<tr>
-				</tbody>
+
+
+
+					</tbody>
 				</table>
-				<p class="read_page" style="margin:20px 0px;">
-<!--RFC 공통 버튼 시작-->
-<div class="rfc_bbs_btn">
-	<%=bm.getViewIcons()%>
-</div>
-<!--RFC 공통 버튼 끝-->
-				</p>
+
+					
+	<!--RFC 공통 버튼 시작-->
+	<div class="r">
+		<%=bm.getListIcons() %>
+	</div>
+	<!--RFC 공통 버튼 끝-->
+
+
+<script type="text/javascript">
+	function linkPage(pageNo){
+				document.rfc_bbs_searchForm.startPage.value=pageNo;
+		document.rfc_bbs_searchForm.keyword.value="<%=bm.getKeyword()%>";
+		document.rfc_bbs_searchForm.submit();	}	
+</script>
+
+				<!-- 페이징시작 -->
+				<div class="pageing dis_pc">
+					<%//=bm.getPaging().replace("><",">&nbsp;<") %><br />
+
+					<%//=bm.getPaging() %><br />
+		 <ui:pagination paginationInfo = "${paginationInfo}" type="cus1" jsFunction="linkPage"/>
+
+
+					<%//=bm.getPaging(10) %><br />
+    	<%//=bm.getPaging("bt","bt", "", "on", "bt", "bt", 5)%><br />
+
+
+				</div>
+
+				<div class="pageing_mo">
+<%
+int nowpage = bm.getPageNum() ;
+int nowCpage = bm.getPageCount() ;
+int lastcnt = 0;
+int fastcnt  = 0;
+if(nowpage < nowCpage ){
+	lastcnt = nowpage +1 ;
+}else{
+	lastcnt = nowpage ;
+}
+if(nowpage > 1 ){
+	fastcnt = nowpage -1 ;
+}else{
+	fastcnt = 1;
+
+}
+
+%>
+					<a href="/board/list.gne?boardId=<%=bm.getBoardId()%>&amp;menuCd=${menuCd}&amp;startPage=<%=fastcnt%>&amp;searchType=<%=bm.getSearchType()%>&amp;keyword=<%=bm.getKeyword()%>" id="mobile_prev" class="bt_pre">&lt;</a>				
+					<span><strong><%=bm.getPageNum() %></strong> / <%=bm.getPageCount() %></span>			
+					<a href="/board/list.gne?boardId=<%=bm.getBoardId()%>&amp;menuCd=${menuCd}&amp;startPage=<%=lastcnt%>&amp;searchType=<%=bm.getSearchType()%>&amp;keyword=<%=bm.getKeyword()%>" id="mobile_next" class="bt_next">&gt;</a>
+
+				</div>
+
+				<!-- 페이징끝 -->
 			</section>
-			<!-- board_read -->
+			<!-- board_list -->

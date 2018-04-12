@@ -23,6 +23,34 @@ function viewPage(path, name, type){
 	var fileValue =  encodeURIComponent(path + "/" + name);
 	location.href="/videoViewPage.do?fileValue=" + fileValue + "&type=" + type;
 }
+function selectViewPage(){
+	var html = "";
+	var path = $("#path").val();
+	var fileValues;
+	
+	html += '<input type="hidden" name="type" value="image">';
+	
+	$("input:checkbox[name='select']:checked").each(function(){
+		fileValues = encodeURIComponent(path + "/" + $(this).val());
+		html += '<input type="hidden" name="fileValues" value="'+ fileValues + '">';
+	});
+	
+	$("#selectForm").html(html);
+	
+	$("#selectForm").attr("action", "/videoViewPage.do");
+	$("#selectForm").attr("method", "get");
+	$("#selectForm").submit();
+}
+
+function allCheck(){
+	if($("#allCheck").is(":checked")){
+		$("input:checkbox[name=select]").attr("checked", "checked");
+	}else{
+		$("input:checkbox[name=select]").removeAttr("checked");
+	}
+}
+
+
 </script>
 </head>
 <body>
@@ -43,14 +71,31 @@ function viewPage(path, name, type){
 		</c:forEach>
 	</table>
 	
+	
+	<div class="search center">
+		<button type="button" onclick="selectViewPage()">전체 보기</button>
+	</div>
+	
+	<form id="selectForm">	
+	
+	</form>
+	
+	
 	<table class="tbl_type01">
 		<tr>
+			<th>
+				<input type="checkbox" id="allCheck" onclick="allCheck()">
+				<input type="hidden" id="path" value="${path}">
+			</th>
 			<th>
 				파일
 			</th>
 		</tr>
-		<c:forEach items="${directory.file}" var="ob">
+		<c:forEach items="${directory.file}" var="ob" varStatus="status">
 		<tr>
+			<td>
+				<input type="checkbox" name="select" id="${status.index}" value="${ob}">
+			</td>
 			<td>
 				<ul>
 					<li>

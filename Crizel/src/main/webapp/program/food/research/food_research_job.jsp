@@ -3,6 +3,7 @@
 *   PURPOSE :   월별 조사 항목 및 개시
 *   CREATE  :   20180320_tue    JI
 *   MODIFY  :   조사내용 수정 script function 작성 20180320_tue    JI
+*   MODIFY  :   승인/반려 버튼 생성 	20180412_thur    KO
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -32,6 +33,7 @@ String pageTitle = "월별 조사 항목 및 개시";
         <script type="text/javascript" src="/program/excel/common/js/jquery.min.js"></script>
         <script type="text/javascript" src="/program/excel/common/js/jquery-ui.min.js"></script>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+		<script src="/program/food/modal.js"></script>
 <script>
 </script>
 </head>
@@ -133,10 +135,10 @@ try{
 	
 	setList.add(rschVO.rsch_no);
 	if(!"".equals(search1)){
-		sql.append("AND B.STS_FLAG != 'Y'																										");
+		sql.append("AND B.STS_FLAG = 'N'																										");
 		paging.setParams("search1", search1);
 	}else{
-		sql.append("AND B.STS_FLAG = 'Y'																										");
+		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
 	if(!"".equals(search2)){
 		sql.append("AND B.NON_SEASON = 'Y' AND B.NON_DISTRI = 'Y'																				");
@@ -208,16 +210,16 @@ try{
 	sql.append("  , B.RSCH_LOC1, B.RSCH_LOC2, B.RSCH_LOC3, B.RSCH_LOC4, B.RSCH_LOC5																");
 	sql.append("  , B.RSCH_COM1, B.RSCH_COM2, B.RSCH_COM3, B.RSCH_COM4, B.RSCH_COM5																"); 
 	sql.append("  , B.RSCH_REASON																												");
-	sql.append("  , A.STS_FLAG																													");
+	sql.append("  , B.STS_FLAG																													");
 	sql.append("  , B.SP_CHK																													");
 	sql.append("  , B.RJ_DATE																													");
 	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
 	sql.append("                    LEFT JOIN FOOD_ST_ITEM C ON B.ITEM_NO = C.ITEM_NO															");
 	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.RSCH_NO = ?																						");
 	if(!"".equals(search1)){
-		sql.append("AND B.STS_FLAG != 'Y'																										");
+		sql.append("AND B.STS_FLAG = 'N'																										");
 	}else{
-		sql.append("AND B.STS_FLAG = 'Y'																										");
+		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
 	if(!"".equals(search2)){
 		sql.append("AND B.NON_SEASON = 'Y' AND B.NON_DISTRI = 'Y'																				");
@@ -295,10 +297,10 @@ try{
 	
 	setList.add(his_rsch_no);
 	if(!"".equals(search7)){
-		sql.append("AND B.STS_FLAG != 'Y'																										");
+		sql.append("AND B.STS_FLAG = 'N'																										");
 		paging3.setParams("search7", search7);
 	}else{
-		sql.append("AND B.STS_FLAG = 'Y'																										");
+		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
 	if(!"".equals(search8)){
 		sql.append("AND B.NON_SEASON = 'Y' AND B.NON_DISTRI = 'Y'																				");
@@ -371,16 +373,16 @@ try{
 	sql.append("  , B.RSCH_LOC1, B.RSCH_LOC2, B.RSCH_LOC3, B.RSCH_LOC4, B.RSCH_LOC5																");
 	sql.append("  , B.RSCH_COM1, B.RSCH_COM2, B.RSCH_COM3, B.RSCH_COM4, B.RSCH_COM5																"); 
 	sql.append("  , B.RSCH_REASON																												");
-	sql.append("  , A.STS_FLAG																													");
+	sql.append("  , B.STS_FLAG																													");
 	sql.append("  , B.SP_CHK																													");
 	sql.append("  , B.RJ_DATE																													");
 	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
 	sql.append("                    LEFT JOIN FOOD_ST_ITEM C ON B.ITEM_NO = C.ITEM_NO															");
 	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.RSCH_NO = ?																						");
 	if(!"".equals(search7)){
-		sql.append("AND B.STS_FLAG != 'Y'																										");
+		sql.append("AND B.STS_FLAG = 'N'																										");
 	}else{
-		sql.append("AND B.STS_FLAG = 'Y'																										");
+		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
 	if(!"".equals(search8)){
 		sql.append("AND B.NON_SEASON = 'Y' AND B.NON_DISTRI = 'Y'																				");
@@ -536,7 +538,56 @@ try{
     	});
     }
 
+    function researchApproval(rsch_val_no){
+    	if(confirm("승인하시겠습니까?")){
+        	location.href="food_research_act.jsp?mode=researchApproval&rsch_val_no="+rsch_val_no+"&sts_flag=Y";
+    	}
+    }
+    function researchRejection(){
+    	var rsch_val_no = $("#rejectionForm #rsch_val_no").val();
+    	var rj_reason = $("#rejectionForm #rj_reason").val();
+    	if(confirm("반려하시겠습니까?")){
+        	location.href="food_research_act.jsp?mode=researchApproval&rsch_val_no="+rsch_val_no+"&sts_flag=RR&rj_reason="+rj_reason;
+    	}
+    }
+    function rejectionModal(rsch_val_no){
+    	$("#rejectionForm #rsch_val_no").val(rsch_val_no);
+    	$("#rejectionForm #rj_reason").val("");
+    	$("#rejectionDiv").popup("show");
+    }
+    function rejectionModalClose(){
+    	$("#rejectionDiv").popup("hide");
+    }
 </script>
+<!-- MODAL START -->
+<div id="rejectionDiv" style="display: none;">
+	<form id="rejectionForm">
+		<fieldset>
+			<input type="hidden" id="rsch_val_no">
+		</fieldset>
+		<div class="top_view">
+			<p class="location"><strong>반려사유 입력</strong></p>
+		</div>
+		<table class="bbs_list">
+		<colgroup>
+			<col width="15%">
+			<col width="75%">
+		</colgroup>
+			<tr>
+				<th scope="row">반려사유</th>
+				<td>
+					<textarea class="wps_60 h080" id="rj_reason"></textarea>
+				</td>
+			</tr>
+		</table>
+		<p class="btn_area txt_c">
+			<button type="button" class="btn medium edge mako" onclick="rejectionModalClose()">닫기</button>
+			<button type="button" class="btn medium edge green" onclick="researchRejection()">확인</button>
+		</p>
+	</form>
+</div>
+<!-- MODAL END -->
+
 
 <div id="right_view">
 		<div class="top_view">
@@ -718,8 +769,13 @@ try{
 				<%
 				if("Y".equals(ob.sts_flag)){
 					out.println("승인");
-				}else if("RR".equals(ob.sts_flag) || "RT".equals(ob.sts_flag)){
+				}else if("RR".equals(ob.sts_flag)){
 					out.println("반려");
+				}else if("SS".equals(ob.sts_flag)){
+				%>
+					<button type="button" class="btn small edge green" onclick="researchApproval('<%=ob.rsch_val_no%>')">승인</button>
+					<button type="button" class="btn small edge mako" onclick="rejectionModal('<%=ob.rsch_val_no%>')">반려</button>
+				<%
 				}
 				%>
 				</td>

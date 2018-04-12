@@ -93,7 +93,7 @@ int result = 0;
 
 List<Map<String, Object>> dataList = null;
 
-String school_id = parseNull(request.getParameter("school_id"),"254");
+String school_id = parseNull(request.getParameter("school_id"),"564");
 String reserve_type = parseNull(request.getParameter("reserve_type"), "강당");
 String reserve_type2 = parseNull(request.getParameter("reserve_type2"), "");
 String count = parseNull(request.getParameter("count"), "1");
@@ -106,12 +106,31 @@ String total_price = "";
 int dateCnt1 = 0;		//시작날짜, 종료날짜 사이의 날짜 갯수
 int dateCnt2 = 0;		//시작날짜, 종료날짜 사이 선택한 요일을 포함하는 날짜의 갯수
 
-String date_start = parseNull(request.getParameter("date_start"),"2018-03-01");
-String date_end = parseNull(request.getParameter("date_end"),"2019-02-28");
-String time_start = parseNull(request.getParameter("time_start"),"2000");
-String time_end = parseNull(request.getParameter("time_end"),"2100");
-//String dateDay[] = request.getParameterValues("dateDay");
-String dateDay[] = {"토"};
+String date_start = parseNull(request.getParameter("date_start"),"2018-05-22");
+String date_end = parseNull(request.getParameter("date_end"),"2018-05-22");
+String time_start = parseNull(request.getParameter("time_start"),"0900");
+String time_end = parseNull(request.getParameter("time_end"),"1700");
+
+String inputStartDate = date_start;
+String inputEndDate = date_end;
+SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+Date startDate = sdf.parse(inputStartDate);
+Date endDate = sdf.parse(inputEndDate);
+ArrayList<String> dates = new ArrayList<String>();
+Date currentDate = startDate;
+while (currentDate.compareTo(endDate) <= 0) {
+    dates.add(sdf.format(currentDate));			//날짜 저장
+    Calendar c = Calendar.getInstance();
+    c.setTime(currentDate);
+    c.add(Calendar.DAY_OF_MONTH, 1);			//+1일
+    currentDate = c.getTime();
+}
+
+String dateDay[] = new String[dates.size()];
+int dateDayIndex = 0;
+for (String date : dates) {
+	dateDay[dateDayIndex++] = getDateDay(date, "yyyy-MM-dd");
+}
 
 total_price = total_price.replaceAll("\\,", "");
 
@@ -179,17 +198,6 @@ try {
   	
   	
   	if(!"".equals(room_id)){
-  		//개방됬는지 확인(항시개방이 있는지 확인)
-  		sql = new StringBuffer();
-  		sql.append("SELECT DATE_ID FROM RESERVE_DATE WHERE RESERVE_TYPE = 'A' AND ROOM_ID = ?  ");	
-  		pstmt = conn.prepareStatement(sql.toString());
-  		pstmt.setString(1, room_id);
-  		rs = pstmt.executeQuery();
-  		if(rs.next()){
-  			date_id.add(rs.getString("DATE_ID"));
-  		}
-  		if(pstmt!=null) pstmt.close();
-  		
   		//특정일개방 날짜 확인
   		sql = new StringBuffer();
   		sql.append("SELECT * FROM RESERVE_DATE WHERE ROOM_ID = ? AND DATE_START <= ? AND DATE_END >= ?		 ");	
@@ -202,6 +210,20 @@ try {
   			date_id.add(rs.getString("DATE_ID"));
   		}
   		if(pstmt!=null) pstmt.close();
+  		
+  		if(date_id==null){
+  			//개방됬는지 확인(항시개방이 있는지 확인)
+ 	  		sql = new StringBuffer();
+ 	  		sql.append("SELECT DATE_ID FROM RESERVE_DATE WHERE RESERVE_TYPE = 'A' AND ROOM_ID = ?  ");	
+ 	  		pstmt = conn.prepareStatement(sql.toString());
+ 	  		pstmt.setString(1, room_id);
+ 	  		rs = pstmt.executeQuery();
+ 	  		if(rs.next()){
+ 	  			date_id.add(rs.getString("DATE_ID"));
+ 	  		}
+ 	  		if(pstmt!=null) pstmt.close();
+  		}
+  		
   		
   		if(date_id.size() > 0){	
   			for(String dateId : date_id){		//개방 조건이 여러개 일 수 있기때문에 반복한다
@@ -240,9 +262,6 @@ try {
   				sql.append("	)		  																															");
   				sql.append(") AS CASE3		  																														");
   	  	  		sql.append("FROM RESERVE_DATE WHERE DATE_ID = ?  																									");	
-  	  	  		
-  	  	  		out.println(dateId);
-  	  	  		
   	  	  		pstmt = conn.prepareStatement(sql.toString());
   				pstmt.setString(++key, time_start);
   				pstmt.setString(++key, time_end);
@@ -272,7 +291,7 @@ try {
   	  	  		rs = pstmt.executeQuery();
   	  	  		if(rs.next()){
   	  	  			if("Y".equals(rs.getString("CASE1")) || "Y".equals(rs.getString("CASE2")) || "Y".equals(rs.getString("CASE3"))){
-  	  	  				useAbleCnt++;
+  	  	  				useAbleCnt++;				//case1~3 중 하나라도 Y 이면 카운트 증가
   	  	  			}
   	  	  			allTimeCheck_1 = rs.getString("CASE1");
   	  	  			allTimeCheck_2 = rs.getString("CASE2");
@@ -325,10 +344,6 @@ try {
   		  		}else{
   		  			chk1 = false;
   		  		}
-  		  	  	
-  		  	  	out.println("dateDay_1(Y) : " + dateDay_1 + "<br>");
-  		  		out.println("allTimeCheck_1(Y) : " + allTimeCheck_1 + "<br><br>");
-  		  	
   		  		
   				if("Y".equals(dateDay_2) && "Y".equals(allTimeCheck_2)){			//토요일선택여부 + 토요일에 개방되어있는지 여부
   					chk2 = true;		
@@ -345,12 +360,8 @@ try {
   		  		}else{
   		  			chk3 = false;
   		  		}
-  				
-  				out.println("chk1 : " + chk1 + "<br>");
-  				out.println("chk2 : " + chk2 + "<br>");
-  				out.println("chk2 : " + chk3 + "<br><br>");
   		  		
-  		  		if(chk1 && chk2 && chk3){
+  		  		if(chk1 && chk2 && chk3){				
   		  			dateCheck = true;
   		  			dateCheckCnt++;
   		  		}
@@ -362,20 +373,6 @@ try {
 				}
   		  		
   		  		boolean check = false;
-  		  		String inputStartDate = date_start;
-  		  	    String inputEndDate = date_end;
-  		  	    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-  		  	    Date startDate = sdf.parse(inputStartDate);
-  		  	    Date endDate = sdf.parse(inputEndDate);
-  		  	    ArrayList<String> dates = new ArrayList<String>();
-  		  	    Date currentDate = startDate;
-  		  	    while (currentDate.compareTo(endDate) <= 0) {
-  		  	        dates.add(sdf.format(currentDate));			//날짜 저장
-  		  	        Calendar c = Calendar.getInstance();
-  		  	        c.setTime(currentDate);
-  		  	        c.add(Calendar.DAY_OF_MONTH, 1);			//+1일
-  		  	        currentDate = c.getTime();
-  		  	    }
   		  	    
   		  	    for (String date : dates) {
   		  			for(String ob : dateDay){
@@ -434,7 +431,7 @@ try {
   				  		  		sql.append("SELECT *																					");
   				  		  		sql.append("FROM RESERVE_USE																			");
   				  		  		sql.append("WHERE ((TIME_START >= ? AND TIME_START <= ?) OR (TIME_START <= ? AND TIME_END >= ?))		");
-  				  		  		sql.append("AND ROOM_ID = ? AND DATE_VALUE = ? AND DATE_ID = ?											");
+  				  		  		sql.append("AND ROOM_ID = ? AND DATE_VALUE = ?	AND DATE_ID = ?											");
   				  		  		pstmt = conn.prepareStatement(sql.toString());
   				  		  		pstmt.setString(++key, time_start);
   				  		  		pstmt.setString(++key, time_end);
@@ -457,12 +454,12 @@ try {
   			}
   		}
   		
-  		out.println("useAbleCnt : " + useAbleCnt + " > 0 <br>");
-  		out.println("dateCheckCnt : " + dateCheckCnt + " == useAbleCnt : " + useAbleCnt + "<br>");
-  		out.println("useCheckCnt : " + useCheckCnt + " <= 0 <br>");
-  		out.println("totalBanCheckCnt : " + totalBanCheckCnt + " <= 0 <br>");
+  		out.println(useAbleCnt + "<br>");
+  		out.println(totalBanCheckCnt + "<br>");
+  		out.println(count + "<br>");
+  		out.println(useCheckCnt + "<br>");
   		
-  		if(useAbleCnt > 0 && dateCheckCnt == useAbleCnt && useCheckCnt <= 0 && totalBanCheckCnt <= 0){
+  		if(useAbleCnt > 0 && dateCheckCnt == useAbleCnt && totalBanCheckCnt <= 0 && (Integer.parseInt(count)<=useCheckCnt || useCheckCnt <= 0) && !useCheck){
   			returnVal = "Y";
   		}else{
   			returnVal = "N";

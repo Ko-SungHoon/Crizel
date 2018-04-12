@@ -198,17 +198,6 @@ try {
   	
   	
   	if(!"".equals(room_id)){
-  		//개방됬는지 확인(항시개방이 있는지 확인)
-  		sql = new StringBuffer();
-  		sql.append("SELECT DATE_ID FROM RESERVE_DATE WHERE RESERVE_TYPE = 'A' AND ROOM_ID = ?  ");	
-  		pstmt = conn.prepareStatement(sql.toString());
-  		pstmt.setString(1, room_id);
-  		rs = pstmt.executeQuery();
-  		if(rs.next()){
-  			date_id.add(rs.getString("DATE_ID"));
-  		}
-  		if(pstmt!=null) pstmt.close();
-  		
   		//특정일개방 날짜 확인
   		sql = new StringBuffer();
   		sql.append("SELECT * FROM RESERVE_DATE WHERE ROOM_ID = ? AND DATE_START <= ? AND DATE_END >= ?		 ");	
@@ -221,6 +210,20 @@ try {
   			date_id.add(rs.getString("DATE_ID"));
   		}
   		if(pstmt!=null) pstmt.close();
+  		
+  		if(date_id.size() == 0){
+  		//개방됬는지 확인(항시개방이 있는지 확인)
+  	  		sql = new StringBuffer();
+  	  		sql.append("SELECT DATE_ID FROM RESERVE_DATE WHERE RESERVE_TYPE = 'A' AND ROOM_ID = ?  ");	
+  	  		pstmt = conn.prepareStatement(sql.toString());
+  	  		pstmt.setString(1, room_id);
+  	  		rs = pstmt.executeQuery();
+  	  		if(rs.next()){
+  	  			date_id.add(rs.getString("DATE_ID"));
+  	  		}
+  	  		if(pstmt!=null) pstmt.close();
+  		}
+  		
   		
   		if(date_id.size() > 0){	
   			for(String dateId : date_id){		//개방 조건이 여러개 일 수 있기때문에 반복한다

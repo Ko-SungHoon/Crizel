@@ -25,7 +25,11 @@ String mid_date 		= parseNull(request.getParameter("mid_date"));
 String end_date 		= parseNull(request.getParameter("end_date"));
 String[] cat_nm_arr 	= request.getParameterValues("cat_nm");					//	조사할 구분 
 String[] team_no_arr	= request.getParameterValues("team_no");				// 	조사할 팀
-int rsch_val_no 		= 0;
+
+int rsch_val_no 		= Integer.parseInt(parseNull(request.getParameter("rsch_val_no"), "0"));
+String sts_flag			= parseNull(request.getParameter("sts_flag"));
+String rj_reason		= parseNull(request.getParameter("rj_reason"));
+
 SessionManager sessionManager = new SessionManager(request);
 
 String regIp = request.getRemoteAddr();
@@ -376,6 +380,34 @@ try{
 		sql.append("DELETE FROM FOOD_RSCH_TB WHERE RSCH_NO = ?	 	");
 		result = jdbcTemplate.update(sql.toString(), rsch_no);
 		
+		if(result>0){
+			out.println("<script>");
+			out.println("alert('정상적으로 처리되었습니다.');");
+			out.println("location.replace('" + returnPage + "');");
+			out.println("opener.location.reload();");
+			out.println("</script>");
+		}else{
+			out.println("<script>alert('처리 중 오류가 발생하였습니다.');location.replace('" + returnPage + "');</script>");
+		}
+	}
+	
+	else if("researchApproval".equals(mode)){			// 조사 승인/반려
+		if("Y".equals(sts_flag)){
+			sql = new StringBuffer();
+			sql.append("UPDATE FOOD_RSCH_VAL SET 			");
+			sql.append("	STS_FLAG = ?					");
+			sql.append("WHERE RSCH_VAL_NO = ?				");
+			result = jdbcTemplate.update(sql.toString(), sts_flag, rsch_val_no);
+		}else if("RR".equals(sts_flag)){
+			sql = new StringBuffer();
+			sql.append("UPDATE FOOD_RSCH_VAL SET 			");
+			sql.append("	STS_FLAG = ?					");
+			sql.append("	, RJ_REASON = ?					");
+			sql.append("	, RJ_DATE = SYSDATE				");
+			sql.append("WHERE RSCH_VAL_NO = ?				");
+			result = jdbcTemplate.update(sql.toString(), sts_flag, rj_reason, rsch_val_no);
+		}
+	
 		if(result>0){
 			out.println("<script>");
 			out.println("alert('정상적으로 처리되었습니다.');");

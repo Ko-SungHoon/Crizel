@@ -93,7 +93,7 @@ int result = 0;
 
 List<Map<String, Object>> dataList = null;
 
-String school_id = parseNull(request.getParameter("school_id"),"82");
+String school_id = parseNull(request.getParameter("school_id"),"564");
 String reserve_type = parseNull(request.getParameter("reserve_type"), "강당");
 String reserve_type2 = parseNull(request.getParameter("reserve_type2"), "");
 String count = parseNull(request.getParameter("count"), "1");
@@ -106,10 +106,10 @@ String total_price = "";
 int dateCnt1 = 0;		//시작날짜, 종료날짜 사이의 날짜 갯수
 int dateCnt2 = 0;		//시작날짜, 종료날짜 사이 선택한 요일을 포함하는 날짜의 갯수
 
-String date_start = parseNull(request.getParameter("date_start"),"2018-03-12");
-String date_end = parseNull(request.getParameter("date_end"),"2018-03-12");
-String time_start = parseNull(request.getParameter("time_start"),"0530");
-String time_end = parseNull(request.getParameter("time_end"),"0700");
+String date_start = parseNull(request.getParameter("date_start"),"2018-05-20");
+String date_end = parseNull(request.getParameter("date_end"),"2018-05-20");
+String time_start = parseNull(request.getParameter("time_start"),"0900");
+String time_end = parseNull(request.getParameter("time_end"),"1300");
 
 String inputStartDate = date_start;
 String inputEndDate = date_end;
@@ -198,17 +198,6 @@ try {
   	
   	
   	if(!"".equals(room_id)){
-  		//개방됬는지 확인(항시개방이 있는지 확인)
-  		sql = new StringBuffer();
-  		sql.append("SELECT DATE_ID FROM RESERVE_DATE WHERE RESERVE_TYPE = 'A' AND ROOM_ID = ?  ");	
-  		pstmt = conn.prepareStatement(sql.toString());
-  		pstmt.setString(1, room_id);
-  		rs = pstmt.executeQuery();
-  		if(rs.next()){
-  			date_id.add(rs.getString("DATE_ID"));
-  		}
-  		if(pstmt!=null) pstmt.close();
-  		
   		//특정일개방 날짜 확인
   		sql = new StringBuffer();
   		sql.append("SELECT * FROM RESERVE_DATE WHERE ROOM_ID = ? AND DATE_START <= ? AND DATE_END >= ?		 ");	
@@ -221,6 +210,20 @@ try {
   			date_id.add(rs.getString("DATE_ID"));
   		}
   		if(pstmt!=null) pstmt.close();
+  		
+  		if(date_id.size() == 0){
+  			//개방됬는지 확인(항시개방이 있는지 확인)
+ 	  		sql = new StringBuffer();
+ 	  		sql.append("SELECT DATE_ID FROM RESERVE_DATE WHERE RESERVE_TYPE = 'A' AND ROOM_ID = ?  ");	
+ 	  		pstmt = conn.prepareStatement(sql.toString());
+ 	  		pstmt.setString(1, room_id);
+ 	  		rs = pstmt.executeQuery();
+ 	  		if(rs.next()){
+ 	  			date_id.add(rs.getString("DATE_ID"));
+ 	  		}
+ 	  		if(pstmt!=null) pstmt.close();
+  		}
+  		
   		
   		if(date_id.size() > 0){	
   			for(String dateId : date_id){		//개방 조건이 여러개 일 수 있기때문에 반복한다
@@ -236,7 +239,7 @@ try {
   				sql.append("		CASE  WHEN TIME_START_A <= ? AND TIME_END_A >= ? THEN 'Y' ELSE 'N' END ,														");
   				sql.append("		DECODE(TIME_END_A,TIME_START_A2,																								");
   				sql.append("			CASE WHEN TIME_START_A <= ? AND TIME_END_A2 >= ? THEN 'Y' ELSE 'N' END ,		  											");
-  				sql.append("			CASE WHEN ((TIME_START_A <= ? AND TIME_END_A >= ?) AND (TIME_START_A2 <= ? AND TIME_END_A2 >= ?))  THEN 'Y'  ELSE 'N' END	");
+  				sql.append("			CASE WHEN ((TIME_START_A <= ? AND TIME_END_A >= ?) OR (TIME_START_A2 <= ? AND TIME_END_A2 >= ?))  THEN 'Y'  ELSE 'N' END	");
   				sql.append("		)		  																														");
   				sql.append("	)		  																															");
   				sql.append(") AS CASE1,		  																														");
@@ -245,7 +248,7 @@ try {
   				sql.append("		CASE  WHEN TIME_START_B <= ? AND TIME_END_B >= ? THEN 'Y' ELSE 'N' END ,		  												");
   				sql.append("		DECODE(TIME_END_B,TIME_START_B2,		  																						");
   				sql.append("			CASE WHEN TIME_START_B <= ? AND TIME_END_B2 >= ? THEN 'Y' ELSE 'N' END ,		  											");
-  				sql.append("			CASE WHEN ((TIME_START_B <= ? AND TIME_END_B >= ?) AND (TIME_START_B2 <= ? AND TIME_END_B2 >= ?))  THEN 'Y'  ELSE 'N' END	");
+  				sql.append("			CASE WHEN ((TIME_START_B <= ? AND TIME_END_B >= ?) OR (TIME_START_B2 <= ? AND TIME_END_B2 >= ?))  THEN 'Y'  ELSE 'N' END	");
   				sql.append("		)		  																														");
   				sql.append("	)		  																															");
   				sql.append(") AS CASE2,		  																														");
@@ -254,7 +257,7 @@ try {
   				sql.append("		CASE  WHEN TIME_START_C <= ? AND TIME_END_C >= ? THEN 'Y' ELSE 'N' END ,		  												");
   				sql.append("		DECODE(TIME_END_C,TIME_START_C2,		  																						");
   				sql.append("			CASE WHEN TIME_START_C <= ? AND TIME_END_C2 >= ? THEN 'Y' ELSE 'N' END ,		  											");
-  				sql.append("			CASE WHEN ((TIME_START_C <= ? AND TIME_END_C >= ?) AND (TIME_START_C2 <= ? AND TIME_END_C2 >= ?))  THEN 'Y'  ELSE 'N' END	");
+  				sql.append("			CASE WHEN ((TIME_START_C <= ? AND TIME_END_C >= ?) OR (TIME_START_C2 <= ? AND TIME_END_C2 >= ?))  THEN 'Y'  ELSE 'N' END	");
   				sql.append("		)		  																														");
   				sql.append("	)		  																															");
   				sql.append(") AS CASE3		  																														");
@@ -451,9 +454,10 @@ try {
   			}
   		}
   		
-  		out.println(useCheck + "<br>");
-  		out.println(useCheckCnt + "<br>");
+  		out.println(useAbleCnt + "<br>");
+  		out.println(totalBanCheckCnt + "<br>");
   		out.println(count + "<br>");
+  		out.println(useCheckCnt + "<br>");
   		
   		if(useAbleCnt > 0 && dateCheckCnt == useAbleCnt && totalBanCheckCnt <= 0 && (Integer.parseInt(count)<=useCheckCnt || useCheckCnt <= 0) && !useCheck){
   			returnVal = "Y";
