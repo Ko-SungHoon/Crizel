@@ -344,7 +344,7 @@ public class CrizelController {
 			@RequestParam(value="type", required=false)String type,
 			HttpServletRequest request,HttpServletResponse response) throws Exception{
 		ModelAndView mav = new ModelAndView();
-		String path = request.getParameter("path");
+		String path = request.getParameter("path")==null?"":request.getParameter("path");
 		
 		if(!"".equals(path)){
 			DirectoryView directory = new DirectoryView();
