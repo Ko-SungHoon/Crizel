@@ -71,7 +71,7 @@ function allCheck(){
 	
 	
 	<div class="search center">
-		<button type="button" onclick="AllViewPage()">이미지 전체 보기</button>
+		<button type="button" onclick="AllViewPage('${path}')">이미지 전체 보기</button>
 		<button type="button" onclick="selectDown()">선택 다운로드</button>
 	</div>
 	
