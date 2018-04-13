@@ -12,7 +12,7 @@ request.getSession().setAttribute("login", crizelMap); */
 <script>
 $(function(){
 	$("#home").click(function(){
-		if($(".menu li").css("display") == "none"){
+		if($(".menu li").css("display") != "block"){
 			$(".menu").css("display","inline-block");
 			$(".menu li").css("display","block");
 		}else{
@@ -77,11 +77,13 @@ $(function(){
 <style>
  #remoCon {
 	position: fixed;
-	width: 60px;
+	width: 80px;
 	height: 20px;
-	right: 20px;
-	bottom: 20px;
+	right: 0px;
+	bottom: 0px;
 	display: none;
+	padding: 10px;
+	color:black;
  } 
 </style>
 <script>
@@ -91,10 +93,12 @@ $(document).scroll(function(){
 	if(position > 250){ con.fadeIn(500); }
 	else if(position < 250){ con.fadeOut(500); }
 });
+$(function(){
+	$("#remoCon").click(function(){
+		$("html, body").animate({scrollTop: 0}, 300);
+	 });	
+});
 
-$("#remoCon").click(function(){
-	$("html, body").animate({scrollTop: 0}, 1000);
- });
 </script>
 
 <span id="remoCon">

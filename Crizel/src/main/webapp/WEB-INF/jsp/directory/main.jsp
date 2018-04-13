@@ -57,18 +57,11 @@ function selectViewPage(path){
 	<table class="tbl_type01">
 		<tr>
 			<th>
-				<input type="checkbox" id="allCheck" onclick="allCheck()">
-				<input type="hidden" id="path" value="${path}">
-			</th>
-			<th>
 				파일
 			</th>
 		</tr>
 		<c:forEach items="${directory.file}" var="ob" varStatus="status">
 		<tr>
-			<td>
-				<input type="checkbox" name="select" id="${status.index}" value="${ob}">
-			</td>
 			<td>
 				<ul>
 					<li>
