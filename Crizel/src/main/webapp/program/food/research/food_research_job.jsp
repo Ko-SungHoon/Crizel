@@ -767,10 +767,19 @@ try{
 				<td><%=ob.sp_chk %></td>
 				<td>
 				<%
-				if("Y".equals(ob.sts_flag)){
+				
+				if("N".equals(ob.sts_flag)){
+					out.println("미조사");
+				}else if("RS".equals(ob.sts_flag)){
+					out.println("검증");
+				}else if("RC".equals(ob.sts_flag)){
+					out.println("검토");
+				}else if("Y".equals(ob.sts_flag)){
 					out.println("승인");
 				}else if("RR".equals(ob.sts_flag)){
-					out.println("반려");
+					out.println("관리자 반려");
+				}else if("RT".equals(ob.sts_flag)){
+					out.println("팀장 반려");
 				}else if("SS".equals(ob.sts_flag)){
 				%>
 					<button type="button" class="btn small edge green" onclick="researchApproval('<%=ob.rsch_val_no%>')">승인</button>

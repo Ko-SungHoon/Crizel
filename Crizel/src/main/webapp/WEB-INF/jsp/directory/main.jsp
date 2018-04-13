@@ -23,31 +23,9 @@ function viewPage(path, name, type){
 	var fileValue =  encodeURIComponent(path + "/" + name);
 	location.href="/videoViewPage.do?fileValue=" + fileValue + "&type=" + type;
 }
-function selectViewPage(){
-	var html = "";
-	var path = $("#path").val();
-	var fileValues;
-	
-	html += '<input type="hidden" name="type" value="image">';
-	
-	$("input:checkbox[name='select']:checked").each(function(){
-		fileValues = encodeURIComponent(path + "/" + $(this).val());
-		html += '<input type="hidden" name="fileValues" value="'+ fileValues + '">';
-	});
-	
-	$("#selectForm").html(html);
-	
-	$("#selectForm").attr("action", "/videoViewPage.do");
-	$("#selectForm").attr("method", "get");
-	$("#selectForm").submit();
-}
-
-function allCheck(){
-	if($("#allCheck").is(":checked")){
-		$("input:checkbox[name=select]").prop("checked", "true");
-	}else{
-		$("input:checkbox[name=select]").removeAttr("checked");
-	}
+function selectViewPage(path){
+	var path = encodeURIComponent(path + "/");
+	location.href="/videoViewPage.do?path="+path+"&type=image";
 }
 
 
@@ -73,13 +51,8 @@ function allCheck(){
 	
 	
 	<div class="search center">
-		<button type="button" onclick="selectViewPage()">전체 보기</button>
+		<button type="button" onclick="selectViewPage('${path}')">이미지 전체 보기</button>
 	</div>
-	
-	<form id="selectForm">	
-	
-	</form>
-	
 	
 	<table class="tbl_type01">
 		<tr>

@@ -29,12 +29,12 @@
 	
 	<c:if test="${type eq 'image'}">
 		<c:choose>
-			<c:when test="${fileValues eq null}">
+			<c:when test="${imgList eq null}">
 				<img src="/videoView.do?fileValue=${fileValue}&type=image" style="width: 90%; margin: auto; display: block;">
 			</c:when>
 			
 			<c:otherwise>
-				<c:forEach items="${fileValues}" var="ob">
+				<c:forEach items="${imgList}" var="ob">
 					<img src="/videoView.do?fileValue=${ob}&type=image" style="width: 90%; margin: auto; display: block;">
 				</c:forEach>
 			</c:otherwise>

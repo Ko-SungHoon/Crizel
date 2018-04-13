@@ -1,6 +1,8 @@
 package util;
 
 import java.io.File;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -37,5 +39,31 @@ public class DirectoryView {
 		map.put("file", fileList);
 		
 		return map;
+	}
+	
+	public List<String> directAllImg(String path) throws Exception{
+		Map<String,Object> map = directory(path);
+		List<String> list = (List<String>)map.get("file"); 
+		List<String> imgList = new ArrayList<String>();
+		
+		for(String ob : list){
+			if(extCheck(ob)){
+				imgList.add(URLEncoder.encode(path + ob, "UTF-8"));
+			}
+		}
+		
+		return imgList;
+	}
+	
+	public boolean extCheck(String value){
+		int index = value.lastIndexOf(".");
+		int length = value.length();
+		String ext = value.substring(index+1, length).toUpperCase();
+		
+		if("JPG".equals(ext) || "PNG".equals(ext) ||"GIF".equals(ext) ||"JPEG".equals(ext) ||"BMF".equals(ext) ){
+			return true;
+		}else{
+			return false;
+		}
 	}
 }

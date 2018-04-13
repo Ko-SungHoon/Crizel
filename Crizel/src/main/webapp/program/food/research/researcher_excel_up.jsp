@@ -200,6 +200,20 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			out.println("</script>");
 		}
 		
+		// 조사가 진행중일 경우
+		sql = new StringBuffer();
+		sql.append("SELECT COUNT(*) AS CNT		");
+		sql.append("FROM FOOD_RSCH_TB			");
+		sql.append("WHERE STS_FLAG = 'N'		");
+		cnt = jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+		if(cnt>0){
+			out.println("<script>");
+			out.println("alert('조사가 진행중입니다.');");
+			out.println("location.replace('" + returnPage + "');");
+			out.println("</script>");
+			return;
+		}
+		
 		// 업로드한 파일 정보 
 		sql = new StringBuffer();
 		sql.append("INSERT INTO FOOD_UP_FILE(									");

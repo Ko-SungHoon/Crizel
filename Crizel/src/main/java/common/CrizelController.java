@@ -344,12 +344,16 @@ public class CrizelController {
 			@RequestParam(value="type", required=false)String type,
 			HttpServletRequest request,HttpServletResponse response) throws Exception{
 		ModelAndView mav = new ModelAndView();
-		String[] fileValues = request.getParameterValues("fileValues");
-		if(fileValues!=null && fileValues.length>0){
-			mav.addObject("fileValues", fileValues);
+		String path = request.getParameter("path");
+		
+		if(!"".equals(path)){
+			DirectoryView directory = new DirectoryView();
+			List<String> imgList = directory.directAllImg(path);
+			mav.addObject("imgList", imgList);
 		}else{
 			mav.addObject("fileValue", URLEncoder.encode(fileValue, "UTF-8"));
 		}
+		
 		mav.addObject("type", type);
 		mav.setViewName("directory/view");
 		return mav;
