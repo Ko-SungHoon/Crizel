@@ -72,10 +72,10 @@ public String outUpdFlag(String value){
 
 public String outUpdStsFlag(String value){
 	String rtnString    =   "";
-    if("N".equals(value)) {rtnString   =   "접수";}
-    else if("Y".equals(value)) {rtnString   =   "접수완료";}
-    else if("R".equals(value)) {rtnString   =   "반영";}
-    else if("A".equals(value)) {rtnString   =   "미반영";}
+    if("N".equals(value)) {rtnString   =   "<span class=\"blue fb\">접수</span>";}
+    else if("Y".equals(value)) {rtnString   =   "<span class=\"blue fb\">접수완료</span>";}
+    else if("A".equals(value)) {rtnString   =   "<span class=\"black fb\">반영</span>";}
+    else if("R".equals(value)) {rtnString   =   "<span class=\"red fb\">미반영</span>";}
     return rtnString;
 }
 

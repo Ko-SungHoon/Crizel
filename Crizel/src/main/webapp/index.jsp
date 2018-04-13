@@ -45,9 +45,8 @@
 	
 	<table class="tbl_main" id="mainMovie" v-if="records">
 		<colgroup>
-			<col width="10%">
-			<col width="50%">
-			<col width="40%">
+			<col width="15%">
+			<col width="85%">
 		</colgroup>
 		<tr>
 			<th colspan="3"><a href="http://www.cgv.co.kr/theaters/?theaterCode=0081" target="_blank"> {{ records.boxOfficeResult.boxofficeType }} </a></th>
@@ -61,7 +60,9 @@
 					{{ record.movieNm }}
 				</a>
 			</td>
-			<td rowspan="10" v-if="index == 0">
+		</tr>
+		<tr>
+			<td colspan="2">
 				<div id="saramin"></div>
 			</td>
 		</tr>

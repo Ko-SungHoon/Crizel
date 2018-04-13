@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -122,7 +123,8 @@ public class CrizelController {
 		HttpSession session = request.getSession();
 		session.setAttribute("login", vo2);
 		
-		response.sendRedirect("/");
+		RequestDispatcher rd = request.getRequestDispatcher("/");
+		rd.forward(request, response);
 	}
 
 	@RequestMapping("logout.do")

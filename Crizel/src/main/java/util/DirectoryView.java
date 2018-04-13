@@ -37,16 +37,20 @@ public class DirectoryView {
 			}
 		}
 		
-		Collections.sort(fileList, new Comparator<String>() {
-	        public int compare(String o1, String o2) {
-	            return extractInt(o1) - extractInt(o2);
-	        }
-	        int extractInt(String s) {
-	            String num = s.replaceAll("\\D", "");
-	            // return 0 if no digits found
-	            return num.isEmpty() ? 0 : Integer.parseInt(num);
-	        }
-	    });
+		try{
+			Collections.sort(fileList, new Comparator<String>() {
+		        public int compare(String o1, String o2) {
+		            return extractInt(o1) - extractInt(o2);
+		        }
+		        int extractInt(String s) {
+		            String num = s.replaceAll("\\D", "");
+		            // return 0 if no digits found
+		            return num.isEmpty() ? 0 : Integer.parseInt(num);
+		        }
+		    });
+		}catch(Exception e){
+			System.out.println(e.toString());
+		}
 		
 		map = new HashMap<String,Object>();
 		map.put("folder", directoryList);

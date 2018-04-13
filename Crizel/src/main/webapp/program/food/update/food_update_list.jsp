@@ -97,9 +97,9 @@ try{
 		paging.setParams("keyword", keyword);
 	}
 	if("on".equals(rftData)){
-		sql.append(" AND A.STS_FLAG NOT IN ('')												");
+		sql.append(" AND A.STS_FLAG IN ('Y', 'N', 'R', 'A')									");
 	}else {
-		sql.append(" AND A.STS_FLAG NOT IN ('Y')											");
+		sql.append(" AND A.STS_FLAG IN ('Y', 'N', 'R') 	        							");
 	}
 	sql.append(")																			");
 
@@ -114,11 +114,18 @@ try{
 		totalCount	=	0;
 	}
 
+	//페이징 set
+    paging.setTotalCount(totalCount);
+    paging.setPageNo(Integer.parseInt(pageNo));
+    paging.setPageSize(10);
+    paging.makePaging();
+
 	//request update list
 	sql	=	new StringBuffer();
 	sql.append(" SELECT * FROM(																");
 	sql.append("	SELECT ROWNUM AS RNUM, C.* FROM (										");
 
+	sql.append("    SELECT																	");
 	sql.append("    A.UPD_NO,																");
 	sql.append("    A.SCH_NO,																");
 	sql.append("    A.NU_NO,																");
@@ -146,13 +153,14 @@ try{
 	sql.append("    C.FOOD_CAT_INDEX,                                                       ");
 	sql.append("    C.CAT_NO,																");
 	sql.append("    (SELECT CAT_NM FROM FOOD_ST_CAT                                         ");
-	sql.append("    WHERE CAT_NO = C.CAT_NO) AS CAT_NM,                                     ");
+	sql.append("    WHERE CAT_NO = A.N_CAT_NO) AS CAT_NM,                                   ");
 	sql.append("    D.ZONE_NO,                               							    ");
 	sql.append("    (SELECT ZONE_NM FROM FOOD_ZONE                                     		");
 	sql.append("    WHERE ZONE_NO = D.ZONE_NO) AS ZONE_NM,                                  ");
 	sql.append("    D.TEAM_NO,                               							    ");
 	sql.append("    (SELECT TEAM_NM FROM FOOD_TEAM                                     		");
 	sql.append("    WHERE TEAM_NO = D.TEAM_NO) AS TEAM_NM,                                  ");
+	sql.append("    D.SCH_NM,                               							    ");
 	sql.append("    D.SCH_TEL,                               							    ");
 
 	sql.append(" 	(SELECT SUBSTR(XMLAGG(													");
@@ -194,10 +202,11 @@ try{
 		}
 	}
 
+	//반영완료 보기 checkbox
 	if("on".equals(rftData)){
-		sql.append(" AND A.STS_FLAG NOT IN ('')												");
+		sql.append(" AND A.STS_FLAG IN ('Y', 'N', 'R', 'A')									");
 	}else {
-		sql.append(" AND A.STS_FLAG NOT IN ('Y')											");
+		sql.append(" AND A.STS_FLAG IN ('N', 'R', 'Y') 	        							");
 	}
 
 	sql.append(" ORDER BY DECODE(A.STS_FLAG, 'N', 1, 'Y', 2), UPD_NO						");
@@ -320,9 +329,9 @@ try{
 				<th scope="col">단위</th>
 				<th scope="col">성명</th>
 				<th scope="col">권역</th>
-				<th scope="col">팀</th>
+				<th scope="col">소속</th>
 				<th scope="col">연락처</th>
-				<th scope="col">내용</th>
+				<th scope="col">요청구분</th>
 				<th scope="col">사유</th>
 				<th scope="col">요청일</th>
 				<th scope="col">요청처리일</th>
@@ -335,21 +344,21 @@ try{
 			for(FoodVO vo : updateList) {%>
 			<tr>
 				<td rowspan="2"><%=vo.cat_nm %>-<%=vo.food_cat_index %></td>
-				<td>기존</td>
-				<td><%=vo.food_code %></td>
-				<td><%=vo.nm_food %></td>
-				<td><%=vo.dt_nm %></td>
-				<td><%=vo.ex_nm %></td>
-				<td><%=vo.unit_nm %></td>
-				<td rowspan="2"><%=vo.nu_nm %></td>
-				<td rowspan="2"><%=vo.zone_nm %></td>
-				<td rowspan="2"><%=vo.team_nm %></td>
-				<td rowspan="2"><%=vo.sch_tel %></td>
-				<td rowspan="2"><%=outUpdFlag(vo.upd_flag) %></td>
-				<td rowspan="2"><%=vo.upd_reason %></td>
-				<td rowspan="2"><%=vo.reg_date %></td>
-				<td rowspan="2"><%if(vo.sts_date != null && vo.sts_date.length() > 0) {out.println(vo.sts_date);} else {out.println("-");}%></td>
-				<td rowspan="2"><%=outUpdStsFlag(vo.sts_flag) %></td>
+            <td>기존</td>
+            <td><%=parseNull(vo.food_code, "-") %></td>
+            <td><%=parseNull(vo.nm_food, "-") %></td>
+            <td><span class="wid_ndetail"><%=parseNull(vo.dt_nm, "-") %></span></td>
+            <td><span class="wid_expl"><%=parseNull(vo.ex_nm, "-") %></span></td>
+            <td><%=parseNull(vo.unit_nm, "-") %></td>
+            <td rowspan="2"><%=vo.nu_nm %></td>
+            <td rowspan="2"><%=vo.zone_nm %></td>
+            <td rowspan="2"><span class="wid_school"><%=vo.sch_nm %></span></td>
+            <td rowspan="2"><span class="wid_tel"><%=vo.sch_tel %></span></td>
+            <td rowspan="2"><%=outUpdFlag(vo.upd_flag) %></td>
+            <td rowspan="2"><%=vo.upd_reason %></td>
+            <td rowspan="2"><%=vo.reg_date %></td>
+            <td rowspan="2"><%if(vo.sts_date != null && vo.sts_date.length() > 0) {out.println(vo.sts_date);} else {out.println("-");}%></td>
+            <td rowspan="2"><%=outUpdStsFlag(vo.sts_flag) %></td>
 				<td rowspan="2">
 					<%if("N".equals(vo.sts_flag)){%>
 					<button class="btn small edge green" type="button" onclick="updateAction('<%=vo.upd_no %>')">접수처리</button>
@@ -363,13 +372,13 @@ try{
 					<%}%>
 				</td>
 			</tr>
-			<tr>
+			<tr class="up_change">
 				<td>변경</td>
-				<td><%=vo.n_item_code %></td>
-				<td><%=vo.n_item_nm %></td>
-				<td><%=vo.n_item_dt_nm %></td>
-				<td><%=vo.n_item_expl %></td>
-				<td><%=vo.n_item_unit %></td>
+				<td><%=parseNull(vo.n_item_code, "-") %></td>
+				<td><%=parseNull(vo.n_item_nm, "-")  %></td>
+				<td><span class="wid_ndetail"><%=parseNull(vo.n_item_dt_nm, "-")  %></span></td>
+				<td><span class="wid_expl"><%=parseNull(vo.n_item_expl, "-") %></span></td>
+				<td><%=parseNull(vo.n_item_unit, "-")  %></td>
 			</tr>
 			<%}/*END FOR*/%>
 		<%} else {%>
@@ -377,93 +386,6 @@ try{
 			<td colspan="17">데이터가 없습니다.</td>
 		</tr>
 		<%}%>
-		<tr>
-			<td>공산품-1</td>
-			<td>기존</td>
-			<td>170047</td>
-			<td>탕수육</td>
-			<td>냉동</td>
-			<td>국산...더보기</td>
-			<td>kg</td>
-			<td>김요청</td>
-			<td>서부권</td>
-			<td>서부1팀</td>
-			<td>055-716-0717</td>
-			<td>품질내용</td>
-			<td>제품설명 수정변경</td>
-			<td>20180323</td>
-			<td>-</td>
-			<td>대기</td>
-			<td>
-				<button class="btn small edge green" type="button" onclick="updatePopup('A','1', 'M', 'Y')">변경</button>
-				<button class="btn small edge mako" type="button" onclick="updatePopup('R','1', 'M', 'Y')">반려</button>
-			</td>
-		</tr>
-		<tr>
-			<td>공산품-2</td>
-			<td>기존</td>
-			<td>170048</td>
-			<td>깐풍육</td>
-			<td>냉동</td>
-			<td>국산...더보기</td>
-			<td>kg</td>
-			<td>김요청</td>
-			<td>서부권</td>
-			<td>서부1팀</td>
-			<td>055-716-0717</td>
-			<td>품질내용</td>
-			<td>제품설명 수정변경</td>
-			<td>20180323</td>
-			<td>-</td>
-			<td>대기</td>
-			<td>
-				<button class="btn small edge green" type="button" onclick="updatePopup('A','1', 'M', 'Y')">추가</button>
-				<button class="btn small edge mako" type="button" onclick="updatePopup('R','1', 'M', 'Y')">반려</button>
-			</td>
-		</tr>
-		<tr>
-			<td>공산품-3</td>
-			<td>기존</td>
-			<td>170049</td>
-			<td>떡</td>
-			<td>냉동</td>
-			<td>국산...더보기</td>
-			<td>kg</td>
-			<td>김요청</td>
-			<td>서부권</td>
-			<td>서부1팀</td>
-			<td>055-716-0717</td>
-			<td>품질내용</td>
-			<td>제품설명 수정변경</td>
-			<td>20180323</td>
-			<td>-</td>
-			<td>대기</td>
-			<td>
-				<button class="btn small edge green" type="button" onclick="updatePopup('A','1', 'M', 'Y')">삭제</button>
-				<button class="btn small edge mako" type="button" onclick="updatePopup('R','1', 'M', 'Y')">반려</button>
-			</td>
-		</tr>
-		<tr>
-			<td>공산품-4</td>
-			<td>기존</td>
-			<td>170050</td>
-			<td>떡</td>
-			<td>냉동</td>
-			<td>국산...더보기</td>
-			<td>kg</td>
-			<td>김요청</td>
-			<td>서부권</td>
-			<td>서부1팀</td>
-			<td>055-716-0717</td>
-			<td>품질내용</td>
-			<td>제품설명 수정변경</td>
-			<td>20180323</td>
-			<td>-</td>
-			<td>반려</td>
-			<td>
-				-
-			</td>
-		</tr>
 		</tbody>
 	</table>
 </div>
