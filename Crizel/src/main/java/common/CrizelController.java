@@ -24,16 +24,13 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-import org.stringtemplate.v4.ModelAdaptor;
 import org.xml.sax.SAXException;
 
-import util.DirectoryView;
-import util.ImageView;
 import util.Mars;
+import util.Maru;
 import util.Music;
 import util.Saramin;
 import util.Torrent;
-import util.VideoView;
 
 @Controller
 public class CrizelController {
@@ -167,25 +164,35 @@ public class CrizelController {
 	}
 	
 	@RequestMapping("comic")
-	public ModelAndView comic(@RequestParam(value="type", required=false) String type,
-							@RequestParam(value="keyword", required=false) String keyword,
-							@RequestParam(value="list", required=false) String list,
-							@RequestParam(value="img", required=false) String img,
-							@RequestParam(value="title", required=false) String title) throws IOException {
+	public ModelAndView comic(	@RequestParam(value="type", required=false, defaultValue="") String type
+							,	@RequestParam(value="keyword", required=false, defaultValue="") String keyword
+							,	@RequestParam(value="addr", required=false, defaultValue="") String addr
+			) throws IOException {
 		ModelAndView mav = new ModelAndView();
-		if(type != null){
+		/*if(type != null){
 			List<Map<String,Object>> comic = service.comic(type, keyword, list, img);
 			mav.addObject("comic", comic);
 			
 			List<Map<String,Object>> comicViewList = service.comicViewList(list);
 			mav.addObject("comicViewList", comicViewList);
-		}
-		List<Object> comicList = service.comicList();
+		}*/
 		
-		mav.addObject("comicList", comicList);
+		Maru mr = new Maru();
+		
+		if("A".equals(type)){
+			mav.addObject("list", mr.getList("http://marumaru.in/?r=home&mod=search&keyword=" + URLEncoder.encode(keyword, "UTF-8")));
+		}else if("B".equals(type)){
+			mav.addObject("viewList", mr.getComic("http://marumaru.in/" + addr));
+			mav.addObject("comicViewList", service.comicViewList(addr));
+		}else if("C".equals(type)){
+			mav.addObject("imgList", mr.getView(addr));
+		}else{
+			mav.addObject("comicList", service.comicList());
+		}
+		
 		mav.addObject("type", type);
 		mav.addObject("keyword", keyword);
-		mav.addObject("list", list);
+		mav.addObject("addr", addr);
 		mav.setViewName("comic/main");
 		return mav;
 	}
@@ -214,8 +221,10 @@ public class CrizelController {
 	}
 	
 	@RequestMapping("comicView")
-	public void comicView(@RequestParam(value="addr", required=false) String addr) throws IOException {
-		service.comicView(addr);
+	public void comicView(@RequestParam(value="addr", required=false) String addr
+			,	HttpServletRequest request, HttpServletResponse response) throws Exception {
+		Maru mr = new Maru();
+		mr.ImageStream(addr, request, response);
 	}
 	
 	@RequestMapping("comicDown")
@@ -297,16 +306,6 @@ public class CrizelController {
 		return mav;
 	}
 	
-	@RequestMapping("directory.do")
-	public ModelAndView nico(@RequestParam(value="path", required=false, defaultValue="d:/") String path){
-		ModelAndView mav = new ModelAndView();	
-		DirectoryView directory = new DirectoryView();
-		mav.addObject("directory", directory.directory(path));
-		mav.addObject("path", path);
-		mav.setViewName("/directory/main");
-		return mav;
-	}
-	
 	@SuppressWarnings("unchecked")
 	@RequestMapping("saramin.do")
 	public void saramin(HttpServletResponse response) throws Exception {
@@ -338,41 +337,6 @@ public class CrizelController {
 		mav.setViewName("music");
 		return mav;
 		
-	}
-	
-	@RequestMapping("videoViewPage")
-	public ModelAndView videoViewPage(
-			@RequestParam(value="fileValue", required=false)String fileValue,
-			@RequestParam(value="type", required=false)String type,
-			HttpServletRequest request,HttpServletResponse response) throws Exception{
-		ModelAndView mav = new ModelAndView();
-		String path = request.getParameter("path")==null?"":request.getParameter("path");
-		
-		if(!"".equals(path)){
-			DirectoryView directory = new DirectoryView();
-			List<String> imgList = directory.directAllImg(path);
-			mav.addObject("imgList", imgList);
-		}else{
-			mav.addObject("fileValue", URLEncoder.encode(fileValue, "UTF-8"));
-		}
-		
-		mav.addObject("type", type);
-		mav.setViewName("directory/view");
-		return mav;
-	}
-	
-	@RequestMapping("videoView")
-	public void videoView(
-			@RequestParam(value="fileValue", required=false)String fileValue,
-			@RequestParam(value="type", required=false)String type,
-			HttpServletRequest request,HttpServletResponse response){
-		if("video".equals(type)){
-			VideoView vv = new VideoView();
-			vv.VideoViewStream(fileValue, request, response);
-		}else{
-			ImageView iv = new ImageView();
-			iv.ImageStream(fileValue, request, response);
-		}
 	}
 	
 	@RequestMapping("torrent")

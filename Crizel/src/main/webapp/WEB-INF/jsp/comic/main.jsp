@@ -52,8 +52,9 @@ function goView(addr, title, list){
 		contentType : "application/x-www-form-urlencoded; charset=utf-8",
 		data : {title:title, addr:list},
 		success : function(data) {
-			location.reload();
-			window.open(addr, '_blank'); 
+			//location.reload();
+			//window.open(addr, '_blank');
+			location.href="/comic.do?type=C&addr="+addr;			
  		},
  		error : function(request,status,error) {
  			alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
@@ -84,15 +85,12 @@ function goView(addr, title, list){
     	<img src="/img/nowloading.jpg" />
 	</div>
 	<div class="content">
-		<c:if test="${type eq null}">
+		<c:if test="${comicList ne null}">
 			<table class="tbl_type01">
 			<c:forEach items="${comicList}" var="ob">
 				<tr>
 					<td>
-						<a href="/comic.do?type=B&list=${ob.addr}" >${ob.title}</a>
-					</td>
-					<td>
-						<a href="javascript:comicDown('${ob.addr}', 'A');">[다운]</a>
+						<a href="/comic.do?type=B&addr=${ob.addr}" >${ob.title}</a>
 					</td>
 				</tr>
 			</c:forEach>
@@ -111,51 +109,43 @@ function goView(addr, title, list){
 			<table class="tbl_type01">
 			<colgroup>
 			<col width="70%">
-			<col width="20%">
-			<col width="10%">
+			<col width="30%">
 			</colgroup>
-			<c:forEach items="${comic}" var="ob">
+			<c:forEach items="${list}" var="ob">
 				<tr>
-					<c:choose>
-						<c:when test="${type eq 'A'}">
-						<td>
-							<a href="/comic.do?type=B&list=${ob.addr}&title=${ob.title}">${ob.title}</a>
-						</td>
-						<td>
-							<a href="javascript:comicDown('${ob.addr}', 'A');">[다운]</a>
-						</td>
-						</c:when>
-						<c:when test="${type eq 'B'}">
-						<td>
-							<a href="javascript:goView('${ob.addr}', '${ob.title}', '${list}')">${ob.title}</a>
-						</td>
-						<td>
-							<c:forEach items="${comicViewList}" var="ob2">
-								<c:if test="${ob.title eq ob2.title }">
-									<span class="red">${ob2.register_date}</span>
-								</c:if>
-							</c:forEach>
-						</td>
-						<td>
-							<a href="javascript:comicDown('${ob.addr}', 'B');">[다운]</a>
-							<%-- <a href="javascript:comicView('${ob.addr}');">${ob.title}</a> --%>
-						</td>
-						</c:when>
-					</c:choose>
+					<td colspan="2">
+						<a href="/comic.do?type=B&addr=${ob.addr}">${ob.title}</a>
+					</td>
+				</tr>
+			</c:forEach>
+			
+			<c:forEach items="${viewList}" var="ob">
+				<tr>
+					<td>
+						<a href="javascript:goView('${ob.addr}', '${ob.title}', '${addr}')">${ob.title}</a>
+						<%-- <a href="/comic.do?type=C&addr=${ob.addr}">${ob.title}</a> --%>
+					</td>
+					<td>
+						<c:forEach items="${comicViewList}" var="ob2">
+							<c:if test="${ob.title eq ob2.title}">
+								${ob2.register_date}
+							</c:if>
+						</c:forEach>
+					</td>
 				</tr>
 			</c:forEach>
 			</table>
 		</c:if>
 		
-		<%-- <c:if test="${type eq 'C'}">
-			<ul class="girlsList">
-			<c:forEach items="${comic}" var="ob">
+		<c:if test="${type eq 'C'}">
+			<ul class="ul_type03">
+			<c:forEach items="${imgList}" var="ob">
 				<li>
-					<img src="${ob.img}">
+					<img src="/comicView.do?addr=${ob}">
 				<li>
 			</c:forEach>
 			</ul>
-		</c:if> --%>
+		</c:if>
 	</div>
 </body>
 </html>

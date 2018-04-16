@@ -310,6 +310,12 @@ try{
 								</td>
 							</tr>
 							<tr>
+								<th scope="row"><label for="n_item_unit">단위</label></th>
+								<td><input type="text" id="n_item_unit"
+									name="n_item_unit" value="<%=foodVO.n_item_unit%>" required>
+								</td>
+							</tr>
+							<tr>
 								<th scope="row"><label for="upd_reason">사유</label></th>
 								<td><textarea class="wps_60 h080" id="upd_reason"
 										name="upd_reason"><%=foodVO.upd_reason.replace("\r", "<br>")%></textarea>
@@ -334,46 +340,46 @@ try{
 							<tr>
 								<th scope="row"><label for="item_no">식품번호</label></th>
 								<td><input type="text" id="item_no" name="item_no"
-									value="자동으로 추가 됩니다." readonly 
-									<%if(!"R".equals(sts_flag)){out.println("required");}%> ></td>
+									value="자동으로 추가 됩니다." readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="cat_nm">품목구분</label></th>
 								<td><input type="text" id="cat_nm" name="cat_nm"
-									value="<%=foodVO.cat_nm%>" readonly 
-									<%if(!"R".equals(sts_flag)){out.println("required");}%> ></td>
+									value="<%=foodVO.cat_nm%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="n_item_nm">식품명</label></th>
 								<td><input type="text" id="n_item_nm" name="n_item_nm"
-									value="<%=foodVO.n_item_nm%>" 
-									<%if(!"R".equals(sts_flag)){out.println("required");}%> ></td>
+									value="<%=foodVO.n_item_nm%>" required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="n_item_code">식품코드</label></th>
 								<td><input type="text" id="n_item_code" name="n_item_code"
-									value="<%=foodVO.n_item_code%>" 
-									<%if(!"R".equals(sts_flag)){out.println("required");}%> ></td>
+									value="<%=foodVO.n_item_code%>" required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="n_item_dt_nm">상세식품명</label></th>
 								<td><input type="text" id="n_item_dt_nm"
-									name="n_item_dt_nm" value="<%=foodVO.n_item_dt_nm%>" 
-									<%if(!"R".equals(sts_flag)){out.println("required");}%> >
+									name="n_item_dt_nm" value="<%=foodVO.n_item_dt_nm%>" required>
 								</td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="n_item_expl">식품설명</label></th>
 								<td>
-									<textarea class="wps_60 h080" id="n_item_expl" name="n_item_expl" 
-									<%if(!"R".equals(sts_flag)){out.println("required");}%> ><%=foodVO.n_item_expl.replace("\r", "<br>")%></textarea>
+									<textarea class="wps_60 h080" id="n_item_expl" 
+										name="n_item_expl" required><%=foodVO.n_item_expl.replace("\r", "<br>")%></textarea>
 								</td>
 							</tr>
-
+							<tr>
+								<th scope="row"><label for="n_item_unit">단위</label></th>
+								<td><input type="text" id="n_item_unit"
+									name="n_item_unit" value="<%=foodVO.n_item_unit%>" required>
+								</td>
+							</tr>
 							<tr>
 								<th scope="row"><label for="upd_reason">사유</label></th>
-								<td><textarea class="wps_60 h080" id="upd_reason"
-										name="upd_reason"><%=foodVO.upd_reason.replace("\r", "<br>")%></textarea>
+								<td><textarea class="wps_60 h080" id="upd_reason" 
+									name="upd_reason" required><%=foodVO.upd_reason.replace("\r", "<br>")%></textarea>
 								</td>
 							</tr>
 						</tbody>

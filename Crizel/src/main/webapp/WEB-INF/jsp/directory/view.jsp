@@ -28,18 +28,19 @@
 	</c:if>
 	
 	<c:if test="${type eq 'image'}">
+		<ul class="ul_type03">
 		<c:choose>
 			<c:when test="${imgList eq null}">
-				<img src="/videoView.do?fileValue=${fileValue}&type=image" style="width: 90%; margin: auto; display: block;">
+				<li><img src="/videoView.do?fileValue=${fileValue}&type=image" style="width: 90%; margin: auto; display: block;"></li>
 			</c:when>
 			
 			<c:otherwise>
 				<c:forEach items="${imgList}" var="ob">
-					<img src="/videoView.do?fileValue=${ob}&type=image" style="width: 90%; margin: auto; display: block;">
+					<li><img src="/videoView.do?fileValue=${ob}&type=image" style="width: 90%; margin: auto; display: block;"></li>
 				</c:forEach>
 			</c:otherwise>
 		</c:choose>
-		
+		</ul>
 	</c:if>
 	
 </div>

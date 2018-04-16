@@ -231,6 +231,10 @@ function setFile () {
     $("#researcher_excel_form").attr("action", "research_excel_up.jsp");
     $("#researcher_excel_form").submit();
 }
+
+function excelSample(){
+	location.href="/program/down.jsp?path=/upload_data/food/sample&filename=research_sample.xls";
+}
 </script>
 <link href="/css/egovframework/rfc3/iam/admin_common.css" rel="stylesheet" type="text/css" />
 </head>
@@ -298,6 +302,7 @@ function setFile () {
 				<button class="btn small edge mako" >조회</button>
 				
 				<div class="f_r">
+					<button type="button" class="btn small edge mako" onclick="excelSample();">엑셀 샘플</button>
 					<button type="button" class="btn small edge mako" onclick="upExcel();">엑셀 업로드</button>
 				</div>
 			</fieldset>

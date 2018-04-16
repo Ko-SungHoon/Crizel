@@ -222,6 +222,9 @@ try{
         $("#food_excel_form").submit();
     }
     
+    function excelSample(){
+    	location.href="/program/down.jsp?path=/upload_data/food/sample&filename=research_sample.xls";
+    }
 
 </script>
 
@@ -246,6 +249,7 @@ try{
 		<p class="boxin f_r">
             <form id="food_excel_form" enctype="multipart/form-data" method="post">
                 <input type="file" id="food_file" name="food_file" value="" onchange="setFile()" style="display: none;">
+                <button type="button" class="btn medium mako" onclick="excelSample();">엑셀 샘플</button>
                 <button type="button" id="excel_up" class="btn medium mako" onclick="upExcel()">엑셀업로드</button>
                 <button type="button" id="excel_down" class="btn medium mako" onclick="downExcel()">엑셀다운로드</button>
                 <button type="button" class="btn medium mako" onclick="itemPopup()">식품추가</button>

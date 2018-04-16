@@ -69,9 +69,14 @@ String upd_reason	=	parseNull(request.getParameter("upd_reason"));
 String rjc_reason	=	parseNull(request.getParameter("rjc_reason"));
 
 /*새로운 이름*/
-List<String> n_item_nm_arc	=	null;
+List<Object[]> batch 			=	null;
+Object[] batchData				=	null;
+int[] batchResult				=	null;
+List<String> n_item_nm_arc		=	null;
 List<String> n_item_dt_nm_arc	=	null;
 List<String> n_item_expl_arc	=	null;
+
+int st_nm_no		=	0;
 
 int item_comp_no	=	0;
 
@@ -113,15 +118,36 @@ try{
 			//0th. 식품명, 상세식품명, 식품설명 "," 로 자르기
 			n_item_nm_arc		=	new ArrayList<>();
 			n_item_nm_arc		=	splitComma(n_item_nm);
-			for(int i = 0; i < n_item_nm_arc.size(); i++){out.println(n_item_nm_arc.get(i)+"<br>");}
 			n_item_dt_nm_arc	=	new ArrayList<>();
 			n_item_dt_nm_arc	=	splitComma(n_item_dt_nm);
-			for(int i = 0; i < n_item_dt_nm_arc.size(); i++){out.println(n_item_dt_nm_arc.get(i)+"<br>");}
 			n_item_expl_arc		=	new ArrayList<>();
 			n_item_expl_arc		=	splitComma(n_item_expl);
-			for(int i = 0; i < n_item_expl_arc.size(); i++){out.println(n_item_expl_arc.get(i)+"<br>");}
 			//1st. 신규 식품명 조회
+			sql	=	new StringBuffer();
+			sql.append(" SELECT NVL(MAX(NM_NO)+1, 1) FROM FOOD_ST_NM ");
+			st_nm_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class);
 			//1-1st. 신규일 경우 등록 및 번호 추출
+			sql	=	new StringBuffer();
+			sql.append(" MERGE INTO FOOD_ST_NM USING DUAL								");
+			sql.append(" 	ON(NM_FOOD = ?)												");
+			sql.append(" 	WHEN NOT MATCHED THEN										");
+			sql.append(" 		INSERT(													");
+			sql.append(" 			NM_NO, CAT_NO, NM_FOOD, SHOW_FLAG, REG_DATE 		");
+			sql.append(" 		) VALUES (												");
+			sql.append(" 			?,													");
+			sql.append(" 			(SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ?),	");
+			sql.append(" 			?, 'Y', SYSDATE										");
+			sql.append(" 		)														");
+			batch = new ArrayList<Object[]>();
+			if (n_item_nm_arc != null && n_item_nm_arc.size() > 0) {
+				for (int i = 0; i < n_item_nm_arc.size(); i++) {
+					batchData	=	new Object[] {n_item_nm_arc.get(i).trim(), st_nm_no++,
+												cat_nm, n_item_nm_arc.get(i).trim()};
+					batch.add(batchData);
+				}
+			}
+			batchResult	=	jdbcTemplate.batchUpdate(sql.toString(), batch);
+			
 			//2nd. 신규 상세식품명 조회
 			//2-1st. 신규일 경우 등록 및 번호 추출
 			//3rd. 신규 식품설명 조회

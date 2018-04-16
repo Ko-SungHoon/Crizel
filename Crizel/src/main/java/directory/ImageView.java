@@ -1,4 +1,4 @@
-package util;
+package directory;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -17,7 +17,6 @@ public class ImageView {
 		try {
 			response.setContentType("image/jpg");
 			response.setHeader("Accept-Ranges", "bytes");
-			response.setContentLength((int) file.length());
 			
 			is = new BufferedInputStream(new FileInputStream(file));
 			os = response.getOutputStream();
