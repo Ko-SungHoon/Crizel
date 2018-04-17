@@ -19,6 +19,11 @@ function getView(addr){
 function getDown(addr){
 	location.href="";
 }
+
+function clipboardCopy(index){
+	$("#addr_"+index).select();
+	document.execCommand('copy');
+}
 </script>
 </head>
 <body>
@@ -58,16 +63,24 @@ function getDown(addr){
 	<c:if test="${view ne null}">
 		<table class="tbl_type01">
 		<colgroup>
-			<col width="50%">
-			<col width="50%">
+			<col width="30%">
+			<col width="70%">
 		</colgroup>
-		<c:forEach items="${view}" var="ob"> 
+		<c:forEach items="${view.imgList}" var="ob">
+			<tr>
+				<td colspan="2">
+					<img src="${ob}" style="max-width: 100%;">
+				</td>
+			</tr>
+		</c:forEach>
+		<c:forEach items="${view.list}" var="ob" varStatus="status"> 
 			<tr>
 				<td>
 					<a href="${ob.addr}">${ob.text }</a>
 				</td>
 				<td>
-					<input type="text" value="${ob.addr}" style="width: 90%;">
+					<input type="text" id="addr_${status.index}" value="${ob.addr}">
+					<button type="button" onclick="clipboardCopy('${status.index}')">링크복사</button>
 				</td>
 			</tr>
 		</c:forEach>

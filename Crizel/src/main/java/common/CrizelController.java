@@ -387,6 +387,7 @@ public class CrizelController {
 
 		OneJav oj = new OneJav();
 		mav.addObject("list", oj.getList(addr));
+		mav.addObject("addr", addr);
 		
 		mav.setViewName("onejav");
 		return mav;

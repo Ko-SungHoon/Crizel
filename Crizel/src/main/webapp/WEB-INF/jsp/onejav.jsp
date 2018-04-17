@@ -26,38 +26,47 @@ function allCheck(){
 		$("input:checkbox[name=select]").removeAttr("checked");
 	}
 }
+
+function clipboardCopy(index){
+	$("#addr_"+index).select();
+	document.execCommand('copy');
+}
 </script>
 </head>
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
 	<div class="search center">
-		<button type="button" onclick="allNewTap()">전체 다운</button>
+		<form id="postForm" action="/onejav.do" method="get">
+			<input type="text" id="addr" name="addr" value="${addr}" placeholder="http://www.onejav.com/">
+			<button>검색</button>
+			<button type="button" onclick="allNewTap()">전체 다운</button>
+		</form>
 	</div>
 	<table class="tbl_type01">
 	<colgroup>
-		<col width="20%">
-		<col width="40%">
-		<col width="40%">
-		<col>
+		<col width="10%">
+		<col width="30%">
+		<col width="60%">
 	</colgroup>
 		<tr>
 			<th><input type="checkbox" id="allCheck" onclick="allCheck()"></th>
 			<th>사진</th>
 			<th>링크</th>
 		</tr>
-	<c:forEach items="${list}" var="ob">
+	<c:forEach items="${list}" var="ob" varStatus="status">
 		<tr>
 			<td>
 				<input type="checkbox" name="select" value="${ob.addr}">
 			</td>
 			<td>
 				<a href="${ob.addr}" target="_blank">
-					<img src="${ob.img}"> 
+					<img src="${ob.img}" style="max-width: 100%;"> 
 				</a> 
 			</td>
 			<td>
-				<input type="text" value="${ob.addr}" style="width: 90%;">
+				<input type="text" id="addr_${status.index}" value="${ob.addr}">
+				<button type="button" onclick="clipboardCopy('${status.index}')">링크복사</button>
 			</td>
 		</tr>
 	</c:forEach>
