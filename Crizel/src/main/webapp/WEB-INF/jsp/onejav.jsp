@@ -37,12 +37,14 @@ function allCheck(){
 	<table class="tbl_type01">
 	<colgroup>
 		<col width="20%">
-		<col width="80%">
+		<col width="40%">
+		<col width="40%">
 		<col>
 	</colgroup>
 		<tr>
 			<th><input type="checkbox" id="allCheck" onclick="allCheck()"></th>
 			<th>사진</th>
+			<th>링크</th>
 		</tr>
 	<c:forEach items="${list}" var="ob">
 		<tr>
@@ -52,7 +54,10 @@ function allCheck(){
 			<td>
 				<a href="${ob.addr}" target="_blank">
 					<img src="${ob.img}"> 
-				</a>  
+				</a> 
+			</td>
+			<td>
+				<input type="text" value="${ob.addr}" style="width: 90%;">
 			</td>
 		</tr>
 	</c:forEach>
