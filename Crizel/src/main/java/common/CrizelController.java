@@ -29,6 +29,7 @@ import org.xml.sax.SAXException;
 import util.Mars;
 import util.Maru;
 import util.Music;
+import util.OneJav;
 import util.Saramin;
 import util.Torrent;
 
@@ -166,33 +167,35 @@ public class CrizelController {
 	@RequestMapping("comic")
 	public ModelAndView comic(	@RequestParam(value="type", required=false, defaultValue="") String type
 							,	@RequestParam(value="keyword", required=false, defaultValue="") String keyword
-							,	@RequestParam(value="addr", required=false, defaultValue="") String addr
+							,	@RequestParam(value="addrA", required=false, defaultValue="") String addrA
+							,	@RequestParam(value="addrB", required=false, defaultValue="") String addrB
+							,	@RequestParam(value="addrC", required=false, defaultValue="") String addrC
 			) throws IOException {
 		ModelAndView mav = new ModelAndView();
-		/*if(type != null){
-			List<Map<String,Object>> comic = service.comic(type, keyword, list, img);
-			mav.addObject("comic", comic);
-			
-			List<Map<String,Object>> comicViewList = service.comicViewList(list);
-			mav.addObject("comicViewList", comicViewList);
-		}*/
-		
 		Maru mr = new Maru();
 		
 		if("A".equals(type)){
+			// 검색했을 때 만화제목이 나오는 목록
 			mav.addObject("list", mr.getList("http://marumaru.in/?r=home&mod=search&keyword=" + URLEncoder.encode(keyword, "UTF-8")));
 		}else if("B".equals(type)){
-			mav.addObject("viewList", mr.getComic("http://marumaru.in/" + addr));
-			mav.addObject("comicViewList", service.comicViewList(addr));
+			// 만화 화수 목록
+			mav.addObject("viewList", mr.getComic("http://marumaru.in/" + addrB));
+			mav.addObject("comicViewList", service.comicViewList(addrB));	// viewCount 목록
+			mav.addObject("addrB", addrB);									// 만화 viewCount 업데이트 시 where절에 쓸 주소
 		}else if("C".equals(type)){
-			mav.addObject("imgList", mr.getView(addr));
+			// 만화 이미지 리스트
+			mav.addObject("imgList", mr.getView(addrC));
+			
+			// 만화 화수 목록(만화 밑에 뜨게)
+			mav.addObject("viewList", mr.getComic("http://marumaru.in/" + addrB));
+			mav.addObject("comicViewList", service.comicViewList(addrB));	// viewCount 목록
+			mav.addObject("addrB", addrB);									// 만화 viewCount 업데이트 시 where절에 쓸 주소
 		}else{
 			mav.addObject("comicList", service.comicList());
 		}
 		
 		mav.addObject("type", type);
 		mav.addObject("keyword", keyword);
-		mav.addObject("addr", addr);
 		mav.setViewName("comic/main");
 		return mav;
 	}
@@ -365,6 +368,27 @@ public class CrizelController {
 		}
 		mav.addObject("addr", URLDecoder.decode(addr, "UTF-8"));
 		mav.setViewName("mars");
+		return mav;
+	}
+	
+	@RequestMapping("onejav")
+	public ModelAndView onejav(	@RequestParam(value="addr", defaultValue="") String addr
+							,	@RequestParam(value="type", defaultValue="list") String type) throws Exception{
+		Calendar cal = Calendar.getInstance();
+		String year 	= Integer.toString(cal.get(Calendar.YEAR));
+		String month 	= cal.get(Calendar.MONTH)+1<10 	?"0" + Integer.toString(cal.get(Calendar.MONTH)+1) : Integer.toString(cal.get(Calendar.MONTH)+1);
+		String day		= cal.get(Calendar.DATE)<10		?"0" + Integer.toString(cal.get(Calendar.DATE)) : Integer.toString(cal.get(Calendar.DATE));
+		
+		if("".equals(addr)){
+			addr = "http://www.onejav.com/" + year + "/" + month + "/" + day;
+		}
+		
+		ModelAndView mav = new ModelAndView();
+
+		OneJav oj = new OneJav();
+		mav.addObject("list", oj.getList(addr));
+		
+		mav.setViewName("onejav");
 		return mav;
 	}
 	

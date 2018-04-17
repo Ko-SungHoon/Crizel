@@ -70,7 +70,9 @@ public class Torrent {
         	map.put("text", textList.get(i));
         	map.put("time", timeList.get(i));
         	map.put("magnet", getMagnet(hrefList.get(i)));
-        	map.put("img", imgList.get(i));
+        	if(i<imgList.size()){
+        		map.put("img", imgList.get(i));
+        	}
         	list.add(map);
         }
         

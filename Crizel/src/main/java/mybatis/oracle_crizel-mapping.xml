@@ -224,14 +224,19 @@
 		USING DUAL ON(TITLE = #{title})
 		WHEN MATCHED THEN
 		  UPDATE SET
-		    REGISTER_DATE  = SYSDATE
+		    ADDR = #{addr}
+		    , REGISTER_DATE  = SYSDATE
 		WHEN NOT MATCHED THEN
 		  INSERT (CHECK_ID, TITLE, ADDR, REGISTER_DATE)
 		  VALUES((SELECT NVL(MAX(CHECK_ID)+1,1) FROM COMIC_CHECK), #{title}, #{addr}, SYSDATE )
 	</insert>
 	
 	<select id="comicViewList" parameterType="String" resultType="common.CrizelVo">
-		SELECT *
+		SELECT 	
+			CHECK_ID
+			, TITLE
+			, ADDR
+			, TO_CHAR(REGISTER_DATE, 'YYYY-MM-DD') AS REGISTER_DATE
 		FROM COMIC_CHECK
 		WHERE ADDR = #{addr}
 		ORDER BY TITLE

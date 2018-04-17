@@ -44,17 +44,16 @@ function comicDown(addr, type){
 	});
 }
 
-function goView(addr, title, list){
-	
+function goView(addr, title, addrB ){
 	$.ajax({
 		type : "POST",
 		url : "/comicViewCheck.do",
 		contentType : "application/x-www-form-urlencoded; charset=utf-8",
-		data : {title:title, addr:list},
+		data : {"title":title, "addr":addrB},
 		success : function(data) {
 			//location.reload();
 			//window.open(addr, '_blank');
-			location.href="/comic.do?type=C&addr="+addr;			
+			location.href="/comic.do?type=C&addrC="+addr+"&addrB="+addrB;			
  		},
  		error : function(request,status,error) {
  			alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
@@ -85,17 +84,6 @@ function goView(addr, title, list){
     	<img src="/img/nowloading.jpg" />
 	</div>
 	<div class="content">
-		<c:if test="${comicList ne null}">
-			<table class="tbl_type01">
-			<c:forEach items="${comicList}" var="ob">
-				<tr>
-					<td>
-						<a href="/comic.do?type=B&addr=${ob.addr}" >${ob.title}</a>
-					</td>
-				</tr>
-			</c:forEach>
-			</table>
-		</c:if>
 		<div class="search">
 			<form action="/comic.do" method="post" id="postForm">
 				<input type="hidden" name="type" id="type" value="A">
@@ -105,24 +93,54 @@ function goView(addr, title, list){
 			</form>
 		</div>
 		
-		<c:if test="${type eq 'A' or type eq 'B'}">
-			<table class="tbl_type01">
-			<colgroup>
-			<col width="70%">
-			<col width="30%">
-			</colgroup>
-			<c:forEach items="${list}" var="ob">
+		<table class="tbl_type01">
+		<colgroup>
+		<col width="70%">
+		<col width="30%">
+		</colgroup>
+		<!-- DB에 들어있는 목록 -------------------------------------------------------------------->
+		<c:if test="${comicList ne null}">
+			<c:forEach items="${comicList}" var="ob">
 				<tr>
 					<td colspan="2">
-						<a href="/comic.do?type=B&addr=${ob.addr}">${ob.title}</a>
+						<a href="/comic.do?type=B&addrB=${ob.addr}">${ob.title}</a>
 					</td>
 				</tr>
 			</c:forEach>
-			
+		</c:if>
+		
+		<!-- 검색했을때 출력되는 목록 ----------------------------------------------------------------->
+		<c:if test="${list ne null}">
+			<c:forEach items="${list}" var="ob">
+				<tr>
+					<td colspan="2">
+						<a href="/comic.do?type=B&addrB=${ob.addr}">${ob.title}</a>
+					</td>
+				</tr>
+			</c:forEach>
+		</c:if>
+		
+		<!-- 이미지 출력 ------------------------------------------------------------------------------->
+		<c:if test="${imgList ne null}">
+			<tr>
+				<td colspan="2">
+					<ul class="ul_type03">
+					<c:forEach items="${imgList}" var="ob">
+						<li>
+							<img src="/comicView.do?addr=${ob}">
+						<li>
+					</c:forEach>
+					</ul>
+				</td>
+			</tr>
+		</c:if>
+		
+		<!-- 상세 목록 --------------------------------------------------------------------------->
+		<c:if test="${viewList ne null }">
 			<c:forEach items="${viewList}" var="ob">
 				<tr>
 					<td>
-						<a href="javascript:goView('${ob.addr}', '${ob.title}', '${addr}')">${ob.title}</a>
+						<a href="javascript:goView('${ob.addr}', '${ob.title}', '${addrB}')">${ob.title}</a>
 						<%-- <a href="/comic.do?type=C&addr=${ob.addr}">${ob.title}</a> --%>
 					</td>
 					<td>
@@ -134,18 +152,8 @@ function goView(addr, title, list){
 					</td>
 				</tr>
 			</c:forEach>
-			</table>
 		</c:if>
-		
-		<c:if test="${type eq 'C'}">
-			<ul class="ul_type03">
-			<c:forEach items="${imgList}" var="ob">
-				<li>
-					<img src="/comicView.do?addr=${ob}">
-				<li>
-			</c:forEach>
-			</ul>
-		</c:if>
+		</table>
 	</div>
 </body>
 </html>

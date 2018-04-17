@@ -47,6 +47,7 @@ $(function(){
 				<li><a href="/nyaa.do">Nyaa</a></li>
 				<li><a href="/music.do">MUSIC</a></li>
 				<li><a href="/torrent.do">TORRENT</a></li>
+				<li><a href="/onejav.do">ONEJAV</a></li>
 				<li><a href="/mars.do">화성지부</a></li>
 				<li><a href="/directory.do">파일</a></li>
 				<li><a href="/diary.do">일기</a></li>
