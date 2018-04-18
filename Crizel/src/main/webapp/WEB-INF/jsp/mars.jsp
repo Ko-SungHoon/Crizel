@@ -5,6 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="referrer" content="no-referrer" />
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <title>화성지부</title>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>

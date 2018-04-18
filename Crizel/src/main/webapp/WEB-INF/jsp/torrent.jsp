@@ -5,6 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta name="referrer" content="no-referrer" />
 <jsp:include page="/WEB-INF/jsp/header.jsp"/>
 <title>
 TORRENT
