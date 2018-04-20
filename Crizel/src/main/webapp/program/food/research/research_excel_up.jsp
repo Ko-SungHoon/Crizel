@@ -339,6 +339,7 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 		sql.append("SELECT *					");
 		sql.append("FROM FOOD_RSCH_SCH			");
 		sql.append("WHERE SCH_NO IS NOT NULL	");
+		sql.append("  AND ITEM_NO IS NOT NULL	");
 		sql.append("ORDER BY ITEM_NO			");
 		rschSchList = jdbcTemplate.query(sql.toString(), new FoodList());
 		

@@ -7,6 +7,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -135,6 +136,11 @@ public class Maru {
 	}
 	
 	public void ImageStream(String addr, HttpServletRequest request, HttpServletResponse response) throws Exception {
+		int	index = addr.lastIndexOf("/");
+		String addr1		= addr.substring(0,index);
+		String addr2		= URLEncoder.encode(addr.substring(index,addr.length()), "UTF-8").replace("+", "%20");
+		addr = addr1 + addr2;
+		
 		URL url = new URL(addr);
 		URLConnection uc = url.openConnection();
 		uc.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36");

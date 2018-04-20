@@ -170,7 +170,7 @@ public class CrizelController {
 							,	@RequestParam(value="addrA", required=false, defaultValue="") String addrA
 							,	@RequestParam(value="addrB", required=false, defaultValue="") String addrB
 							,	@RequestParam(value="addrC", required=false, defaultValue="") String addrC
-			) throws IOException {
+			) throws Exception {
 		ModelAndView mav = new ModelAndView();
 		Maru mr = new Maru();
 		

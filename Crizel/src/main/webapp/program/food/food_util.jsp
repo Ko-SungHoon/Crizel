@@ -218,4 +218,16 @@ public String printOption(String value, String text, String nowSel){
 	return result;
 }
 
+public Boolean lbRatioBool (int minVal, int maxVal, String lbRatio) {
+	Boolean rtnBoolean	=	false;
+	int min		=	minVal;
+	int max		=	maxVal;
+	int ratio	=	Integer.parseInt(lbRatio);
+	int rsRatio	=	min / (min + max) * 100;
+	if (ratio < rsRatio) {
+		rtnBoolean	=	true;
+	}
+	return rtnBoolean;
+}
+
 %>
