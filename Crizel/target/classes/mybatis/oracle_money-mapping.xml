@@ -1,39 +1,33 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
-<mapper namespace="usernamespace">
-	<select id="monthSum" parameterType="String" resultType="int">
-		select sum(price) from money where day like '%'||#{month}||'%' and id=#{id}
+<mapper namespace="money">
+	<select id="moneyList" parameterType="HashMap" resultType="HashMap">
+		SELECT DAY, SUM(PRICE) AS PRICE
+		FROM MONEY
+		WHERE SUBSTR(DAY,0,4) = #{year} AND SUBSTR(DAY,5,2) = #{month}
+		GROUP BY DAY
 	</select>
-
-	<select id="moneyDetail" parameterType="Hashmap" resultType="money.MoneyVO">
-		select * from money where day=#{day} and id=#{id}
+	
+	<select id="moneySum" parameterType="HashMap" resultType="String">
+		SELECT SUM(PRICE) AS PRICE
+		FROM MONEY
+		WHERE SUBSTR(DAY,0,4) = #{year} AND SUBSTR(DAY,5,2) = #{month}
 	</select>
-
-	<insert id="insert" parameterType="money.MoneyVO">
-		insert into money values(#{item}, #{price}, #{day},(select nvl(max(money_id)+1,1) from money), #{id})
+	
+	<select id="moneyView" parameterType="String" resultType="money.MoneyVO">
+		SELECT *
+		FROM MONEY
+		WHERE DAY = #{day}
+		ORDER BY ITEM
+	</select>
+	
+	<insert id="moneyInsert" parameterType="money.MoneyVO">
+		INSERT INTO MONEY(MONEY_ID, DAY, ITEM, PRICE)
+		VALUES((SELECT NVL(MAX(MONEY_ID)+1, 1) FROM MONEY), #{day}, #{item}, #{price})
 	</insert>
-
-	<delete id="delete" parameterType="Hashmap">
-		delete from money where money_id=#{money_id} and id=#{id}
+	
+	<delete id="moneyDelete" parameterType="String">
+		DELETE FROM MONEY WHERE MONEY_ID = #{money_id}
 	</delete>
-
-	<select id="login" parameterType="money.MoneyVO" resultType="money.MoneyVO">
-		select *
-		from moneyLogin where id=#{id} and pw=#{pw}
-	</select>
-	
-	<insert id="register" parameterType="money.MoneyVO">
-		insert into moneyLogin
-		values(#{id}, #{pw})
-	</insert>
-	
-	<select id="registerCheck" parameterType="String" resultType="String">
-		select id from moneyLogin where id=#{re_id}
-	</select>
-	
-	<select id="totalList" parameterType="Hashmap" resultType="money.MoneyVO">
-		select item, sum(price) as price from money where day like '%'||#{day}||'%' and id=#{id} group by item order by price desc
-	</select>
 </mapper>

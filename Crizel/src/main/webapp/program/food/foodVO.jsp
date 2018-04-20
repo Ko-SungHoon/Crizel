@@ -3,6 +3,8 @@
 *   PURPOSE :   set the db column variables
 *   CREATE  :   201804??_???    KO
 *   MODIFY  :   20180404_wed    JI  학교별 조사식품수 column(RSCH_ITEM_CNT) 추가
+*   MODIFY  :   20180418_wed    JI  권역 평균 column(ZONE_AVR_VAL) 추가
+*   MODIFY  :   20180419_thur   JI  최저가, 평균가 flag column(LOW_FLAG, AVR_FLAG) 추가
 **/
 %>
 
@@ -73,6 +75,7 @@ public class FoodVO{
 	public String cnt = "";
 	public String cnt2 = "";
 	public String cnt3 = "";
+	public String cnt4 = "";		//조사팀장 미제출품목 cnt
 	
 	public String sid = "";
 	public String title = "";
@@ -249,16 +252,16 @@ public class FoodVO{
 	//public String etc1		=	"";
 	//public String etc2		=	"";
 	
-	public String rsch_val_no		=	"";
+	public String rsch_val_no	=	"";
 	//public String rsch_no		=	"";
 	//public String item_no		=	"";
 	//public String sch_no		=	"";
 	//public String nu_no		=	"";
-	public String rsch_reason		=	"";
-	public String t_rj_reason		=	"";
+	public String rsch_reason	=	"";
+	public String t_rj_reason	=	"";
 	public String rj_reason		=	"";
-	public String non_season		=	"";
-	public String non_distri		=	"";
+	public String non_season	=	"";
+	public String non_distri	=	"";
 	public String rsch_val1		=	"";
 	public String rsch_val2		=	"";
 	public String rsch_val3		=	"";
@@ -284,8 +287,11 @@ public class FoodVO{
 	//public String sts_flag		=	"";
 	public String low_val		=	"";
 	public String avr_val		=	"";
-	public String center_val		=	"";
-	public String null_rsch_flag		=	"";
+	public String center_val	=	"";
+	public String low_flag		=	"";
+	public String avr_flag		=	"";
+	public String zone_avr_val	=	"";
+	public String null_rsch_flag	=	"";
 	
 	public String jo_no		=	"";
 	//public String team_no		=	"";
@@ -351,6 +357,7 @@ public class FoodList implements RowMapper<FoodVO> {
 			else if("CNT".equals(column)){				vo.cnt				=	parseNull(rs.getString("CNT"));				}
 			else if("CNT2".equals(column)){				vo.cnt2				=	parseNull(rs.getString("CNT2"));			}
 			else if("CNT3".equals(column)){				vo.cnt3				=	parseNull(rs.getString("CNT3"));			}
+			else if("CNT4".equals(column)){				vo.cnt4				=	parseNull(rs.getString("CNT4"));			}
 			else if("SID".equals(column)){				vo.sid				=	parseNull(rs.getString("SID"));				}
 			else if("TITLE".equals(column)){			vo.title			=	parseNull(rs.getString("TITLE"));			}
 			else if("USER_NM".equals(column)){			vo.user_nm			=	parseNull(rs.getString("USER_NM"));			}
@@ -441,14 +448,14 @@ public class FoodList implements RowMapper<FoodVO> {
     		else if("AVR_RATIO".equals(column)){        vo.avr_ratio        =   parseNull(rs.getString("AVR_RATIO"));	    }
     		else if("LB_RATIO".equals(column)){         vo.lb_ratio         =   parseNull(rs.getString("LB_RATIO"));	    }
     		else if("ITEM_GRP_NO".equals(column)){      vo.item_grp_no      =   parseNull(rs.getString("ITEM_GRP_NO"));	    }
-    		else if("ITEM_GRP_ORDER".equals(column)){   vo.item_grp_order   =   parseNull(rs.getString("ITEM_GRP_ORDER"));	    }
-    		else if("ITEM_COMP_NO".equals(column)){     vo.item_comp_no     =   parseNull(rs.getString("ITEM_COMP_NO"));	    }
-    		else if("ITEM_COMP_VAL".equals(column)){    vo.item_comp_val    =   parseNull(rs.getString("ITEM_COMP_VAL"));	    }
-    		else if("RSCH_NO".equals(column)){		    vo.rsch_no			=   parseNull(rs.getString("RSCH_NO"));	    }
-   			else if("RSCH_ITEM_NO".equals(column)){		vo.rsch_item_no		=   parseNull(rs.getString("RSCH_ITEM_NO"));	    }
+    		else if("ITEM_GRP_ORDER".equals(column)){   vo.item_grp_order   =   parseNull(rs.getString("ITEM_GRP_ORDER"));	}
+    		else if("ITEM_COMP_NO".equals(column)){     vo.item_comp_no     =   parseNull(rs.getString("ITEM_COMP_NO"));	}
+    		else if("ITEM_COMP_VAL".equals(column)){    vo.item_comp_val    =   parseNull(rs.getString("ITEM_COMP_VAL"));	}
+    		else if("RSCH_NO".equals(column)){		    vo.rsch_no			=   parseNull(rs.getString("RSCH_NO"));	    	}
+   			else if("RSCH_ITEM_NO".equals(column)){		vo.rsch_item_no		=   parseNull(rs.getString("RSCH_ITEM_NO"));	}
    			else if("REG_YEAR".equals(column)){		    vo.reg_year		    =   parseNull(rs.getString("REG_YEAR"));	    }
-   			else if("REG_MON".equals(column)){		    vo.reg_mon		    =   parseNull(rs.getString("REG_MON"));	    }
-   			else if("RSCH_NM".equals(column)){		    vo.rsch_nm		    =   parseNull(rs.getString("RSCH_NM"));	    }
+   			else if("REG_MON".equals(column)){		    vo.reg_mon		    =   parseNull(rs.getString("REG_MON"));	    	}
+   			else if("RSCH_NM".equals(column)){		    vo.rsch_nm		    =   parseNull(rs.getString("RSCH_NM"));	    	}
    			else if("RSCH_YEAR".equals(column)){		vo.rsch_year		=   parseNull(rs.getString("RSCH_YEAR"));	    }
    			else if("RSCH_MONTH".equals(column)){		vo.rsch_month		=   parseNull(rs.getString("RSCH_MONTH"));	    }
    			else if("STR_DATE".equals(column)){		    vo.str_date		    =   parseNull(rs.getString("STR_DATE"));	    }
@@ -479,20 +486,23 @@ public class FoodList implements RowMapper<FoodVO> {
     		else if("RSCH_DATE".equals(column)){		vo.rsch_date		=   parseNull(rs.getString("RSCH_DATE"));	    }
     		else if("RJ_DATE".equals(column)){		    vo.rj_date		    =	 parseNull(rs.getString("RJ_DATE"));	    }
     		else if("RSCH_T_DATE".equals(column)){		vo.rsch_t_date		=   parseNull(rs.getString("RSCH_T_DATE"));	    }
-    		else if("SP_CHK".equals(column)){		    vo.sp_chk		    =   parseNull(rs.getString("SP_CHK"));	    }
-    		else if("LOW_VAL".equals(column)){		    vo.low_val		    =   parseNull(rs.getString("LOW_VAL"));	    }
-    		else if("AVR_VAL".equals(column)){		    vo.avr_val		    =   parseNull(rs.getString("AVR_VAL"));	    }
-    		else if("CENTER_VAL".equals(column)){		vo.center_val	=   parseNull(rs.getString("CENTER_VAL"));	    }
-    		else if("NULL_RSCH_FLAG".equals(column)){	vo.null_rsch_flag	=   parseNull(rs.getString("NULL_RSCH_FLAG"));	    }
-    		else if("JO_NO".equals(column)){			vo.jo_no			=   parseNull(rs.getString("JO_NO"));	    }
-    		else if("JO_NM".equals(column)){			vo.jo_nm			=   parseNull(rs.getString("JO_NM"));	    }
-    		else if("AREA_NO".equals(column)){			vo.area_no			=   parseNull(rs.getString("AREA_NO"));	    }
-    		else if("AREA_NM".equals(column)){			vo.area_nm			=   parseNull(rs.getString("AREA_NM"));	    }
+    		else if("SP_CHK".equals(column)){		    vo.sp_chk		    =   parseNull(rs.getString("SP_CHK"));	    	}
+    		else if("LOW_VAL".equals(column)){		    vo.low_val		    =   parseNull(rs.getString("LOW_VAL"));	    	}
+    		else if("AVR_VAL".equals(column)){		    vo.avr_val		    =   parseNull(rs.getString("AVR_VAL"));	    	}
+    		else if("CENTER_VAL".equals(column)){		vo.center_val		=   parseNull(rs.getString("CENTER_VAL"));	    }
+    		else if("LOW_FLAG".equals(column)){			vo.low_flag			=   parseNull(rs.getString("LOW_FLAG"));	    }
+    		else if("AVR_FLAG".equals(column)){			vo.avr_flag			=   parseNull(rs.getString("AVR_FLAG"));	    }
+    		else if("ZONE_AVR_VAL".equals(column)){		vo.zone_avr_val		=   parseNull(rs.getString("ZONE_AVR_VAL"));	}
+    		else if("NULL_RSCH_FLAG".equals(column)){	vo.null_rsch_flag	=   parseNull(rs.getString("NULL_RSCH_FLAG"));	}
+    		else if("JO_NO".equals(column)){			vo.jo_no			=   parseNull(rs.getString("JO_NO"));	    	}
+    		else if("JO_NM".equals(column)){			vo.jo_nm			=   parseNull(rs.getString("JO_NM"));	    	}
+    		else if("AREA_NO".equals(column)){			vo.area_no			=   parseNull(rs.getString("AREA_NO"));	    	}
+    		else if("AREA_NM".equals(column)){			vo.area_nm			=   parseNull(rs.getString("AREA_NM"));	    	}
 
             //학교별 조사식품수
             else if("RSCH_ITEM_CNT".equals(column)){    vo.rsch_item_cnt    =   parseNull(rs.getString("RSCH_ITEM_CNT"));   }
     		
-            else if("ITEM_NM".equals(column)){          vo.item_nm          =   parseNull(rs.getString("ITEM_NM"));     }
+            else if("ITEM_NM".equals(column)){          vo.item_nm          =   parseNull(rs.getString("ITEM_NM"));     	}
 
 		}
         return vo;

@@ -146,18 +146,26 @@ try{
 			sql.append("			, RSCH_NO			");
 			sql.append("			, ITEM_NO			");
 			sql.append("			, SCH_NO			");
+			sql.append("			, ZONE_NO			");
+			sql.append("			, TEAM_NO			");
 			sql.append("			, CAT_NO			");
 			sql.append("			, REG_DATE			");
 			sql.append("		)						");
 			sql.append("VALUES(							");
-			sql.append("		?						");
-			sql.append("		, ?						");
-			sql.append("		, ?						");
-			sql.append("		, ?						");
-			sql.append("		, (SELECT CAT_NO 		");
+			sql.append("		?						");		// RSCH_VAL_NO
+			sql.append("		, ?						");		// RSCH_NO	
+			sql.append("		, ?						");		// ITEM_NO
+			sql.append("		, ?						");		// SCH_NO
+			sql.append("		, (SELECT ZONE_NO		");		// ZONE_NO
+			sql.append("		   FROM FOOD_SCH_TB		");
+			sql.append("		   WHERE SCH_NO = ?)	");
+			sql.append("		, (SELECT TEAM_NO		");		// TEAM_NO
+			sql.append("		   FROM FOOD_SCH_TB		");
+			sql.append("		   WHERE SCH_NO = ?)	");
+			sql.append("		, (SELECT CAT_NO 		");		// CAT_NO
 			sql.append("		   FROM FOOD_ST_CAT 	");
 			sql.append("		   WHERE CAT_NM = ?)	");
-			sql.append("		, SYSDATE				");
+			sql.append("		, SYSDATE				");		// REG_DATE
 			sql.append("		)						");
 			batch = new ArrayList<Object[]>();
 			boolean catCheck 	= false;
@@ -181,6 +189,8 @@ try{
 							rsch_val_no++
 							, rsch_no
 							, ob.item_no
+							, ob.sch_no
+							, ob.sch_no
 							, ob.sch_no
 							, ob.cat_nm.split("-")[0].trim()
 					};
@@ -294,18 +304,26 @@ try{
 			sql.append("			, RSCH_NO			");
 			sql.append("			, ITEM_NO			");
 			sql.append("			, SCH_NO			");
+			sql.append("			, ZONE_NO			");
+			sql.append("			, TEAM_NO			");
 			sql.append("			, CAT_NO			");
 			sql.append("			, REG_DATE			");
 			sql.append("		)						");
 			sql.append("VALUES(							");
-			sql.append("		?						");
-			sql.append("		, ?						");
-			sql.append("		, ?						");
-			sql.append("		, ?						");
-			sql.append("		, (SELECT CAT_NO 		");
+			sql.append("		?						");		// RSCH_VAL_NO
+			sql.append("		, ?						");		// RSCH_NO	
+			sql.append("		, ?						");		// ITEM_NO
+			sql.append("		, ?						");		// SCH_NO
+			sql.append("		, (SELECT ZONE_NO		");		// ZONE_NO
+			sql.append("		   FROM FOOD_SCH_TB		");
+			sql.append("		   WHERE SCH_NO = ?)	");
+			sql.append("		, (SELECT TEAM_NO		");		// TEAM_NO
+			sql.append("		   FROM FOOD_SCH_TB		");
+			sql.append("		   WHERE SCH_NO = ?)	");
+			sql.append("		, (SELECT CAT_NO 		");		// CAT_NO
 			sql.append("		   FROM FOOD_ST_CAT 	");
 			sql.append("		   WHERE CAT_NM = ?)	");
-			sql.append("		, SYSDATE				");
+			sql.append("		, SYSDATE				");		// REG_DATE
 			sql.append("		)						");
 			batch = new ArrayList<Object[]>();
 			boolean catCheck 	= false;
@@ -329,6 +347,8 @@ try{
 							rsch_val_no++
 							, rsch_no
 							, ob.item_no
+							, ob.sch_no
+							, ob.sch_no
 							, ob.sch_no
 							, ob.cat_nm.split("-")[0].trim()
 					};

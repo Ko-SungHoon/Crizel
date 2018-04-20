@@ -5,13 +5,6 @@
 <%@ include file="/program/class/UtilClass.jsp"%>
 <%@ include file="/program/class/PagingClass.jsp"%>
 <%@page import="org.springframework.jdbc.core.*" %>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>OpenApi</title>
-</head>
-<body>
 <%
 /**
 *   PURPOSE :   OpenApi Test
@@ -95,5 +88,3 @@ try{
 }
 
 %>
-</body>
-</html>

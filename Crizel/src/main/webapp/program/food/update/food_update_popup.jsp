@@ -276,8 +276,8 @@ try{
 						</colgroup>
 						<tbody>
 							<tr>
-								<th scope="row"><label for="item_no">식품번호</label></th>
-								<td><input type="text" id="item_no" name="item_no"
+								<th scope="row"><label for="s_item_no">식품번호</label></th>
+								<td><input type="text" id="s_item_no" name="s_item_no"
 									value="<%=foodVO.s_item_no%>" readonly></td>
 							</tr>
 							<tr>
@@ -312,7 +312,7 @@ try{
 							<tr>
 								<th scope="row"><label for="n_item_unit">단위</label></th>
 								<td><input type="text" id="n_item_unit"
-									name="n_item_unit" value="<%=foodVO.n_item_unit%>" required>
+									name="n_item_unit" value="<%=foodVO.n_item_unit%>">
 								</td>
 							</tr>
 							<tr>
@@ -427,6 +427,12 @@ try{
 								<th scope="row"><label for="ex_nm">식품설명</label></th>
 								<td><textarea class="wps_60 h080" id="ex_nm" name="ex_nm"
 										readonly required><%=foodVO.ex_nm.replace("\r", "<br>")%></textarea>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><label for="upd_reason">사유</label></th>
+								<td><textarea class="wps_60 h080" id="upd_reason" 
+									name="upd_reason" required><%=foodVO.upd_reason.replace("\r", "<br>")%></textarea>
 								</td>
 							</tr>
 						</tbody>

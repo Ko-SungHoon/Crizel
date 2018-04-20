@@ -2,6 +2,7 @@ package money;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,52 +13,31 @@ public class MoneyDao {
 
 	@Autowired
 	private SqlSessionFactory factory;
-	
-	public List<MoneyVO> moneyDetail(String day, String id) {
-		HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("day", day);
-		map.put("id", id);
-		return factory.openSession().selectList("usernamespace.moneyDetail",map);
-	}
 
-	public int insert(MoneyVO vo) {
-		return factory.openSession().insert("usernamespace.insert",vo);
-	}
-
-	public int delete(String money_id, String id) {
-		HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("money_id", money_id);
-		map.put("id", id);
-		return factory.openSession().delete("usernamespace.delete",map);
-	}
-
-	public int monthSum(String m, String id) {
-		String month =m+".";
-		HashMap<String, Object> map = new HashMap<String, Object>();
+	public List<Map<String, Object>> moneyList(String year, String month) {
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("year", year);
 		map.put("month", month);
-		map.put("id", id);
-		return factory.openSession().selectOne("usernamespace.monthSum",map);
+		return factory.openSession().selectList("money.moneyList",map);
+	}
+	
+	public String moneySum(String year, String month) {
+		Map<String,Object> map = new HashMap<String, Object>();
+		map.put("year", year);
+		map.put("month", month);
+		return factory.openSession().selectOne("money.moneySum",map);
 	}
 
-	public MoneyVO login(MoneyVO vo) {
-		return factory.openSession().selectOne("usernamespace.login", vo);		
+	public List<MoneyVO> moneyView(String day) {
+		return factory.openSession().selectList("money.moneyView",day);
 	}
 
-	public void register(MoneyVO vo) {
-		factory.openSession().insert("usernamespace.register", vo);		
-		
+	public void moneyInsert(MoneyVO vo) {
+		factory.openSession().insert("money.moneyInsert",vo);
 	}
 
-	public String registerCheck(String re_id) {
-		return factory.openSession().selectOne("usernamespace.registerCheck",re_id);	
+	public void moneyDelete(String money_id) {
+		factory.openSession().delete("money.moneyDelete",money_id);
 	}
-
-	public List<MoneyVO> totalList(String year, String month, String id) {
-		int mon = Integer.parseInt(month)+1;		
-		String day = year + "." + mon;
-		HashMap<String, Object> map = new HashMap<String, Object>();
-		map.put("day", day);
-		map.put("id", id);
-		return factory.openSession().selectList("usernamespace.totalList",map);
-	}
+	
 }

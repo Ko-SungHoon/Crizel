@@ -217,4 +217,5 @@ public String printOption(String value, String text, String nowSel){
 	String result	=	"<option value='" + value + "' " + nowSelect + ">" + text + "</option>";
 	return result;
 }
+
 %>

@@ -15,12 +15,6 @@ function test(){
 </head>
 <body>
 <button onclick="test()">go</button>
-<a href="https://5siri.com/xe/?module=file&act=procFileDownload&file_srl=6247805&sid=6c4c2fa70132da767539496aad3d35fe&module_srl=2076607">
-	너에게핀달리아.zip
-</a>
-
 <a href="NewFile3.jsp">TEST</a>
-
-
 </body>
 </html>
