@@ -1,8 +1,8 @@
 <%
 /**
 *   PURPOSE :   품목관리
-*   CREATE  :   20180322_thur    Ko
-*   MODIFY  :   ...
+*   CREATE  :   20180322_thur   Ko
+*   MODIFY  :   20180420_fri    JI  품목별 리스트 호출
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -38,7 +38,7 @@ String pageTitle = "품목관리";
 String keyword  =   parseNull(request.getParameter("keyword"));
 String search1  =   parseNull(request.getParameter("search1"));
 
-String cat_no   =   parseNull(request.getParameter("cat_no"), "1");
+String cat_no   =   parseNull(request.getParameter("cat_no"));
 
 StringBuffer sql 			= null;
 List<FoodVO> catList		= null;
@@ -50,21 +50,51 @@ int totalCount = 0;
 Object[] setObj		= null;
 List<String> setList	= new ArrayList<String>();
 
+int pre_item_cnt    =   0;
+int total_item_cnt  =   0;
 
 try{
+	if("".equals(cat_no)){
+		sql = new StringBuffer();
+		sql.append("SELECT MIN(CAT_NO) AS CAT_NO	");
+		sql.append("FROM FOOD_ST_CAT				");
+		sql.append("WHERE SHOW_FLAG = 'Y'			");
+		sql.append("ORDER BY CAT_NO, CAT_NM			");
+		try{
+			cat_no = jdbcTemplate.queryForObject(sql.toString(), String.class);
+		}catch(Exception e){
+			cat_no = "";
+		}
+	}
+	
     sql =   new StringBuffer();
 	sql.append("SELECT FOOD_ST_CAT.*                    ");
 	sql.append("FROM FOOD_ST_CAT						");
+	sql.append("WHERE SHOW_FLAG = 'Y'					");
 	sql.append("ORDER BY CAT_NO, CAT_NM					");
 	catList = jdbcTemplate.query(sql.toString(), new FoodList());
 
-    //식품구분이 없을 경우 나중에 작업하기
+    //공개 식품 cnt & total cnt
+    sql =   new StringBuffer();
+    sql.append(" SELECT                         ");
+    sql.append("    NVL(COUNT(S_ITEM_NO), 0)    ");
+    sql.append(" FROM FOOD_ITEM_PRE             ");
+    sql.append(" WHERE SHOW_FLAG = 'Y'          ");
+    pre_item_cnt    =   jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+
+    sql =   new StringBuffer();
+    sql.append(" SELECT                         ");
+    sql.append("    NVL(COUNT(ITEM_NO), 0)      ");
+    sql.append(" FROM FOOD_ST_ITEM              ");
+    sql.append(" WHERE SHOW_FLAG = 'Y'          ");
+    total_item_cnt  =   jdbcTemplate.queryForObject(sql.toString(), Integer.class);
 
     sql = new StringBuffer();
-    sql.append("SELECT COUNT(*)																					");
-    sql.append("FROM(																							");
-    sql.append("SELECT																							");
+    sql.append(" SELECT COUNT(*)																				");
+    sql.append(" FROM(																							");
+    sql.append(" SELECT																							");
     sql.append("	  PRE.ITEM_NO																				");
+    sql.append("	, ITEM.CAT_NO   																			");
     sql.append("	, ITEM.FOOD_CODE																			");
     sql.append("	, ITEM.FOOD_CAT_INDEX																		");
     sql.append("	, (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM						");
@@ -94,8 +124,12 @@ try{
     sql.append("	, PRE.SHOW_FLAG																				");
     sql.append("	, (SELECT REG_IP FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_IP						");
     sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
+
     sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO			");
     sql.append(")A WHERE 1=1																					");
+    sql.append("    AND A.CAT_NO = ?                                                                            ");
+    paging.setParams("cat_no", cat_no);
+    setList.add(cat_no);
     if(!"".equals(search1)){
     	if("nm_food".equals(search1)){
     		sql.append("AND A.NM_FOOD LIKE '%'||?||'%'															");
@@ -104,6 +138,7 @@ try{
     	}else if("ex_nm".equals(search1)){
     		sql.append("AND A.EX_NM LIKE '%'||?||'%'															");
     	}
+
     	paging.setParams("search1", search1);
     	paging.setParams("keyword", keyword);
     	
@@ -124,9 +159,10 @@ try{
     sql = new StringBuffer();
 	sql.append("SELECT * FROM(																                    ");
 	sql.append("	SELECT ROWNUM AS RNUM, A.* FROM (										                    ");
-    sql.append("SELECT																							");
+    sql.append("    SELECT																						");
     sql.append("	  PRE.ITEM_NO																				");
     sql.append("	, PRE.S_ITEM_NO																				");
+    sql.append("	, ITEM.CAT_NO																				");
     sql.append("	, ITEM.FOOD_CODE																			");
     sql.append("	, ITEM.FOOD_CAT_INDEX																		");
     sql.append("	, (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM						");
@@ -156,9 +192,12 @@ try{
     sql.append("	, PRE.SHOW_FLAG																				");
     sql.append("	, (SELECT REG_IP FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_IP						");
     sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
+    sql.append("	, (SELECT NVL(COUNT(ITEM_NO), 0) FROM FOOD_ST_ITEM_LOG WHERE ITEM_NO = ITEM.ITEM_NO) LOG_CNT");
+
     sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO			");
     sql.append("	ORDER BY PRE.ITEM_NO																		");
     sql.append("	) A WHERE ROWNUM <= " + paging.getEndRowNo() + "											");
+    sql.append("        AND A.CAT_NO = ?                                                                        ");
     if(!"".equals(search1)){
     	if("nm_food".equals(search1)){
     		sql.append("AND A.NM_FOOD LIKE '%'||?||'%'															");
@@ -188,12 +227,12 @@ try{
         var top = ((height / 2) - (h / 2)) + dualScreenTop;
         var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
     }
+
     function catPopup(){newWin("food_cat_popup.jsp", 'PRINTVIEW', '1000', '740');}
     function unitPopup(){newWin("food_unit_popup.jsp", 'PRINTVIEW', '1000', '740');}
     function itemPopup(){newWin("food_item_popup.jsp", 'PRINTVIEW', '1000', '740');}
     function updatePopup(item_no){newWin("food_item_popup.jsp?item_no="+item_no, 'PRINTVIEW', '1000', '740');}
     
-
     //excel up
     function upExcel() {
         if (confirm("식품 엑셀을 업로드 하시겠습니까?\n식품 데이터 변경으로 공개식품의 변경이 생길 수 있습니다.")) {
@@ -203,8 +242,9 @@ try{
     }
     
     //excel down
-    function downExcel(){
-    	location.href="food_down_excel.jsp";
+	function downExcel(){
+    	$("#searchForm").attr("action", "food_down_excel.jsp");
+    	$("#searchForm").submit();
     }
 
     function setFile () {
@@ -226,6 +266,18 @@ try{
     	location.href="/program/down.jsp?path=/upload_data/food/sample&filename=research_sample.xls";
     }
 
+    function showLog (item_no) {
+        var open_url    =   "/program/food/item/food_item_log_popup.jsp?item_no=" + item_no;
+        var open_title  =   "변경기록 보기";
+        newWin(open_url, open_title, 1100, 900);
+    }
+    
+    function searchSubmit(){
+    	$("#searchForm").attr("action", "");
+    	$("#searchForm").attr("method", "get");
+    	$("#searchForm").submit();
+    }
+
 </script>
 
 <div id="right_view">
@@ -245,7 +297,7 @@ try{
                 <button type="button" class="btn medium <% if(cat_no.equals(cat.cat_no)) {%>mako<%;}else{%>white<%;} %>" data-value="<%=cat.cat_no %>" onclick="location.href='food_item_list.jsp?cat_no=<%=cat.cat_no %>'"><%=cat.cat_nm %></button>
             <%}%>
 		</p>
-		<span>공개 식품 388/500</span>
+		<span>공개 식품 <%=pre_item_cnt %>/<%=total_item_cnt %></span>
 		<p class="boxin f_r">
             <form id="food_excel_form" enctype="multipart/form-data" method="post">
                 <input type="file" id="food_file" name="food_file" value="" onchange="setFile()" style="display: none;">
@@ -259,10 +311,10 @@ try{
 		</p>
 	</div>
 	
-	<h2 class="tit">농산물</h2>
 	<div class="searchBox magB20">
 		<form id="searchForm" method="get" class="topbox2">
 			<fieldset>
+				<input type="hidden" id="cat_no" name="cat_no" value="<%=cat_no%>">
 				<select id="search1" name="search1">
 					<option value="">검색분류 선택</option>
 					<option value="nm_food" <%if("nm_food".equals(search1)){out.println("selected");}%>>식품명</option>
@@ -338,7 +390,11 @@ try{
 				<td>
 					<button class="btn small edge mako" type="button" onclick="updatePopup('<%=ob.item_no %>')">수정</button>
 				</td>
-				<td>변경기록<%=ob.item_no %></td>
+				<td>
+                    <%if(Integer.parseInt(ob.log_cnt) > 0) {%>
+                    <a href="javascript:showLog('<%=ob.item_no %>');" data-value="<%=ob.item_no %>">변경기록 보기</a>
+                    <%} else {%>-<%}%>
+                </td>
 			</tr>
 		<%
 			}

@@ -47,13 +47,11 @@ function clipboardCopy(index){
 	<table class="tbl_type01">
 	<colgroup>
 		<col width="10%">
-		<col width="30%">
-		<col width="60%">
+		<col width="90%">
 	</colgroup>
 		<tr>
 			<th><input type="checkbox" id="allCheck" onclick="allCheck()"></th>
 			<th>사진</th>
-			<th>링크</th>
 		</tr>
 	<c:forEach items="${list}" var="ob" varStatus="status">
 		<tr>
@@ -64,10 +62,6 @@ function clipboardCopy(index){
 				<a href="${ob.addr}" target="_blank">
 					<img src="${ob.img}" style="max-width: 100%;"> 
 				</a> 
-			</td>
-			<td>
-				<input type="text" id="addr_${status.index}" value="${ob.addr}">
-				<button type="button" onclick="clipboardCopy('${status.index}')">링크복사</button>
 			</td>
 		</tr>
 	</c:forEach>

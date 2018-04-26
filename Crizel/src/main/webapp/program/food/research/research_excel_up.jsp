@@ -3,7 +3,8 @@
 /**
 *   PURPOSE :   조사개시 엑셀 업로드
 *   CREATE  :   20180402_mon    KO
-*   MODIFY  :   ...
+*   MODIFY  :   20180420_fri	KO		품목이 등록되지 않았을 경우 조사품목 생성안되게 수정
+*	MODIFY  :   batch 방식 변경 20180424_tue    KO
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -55,14 +56,15 @@
 		
 	}
 	
-	
+	Connection conn 			= null;
+	PreparedStatement pstmt 	= null;
+	int key						= 0;
 	StringBuffer sql 			= null;
 	List<Object[]> batch 		= null;
 	List<Object> setList 		= null;			
 	Object[] value				= null;	
 	List<String> itemNoList 	= null;
 	List<FoodVO> schNmList		= null;
-	int key = 0;
 	int result = 0;
 	int cnt = 0;
 	
@@ -267,6 +269,8 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 			return;
 		}
 		
+		sqlMapClient.startTransaction();
+		conn = sqlMapClient.getCurrentConnection();
 		
 		if(file!=null){
 			// 업로드한 파일 정보 
@@ -313,7 +317,28 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 		sql.append("		     AND B.FOOD_CAT_INDEX = ?) 																		");
 		sql.append("		, (SELECT SCH_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y')								");
 		sql.append("		, (SELECT TEAM_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y')	)						");
-		batch = new ArrayList<Object[]>();
+		pstmt = conn.prepareStatement(sql.toString());
+		if(catList!=null && catList.size()>0){
+			for(Map<String,Object> ob : catList){
+				String[] sch_nm_split = ob.get("sch_nm").toString().split(",");
+				for(int i=0; i<sch_nm_split.length; i++){
+					if(!"".equals(sch_nm_split[i].trim())){
+						key = 0;
+						pstmt.setString(++key,  ob.get("cat_nm").toString().trim());
+						pstmt.setString(++key,  sch_nm_split[i].trim());
+						pstmt.setString(++key,  ob.get("cat_nm").toString().split("-")[0].trim());
+						pstmt.setString(++key,  ob.get("cat_nm").toString().split("-")[1].trim());
+						pstmt.setString(++key,  sch_nm_split[i].trim());
+						pstmt.setString(++key,  sch_nm_split[i].trim());
+						pstmt.addBatch();
+					}
+				}
+			}
+		}
+		pstmt.executeBatch();
+		if(pstmt!=null){pstmt.close();}
+
+		/* batch = new ArrayList<Object[]>();
 		if(catList!=null && catList.size()>0){
 			for(Map<String,Object> ob : catList){
 				String[] sch_nm_split = ob.get("sch_nm").toString().split(",");
@@ -332,7 +357,7 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 				}
 			}
 		}
-		jdbcTemplate.batchUpdate(sql.toString(), batch);
+		jdbcTemplate.batchUpdate(sql.toString(), batch); */
 		
 		
 		sql = new StringBuffer();
@@ -344,7 +369,7 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 		rschSchList = jdbcTemplate.query(sql.toString(), new FoodList());
 		
 		
-		// 월별조사 항목 백업
+		// 월별조사 항목 백업 
 		sql = new StringBuffer();
 		sql.append("INSERT INTO FOOD_RSCH_ITEM_B		");
 		sql.append("SELECT * FROM FOOD_RSCH_ITEM		");
@@ -374,7 +399,22 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 			sql.append("	,	(SELECT TO_CHAR(SYSDATE, 'YYYY') FROM DUAL)					"); // REG_YEAR
 			sql.append("	,	(SELECT TO_CHAR(SYSDATE, 'MM') FROM DUAL)					"); // REG_MON
 			sql.append(")																	");
-			batch = new ArrayList<Object[]>();
+			pstmt = conn.prepareStatement(sql.toString());
+			if(rschSchList!=null && rschSchList.size()>0){
+				for(FoodVO ob : rschSchList){
+					key = 0;
+					pstmt.setInt(++key,  rsch_item_no++);
+					pstmt.setString(++key,  ob.item_no);
+					pstmt.setString(++key,  ob.sch_no);
+					pstmt.setString(++key,  ob.sch_no);
+					pstmt.setString(++key,  saveFile);
+					pstmt.addBatch();
+				}
+			}
+			result = pstmt.executeBatch().length;
+			if(pstmt!=null){pstmt.close();}
+
+			/* batch = new ArrayList<Object[]>();
 			if(rschSchList!=null && rschSchList.size()>0){
 				for(FoodVO ob : rschSchList){
 					value = new Object[]{
@@ -387,7 +427,7 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 					batch.add(value);
 				}
 			}
-			result = jdbcTemplate.batchUpdate(sql.toString(), batch).length;
+			result = jdbcTemplate.batchUpdate(sql.toString(), batch).length; */
 		}catch(Exception e){
 			sql = new StringBuffer();
 			sql.append("DELETE FROM FOOD_RSCH_ITEM		");
@@ -410,5 +450,13 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 		
 	}catch(Exception e){
 		out.println(e.toString());
+		if(pstmt!=null){pstmt.close();}
+		if(conn!=null){conn.close();}
+		sqlMapClient.endTransaction();
+	}finally {
+		if(pstmt!=null){pstmt.close();}
+		if(conn!=null){conn.close();}
+		sqlMapClient.endTransaction();
 	}
+
 %>

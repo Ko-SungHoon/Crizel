@@ -36,26 +36,29 @@ public class OneJav {
 					.userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36")
             		.header("charset", "utf-8")
     				.header("Accept-Encoding", "gzip")
+    				.timeout(3000000)
 					.get();
 			//System.out.println(doc);
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			
+			imgElem = doc.select(".card.mb-3 .image");
+			linkElem = doc.select(".card.mb-3 .title.is-4.is-spaced a");
+			
+			for(int i=0; i<imgElem.size(); i++){
+				map = new HashMap<String,Object>();
+				Element img = imgElem.get(i);
+				Element link = linkElem.get(i);
+				
+				map.put("img", img.attr("src"));
+				map.put("addr", "http://www.onejav.com/" + getView("http://www.onejav.com/" + link.attr("href")));
+				map.put("title", link.text());
+				
+				list.add(map);
+			}
+		} catch (Exception e) {
+			System.out.println(e);
 		}
 		
-		imgElem = doc.select(".card.mb-3 .image");
-		linkElem = doc.select(".card.mb-3 .title.is-4.is-spaced a");
 		
-		for(int i=0; i<imgElem.size(); i++){
-			map = new HashMap<String,Object>();
-			Element img = imgElem.get(i);
-			Element link = linkElem.get(i);
-			
-			map.put("img", img.attr("src"));
-			map.put("addr", "http://www.onejav.com/" + getView("http://www.onejav.com/" + link.attr("href")));
-			map.put("title", link.text());
-			
-			list.add(map);
-		}
 		
         return list;
 	}
@@ -70,17 +73,18 @@ public class OneJav {
 					.userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36")
             		.header("charset", "utf-8")
     				.header("Accept-Encoding", "gzip")
+    				.timeout(3000000)
 					.get();
 			//System.out.println(doc);
-		} catch (IOException e1) {
-			e1.printStackTrace();
+			
+			linkElem = doc.select(".button.is-primary.is-fullwidth");
+	        
+			Element link = linkElem.get(0);
+	        
+			addr = link.attr("href");
+		} catch (Exception e1) {
+			System.out.println(e1);
 		}
-        
-        linkElem = doc.select(".button.is-primary.is-fullwidth");
-        
-		Element link = linkElem.get(0);
-        
-		addr = link.attr("href");
 		
         return addr;
 	}

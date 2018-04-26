@@ -12,7 +12,6 @@
 *	MODIFY	:	20180410_tue	JI	mod function outUpdFlag() 업데이트 요청 상태 function 수정
 *	MODIFY	:	20180410_tue	JI	mod function outSchType() 학교단위 값 수정
 *	MODIFY	:	20180423_mon	JI	sha-256 암호화 function 생성
-*	MODIFY	:	20180425_wed	KO	자동마감
 **/
 %>
 
@@ -48,7 +47,7 @@
 <%
 WebApplicationContext endContext = WebApplicationContextUtils.getWebApplicationContext(request.getSession().getServletContext());
 //ApplicationContext endContext = new FileSystemXmlApplicationContext(getServletContext().getRealPath("/WEB-INF")+"/servlet-context.xml");
-DataSource endDataSource = (DataSource) endContext.getBean("IamDataSource");		// 운영서버:IamDataSource, 테스트서버:dataSource
+DataSource endDataSource = (DataSource) endContext.getBean("dataSource");
 JdbcTemplate endJdbcTemplate = new JdbcTemplate(endDataSource);
 
 String endCheckSql 	= null;

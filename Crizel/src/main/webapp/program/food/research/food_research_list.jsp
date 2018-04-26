@@ -5,6 +5,7 @@
 *   MODIFY  :   체크박스 추가	20180327_tue	JI
 *   MODIFY  :   엑셀업로드 추가	20180403_tue	KO
 *   MODIFY  :   학교/기관 select 추가 set the query where setting value	20180404_wed	JI
+*   MODIFY  :   엑셀다운로드 추가	20180423_mon	KO
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -332,16 +333,18 @@ try{
     
 	//excel sample
 	function sampleExcel () {
-		if (confirm("조사자, 권역 샘플 엑셀을 다운로드 하시겠습니까?")) {
+		location.href	=	"/program/down.jsp?path=/upload_data/food/sample&filename=food_zone_sample.xls";
+		/* if (confirm("조사자, 권역 샘플 엑셀을 다운로드 하시겠습니까?")) {
 			location.href	=	"/img/food/food_zone_sample.xls";
 		}
-		return;
+		return; */
 	}
 
 	//excel dw
 	function downExcel () {
-		if (confirm("조사자 엑셀을 다운로드 하시겟습니까?")) {
-
+		if (confirm("조사자 엑셀을 다운로드 하시겠습니까?")) {
+			$("#searchForm").attr("action", "researcher_excel_down.jsp");
+			$("#searchForm").submit();
 		}
 		return;
 	}
@@ -382,6 +385,10 @@ try{
     }
     
     function zonePopup(){newWin("food_zone_popup.jsp", 'PRINTVIEW', '1000', '740');}
+    
+    function searchSubmit(){
+    	$("#searchForm").attr("action", "").submit();
+    }
 
 </script>
 
@@ -452,7 +459,7 @@ try{
 					<option value="nu_nm" <%if("nu_nm".equals(search1)){out.println("selected");}%>>영양사</option>
 				</select>
 				<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
-				<button class="btn small edge mako" onclick="searchSubmit();">검색하기</button>
+				<button type="button" class="btn small edge mako" onclick="searchSubmit();">검색하기</button>
 				<div class="f_r">
 					<button type="button" class="btn small edge mako" onclick="sampleExcel();">샘플엑셀</button>
 					<button type="button" class="btn small edge mako" onclick="upExcel();">엑셀업로드</button>

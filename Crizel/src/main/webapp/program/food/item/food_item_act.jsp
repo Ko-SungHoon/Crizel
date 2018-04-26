@@ -4,6 +4,7 @@
 *   CREATE  :   20180322_thu    Ko
 *   MODIFY  :   단위 삭제 시 사용여부 확인 후 삭제    20180323_fri    JI
 *   MODIFY  :   화폐 단위는 수정 불가 및 타입 수정 불가    20180323_fri    JI
+*	MODIFY  :   batch 방식 변경 20180424_tue    KO
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -28,10 +29,16 @@ String[] unit_nm_arr 	= request.getParameterValues("unit_nm_arr");
 String[] unit_no_arr 	= request.getParameterValues("unit_no_arr");
 //String[] unit_type_arr 	= request.getParameterValues("unit_type_arr");
 
-StringBuffer sql 	= null;
-int result 			= 0;
+Connection conn 		= null;
+PreparedStatement pstmt = null;
+StringBuffer sql 		= null;
+int result 				= 0;
+int key					= 0;
 
 try{
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+
 /** CAT PART **/
 	if("catInsert".equals(mode)){
 		sql = new StringBuffer();
@@ -133,7 +140,25 @@ try{
 			out.println("</script>");
 		}
 	}else if("unitUpdate".equals(mode)){
-		List<Object[]> batch = new ArrayList<Object[]>();
+		sql = new StringBuffer();
+		sql.append("UPDATE FOOD_ST_UNIT SET	");
+		sql.append("	  UNIT_NM = ?		");
+		//sql.append("	, UNIT_TYPE = ?		");
+		sql.append("WHERE UNIT_NO = ?		");
+		
+		pstmt = conn.prepareStatement(sql.toString());
+		if(unit_no_arr!=null){
+			for(int i=0; i<unit_no_arr.length; i++){
+				key = 0;
+				pstmt.setString(++key,  unit_nm_arr[i]);
+				pstmt.setString(++key,  unit_no_arr[i]);
+				pstmt.addBatch();
+			}
+		}
+		int[] batchResult = pstmt.executeBatch();
+		if(pstmt!=null){pstmt.close();}
+		
+		/* List<Object[]> batch = new ArrayList<Object[]>();
 		if(unit_no_arr!=null){
 			for(int i=0; i<unit_no_arr.length; i++){
 				Object[] value = new Object[]{
@@ -144,12 +169,7 @@ try{
 				batch.add(value);
 			}
 		}
-		sql = new StringBuffer();
-		sql.append("UPDATE FOOD_ST_UNIT SET	");
-		sql.append("	  UNIT_NM = ?		");
-		//sql.append("	, UNIT_TYPE = ?		");
-		sql.append("WHERE UNIT_NO = ?		");
-		int[] batchResult = jdbcTemplate.batchUpdate(sql.toString(), batch);
+		int[] batchResult = jdbcTemplate.batchUpdate(sql.toString(), batch); */
 		result = batchResult.length;
 		
 		if(result>0){
@@ -172,6 +192,7 @@ try{
 			out.println("location.replace('food_unit_popup.jsp');");
 			out.println("opener.location.reload();");
 			out.println("</script>");
+			sqlMapClient.endTransaction();
             return;
         }
         
@@ -189,8 +210,16 @@ try{
 		}
 	}
 }catch(Exception e){
+	if(pstmt!=null){pstmt.close();}
+	if(conn!=null){conn.close();}
+	sqlMapClient.endTransaction();
 	out.println(e.toString());
+}finally {
+	if(pstmt!=null){pstmt.close();}
+	if(conn!=null){conn.close();}
+	sqlMapClient.endTransaction();
 }
+
 
 %>
 

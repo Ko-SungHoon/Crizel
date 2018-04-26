@@ -34,8 +34,12 @@ String pageTitle = "월별 조사 항목 및 개시";
         <script type="text/javascript" src="/program/excel/common/js/jquery-ui.min.js"></script>
         <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 		<script src="/program/food/modal.js"></script>
-<script>
-</script>
+<style>
+	.box_01 {border:2px solid #ccc;padding:15px;margin-bottom: 15px;}
+	.box_01 .type01 {height: 15px;}
+	.type01>li {padding:0px 15px 0px 15px; background:url(/img/common/bul_01.png) no-repeat 0 4px; float: left;}
+	.rschTit {background: url(/img/common/bul_01.png) no-repeat 0 4px; font-size:1.4em; font-weight:600;margin-bottom:5px; padding-left:15px;} 
+</style>
 </head>
 
 <body>
@@ -68,6 +72,7 @@ FoodVO rschVO 					= new FoodVO();
 List<FoodVO> rschList 			= null;
 List<FoodVO> zoneList			= null;
 List<FoodVO> teamList			= null;
+List<FoodVO> teamList2			= null;
 List<FoodVO> catList			= null;
 List<FoodVO> rschHisList 		= null;
 List<FoodVO> rschHisViewList 	= null;
@@ -86,17 +91,26 @@ int totalCount = 0;
 Object[] setObj		= null;
 List<String> setList	= new ArrayList<String>();
 
+//조사 개시 flag
+int rsch_no		=	0;
+
 try{
 	// 권역 리스트
 	sql = new StringBuffer();
 	sql.append("SELECT * FROM FOOD_ZONE WHERE SHOW_FLAG = 'Y' ORDER BY ZONE_NM 									");
 	zoneList = jdbcTemplate.query(sql.toString(), new FoodList());
 	
-	if(!"".equals(search3)){
+	if(!"".equals(search3) && !"".equals(search5)){
 		// 팀 리스트
 		sql = new StringBuffer();
-		sql.append("SELECT * FROM FOOD_TEAM WHERE SHOW_FLAG = 'Y' AND ZONE_NO = ? ORDER BY ORDER1, TEAM_NM		");
-		teamList = jdbcTemplate.query(sql.toString(), new FoodList(), search3);
+		sql.append("SELECT * FROM FOOD_TEAM WHERE SHOW_FLAG = 'Y' AND ZONE_NO = ? AND CAT_NO = ? ORDER BY ORDER1, TEAM_NM		");
+		teamList = jdbcTemplate.query(sql.toString(), new FoodList(), search3, search5);
+	}
+	if(!"".equals(search9) && !"".equals(search11)){
+		// 팀 리스트
+		sql = new StringBuffer();
+		sql.append("SELECT * FROM FOOD_TEAM WHERE SHOW_FLAG = 'Y' AND ZONE_NO = ? AND CAT_NO = ? ORDER BY ORDER1, TEAM_NM		");
+		teamList = jdbcTemplate.query(sql.toString(), new FoodList(), search9, search11);
 	}
 	
 	// 구분 리스트
@@ -113,19 +127,19 @@ try{
 	sql.append("	, TO_CHAR(STR_DATE, 'YYYY-MM-DD') AS STR_DATE														");
 	sql.append("	, TO_CHAR(MID_DATE, 'YYYY-MM-DD') AS MID_DATE														");
 	sql.append("	, TO_CHAR(END_DATE, 'YYYY-MM-DD') AS END_DATE														");
-	sql.append("	, TO_DATE(END_DATE)-TO_DATE(SYSDATE) AS RNUM														");
+	sql.append("	, ABS(TO_DATE(END_DATE)-TO_DATE(SYSDATE)) AS RNUM													");
 	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO) AS CNT								");	// 조사항목 수
 	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND STS_FLAG != 'Y') AS CNT2		");	// 미조사 항목 수
 	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND STS_FLAG = 'Y') AS CNT3			");	// 조사완료 항목 수
 	sql.append("FROM FOOD_RSCH_TB A																						");
-	sql.append("WHERE RSCH_YEAR = ? AND RSCH_MONTH = ?																	");
-	sql.append("	AND SHOW_FLAG = 'Y' AND STS_FLAG = 'N'																");
+	sql.append("WHERE STS_FLAG = 'N'																					");
 	try{
-		rschVO = jdbcTemplate.queryForObject(sql.toString(), new FoodList(), yearStr, monthStr);
+		rschVO = jdbcTemplate.queryForObject(sql.toString(), new FoodList());
+		rsch_no	=	Integer.parseInt(rschVO.rsch_no);
 	}catch(Exception e){
 		rschVO = new FoodVO();
 	}
-	
+		
 	setList	= new ArrayList<String>();
 	sql = new StringBuffer();
 	sql.append("SELECT	COUNT(*) AS CNT																											");
@@ -141,7 +155,7 @@ try{
 		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
 	if(!"".equals(search2)){
-		sql.append("AND B.NON_SEASON = 'Y' AND B.NON_DISTRI = 'Y'																				");
+		sql.append("AND (B.NON_SEASON = 'Y' OR B.NON_DISTRI = 'Y')																				");
 		paging.setParams("search2", search2);
 	}else{
 		sql.append("AND B.NON_SEASON = 'N' AND B.NON_DISTRI = 'N'																				");
@@ -210,6 +224,8 @@ try{
 	sql.append("  , B.RSCH_LOC1, B.RSCH_LOC2, B.RSCH_LOC3, B.RSCH_LOC4, B.RSCH_LOC5																");
 	sql.append("  , B.RSCH_COM1, B.RSCH_COM2, B.RSCH_COM3, B.RSCH_COM4, B.RSCH_COM5																"); 
 	sql.append("  , B.RSCH_REASON																												");
+	sql.append("  , B.T_RJ_REASON																												");
+	sql.append("  , B.RJ_REASON																													");
 	sql.append("  , B.STS_FLAG																													");
 	sql.append("  , B.SP_CHK																													");
 	sql.append("  , B.RJ_DATE																													");
@@ -222,7 +238,7 @@ try{
 		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
 	if(!"".equals(search2)){
-		sql.append("AND B.NON_SEASON = 'Y' AND B.NON_DISTRI = 'Y'																				");
+		sql.append("AND (B.NON_SEASON = 'Y' OR B.NON_DISTRI = 'Y')																				");
 	}else{
 		sql.append("AND B.NON_SEASON = 'N' AND B.NON_DISTRI = 'N'																				");
 	}
@@ -303,7 +319,7 @@ try{
 		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
 	if(!"".equals(search8)){
-		sql.append("AND B.NON_SEASON = 'Y' AND B.NON_DISTRI = 'Y'																				");
+		sql.append("AND (B.NON_SEASON = 'Y' OR B.NON_DISTRI = 'Y')																				");
 		paging3.setParams("search8", search8);
 	}else{
 		sql.append("AND B.NON_SEASON = 'N' AND B.NON_DISTRI = 'N'																				");
@@ -373,6 +389,8 @@ try{
 	sql.append("  , B.RSCH_LOC1, B.RSCH_LOC2, B.RSCH_LOC3, B.RSCH_LOC4, B.RSCH_LOC5																");
 	sql.append("  , B.RSCH_COM1, B.RSCH_COM2, B.RSCH_COM3, B.RSCH_COM4, B.RSCH_COM5																"); 
 	sql.append("  , B.RSCH_REASON																												");
+	sql.append("  , B.T_RJ_REASON																												");
+	sql.append("  , B.RJ_REASON																													");
 	sql.append("  , B.STS_FLAG																													");
 	sql.append("  , B.SP_CHK																													");
 	sql.append("  , B.RJ_DATE																													");
@@ -385,7 +403,7 @@ try{
 		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
 	if(!"".equals(search8)){
-		sql.append("AND B.NON_SEASON = 'Y' AND B.NON_DISTRI = 'Y'																				");
+		sql.append("AND (B.NON_SEASON = 'Y' OR B.NON_DISTRI = 'Y')																				");
 	}else{
 		sql.append("AND B.NON_SEASON = 'N' AND B.NON_DISTRI = 'N'																				");
 	}
@@ -451,8 +469,13 @@ try{
     
     // 조사 엑셀 업로드
     function researchExcel(){
-    	var url = "/program/food/research/research_excel_popup.jsp";
-    	newWin(url, "PRINTVIEW", "1000", "740");
+		<%if (rsch_no > 0) {%>
+			alert("조사 개시 중에는 엑셀 업로드가 안됩니다.\n개시 중인 조사를 취소하거나 완료하세요.");
+			return false;
+		<%} else {%>
+			var url = "/program/food/research/research_excel_popup.jsp";
+			newWin(url, "PRINTVIEW", "1000", "740");
+		<%}%>
     }
 
     //조사 내용 수정 function
@@ -463,8 +486,13 @@ try{
         	url = "/program/food/research/research_popup.jsp?mode=" + type + "&rsch_no=" + rsch_no;
         	newWin(url, "PRINTVIEW", "1000", "740");
         } else {
-        	url = "/program/food/research/research_popup.jsp?mode=" + type;
-        	newWin(url, "PRINTVIEW", "1000", "740");
+			<%if (rsch_no > 0) {%>
+				alert("조사 개시 중에는 엑셀 업로드가 안됩니다.\n개시 중인 조사를 취소하거나 완료하세요.");
+				return false;
+			<%} else {%>
+				url = "/program/food/research/research_popup.jsp?mode=" + type;
+				newWin(url, "PRINTVIEW", "1000", "740");
+			<%}%>
         }
     }
     
@@ -518,24 +546,60 @@ try{
     	}
     }
     
-    function teamSelect1(zone_no){
+    function teamSelect1(cat_no){
     	var html = "";
-    	$.ajax({
-    		type : "POST",
-    		url : "/program/food/research/team_list.jsp",
-    		data : {
-    			"zone_no" : zone_no,
-    			"mode"	  : "team"    
-    			},
-    		async : false,
-    		success : function(data){
-    			html += "<option value=''>팀 선택</option>";
-    			html += data.trim();
-    			$("#searchForm #search4").html(html);
-    		},
-    		error : function(request, status, error){
-    		}
-    	});
+    	var zone_no = $("#search3").val();
+    	if(cat_no != ""){
+    		$.ajax({
+        		type : "POST",
+        		url : "/program/food/research/team_list.jsp",
+        		data : {
+        			"zone_no" : zone_no,
+        			"cat_no"  : cat_no,
+        			"mode"	  : "team"    
+        			},
+        		async : false,
+        		success : function(data){
+        			html += "<option value=''>팀 선택</option>";
+        			html += data.trim();
+        			$("#searchForm #search4").html(html);
+        		},
+        		error : function(request, status, error){
+        		}
+        	});
+    	}else{
+    		html += "<option value=''>팀 선택</option>";
+    		$("#searchForm #search4").html(html);
+    	}
+    	
+    }
+    
+    function teamSelect2(cat_no){
+    	var html = "";
+    	var zone_no = $("#search9").val();
+    	if(cat_no != ""){
+    		$.ajax({
+        		type : "POST",
+        		url : "/program/food/research/team_list.jsp",
+        		data : {
+        			"zone_no" : zone_no,
+        			"cat_no"  : cat_no,
+        			"mode"	  : "team"    
+        			},
+        		async : false,
+        		success : function(data){
+        			html += "<option value=''>팀 선택</option>";
+        			html += data.trim();
+        			$("#searchForm3 #search10").html(html);
+        		},
+        		error : function(request, status, error){
+        		}
+        	});
+    	}else{
+    		html += "<option value=''>팀 선택</option>";
+    		$("#searchForm3 #search10").html(html);
+    	}
+    	
     }
 
     function researchApproval(rsch_val_no){
@@ -558,9 +622,17 @@ try{
     function rejectionModalClose(){
     	$("#rejectionDiv").popup("hide");
     }
+    function reasonModal(reason){
+    	$("#reasonDiv #rj_reason").text(reason);
+    	$("#reasonDiv").popup("show");
+    	
+    }
+    function reasonModalClose(){
+    	$("#reasonDiv").popup("hide");
+    }
 </script>
 <!-- MODAL START -->
-<div id="rejectionDiv" style="display: none;">
+<div id="rejectionDiv" style="display: none; width: 30%;">
 	<form id="rejectionForm">
 		<fieldset>
 			<input type="hidden" id="rsch_val_no">
@@ -585,6 +657,22 @@ try{
 			<button type="button" class="btn medium edge green" onclick="researchRejection()">확인</button>
 		</p>
 	</form>
+</div>
+
+<div id="reasonDiv" style="display: none; width: 30%;">
+	<div class="top_view">
+		<p class="location"><strong>반려사유</strong></p>
+	</div>
+	<table class="bbs_list">
+		<tr>
+			<td>
+				<span id="rj_reason"></span>
+			</td>
+		</tr>
+	</table>
+	<p class="btn_area txt_c">
+		<button type="button" class="btn small edge mako" onclick="reasonModalClose()">닫기</button>
+	</p>
 </div>
 <!-- MODAL END -->
 
@@ -625,21 +713,18 @@ try{
 	if(!"".equals(rschVO.rsch_no)){
 	%>
 	
-	<h2 class="tit"><%=rschVO.rsch_year%>년 <%=rschVO.rsch_month%>월 조사기간입니다.</h2>
-	<div class="txt_c">
-		<span>시작일 : <%=rschVO.str_date %></span>
-		<span>제출종료일 : <%=rschVO.mid_date %></span>
-		<span>마감종료일 : <%=rschVO.end_date%></span>
-		<span>D-<%=rschVO.rnum%></span>
-		<span>조사품목 <%=rschVO.cnt3 %>/<%=rschVO.cnt%> 완료</span>
-	</div>
-	
-	<div class="txt_r">
-		<button type="button" class="btn small edge mako" onclick="researchMod('mod');">조사내용수정</button>
-		<button type="button" class="btn small edge mako" onclick="researchCom('<%=rschVO.rsch_no%>')" >조사완료</button>
-		<button type="button" class="btn small edge mako" onclick="researchCan('<%=rschVO.rsch_no%>')" >조사취소</button>
-	</div>
-	
+	<h2 class="rschTit">
+		<%=rschVO.rsch_year%>년 <%=rschVO.rsch_month%>월 조사기간입니다.
+	</h2>
+<div class="box_01">
+	<ul class="type01 fsize_120">
+		<li>시작일 : <%=rschVO.str_date %> </li>
+		<li>제출종료일 : <%=rschVO.mid_date %></li>
+		<li>마감종료일 : <%=rschVO.end_date%></li>
+		<li>D-<%=rschVO.rnum%></li>
+		<li>조사품목 <%=rschVO.cnt3 %>/<%=rschVO.cnt%> 완료</li>
+	</ul>
+</div>
 	<div class="searchBox magB20">
 		<form id="searchForm" method="get" class="topbox2">
 			<fieldset>
@@ -648,7 +733,7 @@ try{
 					<label for="search1">미조사 식품 보기</label>
 				<input type="checkbox" id="search2" name="search2" value="Y" <%if("Y".equals(search2)){out.println("checked"); }%>>
 					<label for="search2">이상 조사 보기</label>
-				<select id="search3" name="search3" onchange="teamSelect1(this.value)">
+				<select id="search3" name="search3" >
 					<option value="">권역 선택</option>
 				<%
 				if(zoneList!=null && zoneList.size()>0){
@@ -661,6 +746,20 @@ try{
 					}
 				}
 				%>	
+				</select>
+				<select id="search5" name="search5" onchange="teamSelect1(this.value)">
+					<option value="">구분 선택</option>
+				<%
+				if(catList!=null && catList.size()>0){
+					for(FoodVO ob : catList){
+						out.println("<option value='"+ ob.cat_no +"'");
+						if(search5.equals(ob.cat_no)){
+							out.println(" selected ");
+						}
+						out.println(">" + ob.cat_nm +"</option>");
+					}
+				}
+				%>
 				</select>
 				<select id="search4" name="search4">
 					<option value="">팀 선택</option>
@@ -676,21 +775,13 @@ try{
 				}
 				%>
 				</select>
-				<select id="search5" name="search5">
-					<option value="">구분 선택</option>
-				<%
-				if(catList!=null && catList.size()>0){
-					for(FoodVO ob : catList){
-						out.println("<option value='"+ ob.cat_no +"'");
-						if(search5.equals(ob.cat_no)){
-							out.println(" selected ");
-						}
-						out.println(">" + ob.cat_nm +"</option>");
-					}
-				}
-				%>
-				</select>
 				<button type="button" class="btn small edge mako" onclick="searchSubmit();">조회</button>
+				
+				<div class="f_r">
+					<button type="button" class="btn small edge mako" onclick="researchMod('mod');">조사내용수정</button>
+					<button type="button" class="btn small edge mako" onclick="researchCom('<%=rschVO.rsch_no%>')" >조사완료</button>
+					<button type="button" class="btn small edge mako" onclick="researchCan('<%=rschVO.rsch_no%>')" >조사취소</button>
+				</div>
 			</fieldset>
 		</form>
 	</div>
@@ -698,25 +789,32 @@ try{
 	<table class="bbs_list">
 		<caption><%=pageTitle%> 테이블</caption>
 		<colgroup>
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
 			<col >
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
+			<col style="width: 3.8%">
 		</colgroup>
 		<thead>
 			<tr>
@@ -734,10 +832,17 @@ try{
 				<th scope="col">조사가3</th>
 				<th scope="col">조사가4</th>
 				<th scope="col">조사가5</th>
-				<th scope="col">조사처1 더보기</th>
-				<th scope="col">견적업체 더보기</th>
+				<th scope="col">조사처1</th>
+				<th scope="col">조사처2</th>
+				<th scope="col">조사처3</th>
+				<th scope="col">조사처4</th>
+				<th scope="col">조사처5</th>
+				<th scope="col">브랜드1</th>
+				<th scope="col">브랜드2</th>
+				<th scope="col">브랜드3</th>
+				<th scope="col">브랜드4</th>
+				<th scope="col">브랜드5</th>
 				<th scope="col">사유</th>
-				<th scope="col">팀장확인</th>
 				<th scope="col">승인/반려</th>
 			</tr>
 		</thead>
@@ -762,9 +867,16 @@ try{
 				<td><%=ob.rsch_val4 %></td>
 				<td><%=ob.rsch_val5 %></td>
 				<td><%=ob.rsch_loc1 %></td>
+				<td><%=ob.rsch_loc2 %></td>
+				<td><%=ob.rsch_loc3 %></td>
+				<td><%=ob.rsch_loc4 %></td>
+				<td><%=ob.rsch_loc5 %></td>
 				<td><%=ob.rsch_com1 %></td>
+				<td><%=ob.rsch_com2 %></td>
+				<td><%=ob.rsch_com3 %></td>
+				<td><%=ob.rsch_com4 %></td>
+				<td><%=ob.rsch_com5 %></td>
 				<td><%=ob.rsch_reason %></td>
-				<td><%=ob.sp_chk %></td>
 				<td>
 				<%
 				
@@ -772,19 +884,25 @@ try{
 					out.println("미조사");
 				}else if("RS".equals(ob.sts_flag)){
 					out.println("검증");
+				}else if("SR".equals(ob.sts_flag)){
+					out.println("조사자 제출");
 				}else if("RC".equals(ob.sts_flag)){
 					out.println("검토");
-				}else if("Y".equals(ob.sts_flag)){
-					out.println("승인");
-				}else if("RR".equals(ob.sts_flag)){
-					out.println("관리자 반려");
 				}else if("RT".equals(ob.sts_flag)){
-					out.println("팀장 반려");
+				%>
+					<a href="javascript:reasonModal('<%=ob.t_rj_reason.replace("\n", "<br>")%>')">팀장 반려</a>
+				<%
 				}else if("SS".equals(ob.sts_flag)){
 				%>
 					<button type="button" class="btn small edge green" onclick="researchApproval('<%=ob.rsch_val_no%>')">승인</button>
 					<button type="button" class="btn small edge mako" onclick="rejectionModal('<%=ob.rsch_val_no%>')">반려</button>
 				<%
+				}else if("RR".equals(ob.sts_flag)){
+				%>
+					<a href="javascript:reasonModal('<%=ob.rj_reason.replace("\n", "<br>")%>')">관리자 반려</a>
+				<%
+				}else if("Y".equals(ob.sts_flag)){
+					out.println("승인");
 				}
 				%>
 				</td>
@@ -794,7 +912,7 @@ try{
 		}else{
 		%>
 		<tr>
-			<td colspan="19">데이터가 없습니다.</td>
+			<td colspan="26">데이터가 없습니다.</td>
 		</tr>
 		<%} %>
 		
@@ -828,9 +946,9 @@ try{
 			</fieldset>
 		</form>
 	</div>
-
-
-	<h2 class="tit"><%=yearStr%>년 조사 수 <%=rschHisListCnt%> 건</h2>
+	<h2 class="rschTit">
+		<%=yearStr%>년 조사 수 <%=rschHisListCnt%> 건
+	</h2>
 	<table class="bbs_list">
 		<caption><%=pageTitle%> 테이블</caption>
 		<colgroup>
@@ -907,7 +1025,7 @@ try{
 					<label for="search7">미조사 식품 보기</label>
 				<input type="checkbox" id="search8" name="search8" value="Y" <%if("Y".equals(search8)){out.println("checked"); }%>>
 					<label for="search8">이상 조사 보기</label>
-				<select id="search9" name="search9" onchange="teamSelect2(this.value)">
+				<select id="search9" name="search9" >
 					<option value="">권역 선택</option>
 				<%
 				if(zoneList!=null && zoneList.size()>0){
@@ -920,6 +1038,20 @@ try{
 					}
 				}
 				%>	
+				</select>
+				<select id="search11" name="search11" onchange="teamSelect2(this.value)">
+					<option value="">구분 선택</option>
+				<%
+				if(catList!=null && catList.size()>0){
+					for(FoodVO ob : catList){
+						out.println("<option value='"+ ob.cat_no +"'");
+						if(search11.equals(ob.cat_no)){
+							out.println(" selected ");
+						}
+						out.println(">" + ob.cat_nm +"</option>");
+					}
+				}
+				%>
 				</select>
 				<select id="search10" name="search10">
 					<option value="">팀 선택</option>
@@ -935,20 +1067,6 @@ try{
 				}
 				%>
 				</select>
-				<select id="search11" name="search11">
-					<option value="">구분 선택</option>
-				<%
-				if(catList!=null && catList.size()>0){
-					for(FoodVO ob : catList){
-						out.println("<option value='"+ ob.cat_no +"'");
-						if(search11.equals(ob.cat_no)){
-							out.println(" selected ");
-						}
-						out.println(">" + ob.cat_nm +"</option>");
-					}
-				}
-				%>
-				</select>
 				<button type="button" class="btn small edge mako" onclick="searchSubmit();">조회</button>
 			</fieldset>
 		</form>
@@ -957,24 +1075,31 @@ try{
 	<table class="bbs_list">
 		<caption><%=pageTitle%> 테이블</caption>
 		<colgroup>
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col >
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
-			<col style="width: 5.2%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col>
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
+			<col style="width: 3.9%">
 		</colgroup>
 		<thead>
 			<tr>
@@ -992,10 +1117,17 @@ try{
 				<th scope="col">조사가3</th>
 				<th scope="col">조사가4</th>
 				<th scope="col">조사가5</th>
-				<th scope="col">조사처1 더보기</th>
-				<th scope="col">견적업체 더보기</th>
+				<th scope="col">조사처1</th>
+				<th scope="col">조사처2</th>
+				<th scope="col">조사처3</th>
+				<th scope="col">조사처4</th>
+				<th scope="col">조사처5</th>
+				<th scope="col">견적업체1</th>
+				<th scope="col">견적업체2</th>
+				<th scope="col">견적업체3</th>
+				<th scope="col">견적업체4</th>
+				<th scope="col">견적업체5</th>
 				<th scope="col">사유</th>
-				<th scope="col">팀장확인</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -1019,16 +1151,23 @@ try{
 				<td><%=ob.rsch_val4 %></td>
 				<td><%=ob.rsch_val5 %></td>
 				<td><%=ob.rsch_loc1 %></td>
+				<td><%=ob.rsch_loc2 %></td>
+				<td><%=ob.rsch_loc3 %></td>
+				<td><%=ob.rsch_loc4 %></td>
+				<td><%=ob.rsch_loc5 %></td>
 				<td><%=ob.rsch_com1 %></td>
+				<td><%=ob.rsch_com2 %></td>
+				<td><%=ob.rsch_com3 %></td>
+				<td><%=ob.rsch_com4 %></td>
+				<td><%=ob.rsch_com5 %></td>
 				<td><%=ob.rsch_reason %></td>
-				<td><%=ob.sp_chk %></td>
 			</tr>
 		<%
 			}
 		}else{
 		%>
 		<tr>
-			<td colspan="19">데이터가 없습니다.</td>
+			<td colspan="25">데이터가 없습니다.</td>
 		</tr>
 		<%} %>
 		

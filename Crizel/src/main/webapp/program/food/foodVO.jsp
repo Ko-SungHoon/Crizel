@@ -5,6 +5,7 @@
 *   MODIFY  :   20180404_wed    JI  학교별 조사식품수 column(RSCH_ITEM_CNT) 추가
 *   MODIFY  :   20180418_wed    JI  권역 평균 column(ZONE_AVR_VAL) 추가
 *   MODIFY  :   20180419_thur   JI  최저가, 평균가 flag column(LOW_FLAG, AVR_FLAG) 추가
+*   MODIFY  :   20180419_thur   JI  식품 LOG COUNT column(LOG_CNT) 추가
 **/
 %>
 
@@ -199,6 +200,8 @@ public class FoodVO{
 	//public String show_flag = "";
 	public String uniq_id	=	"";
 	public String food_cat_index = "";
+
+	public String log_cnt	=	"";
 	
 	public String file_no		=	"";
 	public String file_nm		=	"";
@@ -309,7 +312,10 @@ public class FoodVO{
     public String rsch_item_cnt =   "";
     
     public String item_nm   =   "";
-	
+    
+    //조사팀장이 가져올 조사자목록
+    public String t_nu_no	=	"";
+	public String t_nu_nm	=	"";
 }
 
 public class FoodList implements RowMapper<FoodVO> {
@@ -498,12 +504,14 @@ public class FoodList implements RowMapper<FoodVO> {
     		else if("JO_NM".equals(column)){			vo.jo_nm			=   parseNull(rs.getString("JO_NM"));	    	}
     		else if("AREA_NO".equals(column)){			vo.area_no			=   parseNull(rs.getString("AREA_NO"));	    	}
     		else if("AREA_NM".equals(column)){			vo.area_nm			=   parseNull(rs.getString("AREA_NM"));	    	}
-
+    		else if("T_NU_NO".equals(column)){			vo.t_nu_no			=   parseNull(rs.getString("T_NU_NO"));	    	}
+    		else if("T_NU_NM".equals(column)){			vo.t_nu_nm			=   parseNull(rs.getString("T_NU_NM"));	    	}
             //학교별 조사식품수
             else if("RSCH_ITEM_CNT".equals(column)){    vo.rsch_item_cnt    =   parseNull(rs.getString("RSCH_ITEM_CNT"));   }
     		
             else if("ITEM_NM".equals(column)){          vo.item_nm          =   parseNull(rs.getString("ITEM_NM"));     	}
 
+            else if("LOG_CNT".equals(column)){          vo.log_cnt          =   parseNull(rs.getString("LOG_CNT"));     	}
 		}
         return vo;
     }

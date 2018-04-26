@@ -48,7 +48,21 @@ List<FoodVO> foodList 	=	null;	//조사식품 리스트
 
 String type = "";
 
+//조사개시 중인 조사번호
+int rsch_no	=	0;
+
 try{
+	//조사개시 중인 조사번호 가져오기
+	sql	=	new StringBuffer();
+	sql.append(" SELECT RSCH_NO			");
+	sql.append(" FROM FOOD_RSCH_TB		");
+	sql.append(" WHERE SHOW_FLAG = 'Y'	");
+	sql.append(" 	AND STS_FLAG = 'N'	");
+	try{
+		rsch_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+	}catch(Exception e){
+		rsch_no	=	0;
+	}
 
 	//학교, 영양사 정보 출력
 	sql =	new StringBuffer();
@@ -260,9 +274,14 @@ try{
 <script>
 	//조사식품 추가 popup
 	function addFood(sch_id) {
-		if (confirm("조사식품을 추가 하시겠습니까?")) {
-			newWin("food_research_popup.jsp?sch_id=" + sch_id, 'PRINTVIEW', '1000', '740');
-		}
+		<%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 조사식품 추가삭제가 불가합니다.");
+			return false;
+		<%}else{%>
+			if (confirm("조사식품을 추가 하시겠습니까?")) {
+				newWin("food_research_popup.jsp?sch_id=" + sch_id, 'PRINTVIEW', '1000', '740');
+			}
+		<%}%>
 	}
 
 	//조사식품 삭제 popup
@@ -304,20 +323,25 @@ try{
 	$(function(){
 		//조사식품 삭제
 		$(".selItem").click(function (){
-			var index	=	$(".selItem").index(this);
-			var rsch_item_no	=	$(".selItem").eq(index).data("value");
-			var item_no			=	$(".nm_food").eq(index).data("value");
-			var item_comp_no	=	$(".comp_val").eq(index).data("value");
-			var nm_food			=	$(".nm_food").eq(index).text().trim();
-			if (item_comp_no > 0) {
-				if (confirm("비교조사 그룹 조사식품 삭제는\n동일한 그룹 조사식품도 삭제됩니다.\n삭제하시겠습니까?")) {
-					delFood(item_no);
+			<%if(rsch_no > 0) {%>
+				alert("조사개시 중에는 조사식품 추가삭제가 불가합니다.");
+				return false;
+			<%}else{%>
+				var index	=	$(".selItem").index(this);
+				var rsch_item_no	=	$(".selItem").eq(index).data("value");
+				var item_no			=	$(".nm_food").eq(index).data("value");
+				var item_comp_no	=	$(".comp_val").eq(index).data("value");
+				var nm_food			=	$(".nm_food").eq(index).text().trim();
+				if (item_comp_no > 0) {
+					if (confirm("비교조사 그룹 조사식품 삭제는\n동일한 그룹 조사식품도 삭제됩니다.\n삭제하시겠습니까?")) {
+						delFood(item_no);
+					}
+				} else {
+					if (confirm(nm_food + " 을(를) 삭제하시겠습니까?")) {
+						delFood(item_no);
+					}
 				}
-			} else {
-				if (confirm(nm_food + " 을(를) 삭제하시겠습니까?")) {
-					delFood(item_no);
-				}
-			}
+			<%}%>
 		});
 	});
 

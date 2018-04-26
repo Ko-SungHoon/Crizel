@@ -1,3 +1,4 @@
+<%@page import="java.lang.reflect.Method"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8"	pageEncoding="UTF-8"%>
 <%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
 <%@page import="java.sql.*"%>
@@ -82,12 +83,19 @@ list = jdbcTemplate.query(sql, new TestList());
 
 if(list!=null && list.size()>0){
 	for(TestVO ob : list){
-		out.println("TEST1 : " + ob.test1 + "<br>");	
-		out.println("TEST2 : " + ob.test2 + "<br><br>");
+		/* out.println("TEST1 : " + ob.test1 + "<br>");	
+		out.println("TEST2 : " + ob.test2 + "<br><br>"); */
 	}
 }
 
+out.println(jdbcTemplate.getClass().getMethods());
+
+for(Method ob : jdbcTemplate.getClass().getMethods()){
+	out.println(ob.getName() + "<br>");
+}
 %>
+
+
 </body>
 </html>
 

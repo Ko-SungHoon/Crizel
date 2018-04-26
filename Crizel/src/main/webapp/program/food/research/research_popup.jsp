@@ -78,6 +78,8 @@ try {
     sql.append("SELECT  																						");
     sql.append("    TEAM_NO																						");
     sql.append("  , TEAM_NM																						");
+    sql.append("  , (SELECT ZONE_NM FROM FOOD_ZONE WHERE ZONE_NO = A.ZONE_NO) AS ZONE_NM						");
+    sql.append("  , (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = A.CAT_NO) AS CAT_NM							");
     sql.append("  , (SELECT COUNT(*) FROM FOOD_RSCH_TEAM WHERE TEAM_NO = A.TEAM_NO AND RSCH_NO = ?) AS CNT		");
     sql.append("FROM FOOD_TEAM A																				");
     sql.append("WHERE SHOW_FLAG = 'Y' 																			");
@@ -232,6 +234,24 @@ try {
     		return false;
     	}
     }
+    
+$(function(){
+	$("#catAllCheck").click(function(){
+		if($("#catAllCheck").is(":checked")){
+			$("input:checkbox[name=cat_nm]").prop("checked", "true");
+		}else{
+			$("input:checkbox[name=cat_nm]").removeAttr("checked");
+		}
+	});
+                  		
+	$("#teamAllCheck").click(function(){
+		if($("#teamAllCheck").is(":checked")){
+			$("input:checkbox[name=team_no]").prop("checked", "true");
+		}else{
+			$("input:checkbox[name=team_no]").removeAttr("checked");
+		}
+	});
+});
 </script>
 </head>
 <body>
@@ -274,9 +294,10 @@ try {
                             <td colspan="3"><input type="text" class="rsch_nm wps_75" id="rsch_nm" name="rsch_nm"
                             				value="<%=rschVO.rsch_nm %>" required></td>
                         </tr>
-                        <tr>
+                        <tr style="height: 300px;">
                         	<td colspan="2">
-                        	<ul>
+                        	<input type="checkbox" id="catAllCheck" value="Y"><label for="catAllCheck">전체 선택</label>
+                        	<ul style="height: 300px; overflow-y: scroll ">
                         	<%
                         	if(catList!=null && catList.size()>0){
                         		int i=0;
@@ -294,7 +315,8 @@ try {
                         	</ul>
                         	</td>
                         	<td colspan="2">
-                        	<ul>
+                        	<input type="checkbox" id="teamAllCheck" value="Y"><label for="teamAllCheck">전체 선택</label>
+                        	<ul style="height: 300px; overflow-y: scroll ">
                         	<%
                         	if(teamList!=null && teamList.size()>0){
                         		int i=0;
@@ -303,7 +325,7 @@ try {
                         		<li>
                         			<input type="checkbox" id="team_no_<%=i++%>" name="team_no" value="<%=ob.team_no%>"
                         			<%if(!"0".equals(ob.cnt)){out.println("checked");} %>>
-                        			<label for="team_no_<%=i-1%>"><%=ob.team_nm%></label>
+                        			<label for="team_no_<%=i-1%>"><%=ob.zone_nm%> <%=ob.cat_nm%> <%=ob.team_nm%></label>
                         		</li>
                         	<%
                         		}

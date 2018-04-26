@@ -27,6 +27,8 @@ String[] order1_arr = request.getParameterValues("order1_arr");
 String[] team_no_arr = request.getParameterValues("team_no_arr");
 String[] team_nm_arr = request.getParameterValues("team_nm_arr");
 
+String cat_no	= parseNull(request.getParameter("cat_no"));
+
 StringBuffer sql 	= null;
 int result 			= 0;
 
@@ -61,14 +63,14 @@ try{
 		sql.append("UPDATE FOOD_TEAM SET 	");
 		sql.append("	SHOW_FLAG = 'N'		");
 		sql.append("WHERE ZONE_NO = ?	 	");
-		result = jdbcTemplate.update(sql.toString(), zone_no);
+		jdbcTemplate.update(sql.toString(), zone_no);
 		
 		sql = new StringBuffer();
 		sql.append("UPDATE FOOD_SCH_TB SET 	");
-		sql.append("	  ZONE_NO = 0		");
-		sql.append("	, TEAM_NO = 0		");
+		sql.append("	  ZONE_NO = NULL	");
+		sql.append("	, TEAM_NO = NULL	");
 		sql.append("WHERE ZONE_NO = ?	 	");
-		result = jdbcTemplate.update(sql.toString(), zone_no);
+		jdbcTemplate.update(sql.toString(), zone_no);
 		
 		if(result>0){
 			out.println("<script>");
@@ -106,11 +108,12 @@ try{
 		}
 	}else if("teamInsert".equals(mode)){
 		sql = new StringBuffer();
-		sql.append("INSERT INTO FOOD_TEAM(	TEAM_NO, ZONE_NO, TEAM_NM, REG_DATE, MOD_DATE,					");
+		sql.append("INSERT INTO FOOD_TEAM(	TEAM_NO, ZONE_NO, CAT_NO, TEAM_NM, REG_DATE, MOD_DATE,			");
 		sql.append("						SHOW_FLAG, ORDER1, ORDER2, ORDER3	)							");
 		sql.append("VALUES(																					");
 		sql.append("	(SELECT NVL(MAX(TEAM_NO)+1,1) FROM FOOD_TEAM),										");	// TEAM_NO
 		sql.append("	?,																					");	// ZONE_NO
+		sql.append("	?,																					");	// CAT_NO
 		sql.append("	?,																					");	// TEAM_NM
 		sql.append("	SYSDATE,																			");	// REG_DATE
 		sql.append("	SYSDATE,																			");	// MOD_DATE
@@ -119,7 +122,7 @@ try{
 		sql.append("	0,																					");	// ORDER2
 		sql.append("	0																					");	// ORDER3
 		sql.append(")																						");
-		result = jdbcTemplate.update(sql.toString(), zone_no, team_nm, zone_no);
+		result = jdbcTemplate.update(sql.toString(), zone_no, cat_no, team_nm, zone_no);
 		
 		if(result>0){
 			out.println("<script>");
@@ -168,9 +171,9 @@ try{
 		
 		sql = new StringBuffer();
 		sql.append("UPDATE FOOD_SCH_TB SET 	");
-		sql.append("	TEAM_NO = 0			");
+		sql.append("	TEAM_NO = NULL		");
 		sql.append("WHERE TEAM_NO = ?	 	");
-		result = jdbcTemplate.update(sql.toString(), team_no);
+		jdbcTemplate.update(sql.toString(), team_no);
 		
 		if(result>0){
 			out.println("<script>");

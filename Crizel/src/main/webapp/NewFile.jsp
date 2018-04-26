@@ -1,357 +1,407 @@
-<%@ page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper" %>
-<%@page import="egovframework.rfc3.iam.manager.ViewManager"%>
-<%@page import="egovframework.rfc3.user.web.SessionManager"%>
+<%
+/**
+*   PURPOSE :   품목관리
+*   CREATE  :   20180322_thur   Ko
+*   MODIFY  :   20180420_fri    JI  품목별 리스트 호출
+**/
+%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ page import="egovframework.rfc3.user.web.SessionManager" %>
+<%@ include file="/program/class/UtilClass.jsp"%>
+<%@ include file="/program/class/PagingClass.jsp"%>
+<%@ page import="org.springframework.jdbc.core.*" %>
+<%@ include file="/program/food/food_util.jsp" %>
+<%@ include file="/program/food/foodVO.jsp" %>
 
 <%
-  String _list = "index.lib?contentsSid=165";
-  String _write = "index.lib?contentsSid=167";
-  String _view = "index.lib?contentsSid=166";
-  String _modify = "index.lib?contentsSid=168";
+response.setCharacterEncoding("UTF-8");
+request.setCharacterEncoding("UTF-8");
 
-  String _register = "index.lib?contentsSid=169";
-  
-  SessionManager sessionManager = new SessionManager(request);
-  ViewManager viewManager = new ViewManager(request, response);
-  boolean isRole = sessionManager.isRoleAdmin() || viewManager.isGranted(request, "DOM_000000203006000000", "WRITE");
-  
-  String birthdayYear = EgovUserDetailsHelper.getLoginVO().getBrth()==null?"":EgovUserDetailsHelper.getLoginVO().getBrth();
-  if(!"".equals(birthdayYear)){
-	  birthdayYear = birthdayYear.substring(0,4);
-  }
+SessionManager sessionManager = new SessionManager(request);
+String pageTitle = "품목관리";
 %>
+<!DOCTYPE html>
+<html lang="ko">
+	<head>
+		<title>RFC관리자 > <%=pageTitle %></title>
+		<script type='text/javascript' src='/js/egovframework/rfc3/iam/common.js'></script>
+		<script type='text/javascript' src='/js/jquery.js'></script>
+		<link href="/css/egovframework/rfc3/iam/admin_common.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" src="/program/excel/common/js/jquery.min.js"></script>
+        <script type="text/javascript" src="/program/excel/common/js/jquery-ui.min.js"></script>
+        <link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+<script>
+</script>
+</head>
+<body>
+<%
+String keyword  =   parseNull(request.getParameter("keyword"));
+String search1  =   parseNull(request.getParameter("search1"));
 
+String cat_no   =   parseNull(request.getParameter("cat_no"), "1");
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js"></script>
+StringBuffer sql 			= null;
+List<FoodVO> catList		= null;
+List<FoodVO> itemList		= null;
 
-    <link rel="stylesheet" href="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css">
-    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+Paging paging = new Paging();
+String pageNo = parseNull(request.getParameter("pageNo"), "1");
+int totalCount = 0;
+Object[] setObj		= null;
+List<String> setList	= new ArrayList<String>();
 
-    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery.validation/1.16.0/jquery.validate.min.js"></script>
-    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery.validation/1.16.0/additional-methods.min.js"></script>
+int pre_item_cnt    =   0;
+int total_item_cnt  =   0;
+
+try{
+    sql =   new StringBuffer();
+	sql.append("SELECT FOOD_ST_CAT.*                    ");
+	sql.append("FROM FOOD_ST_CAT						");
+	sql.append("ORDER BY CAT_NO, CAT_NM					");
+	catList = jdbcTemplate.query(sql.toString(), new FoodList());
+
+    //공개 식품 cnt & total cnt
+    sql =   new StringBuffer();
+    sql.append(" SELECT                         ");
+    sql.append("    NVL(COUNT(S_ITEM_NO), 0)    ");
+    sql.append(" FROM FOOD_ITEM_PRE             ");
+    sql.append(" WHERE SHOW_FLAG = 'Y'          ");
+    pre_item_cnt    =   jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+
+    sql =   new StringBuffer();
+    sql.append(" SELECT                         ");
+    sql.append("    NVL(COUNT(ITEM_NO), 0)      ");
+    sql.append(" FROM FOOD_ST_ITEM              ");
+    sql.append(" WHERE SHOW_FLAG = 'Y'          ");
+    total_item_cnt  =   jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+
+    sql = new StringBuffer();
+    sql.append(" SELECT COUNT(*)																				");
+    sql.append(" FROM(																							");
+    sql.append(" SELECT																							");
+    sql.append("	  PRE.ITEM_NO																				");
+    sql.append("	, ITEM.CAT_NO   																			");
+    sql.append("	, ITEM.FOOD_CODE																			");
+    sql.append("	, ITEM.FOOD_CAT_INDEX																		");
+    sql.append("	, (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM						");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("							XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()' 	");
+    sql.append("	).GETSTRINGVAL(),2) NM_FOOD 																");
+    sql.append("	FROM FOOD_ST_NM 																			");
+    sql.append("	WHERE NM_NO IN (FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5)) AS NM_FOOD      	");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("	    					XMLELEMENT(COL,',',DT_NM) ORDER BY DT_NM).EXTRACT('//text()' 		");
+    sql.append("	).GETSTRINGVAL(),2) DT_NM 																	");
+    sql.append("	FROM FOOD_ST_DT_NM 																			");
+    sql.append("	WHERE DT_NO IN (FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5						");
+    sql.append("	, FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10)) AS DT_NM							");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("	    					XMLELEMENT(COL ,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()' 		");
+    sql.append("	).GETSTRINGVAL(),2) EX_NM 																	");
+    sql.append("	FROM FOOD_ST_EXPL																			");
+    sql.append("	WHERE EX_NO IN (FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5						");
+    sql.append("	, FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10									");
+    sql.append("	, FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15								");
+    sql.append("	, FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20								");
+    sql.append("	, FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25)) AS EX_NM						");
+    sql.append("	, (SELECT UNIT_NM FROM FOOD_ST_UNIT WHERE UNIT_NO = ITEM.FOOD_UNIT) AS UNIT_NM				");
+    sql.append("	, TO_CHAR(PRE.REG_DATE, 'YYYY-MM-DD') AS REG_DATE											");
+    sql.append("	, TO_CHAR(PRE.MOD_DATE, 'YYYY-MM-DD') AS MOD_DATE											");
+    sql.append("	, PRE.SHOW_FLAG																				");
+    sql.append("	, (SELECT REG_IP FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_IP						");
+    sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
+
+    sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO			");
+    sql.append(")A WHERE 1=1																					");
+    sql.append("    AND A.CAT_NO = ?                                                                            ");
+    paging.setParams("cat_no", cat_no);
+    setList.add(cat_no);
+    if(!"".equals(search1)){
+    	if("nm_food".equals(search1)){
+    		sql.append("AND A.NM_FOOD LIKE '%'||?||'%'															");
+    	}else if("dt_nm".equals(search1)){
+    		sql.append("AND A.DT_NM LIKE '%'||?||'%'															");
+    	}else if("ex_nm".equals(search1)){
+    		sql.append("AND A.EX_NM LIKE '%'||?||'%'															");
+    	}
+
+    	paging.setParams("search1", search1);
+    	paging.setParams("keyword", keyword);
+    	
+    	setList.add(search1);
+    	setList.add(keyword);
+    }
+    setObj = new Object[setList.size()];
+    for(int i=0; i<setList.size(); i++){
+    	setObj[i] = setList.get(i);
+    }
     
-    <script>
-		$(function(){
-			<%-- var id = "<%=EgovUserDetailsHelper.getId()%>";
-			var password = btoa("<%=EgovUserDetailsHelper.getPassword()%>");
-			$.ajax({
-				type : "POST",
-				url : "http://lib.gyeongnam.go.kr/kdotapi/ksearchapi/userinfoview?id="+id,
-				contentType : "application/json; charset=utf-8",
-				datatype : "json",
-				success : function(data) {
-					var obj = JSON.parse(data);
-					var birthday = obj.USER_DATA.BIRTHDAY;
-					var birthdayYear = birthday.substring(0,4);
-					$("#birthdayYear").val(birthdayYear);
-				},
-				error : function(e) {
-					alert("에러발생");
-				}
-			}); --%>
-		});
-	</script>
-	
-    <style type="text/css">
-      .ui-dialog .ui-dialog-content {padding: 0;}
-      label.error {font-size:12px; color:#FF0000; }
+    totalCount = jdbcTemplate.queryForObject(sql.toString(), Integer.class, setObj);
+    
+    paging.setPageNo(Integer.parseInt(pageNo));
+	paging.setTotalCount(totalCount);
+	paging.setPageSize(10);
+	paging.makePaging();
+    
+    sql = new StringBuffer();
+	sql.append("SELECT * FROM(																                    ");
+	sql.append("	SELECT ROWNUM AS RNUM, A.* FROM (										                    ");
+    sql.append("    SELECT																						");
+    sql.append("	  PRE.ITEM_NO																				");
+    sql.append("	, PRE.S_ITEM_NO																				");
+    sql.append("	, ITEM.CAT_NO																				");
+    sql.append("	, ITEM.FOOD_CODE																			");
+    sql.append("	, ITEM.FOOD_CAT_INDEX																		");
+    sql.append("	, (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM						");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("							XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()' 	");
+    sql.append("	).GETSTRINGVAL(),2) NM_FOOD 																");
+    sql.append("	FROM FOOD_ST_NM 																			");
+    sql.append("	WHERE NM_NO IN (FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5)) AS NM_FOOD      	");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("	    					XMLELEMENT(COL,',',DT_NM) ORDER BY DT_NM).EXTRACT('//text()' 		");
+    sql.append("	).GETSTRINGVAL(),2) DT_NM 																	");
+    sql.append("	FROM FOOD_ST_DT_NM 																			");
+    sql.append("	WHERE DT_NO IN (FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5						");
+    sql.append("	, FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10)) AS DT_NM							");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("	    					XMLELEMENT(COL ,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()' 		");
+    sql.append("	).GETSTRINGVAL(),2) EX_NM 																	");
+    sql.append("	FROM FOOD_ST_EXPL																			");
+    sql.append("	WHERE EX_NO IN (FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5						");
+    sql.append("	, FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10									");
+    sql.append("	, FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15								");
+    sql.append("	, FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20								");
+    sql.append("	, FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25)) AS EX_NM						");
+    sql.append("	, (SELECT UNIT_NM FROM FOOD_ST_UNIT WHERE UNIT_NO = ITEM.FOOD_UNIT) AS UNIT_NM				");
+    sql.append("	, TO_CHAR(PRE.REG_DATE, 'YYYY-MM-DD') AS REG_DATE											");
+    sql.append("	, TO_CHAR(PRE.MOD_DATE, 'YYYY-MM-DD') AS MOD_DATE											");
+    sql.append("	, PRE.SHOW_FLAG																				");
+    sql.append("	, (SELECT REG_IP FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_IP						");
+    sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
+    sql.append("	, (SELECT NVL(COUNT(ITEM_NO), 0) FROM FOOD_ST_ITEM_LOG WHERE ITEM_NO = ITEM.ITEM_NO) LOG_CNT");
 
-      .ui-progressbar {position: relative;}
-    </style>
+    sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO			");
+    sql.append("	ORDER BY PRE.ITEM_NO																		");
+    sql.append("	) A WHERE ROWNUM <= " + paging.getEndRowNo() + "											");
+    sql.append("        AND A.CAT_NO = ?                                                                        ");
+    if(!"".equals(search1)){
+    	if("nm_food".equals(search1)){
+    		sql.append("AND A.NM_FOOD LIKE '%'||?||'%'															");
+    	}else if("dt_nm".equals(search1)){
+    		sql.append("AND A.DT_NM LIKE '%'||?||'%'															");
+    	}else if("ex_nm".equals(search1)){
+    		sql.append("AND A.EX_NM LIKE '%'||?||'%'															");
+    	}
+    }
+	sql.append(") WHERE RNUM > " + paging.getStartRowNo() + " 													");
+    itemList = jdbcTemplate.query(sql.toString(), new FoodList(), setObj);
+    
+}catch(Exception e){
+	out.println(e.toString());
+}
+%>
+<script>
+    
+    function newWin(url, title, w, h){
+        var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+        var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
 
-<div id="mr_contents"></div>
+        var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
 
-<div id="dialogStoryRegister" class="layer_wrap" title="접수 신청" style="display:none">
-  <form name="frmStoryRegister" action="<%= _register %>" method="post" onsubmit="return checkRegisterTel(this);">
-    <input type="hidden" name="rgstmode" value="REGISTER">
-    <input type="hidden" id="birthdayYear" value="<%=birthdayYear%>">
-    <input type="hidden" name="stno">
-    <div class="layer_container">
-      <div class="layer_head">접수 신청</div>
-      <a href="javascript:closeRegisterDialog();" class="first_close layer_close"><img src="<%= request.getContextPath() %>/images/common/lnb_btn_close3.png" alt="닫기"></a>
-      <div class="layercon">
-      <% if(isRole) { %>
-        <div class="form">
-          <p class="mt_10">
-            <label style="float:none;"><input type="radio" name="rgstmethod" value="VISIT">방문접수</label>
-            <label style="float:none;"><input type="radio" name="rgstmethod" value="TEL" checked>전화접수</label>
-          </p>
-          <p class="mt_10" style="text-align:left;">
-            <label style="float:none;" for="rgst_userid">아이디 :</label> <input type="text" name="userid" id="rgst_userid" size="10">
-            <button type="button" id="btnUserInfoSearch" class="btn_type1 btn_type_s color1">검색</button>
-          </p>
-          <p class="mt_10" style="text-align:left;">
-            <label style="float:none;" class="rgst_username" for="rgst_username">&nbsp;이 름&nbsp; :</label> <input type="text" name="username" id="rgst_username" size="10">
-          </p>
-          <p class="mt_10" style="text-align:left;">
-            <label for="usertel_st" style="float:none;">연락처 :</label>
-            <input type="text" name="usertel1" size="3" maxlength="3" title="전화번호 앞자리" id="usertel_st">-
-            <input type="text" name="usertel2" size="4" maxlength="4" title="전화번호 중간자리">-
-            <input type="text" name="usertel3" size="4" maxlength="4" title="전화번호 뒷자리">
-          </p>
-        </div>
-        <p class="close_area">
-          <button type="submit" class="last_close layer_close">확인</button>
-          <button type="button" class="last_close layer_close" onclick="$('#dialogStoryRegister').dialog('close')">취소</button>
-        <p>
-      <% } else if(EgovUserDetailsHelper.isRole("ROLE_USER")) { %>
-        <div class="form">
-          <p class="txt">접수를 진행하시겠습니까?</p>
-          <p class="txt">확인을 클릭하면 바로 접수 신청 처리됩니다.</p>
-          <% if(isRole) { %>
-          <p class="mt_10">
-            <label style="float:none;"><input type="radio" name="rgstmethod" value="VISIT">방문접수</label>
-            <label style="float:none;"><input type="radio" name="rgstmethod" value="TEL" checked>전화접수</label>
-	        </p>
-          <% } else { %>
-          <input type="hidden" name="rgstmethod" value="ONLINE">
-          <% } %>
-          <p class="mt_15">
-      	  <label for="usertel_st">연락처 : </label>
-          <input type="text" name="usertel1" size="3" maxlength="3" title="전화번호 앞자리" id="usertel_st">-
-          <input type="text" name="usertel2" size="4" maxlength="4" title="전화번호 중간자리">-
-          <input type="text" name="usertel3" size="4" maxlength="4" title="전화번호 뒷자리">
-          </p>
-        </div>
-        <p class="close_area">
-          <button type="submit" class="last_close layer_close">확인</button>
-          <button type="button" class="last_close layer_close" onclick="$('#dialogStoryRegister').dialog('close')">취소</button>
-        <p>
-      <% } else { %>
-        <p class="form">
-          로그인을 해야 접수 할 수 있습니다.
-        </p>
-        <p class="close_area">
-          <button type="button" class="last_close layer_close" onclick="location.href='<%= request.getContextPath() %>/index.lib?menuCd=DOM_000000217001000000&return=' + location.href ">로그인</button>
-          <button type="button" class="last_close layer_close" onclick="$('#dialogStoryRegister').dialog('close')">취소</button>
-        </p>
-      <% } %>
-      </div>
-    </div>
-  </form>
-</div>
-
-<div id="dialogStoryRegisterResult" class="layer_wrap" title="강좌 접수 결과" style="display:none">
-  <div class="layer_head">접수 신청 결과</div>
-  <a href="javascript:;" class="first_close layer_close"><img src="<%= request.getContextPath() %>/images/common/lnb_btn_close3.png" alt="닫기" onclick="location.reload();"></a>
-  <div class="layercon">
-  <% if(isRole) { %>
-    <p class="form">
-      <span class="result"></span>
-    </p>
-    <p class="close_area">
-      <button type="button" class="last_close" onclick="location.reload();">확인</button>
-    <p>
-	<% } else if(EgovUserDetailsHelper.isRole("ROLE_USER") ) { %>
-    <p class="form">
-      <span class="result"></span>
-      <br>
-      ※접수 신청 내역은 "내 도서관" 메뉴에서 확인 할 수 있습니다.
-    </p>
-    <p class="close_area">
-      <button type="button" class="last_close" onclick="location.href='<%= request.getContextPath() %>/index.lib?menuCd=DOM_000000206003000000'" style="width:120px;">내도서관 가기</button>
-      <button type="button" class="last_close" onclick="location.reload();">확인</button>
-    <p>
-	<% } %>
-  </div>
-</div>
-
-<div id="dialogUploading" class="layer_wrap" title="동화구현 등록 중" style="display:none">
-  <div class="layer_container">
-    <div class="layer_head">동화구현 등록</div>
-    <div class="layercon">
-      <div style="margin-bottom:20px;">등록중입니다. 잠시만 기다려 주세요.</div>
-      <div id="progressbar"></div>
-    </div>
-</div>
-</div>
-
-<script language="javascript">
-  function getTimestamp() {
-    return (new Date()).getTime();
-  }
-
-  function closeRegisterDialog() {
-    $('#dialogStoryRegister').dialog('close');
-  }
-
-  $(function(){
-    var originalTitle=document.title;
-    function hashChange(){
-      var hashSplit = location.hash.slice(1).split("/");
-	  switch( hashSplit[0] ) {
-	    case 'story' :
-			if( hashSplit[2] == 'modify' ) loadModify( hashSplit[1] );
-			else loadRead( hashSplit[1] );
-			break;
-	    case 'page' :
-			loadList( hashSplit[1] );
-			break;
-	    default :
-			loadList('');
-	  }
+        var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+        var top = ((height / 2) - (h / 2)) + dualScreenTop;
+        var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
     }
 
-    if ("onhashchange" in window){ // cool browser
-        $(window).on('hashchange', hashChange).trigger('hashchange');
-    }else{ // lame browser
-        var lastHash='';
-        setInterval(function(){
-            if (lastHash!=location.hash) hashChange();
-            lastHash=location.hash;
-        },100)
-    }
-
-    $("form[name='frmStoryRegister']").ajaxForm({
-      beforeSubmit: function(arr, $form, options) {
-        return true;
-      },
-      success: function(response,status){
-        $("#dialogStoryRegister").dialog("close");
-        $("#dialogStoryRegisterResult").find("span.result").html(response);
-        $("#dialogStoryRegisterResult").dialog("open");
-      },
-      error: function(response, status){
-        alert("오류가 발생하였습니다. 입력값을 다시 확인하십시오.");
-      }
-    });
-
-
-    $("#dialogStoryRegister").dialog({
-      autoOpen: false,
-      modal: true,
-      width: 350
-    }).parents(".ui-dialog").find(".ui-dialog-titlebar").remove();
-
-    $("#dialogStoryRegisterResult").dialog({
-      autoOpen: false,
-      modal: true,
-      width: 480,
-      height: 'auto'
-    }).parents(".ui-dialog").find(".ui-dialog-titlebar").remove();
-
-    $("#dialogUploading").dialog({
-      autoOpen: false,
-      modal: true,
-      width: 300
-    }).parents(".ui-dialog").find(".ui-dialog-titlebar").remove();
-
-
-$(window).resize(function (){
-    // width값을 가져오기
-  var width_size = window.outerWidth;
-  if (width_size <= 480) {
-	$("#dialogStoryRegisterResult").dialog({
-    width: '90%'
-}).parents(".ui-dialog").find(".ui-dialog-titlebar").remove();
-}else{
-    $("#dialogStoryRegisterResult").dialog({
-      width: 480
-    }).parents(".ui-dialog").find(".ui-dialog-titlebar").remove();
-}
-
-})
-  var width_size = window.outerWidth;
-  if (width_size <= 480) {
-	$("#dialogStoryRegisterResult").dialog({
-    width: '90%'
-}).parents(".ui-dialog").find(".ui-dialog-titlebar").remove();
-}
-
-
-
-    $( "#progressbar" ).progressbar({value: false});
+    function catPopup(){newWin("food_cat_popup.jsp", 'PRINTVIEW', '1000', '740');}
+    function unitPopup(){newWin("food_unit_popup.jsp", 'PRINTVIEW', '1000', '740');}
+    function itemPopup(){newWin("food_item_popup.jsp", 'PRINTVIEW', '1000', '740');}
+    function updatePopup(item_no){newWin("food_item_popup.jsp?item_no="+item_no, 'PRINTVIEW', '1000', '740');}
     
-    <% if(isRole) { %>
-    $("#btnUserInfoSearch").click(function(){
-      $("#rgst_username").val("");
-      $("input[name='usertel1']").val("");
-      $("input[name='usertel2']").val("");
-      $("input[name='usertel3']").val("");
-
-      $.getJSON("http://lib.gyeongnam.go.kr/kdotapi/ksearchapi/userinfoview?id=" + $("#rgst_userid").val(), function( data ) {
-        var userJson = $.parseJSON(JSON.stringify(data));
-        if( userJson["RESULT_INFO"] != "SUCCESS" ) {
-          alert("사용자 정보를 찾을 수 없습니다.");
-        } else {
-          $("#rgst_username").val(userJson["USER_DATA"]["NAME"]);
-          var tel = userJson["USER_DATA"]["HANDPHONE"].split("-");
-          $("input[name='usertel1']").val(tel[0]);
-          $("input[name='usertel2']").val(tel[1]);
-          $("input[name='usertel3']").val(tel[2]);
+    //excel up
+    function upExcel() {
+        if (confirm("식품 엑셀을 업로드 하시겠습니까?\n식품 데이터 변경으로 공개식품의 변경이 생길 수 있습니다.")) {
+            $("#food_file").click();
         }
-      });
-    });
-    <% } %>
-  });
-
-  function openDialogStoryRegister(stno) {
-	var birthdayCheckDt = new Date();
-	var birthdayYear_1 = birthdayCheckDt.getFullYear();
-	var birthdayYear_2 = $("#birthdayYear").val();
-	var age = birthdayYear_1 - birthdayYear_2 + 1;
-	if(age<5 || age>8){
-		alert('신청연령이 아닙니다. 참여자 본인 아이디로 로그인 하세요.');
-		return;
-	}
-	  
-    $("#dialogStoryRegister").find("input[name='stno']").val(stno);
-
-    <% if(EgovUserDetailsHelper.isRole("ROLE_USER")) { %>
-    var tel = "<%= (EgovUserDetailsHelper.getLoginVO().getHtel() == null ) ? "" : EgovUserDetailsHelper.getLoginVO().getHtel() %>".split("-");
-    $("form[name='frmStoryRegister']").find("input[name='usertel1']").val(tel[0]);
-    $("form[name='frmStoryRegister']").find("input[name='usertel2']").val(tel[1]);
-    $("form[name='frmStoryRegister']").find("input[name='usertel3']").val(tel[2]);
-    <% } %>
-
-    $("#dialogStoryRegister").dialog("open");
-  }
-
-  function loadWrite() {
-    $("#mr_contents").load("<%= _write %>&dummy=" + getTimestamp(), function() {
-      window.scrollTo(0,0);
-    });
-  }
-
-  function loadModify(stno) {
-    $("#mr_contents").load("<%= _modify %>&dummy=" + getTimestamp() + "&stno=" + stno, function() {
-      window.scrollTo(0,0);
-    });
-  }
-
-  function loadList(queryString) {
-    $("#mr_contents").load("<%= _list %>&dummy=" + getTimestamp() + "&" + queryString, function() {
-      window.scrollTo(0,0);
-    });
-  }
-
-  function loadRead(stno) {
-    $("#mr_contents").load("<%= _view %>&dummy=" + getTimestamp() + "&stno=" + stno, function() {
-      window.scrollTo(0,0);
-    });
-  }
-
-  function jumpPage(currPage) {
-    document.formPage.currPage.value = currPage;
-    location.hash = "page/" + $("form[name='formPage']").serialize();
-  }
-
-  function storySearch(frm) {
-    document.formPage.currPage.value = 1;
-    document.formPage.where.value = frm.where.value;
-    document.formPage.keyword.value = frm.keyword.value;
-
-    location.hash = "page/" + $("form[name='formPage']").serialize();
-    return false;
-  }
-
-  function checkRegisterTel(frm) {
-	if( frm.usertel1.value == '' || frm.usertel2.value == '' || frm.usertel3.value == '') {
-	  alert('연락처는 필수 입력하셔야 합니다.');
-	  return false;
-    } else {
-	  return true;
+        return;
     }
-  }
+    
+    //excel down
+    function downExcel(){
+    	$("#searchForm").attr("action", "food_down_excel.jsp");
+    	$("#searchForm").submit();
+    }
 
-</script>                                                                                                             
+    function setFile () {
+        //파일 검증
+        var fileName    =   $("#food_file").val().split("\\")[$("#food_file").val().split("\\").length -1];
+        var fileExtName =   $("#food_file").val().split(".")[$("#food_file").val().split(".").length -1];
+        fileExtName     =   fileExtName.toLowerCase();
+        if ($.inArray(fileExtName, ['xls'/* , 'xlsx' */]) == -1) {
+            alert ("xls 형식의 엑셀 파일만 등록이 가능합니다.");
+            $(this).val("");
+            return;
+        }
+        
+        $("#food_excel_form").attr("action", "./food_up_excel.jsp");
+        $("#food_excel_form").submit();
+    }
+    
+    function excelSample(){
+    	location.href="/program/down.jsp?path=/upload_data/food/sample&filename=research_sample.xls";
+    }
+
+    function showLog (item_no) {
+        var open_url    =   "/program/food/item/food_item_log_popup.jsp?item_no=" + item_no;
+        var open_title  =   "변경기록 보기";
+        newWin(open_url, open_title, 1100, 900);
+    }
+    
+    function searchSubmit(){
+    	$("#searchForm").attr("action", "");
+    	$("#searchForm").attr("method", "get");
+    	$("#searchForm").submit();
+    }
+
+</script>
+
+<div id="right_view">
+    <div class="top_view">
+        <p class="location"><strong><%=pageTitle %></strong></p>
+        <p class="loc_admin">
+            <a href="/iam/main/index.sko?lang=en_US" target="_top" class="white">ENGLISH</a> <span class="yellow">[<%=sessionManager.getSgroupNm() %>]<%=sessionManager.getName() %></span>님 안녕하세요.
+            <a href="/j_spring_security_logout?returnUrl=/iam/login/login_init.sko"><img src="/images/egovframework/rfc3/iam/images/logout.gif" alt="logout"  class="log_img"/></a>
+        </p>
+    </div>
+</div>
+<!-- S : #content -->
+<div id="content">
+	<div class="btn_area">
+		<p class="boxin">
+            <%for(FoodVO cat : catList) {%>
+                <button type="button" class="btn medium <% if(cat_no.equals(cat.cat_no)) {%>mako<%;}else{%>white<%;} %>" data-value="<%=cat.cat_no %>" onclick="location.href='food_item_list.jsp?cat_no=<%=cat.cat_no %>'"><%=cat.cat_nm %></button>
+            <%}%>
+		</p>
+		<span>공개 식품 <%=pre_item_cnt %>/<%=total_item_cnt %></span>
+		<p class="boxin f_r">
+            <form id="food_excel_form" enctype="multipart/form-data" method="post">
+                <input type="file" id="food_file" name="food_file" value="" onchange="setFile()" style="display: none;">
+                <button type="button" class="btn medium mako" onclick="excelSample();">엑셀 샘플</button>
+                <button type="button" id="excel_up" class="btn medium mako" onclick="upExcel()">엑셀업로드</button>
+                <button type="button" id="excel_down" class="btn medium mako" onclick="downExcel()">엑셀다운로드</button>
+                <button type="button" class="btn medium mako" onclick="itemPopup()">식품추가</button>
+                <button type="button" class="btn medium mako" onclick="unitPopup()">단위수정</button>
+                <button type="button" class="btn medium mako" onclick="catPopup()">식품구분수정</button>
+            </form>
+		</p>
+	</div>
+	
+	<div class="searchBox magB20">
+		<form id="searchForm" method="get" class="topbox2">
+			<fieldset>
+				<input type="hidden" id="cat_no" name="cat_no" value="<%=cat_no%>">
+				<select id="search1" name="search1">
+					<option value="">검색분류 선택</option>
+					<option value="nm_food" <%if("nm_food".equals(search1)){out.println("selected");}%>>식품명</option>
+					<option value="dt_nm" <%if("dt_nm".equals(search1)){out.println("selected");}%>>상세식품명</option>
+					<option value="ex_nm" <%if("ex_nm".equals(search1)){out.println("selected");}%>>식품설명</option>
+				</select>
+				<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
+				<button type="button" class="btn small edge mako" onclick="searchSubmit();">검색하기</button>
+			</fieldset>
+		</form>
+	</div>
+	<div class="f_r">
+		<!-- <button type="button" class="btn small edge darkMblue" onclick="">추가</button> -->
+	</div>
+	<p class="clearfix"> </p>
+	<table class="bbs_list">
+		<caption><%=pageTitle%> 테이블</caption>
+		<colgroup>
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<%--<col style="width: 6.7%">--%>
+			<col>
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+			<col style="width: 5%">
+			<col style="width: 6.7%">
+			<col style="width: 6.7%">
+		</colgroup>
+		<thead>
+			<tr>
+				<th scope="col">식품번호</th>
+				<th scope="col">구분</th>
+				<th scope="col">연번</th>
+				<th scope="col">식품코드</th>
+				<th scope="col">식품명</th>
+				<th scope="col">상세식품명</th>
+				<%--<th scope="col">규격</th>--%>
+				<th scope="col">식품설명</th>
+				<th scope="col">단위</th>
+				<th scope="col">등록일</th>
+				<th scope="col">수정일</th>
+				<th scope="col">등록ID</th>
+				<th scope="col">공개여부</th>
+				<th scope="col">수정</th>
+				<th scope="col">변경기록</th>
+			</tr>
+		</thead>
+		<tbody>	
+		<%
+		if(itemList!=null && itemList.size()>0){
+			for(FoodVO ob : itemList){
+		%>
+			<tr>
+				<td><%=ob.s_item_no %></td>
+				<td><%=ob.cat_nm%></td>
+				<td><%=ob.cat_nm%>-<%=ob.food_cat_index%></td>
+				<td><%=ob.food_code%></td>
+				<td><%=ob.nm_food %></td>
+				<td><%=ob.dt_nm %></td>
+				<%--<td></td>--%>
+				<td><%=ob.ex_nm %></td>
+				<td><%=ob.unit_nm %></td>
+				<td><%=ob.reg_date %></td>
+				<td><%=ob.mod_date %></td>
+				<td><%=ob.reg_id %></td>
+				<td><%=ob.show_flag %></td>
+				<td>
+					<button class="btn small edge mako" type="button" onclick="updatePopup('<%=ob.item_no %>')">수정</button>
+				</td>
+				<td>
+                    <%if(Integer.parseInt(ob.log_cnt) > 0) {%>
+                    <a href="javascript:showLog('<%=ob.item_no %>');" data-value="<%=ob.item_no %>">변경기록 보기</a>
+                    <%} else {%>-<%}%>
+                </td>
+			</tr>
+		<%
+			}
+		}else{
+		%>
+		<tr>
+			<td colspan="15">데이터가 없습니다.</td>
+		</tr>
+		<%
+		}
+		%>
+		</tbody>
+	</table>
+	
+	<% if(paging.getTotalCount() > 0) { %>
+	<div class="page_area">
+		<%=paging.getHtml() %>
+	</div>
+	<% } %>
+</div>
+<!-- // E : #content -->
+</body>
+</html>

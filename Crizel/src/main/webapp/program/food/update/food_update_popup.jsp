@@ -3,6 +3,7 @@
 /**
 *   PURPOSE :   업데이트 완료처리 팝업
 *   CREATE  :   20180323_fri    Ko
+*   MODIFY  : 20180423 LJH / table class 수정
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -140,7 +141,7 @@ try{
 		sql.append(" WHERE A.UPD_NO = ?							");
 		item_comp_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{upd_no});
 	}
-	
+
 }catch(Exception e){
 	out.println(e.toString());
 }
@@ -173,7 +174,7 @@ try{
 		}
 
 		function nullChk (value) {
-			if (value == "" || value == null || value == undefined || ( value != null && typeof value == "object" && !Object.keys(value).length)) { 
+			if (value == "" || value == null || value == undefined || ( value != null && typeof value == "object" && !Object.keys(value).length)) {
 				return true;
 			}else{
 				return false;
@@ -218,12 +219,12 @@ try{
 					<input type="hidden" id="sts_flag" name="sts_flag" value="<%=sts_flag %>">
 					<legend><%=pageTitle%></legend>
 					<div class="txt_c">
-						<h1><%=outUpdFlag(upd_flag)%></h1>
+						<h1><%=outUpdPopFlag(upd_flag)%></h1>
 					</div>
 					<%/*변경*/
 					if("M".equals(upd_flag)){%>
 					<h2 class="tit">변경 전 정보</h2>
-					<table class="bbs_list2 td-c">
+					<table class="bbs_list2">
 						<caption><%=pageTitle%>
 							입력폼입니다.
 						</caption>
@@ -266,7 +267,7 @@ try{
 						</tbody>
 					</table>
 					<h2 class="tit">변경 요청 정보</h2>
-					<table class="bbs_list2 td-c">
+					<table class="bbs_list2">
 						<caption><%=pageTitle%>
 							입력폼입니다.
 						</caption>
@@ -328,7 +329,7 @@ try{
 					else if ("A".equals(upd_flag)) {
 					%>
 					<h2 class="tit">추가 요청 식품 정보</h2>
-					<table class="bbs_list2 td-c">
+					<table class="bbs_list2">
 						<caption><%=pageTitle%>
 							입력폼입니다.
 						</caption>
@@ -366,7 +367,7 @@ try{
 							<tr>
 								<th scope="row"><label for="n_item_expl">식품설명</label></th>
 								<td>
-									<textarea class="wps_60 h080" id="n_item_expl" 
+									<textarea class="wps_60 h080" id="n_item_expl"
 										name="n_item_expl" required><%=foodVO.n_item_expl.replace("\r", "<br>")%></textarea>
 								</td>
 							</tr>
@@ -378,7 +379,7 @@ try{
 							</tr>
 							<tr>
 								<th scope="row"><label for="upd_reason">사유</label></th>
-								<td><textarea class="wps_60 h080" id="upd_reason" 
+								<td><textarea class="wps_60 h080" id="upd_reason"
 									name="upd_reason" required><%=foodVO.upd_reason.replace("\r", "<br>")%></textarea>
 								</td>
 							</tr>
@@ -389,7 +390,7 @@ try{
 					else if ("D".equals(upd_flag)) {
 					%>
 					<h2 class="tit">삭제 요청 식품 정보</h2>
-					<table class="bbs_list2 td-c">
+					<table class="bbs_list2">
 						<caption><%=pageTitle%>
 							입력폼입니다.
 						</caption>
@@ -431,7 +432,7 @@ try{
 							</tr>
 							<tr>
 								<th scope="row"><label for="upd_reason">사유</label></th>
-								<td><textarea class="wps_60 h080" id="upd_reason" 
+								<td><textarea class="wps_60 h080" id="upd_reason"
 									name="upd_reason" required><%=foodVO.upd_reason.replace("\r", "<br>")%></textarea>
 								</td>
 							</tr>
@@ -442,7 +443,7 @@ try{
 						if ("R".equals(rft_type)) {
 					%>
 					<h2 class="tit">반려사유</h2>
-					<table class="bbs_list2 td-c">
+					<table class="bbs_list2">
 						<caption><%=pageTitle%>
 							입력폼입니다.
 						</caption>

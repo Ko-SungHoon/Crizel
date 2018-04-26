@@ -3,7 +3,7 @@
 /**
 *   PURPOSE :   식품 엑셀 업로드
 *   CREATE  :   20180323_fri    JI
-*   MODIFY  :   batch 방식 변경 	20180423_mon	KO
+*   MODIFY  :   ...
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -54,8 +54,6 @@
 		}
 	}
 	
-	Connection conn 		= null;
-	PreparedStatement pstmt = null;
 	
 	StringBuffer sql 			= null;
 	List<Object[]> batch 		= null;
@@ -116,9 +114,6 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 %>
 <%
 	try{
-		sqlMapClient.startTransaction();
-		conn = sqlMapClient.getCurrentConnection();	
-		
 		catDupCheckList = new ArrayList<String>();
 		if(excelList!=null && excelList.size()>0){
 			byte[] b = null;
@@ -232,6 +227,8 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		sql.append(")															");
 		result = jdbcTemplate.update(sql.toString(), saveFile, realFile, regIp, regId);
 	
+		
+		
 		// 구분 데이터 저장
 		cat_no = jdbcTemplate.queryForObject("SELECT NVL(MAX(CAT_NO)+1, 1) FROM FOOD_ST_CAT", Integer.class);
 		
@@ -247,22 +244,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		sql.append("			, (SELECT UNIT_NO FROM FOOD_ST_UNIT WHERE UNIT_NM = '%'), 50				");
 		sql.append("		)																				");
 		
-		pstmt = conn.prepareStatement(sql.toString());
-		if(excelList!=null && excelList.size()>0){
-			for(Map<String,Object> ob : excelList){
-				if(ob.get(catCell) != null && !"".equals(ob.get(catCell).toString())){
-					key = 0;
-					pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
-					pstmt.setInt(++key, cat_no++);
-					pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
-					pstmt.addBatch();			
-				}
-			}
-			pstmt.executeBatch();
-		}
-		if(pstmt!=null){pstmt.close();}
-		
-		/* batch = new ArrayList<Object[]>();
+		batch = new ArrayList<Object[]>();
 		if(excelList!=null && excelList.size()>0){
 			for(Map<String,Object> ob : excelList){
 				if(ob.get(catCell) != null && !"".equals(ob.get(catCell).toString())){
@@ -275,8 +257,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 				}
 			}
 		}
-		
-		int catBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch);  */
+		int catBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch); 
 		
 		
 		// 식품명 데이터 저장
@@ -293,27 +274,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		sql.append("			  ?, (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? )						");
 		sql.append("			, ?, 'Y', SYSDATE, SYSDATE													");
 		sql.append("		)																				");
-		
-		pstmt = conn.prepareStatement(sql.toString());
-		if(excelList!=null && excelList.size()>0){
-			for(Map<String,Object> ob : excelList){
-				if(ob.get(nmCell) != null && !"".equals(ob.get(nmCell).toString())){
-					nm_food = ob.get(nmCell).toString().split(",");
-					for(String nm_food_value : nm_food){
-						key = 0;
-						pstmt.setString(++key, nm_food_value.trim());
-						pstmt.setInt(++key, nm_no++);
-						pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
-						pstmt.setString(++key, nm_food_value.trim());
-						pstmt.addBatch();	
-					}
-					
-				}
-			}
-			pstmt.executeBatch();
-		}
-		if(pstmt!=null){pstmt.close();}
-		/* batch = new ArrayList<Object[]>();
+		batch = new ArrayList<Object[]>();
 		if(excelList!=null && excelList.size()>0){
 			for(Map<String,Object> ob : excelList){
 				if(ob.get(nmCell) != null && !"".equals(ob.get(nmCell).toString())){
@@ -330,7 +291,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 				}
 			}
 		}
-		int nmBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch); */
+		int nmBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch);
 		
 		
 		// 상세식품명 데이터 저장
@@ -347,27 +308,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		sql.append("			  ?, (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? )						");
 		sql.append("			, ?, 'Y', SYSDATE, SYSDATE													");
 		sql.append("		)																				");
-		
-		pstmt = conn.prepareStatement(sql.toString());
-		if(excelList!=null && excelList.size()>0){
-			for(Map<String,Object> ob : excelList){
-				if(ob.get(dtCell) != null && !"".equals(ob.get(dtCell).toString())){
-					dt_nm = ob.get(dtCell).toString().split(",");
-					for(String dt_nm_value : dt_nm){
-						key = 0;
-						pstmt.setString(++key, dt_nm_value.trim());
-						pstmt.setInt(++key, dt_no++);
-						pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
-						pstmt.setString(++key, dt_nm_value.trim());
-						pstmt.addBatch();	
-					}
-				}
-			}
-			pstmt.executeBatch();
-		}
-		if(pstmt!=null){pstmt.close();}
-		
-		/* batch = new ArrayList<Object[]>();
+		batch = new ArrayList<Object[]>();
 		if(excelList!=null && excelList.size()>0){
 			for(Map<String,Object> ob : excelList){
 				if(ob.get(dtCell) != null && !"".equals(ob.get(dtCell).toString())){
@@ -384,7 +325,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 				}
 			}
 		}
-		int dtBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch); */
+		int dtBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch);
 		
 		
 		// 상세설명 데이터 저장
@@ -401,29 +342,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		sql.append("			  ?, (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? )						");
 		sql.append("			, ?, 'Y', SYSDATE, SYSDATE													");
 		sql.append("		)																				");
-		
-		pstmt = conn.prepareStatement(sql.toString());
-		if(excelList!=null && excelList.size()>0){
-			for(Map<String,Object> ob : excelList){
-				if(!"".equals(ob.get(exCell)) && !"".equals(ob.get(exCell).toString())){
-					ex_nm = ob.get(exCell).toString().split(",");
-					for(String ex_nm_value : ex_nm){
-						if(!"".equals(ex_nm_value)){
-							key = 0;
-							pstmt.setString(++key, ex_nm_value.trim());
-							pstmt.setInt(++key, ex_no++);
-							pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
-							pstmt.setString(++key, ex_nm_value.trim());
-							pstmt.addBatch();	
-						}
-					}
-				}
-			}
-			pstmt.executeBatch();
-		}
-		if(pstmt!=null){pstmt.close();}
-		
-		/* batch = new ArrayList<Object[]>();
+		batch = new ArrayList<Object[]>();
 		if(excelList!=null && excelList.size()>0){
 			for(Map<String,Object> ob : excelList){
 				if(!"".equals(ob.get(exCell)) && !"".equals(ob.get(exCell).toString())){
@@ -442,7 +361,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 				}
 			}
 		}
-		int exBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch); */
+		int exBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch);
 		
 		
 		// 단위 데이터 저장
@@ -458,25 +377,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		sql.append("		VALUES(																			");
 		sql.append("			  ?, ?, 'F', 'Y', SYSDATE, SYSDATE										");
 		sql.append("		)																				");
-		
-		pstmt = conn.prepareStatement(sql.toString());
-		if(excelList!=null && excelList.size()>0){
-			String unitNmCheck = "";
-			for(int i=0; i<excelList.size(); i++){
-				Map<String,Object> ob = excelList.get(i);
-				if(ob.get(unitCell) != null && !"".equals(ob.get(unitCell).toString())){
-					key = 0;
-					pstmt.setString(++key, ob.get(unitCell).toString());
-					pstmt.setInt(++key, unit_no++);
-					pstmt.setString(++key, ob.get(unitCell).toString());
-					pstmt.addBatch();	
-				}
-			}
-			pstmt.executeBatch();
-		}
-		if(pstmt!=null){pstmt.close();}
-		
-		/* batch = new ArrayList<Object[]>();
+		batch = new ArrayList<Object[]>();
 		if(excelList!=null && excelList.size()>0){
 			String unitNmCheck = "";
 			for(int i=0; i<excelList.size(); i++){
@@ -491,7 +392,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 				}
 			}
 		}
-		int unitBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch); */
+		int unitBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch);
 		
 		
 		try{
@@ -658,89 +559,9 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			sql.append("			, ?																	");	// FOOD_CAT_INDEX
 			sql.append("		)																		");
 			
+			batch 		= new ArrayList<Object[]>();
 			itemNoList 	= new ArrayList<String>();
 			
-			pstmt = conn.prepareStatement(sql.toString());
-			if(excelList!=null && excelList.size()>0){
-				for(Map<String,Object> ob : excelList){
-					setList = new ArrayList<Object>();
-					if(ob.get(nmCell)!=null && !"".equals(ob.get(nmCell))){
-						key = 0;
-						
-						nm_food = ob.get(nmCell).toString().split(",");
-						dt_nm = ob.get(dtCell).toString().split(",");
-						ex_nm = ob.get(exCell).toString().split(",");
-						
-						nm_food_str = "";
-						dt_nm_str = "";
-						ex_nm_str = "";
-						
-						// MERGE 조건문
-						setList.add(ob.get(codeCell).toString().split("[.]")[0]);	// FOOD_CODE
-						pstmt.setString(++key, ob.get(codeCell).toString().split("[.]")[0]);
-						for(int i=0; i<5; i++){										// FOOD_NM_1~5
-							if(nm_food.length>i){ nm_food_str += nm_food[i].trim(); }
-							else{ nm_food_str +=""; }
-						}
-						for(int i=0; i<10; i++){									// FOOD_DT_1~10
-							if(dt_nm.length>i){ dt_nm_str += dt_nm[i].trim(); }
-							else{ dt_nm_str += ""; }
-						}
-						for(int i=0; i<25; i++){									// FOOD_EP_1~25
-							if(ex_nm.length>i){ ex_nm_str += ex_nm[i].trim(); }
-							else{ ex_nm_str += ""; }
-						}
-						
-						setList.add(nm_food_str);
-						pstmt.setString(++key, nm_food_str);
-						
-						setList.add(dt_nm_str);
-						pstmt.setString(++key, dt_nm_str);
-						
-						setList.add(ex_nm_str);
-						pstmt.setString(++key, ex_nm_str);
-						
-						
-						// MERGE UPDATE 문
-						setList.add(ob.get(unitCell));								// FOOD_UNIT
-						pstmt.setString(++key, ob.get(unitCell).toString());
-						for(String ob2 : dt_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_DT_1~10
-						if(dt_nm.length<10){for(int i=0; i<10-dt_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
-						for(String ob2 : ex_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_EP_1~25
-						if(ex_nm.length<25){for(int i=0; i<25-ex_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
-						setList.add(ob.get(catCell).toString().split("-")[1]);
-						pstmt.setString(++key, ob.get(catCell).toString().split("-")[1]);
-						
-						// MERGE INSERT 문
-						//setList.add(item_no++);										// ITEM_NO
-						pstmt.setInt(++key, item_no++);
-						setList.add(ob.get(catCell).toString().split("-")[0]);		// CAT_NM
-						pstmt.setString(++key, ob.get(catCell).toString().split("-")[0]);
-						for(String ob2 : nm_food){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_NM_1~5
-						if(nm_food.length<5){for(int i=0; i<5-nm_food.length; i++){setList.add(""); pstmt.setString(++key, "");}}
-						setList.add(ob.get(unitCell));								// FOOD_UNIT
-						pstmt.setString(++key, ob.get(unitCell).toString());
-						for(String ob2 : dt_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_DT_1~10
-						if(dt_nm.length<10){for(int i=0; i<10-dt_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
-						for(String ob2 : ex_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());}		// FOOD_EP_1~25
-						if(ex_nm.length<25){for(int i=0; i<25-ex_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
-						setList.add(ob.get(codeCell).toString().split("[.]")[0]);
-						pstmt.setString(++key, ob.get(codeCell).toString().split("[.]")[0]);
-						setList.add(ob.get(catCell).toString().split("-")[1]);
-						pstmt.setString(++key, ob.get(catCell).toString().split("-")[1]);
-						
-						pstmt.addBatch();
-						itemNoList.add(Integer.toString(item_no-1));	// FOOD_ITEM_PRE의 S_ITEM_NO에 넣을 ITEM_NO 값
-					}
-				}
-				
-				pstmt.executeBatch();
-			}
-			if(pstmt!=null){pstmt.close();}
-			
-			
-			/* 
-			batch 		= new ArrayList<Object[]>();
 			if(excelList!=null && excelList.size()>0){
 				for(Map<String,Object> ob : excelList){
 					setList = new ArrayList<Object>();
@@ -803,7 +624,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 					}
 				}
 			}
-			int itemBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch); */
+			int itemBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch);
 			
 			
 			
@@ -830,11 +651,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			
 			// FOOD_ITEM_PRE 테이블의 값을 삭제한 후 다시 입력
 			sql = new StringBuffer();
-			sql.append("DELETE FROM FOOD_RSCH_ITEM		");		// FK 무결성 만족을 위해 FOOD_RSCH_ITEM 수정
-			jdbcTemplate.update(sql.toString());
-			
-			sql = new StringBuffer();
-			sql.append("DELETE FROM FOOD_ITEM_PRE		");
+			sql.append("DELETE FROM FOOD_ITEM_PRE								");
 			jdbcTemplate.update(sql.toString());
 			
 			sql = new StringBuffer();
@@ -920,78 +737,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			sql.append("	, ?													");	// LB_RATIO
 			sql.append(")														");
 			
-			pstmt = conn.prepareStatement(sql.toString());
-			if(excelList!=null && excelList.size()>0){
-				for(Map<String,Object> ob : excelList){
-					setList = new ArrayList<Object>();
-					if(ob.get(nmCell)!=null && !"".equals(ob.get(nmCell))){
-						key = 0;
-						
-						nm_food = ob.get(nmCell).toString().split(",");
-						dt_nm = ob.get(dtCell).toString().split(",");
-						ex_nm = ob.get(exCell).toString().split(",");
-						
-						nm_food_str = "";
-						dt_nm_str = "";
-						ex_nm_str = "";
-						
-						// S_ITEM_NO를 구하기 위한 조건문
-						setList.add(ob.get(codeCell).toString().split("[.]")[0]);	// FOOD_CODE
-						pstmt.setString(++key,  ob.get(codeCell).toString().split("[.]")[0]);
-						for(int i=0; i<5; i++){										// FOOD_NM_1~5
-							if(nm_food.length>i){ nm_food_str += nm_food[i].trim(); }
-							else{ nm_food_str +=""; }
-						}
-						for(int i=0; i<10; i++){									// FOOD_DT_1~10
-							if(dt_nm.length>i){ dt_nm_str += dt_nm[i].trim(); }
-							else{ dt_nm_str += ""; }
-						}
-						for(int i=0; i<25; i++){									// FOOD_EP_1~25
-							if(ex_nm.length>i){ ex_nm_str += ex_nm[i].trim(); }
-							else{ ex_nm_str += ""; }
-						}
-						
-						setList.add(nm_food_str);
-						setList.add(dt_nm_str);
-						setList.add(ex_nm_str);
-						
-						pstmt.setString(++key,  nm_food_str);
-						pstmt.setString(++key,  dt_nm_str);
-						pstmt.setString(++key,  ex_nm_str);
-						
-						//setList.add(item_pre_no++);
-						setList.add(ob.get(nmCell));
-						setList.add(ob.get(grpNoCell));
-						setList.add(ob.get(grpOrderCell));
-						setList.add(ob.get(compNoCell));
-						setList.add(ob.get(compValCell));
-						setList.add(saveFile);
-						setList.add(ob.get(lowRatCell));
-						setList.add(ob.get(avrRatCell));
-						setList.add(ob.get(lbRaCell));
-						
-						pstmt.setInt(++key,  item_pre_no++);
-						pstmt.setString(++key,  ob.get(nmCell).toString());
-						pstmt.setString(++key,  ob.get(grpNoCell).toString());
-						pstmt.setString(++key,  ob.get(grpOrderCell).toString());
-						pstmt.setString(++key,  ob.get(compNoCell).toString());
-						pstmt.setString(++key,  ob.get(compValCell).toString());
-						pstmt.setString(++key,  saveFile);
-						pstmt.setString(++key,  ob.get(lowRatCell).toString());
-						pstmt.setString(++key,  ob.get(avrRatCell).toString());
-						pstmt.setString(++key,  ob.get(lbRaCell).toString());
-						
-						pstmt.addBatch();
-						
-					}
-				}
-			}
-			
-			int itemPreBatch[] = pstmt.executeBatch();
-			if(pstmt!=null){pstmt.close();}
-			
-			
-			/* batch = new ArrayList<Object[]>();
+			batch = new ArrayList<Object[]>();
 			
 			if(excelList!=null && excelList.size()>0){
 				for(Map<String,Object> ob : excelList){
@@ -1043,7 +789,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 					}
 				}
 			}
-			int itemPreBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch); */
+			int itemPreBatch[] = jdbcTemplate.batchUpdate(sql.toString(), batch);
 			
 			
 			int nullCheck = jdbcTemplate.queryForObject("SELECT COUNT(*) FROM FOOD_ITEM_B", Integer.class);
@@ -1063,15 +809,7 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			}
 			
 		}catch(Exception e){
-			if(pstmt!=null){pstmt.close();}
-			if(conn!=null){conn.close();}
-			sqlMapClient.endTransaction();
-
 			// 예외상황 발생 시 FOOD_ITEM_B 데이터를 FOOD_ITEM_PRE에 넣는다
-			sql = new StringBuffer();
-			sql.append("DELETE FROM FOOD_RSCH_ITEM		");		// FK 무결성 만족을 위해 FOOD_RSCH_ITEM 수정
-			jdbcTemplate.update(sql.toString());
-			
 			sql = new StringBuffer();
 			sql.append("DELETE FROM FOOD_ITEM_PRE		");
 			jdbcTemplate.update(sql.toString());
@@ -1093,16 +831,32 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			out.println("alert('" + errMsg + "');");
 			out.println("location.replace('" + returnPage + "');");
 			out.println("</script>");
-		} 
+		}
 		
 	}catch(Exception e){
 		out.println(e.toString());
-		if(conn!=null){conn.close();}
-		if(pstmt!=null){pstmt.close();}
-		sqlMapClient.endTransaction();
-	}finally{
-		if(conn!=null){conn.close();}
-		if(pstmt!=null){pstmt.close();}
-		sqlMapClient.endTransaction();
 	}
+	
+	
+	/* if(excelList!=null && excelList.size()>0){
+		for(Map<String,Object> ob : excelList){
+			out.println("<br>");
+			out.println(" cell1 : " + ob.get("cell1") + "<br>");
+			out.println(" cell2 : " + ob.get("cell2") + "<br>");
+			out.println(" cell3 : " + ob.get("cell3") + "<br>");
+			out.println(" cell4 : " + ob.get("cell4") + "<br>");
+			out.println(" cell5 : " + ob.get("cell5") + "<br>");
+			out.println(" cell6 : " + ob.get("cell6") + "<br>");
+			out.println(" cell7 : " + ob.get("cell7") + "<br>");
+			out.println(" cell8 : " + ob.get("cell8") + "<br>");
+			out.println(" cell9 : " + ob.get("cell9") + "<br>");
+			out.println(" cell10 : " + ob.get("cell10") + "<br>");
+			out.println(" cell11 : " + ob.get("cell11") + "<br>");
+			out.println(" cell12 : " + ob.get("cell12") + "<br>");
+			out.println(" cell13 : " + ob.get("cell13") + "<br>");
+			out.println(" cell14 : " + ob.get("cell14") + "<br>");
+			out.println(" cell15 : " + ob.get("cell15") + "<br>");
+			out.println(" cell16 : " + ob.get("cell16") + "<br>");
+		}
+	} */
 %>

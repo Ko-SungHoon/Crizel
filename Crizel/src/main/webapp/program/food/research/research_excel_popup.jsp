@@ -237,6 +237,10 @@ function excelSample(){
 }
 </script>
 <link href="/css/egovframework/rfc3/iam/admin_common.css" rel="stylesheet" type="text/css" />
+<style>
+	.box_01 {border:2px solid #ccc;padding:15px;margin-bottom: 15px;}
+	.type01>li {padding-left:15px; background:url(/img/common/bul_01.png) no-repeat 0 4px;}
+</style>
 </head>
 <body>
 
@@ -251,11 +255,12 @@ function excelSample(){
 	<form id="researcher_excel_form" enctype="multipart/form-data" method="post">
 		<input type="file" id="researcher_file" name="researcher_file" value="" onchange="setFile()" style="display: none;">
 	</form>
-	
-	<ul>
-		<li>※권역, 품목을 검색해야 리스트가 출력됩니다.</li>
-		<li>마지막 등록은 <%=rschVO.reg_date %> 입니다. 총 조사건 수는 <%=rschVO.cnt %>건 입니다.</li>
-	</ul>
+	<div class="box_01">
+		<ul class="type01 fsize_120">
+			<li class="red">※권역, 품목을 검색해야 리스트가 출력됩니다.</li>
+			<li>마지막 등록은 <%=rschVO.reg_date %> 입니다. 총 조사건 수는 <%=rschVO.cnt %>건 입니다.</li>
+		</ul>
+	</div>
 	<div class="searchBox magB20">
 		<form id="searchForm" method="get" class="topbox2">
 			<fieldset>

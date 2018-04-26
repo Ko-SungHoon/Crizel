@@ -92,12 +92,22 @@ String where_str    	= null;
 List<FoodVO> itemList 	= null;
 FoodVO vo				= null; 
 Object[] setObj			= null;
+List<String> setList	= new ArrayList<String>();
 int num = 0;
 
+String keyword  =   parseNull(request.getParameter("keyword"));
+String search1  =   parseNull(request.getParameter("search1"));
+String cat_no   =   parseNull(request.getParameter("cat_no"), "1");
+
 try{
+	
+	
 	sql = new StringBuffer();
-	sql.append("SELECT																							");
+	sql.append("	SELECT ROWNUM AS RNUM, A.* FROM (										                    ");
+    sql.append("    SELECT																						");
     sql.append("	  PRE.ITEM_NO																				");
+    sql.append("	, PRE.S_ITEM_NO																				");
+    sql.append("	, ITEM.CAT_NO																				");
     sql.append("	, ITEM.FOOD_CODE																			");
     sql.append("	, ITEM.FOOD_CAT_INDEX																		");
     sql.append("	, (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM						");
@@ -127,16 +137,30 @@ try{
     sql.append("	, PRE.SHOW_FLAG																				");
     sql.append("	, (SELECT REG_IP FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_IP						");
     sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
-    sql.append("	, PRE.ITEM_GRP_NO																			");
-    sql.append("	, PRE.ITEM_GRP_ORDER																		");
-    sql.append("	, PRE.ITEM_COMP_NO																			");
-    sql.append("	, PRE.ITEM_COMP_VAL																			");
-    sql.append("	, PRE.LOW_RATIO																				");
-    sql.append("	, PRE.AVR_RATIO																				");
-    sql.append("	, PRE.LB_RATIO																				");
+    sql.append("	, (SELECT NVL(COUNT(ITEM_NO), 0) FROM FOOD_ST_ITEM_LOG WHERE ITEM_NO = ITEM.ITEM_NO) LOG_CNT");
+
     sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO			");
     sql.append("	ORDER BY PRE.ITEM_NO																		");
-    itemList = jdbcTemplate.query(sql.toString(), new FoodList());
+    sql.append("	) A WHERE 1=1																				");
+    sql.append("        AND A.CAT_NO = ?                                                                        ");
+    setList.add(cat_no);
+    if(!"".equals(search1)){
+    	if("nm_food".equals(search1)){
+    		sql.append("AND A.NM_FOOD LIKE '%'||?||'%'															");
+    	}else if("dt_nm".equals(search1)){
+    		sql.append("AND A.DT_NM LIKE '%'||?||'%'															");
+    	}else if("ex_nm".equals(search1)){
+    		sql.append("AND A.EX_NM LIKE '%'||?||'%'															");
+    	}
+    	setList.add(keyword);
+    }
+    
+    setObj = new Object[setList.size()];
+    for(int i=0; i<setList.size(); i++){
+    	setObj[i] = setList.get(i);
+    }
+    
+    itemList = jdbcTemplate.query(sql.toString(), new FoodList(), setObj);
     
 	for (int i = 0; i < itemList.size(); i++) {
 	    row = sheet.createRow(rowCnt++);

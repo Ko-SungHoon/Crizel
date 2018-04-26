@@ -3,7 +3,7 @@
 /**
 *   PURPOSE :   조사가격조회 엑셀 다운로드 jsp
 *   CREATE  :   20180419_thur   JI
-*   MODIFY  :   ...
+*   MODIFY  :   20180425_wed	KO	최저가 삭제 및 비교그룹 추가
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -99,7 +99,8 @@ cell = row.createCell(10);
 cell.setCellValue("비유통");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(11);
-cell.setCellValue("최저가");
+//cell.setCellValue("최저가");
+cell.setCellValue("비교그룹");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(12);
 cell.setCellValue("평균가");
@@ -458,7 +459,8 @@ try{
             cell    =   row.createCell(8); cell.setCellValue(vo.unit_nm); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(9); cell.setCellValue(vo.non_season); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(10); cell.setCellValue(vo.non_distri); cell.setCellStyle(cellStyle);
-            cell    =   row.createCell(11); cell.setCellValue(vo.low_val); cell.setCellStyle(cellStyle);
+            //cell    =   row.createCell(11); cell.setCellValue(vo.low_val); cell.setCellStyle(cellStyle);
+            cell    =   row.createCell(11); cell.setCellValue(vo.item_comp_no); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(12); cell.setCellValue(vo.avr_val); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(13); cell.setCellValue(vo.center_val); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(14); cell.setCellValue(vo.zone_avr_val); cell.setCellStyle(cellStyle);

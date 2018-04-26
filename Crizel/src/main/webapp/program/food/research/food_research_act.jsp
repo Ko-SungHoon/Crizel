@@ -2,6 +2,7 @@
 /**
 *   PURPOSE :   월별조사항목개시 - 액션
 *   CREATE  :   20180405_thur    KO
+*	MODIFY  :   batch 방식 변경 20180424_tue    KO
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -37,15 +38,21 @@ String regId = sessionManager.getId();
 
 String returnPage 	= "food_research_job.jsp";
 
+Connection conn 			= null;
+PreparedStatement pstmt 	= null;
 StringBuffer sql 			= null;
 List<Object[]> batch 		= null;
 Object[] value				= null;
 int result 					= 0;
 int cnt						= 0;
+int key						= 0;
 
 List<FoodVO> rschItemList = null;
 
 try{
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+
 	if("researchStart".equals(mode)){
 		// 조사가 진행중일 경우
 		sql = new StringBuffer();
@@ -59,6 +66,7 @@ try{
 			out.println("opener.location.reload();");
 			out.println("window.close();");
 			out.println("</script>");
+			sqlMapClient.endTransaction();
 			return;
 		}
 		
@@ -92,7 +100,17 @@ try{
 			sql = new StringBuffer();
 			sql.append("INSERT INTO FOOD_RSCH_CAT(RSCH_NO, CAT_NO)						");
 			sql.append("VALUES(?, (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ?)	) 	");
-			batch = new ArrayList<Object[]>();
+			pstmt = conn.prepareStatement(sql.toString());
+			for(String ob : cat_nm_arr){
+				key = 0;
+				pstmt.setInt(++key,  rsch_no);
+				pstmt.setString(++key,  ob);
+				pstmt.addBatch();
+			}
+			pstmt.executeBatch();
+			if(pstmt!=null){pstmt.close();}
+
+			/* batch = new ArrayList<Object[]>();
 				for(String ob : cat_nm_arr){
 					value = new Object[]{
 							  rsch_no
@@ -100,7 +118,7 @@ try{
 					};
 					batch.add(value);
 				}
-			jdbcTemplate.batchUpdate(sql.toString(), batch);
+			jdbcTemplate.batchUpdate(sql.toString(), batch); */
 		}
 		
 		if(team_no_arr!=null && team_no_arr.length>0){
@@ -108,7 +126,17 @@ try{
 			sql = new StringBuffer();
 			sql.append("INSERT INTO FOOD_RSCH_TEAM(RSCH_NO, TEAM_NO)	");
 			sql.append("VALUES(?, ?)									");
-			batch = new ArrayList<Object[]>();
+			pstmt = conn.prepareStatement(sql.toString());
+			for(String ob : team_no_arr){
+				key = 0;
+				pstmt.setInt(++key,  rsch_no);
+				pstmt.setString(++key,  ob);
+				pstmt.addBatch();
+			}
+			pstmt.executeBatch();
+			if(pstmt!=null){pstmt.close();}
+	
+			/* batch = new ArrayList<Object[]>();
 			for(String ob : team_no_arr){
 				value = new Object[]{
 						  rsch_no
@@ -116,7 +144,7 @@ try{
 				};
 				batch.add(value);
 			}
-			jdbcTemplate.batchUpdate(sql.toString(), batch);
+			jdbcTemplate.batchUpdate(sql.toString(), batch); */
 		}
 		
 		sql = new StringBuffer();
@@ -167,7 +195,41 @@ try{
 			sql.append("		   WHERE CAT_NM = ?)	");
 			sql.append("		, SYSDATE				");		// REG_DATE
 			sql.append("		)						");
-			batch = new ArrayList<Object[]>();
+			pstmt = conn.prepareStatement(sql.toString());
+			boolean catCheck 	= false;
+			boolean teamCheck 	= false;
+			for(FoodVO ob : rschItemList){
+				catCheck 	= false;
+				teamCheck 	= false;
+				
+				for(String ob2 : cat_nm_arr){
+					if(ob.cat_nm.equals(ob2)){
+						catCheck = true;
+					}
+				}
+				for(String ob2 : team_no_arr){
+					if(ob.team_no.equals(ob2)){
+						teamCheck = true;
+					}
+				}
+				if(teamCheck && catCheck){
+					key = 0;
+					pstmt.setInt(++key,  rsch_val_no++);
+					pstmt.setInt(++key,  rsch_no);
+					pstmt.setString(++key,  ob.item_no);
+					pstmt.setString(++key,  ob.sch_no);
+					pstmt.setString(++key,  ob.sch_no);
+					pstmt.setString(++key,  ob.sch_no);
+					pstmt.setString(++key,  ob.cat_nm.split("-")[0].trim());
+					pstmt.addBatch();
+				}
+			}
+			
+			pstmt.executeBatch();
+			if(pstmt!=null){pstmt.close();}
+
+			
+			/* batch = new ArrayList<Object[]>();
 			boolean catCheck 	= false;
 			boolean teamCheck 	= false;
 			for(FoodVO ob : rschItemList){
@@ -198,7 +260,7 @@ try{
 				}
 			}
 			
-			jdbcTemplate.batchUpdate(sql.toString(), batch);
+			jdbcTemplate.batchUpdate(sql.toString(), batch); */
 			
 		}
 
@@ -250,7 +312,17 @@ try{
 			sql = new StringBuffer();
 			sql.append("INSERT INTO FOOD_RSCH_CAT(RSCH_NO, CAT_NO)						");
 			sql.append("VALUES(?, (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ?)	) 	");
-			batch = new ArrayList<Object[]>();
+			pstmt = conn.prepareStatement(sql.toString());
+			for(String ob : cat_nm_arr){
+				key = 0;
+				pstmt.setInt(++key,  rsch_no);
+				pstmt.setString(++key,  ob);
+				pstmt.addBatch();
+			}
+			pstmt.executeBatch();
+			if(pstmt!=null){pstmt.close();}
+
+			/* batch = new ArrayList<Object[]>();
 				for(String ob : cat_nm_arr){
 					value = new Object[]{
 							  rsch_no
@@ -258,7 +330,7 @@ try{
 					};
 					batch.add(value);
 				}
-			jdbcTemplate.batchUpdate(sql.toString(), batch);
+			jdbcTemplate.batchUpdate(sql.toString(), batch); */
 		}
 		
 		if(team_no_arr!=null && team_no_arr.length>0){
@@ -266,7 +338,17 @@ try{
 			sql = new StringBuffer();
 			sql.append("INSERT INTO FOOD_RSCH_TEAM(RSCH_NO, TEAM_NO)	");
 			sql.append("VALUES(?, ?)									");
-			batch = new ArrayList<Object[]>();
+			pstmt = conn.prepareStatement(sql.toString());
+			for(String ob : team_no_arr){
+				key = 0;
+				pstmt.setInt(++key,  rsch_no);
+				pstmt.setString(++key,  ob);
+				pstmt.addBatch();
+			}
+			pstmt.executeBatch();
+			if(pstmt!=null){pstmt.close();}
+
+			/* batch = new ArrayList<Object[]>();
 			for(String ob : team_no_arr){
 				value = new Object[]{
 						  rsch_no
@@ -274,7 +356,7 @@ try{
 				};
 				batch.add(value);
 			}
-			jdbcTemplate.batchUpdate(sql.toString(), batch);
+			jdbcTemplate.batchUpdate(sql.toString(), batch); */
 		}
 		
 		sql = new StringBuffer();
@@ -325,7 +407,40 @@ try{
 			sql.append("		   WHERE CAT_NM = ?)	");
 			sql.append("		, SYSDATE				");		// REG_DATE
 			sql.append("		)						");
-			batch = new ArrayList<Object[]>();
+			pstmt = conn.prepareStatement(sql.toString());
+			boolean catCheck 	= false;
+			boolean teamCheck 	= false;
+			for(FoodVO ob : rschItemList){
+				catCheck 	= false;
+				teamCheck 	= false;
+				
+				for(String ob2 : cat_nm_arr){
+					if(ob.cat_nm.equals(ob2)){
+						catCheck = true;
+					}
+				}
+				for(String ob2 : team_no_arr){
+					if(ob.team_no.equals(ob2)){
+						teamCheck = true;
+					}
+				}
+				if(teamCheck && catCheck){
+					key = 0;
+					pstmt.setInt(++key,  rsch_val_no++);
+					pstmt.setInt(++key,  rsch_no);
+					pstmt.setString(++key,  ob.item_no);
+					pstmt.setString(++key,  ob.sch_no);
+					pstmt.setString(++key,  ob.sch_no);
+					pstmt.setString(++key,  ob.sch_no);
+					pstmt.setString(++key,  ob.cat_nm.split("-")[0].trim());
+					pstmt.addBatch();
+				}
+			}
+			
+			pstmt.executeBatch();
+			if(pstmt!=null){pstmt.close();}
+
+			/* batch = new ArrayList<Object[]>();
 			boolean catCheck 	= false;
 			boolean teamCheck 	= false;
 			for(FoodVO ob : rschItemList){
@@ -356,7 +471,7 @@ try{
 				}
 			}
 			
-			jdbcTemplate.batchUpdate(sql.toString(), batch);
+			jdbcTemplate.batchUpdate(sql.toString(), batch); */
 			
 		}
 		
@@ -424,7 +539,18 @@ try{
 			sql.append("	STS_FLAG = ?					");
 			sql.append("	, RJ_REASON = ?					");
 			sql.append("	, RJ_DATE = SYSDATE				");
-			sql.append("WHERE RSCH_VAL_NO = ?				");
+			sql.append("	, RSCH_REASON = NULL			");
+			sql.append("	, T_RJ_REASON = NULL			");
+			sql.append("WHERE RSCH_VAL_NO IN (				");
+			sql.append("	SELECT RSCH_VAL_NO		");
+			sql.append("	FROM FOOD_RSCH_VAL A LEFT JOIN FOOD_ITEM_PRE B ON A.ITEM_NO = B.ITEM_NO			");
+			sql.append("	WHERE ITEM_COMP_NO = (															");
+			sql.append("  		SELECT B.ITEM_COMP_NO														");
+			sql.append("  		FROM FOOD_RSCH_VAL A LEFT JOIN FOOD_ITEM_PRE B ON A.ITEM_NO = B.ITEM_NO		");
+			sql.append("  		WHERE A.RSCH_VAL_NO = ?														");
+			sql.append("		)																			");
+			sql.append("	)																				");
+			sql.append("AND STS_FLAG NOT IN('N', 'RS')		");
 			result = jdbcTemplate.update(sql.toString(), sts_flag, rj_reason, rsch_val_no);
 		}
 	
@@ -447,6 +573,14 @@ try{
 		out.println("<script>alert('처리 중 오류가 발생하였습니다.');location.replace('" + returnPage + "');</script>");
 	}
 	out.println(e.toString());
+	if(pstmt!=null){pstmt.close();}
+	if(conn!=null){conn.close();}
+	sqlMapClient.endTransaction();
+}finally {
+	if(pstmt!=null){pstmt.close();}
+	if(conn!=null){conn.close();}
+	sqlMapClient.endTransaction();
 }
+
 
 %>

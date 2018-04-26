@@ -34,10 +34,12 @@ String pageTitle = "팀 추가/수정";
 <%
 
 String zone_no				= parseNull(request.getParameter("zone_no"));
+String cat_no				= parseNull(request.getParameter("cat_no"));
 StringBuffer sql 			= null;
 List<FoodVO> list 			= null;
 List<FoodVO> zoneList		= null;
 List<FoodVO> catList		= null;
+
 
 try{
 	sql = new StringBuffer();
@@ -47,21 +49,37 @@ try{
 	sql.append("ORDER BY ZONE_NM						");
 	zoneList = jdbcTemplate.query(sql.toString(), new FoodList());
 	
-	if(!"".equals(zone_no)){
-		sql = new StringBuffer();
-		sql.append("SELECT *								");
-		sql.append("FROM FOOD_TEAM							");
-		sql.append("WHERE SHOW_FLAG = 'Y' AND ZONE_NO = ?	");
-		sql.append("ORDER BY ORDER1							");
-		list = jdbcTemplate.query(sql.toString(), new FoodList(), zone_no);
-	}
-	
 	sql = new StringBuffer();
 	sql.append("SELECT * 				");
 	sql.append("FROM FOOD_ST_CAT 		");
 	sql.append("WHERE SHOW_FLAG = 'Y'	");
 	sql.append("ORDER BY CAT_NM			");
 	catList = jdbcTemplate.query(sql.toString(), new FoodList());
+	
+	if("".equals(cat_no) && catList!=null && catList.size()>0){
+		cat_no = catList.get(0).cat_no;
+	}
+	
+	if(!"".equals(zone_no)){
+		sql = new StringBuffer();
+		sql.append("SELECT																			");
+		sql.append("	TEAM_NO																		");
+		sql.append("	, ZONE_NO																	");
+		sql.append("	, CAT_NO																	");
+		sql.append("	, TEAM_NM																	");
+		sql.append("	, (SELECT ZONE_NM FROM FOOD_ZONE WHERE ZONE_NO = A.ZONE_NO) AS ZONE_NM		");
+		sql.append("	, (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = A.CAT_NO) AS CAT_NM		");
+		sql.append("	, REG_DATE																	");
+		sql.append("	, MOD_DATE																	");
+		sql.append("	, SHOW_FLAG																	");
+		sql.append("	, ORDER1																	");
+		sql.append("	, ORDER2																	");
+		sql.append("	, ORDER3																	");
+		sql.append("FROM FOOD_TEAM A																");
+		sql.append("WHERE SHOW_FLAG = 'Y' AND ZONE_NO = ? AND CAT_NO = ?							");
+		sql.append("ORDER BY ORDER1																	");
+		list = jdbcTemplate.query(sql.toString(), new FoodList(), zone_no, cat_no);
+	}
 	
 }catch(Exception e){
 	out.println(e.toString());
@@ -102,6 +120,9 @@ function teamInsert(){
 function zoneChange(zone_no){
 	location.href="food_team_popup.jsp?zone_no="+zone_no;
 }
+function catChange(cat_no, zone_no){
+	location.href="food_team_popup.jsp?cat_no="+ cat_no +"&zone_no="+zone_no;
+}
 
 $(function(){
 	$('#order1').keyup(function(){this.value = this.value.replace(/[^0-9]/g,'');});
@@ -125,7 +146,7 @@ $(function(){
 					</colgroup>
 					<tbody>
 						<tr>
-							<th scope="row">권역</th>
+							<th scope="row">권역 / 품목</th>
 							<td>
 								<select id="zone_no" name="zone_no" required onchange="zoneChange(this.value)">
 									<option value="">권역선택</option>
@@ -135,6 +156,18 @@ $(function(){
 								%>
 									<option value="<%=ob.zone_no%>" 
 									<%if(zone_no.equals(ob.zone_no)){out.println("selected");}%>><%=ob.zone_nm %></option>
+								<%
+									}
+								}
+								%>
+								</select>
+								<select id="cat_no" name="cat_no" required onchange="catChange(this.value, '<%=zone_no%>')">
+									<option value="">품목선택</option>
+								<%
+								if(catList!=null && catList.size()>0){
+									for(FoodVO ob : catList){
+								%>
+									<option value="<%=ob.cat_no%>" <%if(cat_no.equals(ob.cat_no)){out.println("selected");} %>><%=ob.cat_nm %></option>
 								<%
 									}
 								}
@@ -161,12 +194,14 @@ $(function(){
 					<caption><%=pageTitle%> 입력폼</caption>
 					<colgroup>
 						<col style="width:10%" />
+						<col style="width:20%" />
 						<col />
 						<col style="width:20%" />
 					</colgroup>
 					<thead>
 					<tr>
 						<th scope="row">순서</th>
+						<th scope="row">권역/품목</th>
 						<th scope="row">팀명 수정</th>
 						<th scope="row">팀삭제</th>
 					</tr>
@@ -181,6 +216,9 @@ $(function(){
 							<input type="text" name="order1_arr" class="wps_90" value="<%=ob.order1%>" required>
 						</td>
 						<td>
+							<%=ob.zone_nm%> / <%=ob.cat_nm%>
+						</td>
+						<td>
 							<input type="hidden" name="team_no_arr" value="<%=ob.team_no%>">
 							<input type="text" name="team_nm_arr" class="wps_90" value="<%=ob.team_nm%>" required>
 						</td>
@@ -193,7 +231,7 @@ $(function(){
 					}else{
 					%>
 					<tr>
-						<td colspan="3">등록된 팀이 없습니다.</td>
+						<td colspan="4">등록된 팀이 없습니다.</td>
 					</tr>
 					<%	
 					}

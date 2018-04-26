@@ -4,11 +4,13 @@
 *   CREATE  :   20180319_mon    Ko
 *   MODIFY  :   비밀번호 리셋 20180327_tue    JI
 *	MODIFY  :   영양사 다중 추가 20180409_mon    KO
+*	MODIFY  :   batch 방식 변경 20180424_tue    KO
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="egovframework.rfc3.user.web.SessionManager" %>
 <%@ include file="/program/class/UtilClass.jsp"%>
+<%@ include file="/program/food/food_util.jsp" %>
 <%@page import="org.springframework.jdbc.core.*" %>
 <%
 response.setCharacterEncoding("UTF-8");
@@ -46,13 +48,18 @@ String[] nu_tel		= request.getParameterValues("nu_tel");
 
 int max_nu_no		= 0;
 
+Connection conn 			= null;
+PreparedStatement pstmt 	= null;
+int key						= 0;
 StringBuffer sql 			= null;
 List<Object[]> batch 		= null;
 Object[] value				= null;
 int result 					= 0;
 
 try{
-	
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+
 	if("insert".equals(mode)){
 		sql = new StringBuffer();
 		sql.append("SELECT NVL(MAX(SCH_NO)+1, 1) FROM FOOD_SCH_TB");
@@ -145,7 +152,18 @@ try{
 			sql.append("	?,														");
 			sql.append("	'Y'														");
 			sql.append(")															");
-			batch = new ArrayList<Object[]>();
+			pstmt = conn.prepareStatement(sql.toString());
+			for(int i=0; i<nu_nm.length; i++){
+				key = 0;
+				pstmt.setString(++key,  sch_no);
+				pstmt.setString(++key,  nu_nm[i]);
+				pstmt.setString(++key,  nu_tel[i]);
+				pstmt.setString(++key,  nu_mail[i]);
+				pstmt.addBatch();
+			}
+			result = pstmt.executeBatch().length;
+			if(pstmt!=null){pstmt.close();}
+			/* batch = new ArrayList<Object[]>();
 			for(int i=0; i<nu_nm.length; i++){
 				value = new Object[]{
 						sch_no
@@ -155,7 +173,7 @@ try{
 				};
 				batch.add(value);
 			}
-			result = jdbcTemplate.batchUpdate(sql.toString(), batch).length;
+			result = jdbcTemplate.batchUpdate(sql.toString(), batch).length; */
 		}
 		
 		if(result > 0){
@@ -223,7 +241,43 @@ try{
 			sql.append("		VALUES(														");
 			sql.append("				?, ?, ?, ?, ?, ?									");
 			sql.append("				)													");
-			batch = new ArrayList<Object[]>();
+			pstmt = conn.prepareStatement(sql.toString());
+			for(int i=0; i<nu_nm.length; i++){
+				// i가 nu_no 배열의 갯수보다 적을때는 nu_no에 배열값을 넣고
+				// 그렇지 않을 경우(추가 insert) nu_no에 -1값을 주어 매칭되는 데이터가 없게 처리
+				if(i<nu_no.length){
+					key = 0;
+					pstmt.setString(++key,  nu_no[i]);
+					pstmt.setString(++key,  nu_nm[i]);
+					pstmt.setString(++key,  nu_tel[i]);
+					pstmt.setString(++key,  nu_mail[i]);
+					pstmt.setString(++key,  show_flag);
+					pstmt.setInt(++key,  max_nu_no);
+					pstmt.setString(++key,  sch_no);
+					pstmt.setString(++key,  nu_nm[i]);
+					pstmt.setString(++key,  nu_tel[i]);
+					pstmt.setString(++key,  nu_mail[i]);
+					pstmt.setString(++key,  show_flag);
+				}else{
+					key = 0;
+					pstmt.setInt(++key,  -1);
+					pstmt.setString(++key,  nu_nm[i]);
+					pstmt.setString(++key,  nu_tel[i]);
+					pstmt.setString(++key,  nu_mail[i]);
+					pstmt.setString(++key,  show_flag);
+					pstmt.setInt(++key,  max_nu_no);
+					pstmt.setString(++key,  sch_no);
+					pstmt.setString(++key,  nu_nm[i]);
+					pstmt.setString(++key,  nu_tel[i]);
+					pstmt.setString(++key,  nu_mail[i]);
+					pstmt.setString(++key,  show_flag);
+				}
+				pstmt.addBatch();
+			}
+			result = pstmt.executeBatch().length;
+			if(pstmt!=null){pstmt.close();}
+
+			/* batch = new ArrayList<Object[]>();
 			for(int i=0; i<nu_nm.length; i++){
 				// i가 nu_no 배열의 갯수보다 적을때는 nu_no에 배열값을 넣고
 				// 그렇지 않을 경우(추가 insert) nu_no에 -1값을 주어 매칭되는 데이터가 없게 처리
@@ -240,7 +294,7 @@ try{
 				}
 				batch.add(value);
 			}
-			result = jdbcTemplate.batchUpdate(sql.toString(), batch).length;
+			result = jdbcTemplate.batchUpdate(sql.toString(), batch).length; */
 		}
 		
 		/* // show_flag 값이 N인 데이터를 삭제
@@ -258,12 +312,14 @@ try{
         
     //비밀번호 초기화
 	} else if ("reset".equals(mode)) {
+
+		String encryPass	=	encryptPass("gkrryrmqtlr");
         
         sql     =   new StringBuffer();
         sql.append("UPDATE FOOD_SCH_TB SET              ");
-        sql.append("    SCH_PW      =   'gkrryrmqtlr'   ");
+        sql.append("    SCH_PW      =   ?			    ");
         sql.append("WHERE SCH_NO    =   ?               ");
-        result  =   jdbcTemplate.update(sql.toString(), new Object[]{sch_no});
+        result  =   jdbcTemplate.update(sql.toString(), new Object[]{encryPass, sch_no});
         if (result > 0) {
             out.println("<script>");
 			out.println("alert('비밀번호가 학교급식 으로 변경되었습니다. ');");
@@ -276,6 +332,14 @@ try{
 	
 }catch(Exception e){
 	out.println(e.toString());
+	if(pstmt!=null){pstmt.close();}
+	if(conn!=null){conn.close();}
+	sqlMapClient.endTransaction();
+}finally {
+	if(pstmt!=null){pstmt.close();}
+	if(conn!=null){conn.close();}
+	sqlMapClient.endTransaction();
 }
+
 
 %>
