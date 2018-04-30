@@ -77,16 +77,7 @@ if(endCnt>0){
 		
 		if(!"".equals(end_rsch_no)){
 			endCheckSql = new String();
-			endCheckSql += "DELETE FROM FOOD_RSCH_TEAM WHERE RSCH_NO = ?	 	";
-			endJdbcTemplate.update(endCheckSql, end_rsch_no);
-			endCheckSql = new String();
-			endCheckSql += "DELETE FROM FOOD_RSCH_CAT WHERE RSCH_NO = ?	 		";
-			endJdbcTemplate.update(endCheckSql, end_rsch_no);
-			endCheckSql = new String();
-			endCheckSql += "DELETE FROM FOOD_RSCH_VAL WHERE RSCH_NO = ?	 		";
-			endJdbcTemplate.update(endCheckSql, end_rsch_no);
-			endCheckSql = new String();
-			endCheckSql += "DELETE FROM FOOD_RSCH_TB WHERE RSCH_NO = ?	 		";
+			endCheckSql += "UPDATE FOOD_RSCH_TB SET STS_FLAG = 'Y' WHERE RSCH_NO = ?	 		";
 			endJdbcTemplate.update(endCheckSql, end_rsch_no);
 		}
 	}catch(Exception e){

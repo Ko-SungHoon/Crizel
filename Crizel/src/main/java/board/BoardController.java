@@ -270,6 +270,7 @@ public class BoardController {
 		}
 	}
 	
+	
 	public String parseNull(String value){
 		if(value == null){
 			value = "";

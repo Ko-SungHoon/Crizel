@@ -53,7 +53,22 @@ List<String> setList	= new ArrayList<String>();
 int pre_item_cnt    =   0;
 int total_item_cnt  =   0;
 
+//조사개시 중인 조사번호
+int rsch_no	=	0;
+
 try{
+	//조사개시 중인 조사번호 가져오기
+	sql	=	new StringBuffer();
+	sql.append(" SELECT RSCH_NO			");
+	sql.append(" FROM FOOD_RSCH_TB		");
+	sql.append(" WHERE SHOW_FLAG = 'Y'	");
+	sql.append(" 	AND STS_FLAG = 'N'	");
+	try{
+		rsch_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+	}catch(Exception e){
+		rsch_no	=	0;
+	}
+
 	if("".equals(cat_no)){
 		sql = new StringBuffer();
 		sql.append("SELECT MIN(CAT_NO) AS CAT_NO	");
@@ -125,7 +140,7 @@ try{
     sql.append("	, (SELECT REG_IP FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_IP						");
     sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
 
-    sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO			");
+    sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO			");
     sql.append(")A WHERE 1=1																					");
     sql.append("    AND A.CAT_NO = ?                                                                            ");
     paging.setParams("cat_no", cat_no);
@@ -194,7 +209,7 @@ try{
     sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
     sql.append("	, (SELECT NVL(COUNT(ITEM_NO), 0) FROM FOOD_ST_ITEM_LOG WHERE ITEM_NO = ITEM.ITEM_NO) LOG_CNT");
 
-    sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO			");
+    sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO			");
     sql.append("	ORDER BY PRE.ITEM_NO																		");
     sql.append("	) A WHERE ROWNUM <= " + paging.getEndRowNo() + "											");
     sql.append("        AND A.CAT_NO = ?                                                                        ");
@@ -228,17 +243,50 @@ try{
         var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
     }
 
-    function catPopup(){newWin("food_cat_popup.jsp", 'PRINTVIEW', '1000', '740');}
-    function unitPopup(){newWin("food_unit_popup.jsp", 'PRINTVIEW', '1000', '740');}
-    function itemPopup(){newWin("food_item_popup.jsp", 'PRINTVIEW', '1000', '740');}
-    function updatePopup(item_no){newWin("food_item_popup.jsp?item_no="+item_no, 'PRINTVIEW', '1000', '740');}
+    function catPopup(){
+        <%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 식품구분수정이 불가합니다.");
+			return false;
+		<%}else{%>
+            newWin("food_cat_popup.jsp", 'PRINTVIEW', '1000', '740');
+        <%}%>
+    }
+    function unitPopup(){
+        <%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 단위수정이 불가합니다.");
+			return false;
+		<%}else{%>
+            newWin("food_unit_popup.jsp", 'PRINTVIEW', '1000', '740');
+        <%}%>
+    }
+    function itemPopup(){
+        <%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 식품추가가 불가합니다.");
+			return false;
+		<%}else{%>
+            newWin("food_item_popup.jsp", 'PRINTVIEW', '1000', '740');
+        <%}%>
+    }
+    function updatePopup(item_no){
+        <%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 식품수정이 불가합니다.");
+			return false;
+		<%}else{%>
+            newWin("food_item_popup.jsp?item_no="+item_no, 'PRINTVIEW', '1000', '740');
+        <%}%>
+    }
     
     //excel up
     function upExcel() {
-        if (confirm("식품 엑셀을 업로드 하시겠습니까?\n식품 데이터 변경으로 공개식품의 변경이 생길 수 있습니다.")) {
-            $("#food_file").click();
-        }
-        return;
+        <%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 식품 변경이 불가합니다.");
+			return false;
+		<%}else{%>
+            if (confirm("식품 엑셀을 업로드 하시겠습니까?\n식품 데이터 변경으로 공개식품의 변경이 생길 수 있습니다.")) {
+                $("#food_file").click();
+            }
+            return;
+        <%}%>
     }
     
     //excel down
@@ -299,14 +347,14 @@ try{
 		</p>
 		<span>공개 식품 <%=pre_item_cnt %>/<%=total_item_cnt %></span>
 		<p class="boxin f_r">
-            <form id="food_excel_form" enctype="multipart/form-data" method="post">
+            <form id="food_excel_form" enctype="multipart/form-data" method="post" class="txt_r">
                 <input type="file" id="food_file" name="food_file" value="" onchange="setFile()" style="display: none;">
-                <button type="button" class="btn medium mako" onclick="excelSample();">엑셀 샘플</button>
-                <button type="button" id="excel_up" class="btn medium mako" onclick="upExcel()">엑셀업로드</button>
-                <button type="button" id="excel_down" class="btn medium mako" onclick="downExcel()">엑셀다운로드</button>
-                <button type="button" class="btn medium mako" onclick="itemPopup()">식품추가</button>
-                <button type="button" class="btn medium mako" onclick="unitPopup()">단위수정</button>
-                <button type="button" class="btn medium mako" onclick="catPopup()">식품구분수정</button>
+                <button type="button" class="btn small edge mako" onclick="excelSample();">엑셀 샘플</button>
+                <button type="button" id="excel_up" class="btn small edge mako" onclick="upExcel()">엑셀업로드</button>
+                <button type="button" id="excel_down" class="btn small edge mako" onclick="downExcel()">엑셀다운로드</button>
+                <button type="button" class="btn small edge green" onclick="itemPopup()">식품추가</button>
+                <button type="button" class="btn small edge green" onclick="unitPopup()">단위수정</button>
+                <button type="button" class="btn small edge green" onclick="catPopup()">식품구분수정</button>
             </form>
 		</p>
 	</div>
@@ -388,7 +436,7 @@ try{
 				<td><%=ob.reg_id %></td>
 				<td><%=ob.show_flag %></td>
 				<td>
-					<button class="btn small edge mako" type="button" onclick="updatePopup('<%=ob.item_no %>')">수정</button>
+					<button class="btn small edge green" type="button" onclick="updatePopup('<%=ob.item_no %>')">수정</button>
 				</td>
 				<td>
                     <%if(Integer.parseInt(ob.log_cnt) > 0) {%>

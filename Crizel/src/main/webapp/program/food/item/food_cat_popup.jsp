@@ -182,7 +182,7 @@ $(function(){
 					<tr>
 						<th scope="row">번호</th>
 						<th scope="row">구분명</th>
-						<th scope="row">비교 측정 기준</th>
+						<%--<th scope="row">비교 측정 기준</th>--%>
 						<th scope="row">노출</th>
 						<th scope="row">비고</th>
 					</tr>
@@ -192,19 +192,19 @@ $(function(){
                         <tr>
 							<td><span class="cat_cat_no"><%=cat.cat_no %></span></td>
                             <td><input type="text" class="cat_cat_nm" name="cat_cat_nm" value="<%=cat.cat_nm %>"></td>
-                            <td>
+                            <%--<td>
                                 <input class="cat_unit_val wps_50" type="number" value="<%=cat.unit_val %>" min="1" required>
                                 <select class="cat_unit_no" name="cat_unit_no">
                                     <%for(FoodVO unit : unitList){%>
                                         <option value="<%=unit.unit_no %>" <%if (cat.unit_no.equals(unit.unit_no)) {out.println("selected");}%>><%=unit.unit_nm %></option>
                                     <%}%>
                                 </select>
-                            </td>
+                            </td>--%>
                             <td>
                                 <%if ("Y".equals(cat.show_flag)) {%><button class="btn small edge mako" onclick="catDel('N','<%=cat.cat_no %>')">숨김</button><%}
                                 else {%><button class="btn small edge mako" onclick="catDel('Y', '<%=cat.cat_no %>')">노출</button><%}%>
                             </td>
-                            <td><button class="btn small edge mako chgCat">적용</button></td>
+                            <td><button class="btn small edge darkMblue">적용</button></td>
                         </tr>
 						<%}%>
 					</tbody>

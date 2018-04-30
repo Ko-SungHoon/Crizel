@@ -51,7 +51,22 @@ Paging paging = new Paging();
 String pageNo = parseNull(request.getParameter("pageNo"), "1");
 int totalCount = 0;
 
+//조사개시 중인 조사번호
+int rsch_no	=	0;
+
 try{
+	//조사개시 중인 조사번호 가져오기
+	sql	=	new StringBuffer();
+	sql.append(" SELECT RSCH_NO			");
+	sql.append(" FROM FOOD_RSCH_TB		");
+	sql.append(" WHERE SHOW_FLAG = 'Y'	");
+	sql.append(" 	AND STS_FLAG = 'N'	");
+	try{
+		rsch_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+	}catch(Exception e){
+		rsch_no	=	0;
+	}
+
 	//totalCount
 	sql	=	new StringBuffer();
 	sql.append(" SELECT COUNT(*) FROM (														");
@@ -242,8 +257,13 @@ try{
 	}
 
     function updatePopup(rft_type, upd_no, upd_flag, sts_flag){
-    	var url = "?upd_no="+upd_no+"&upd_flag="+upd_flag+"&sts_flag="+sts_flag+"&rft_type="+rft_type
-    	newWin("food_update_popup.jsp"+url, 'PRINTVIEW', '1000', '740');
+		<%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 반영처리가 불가합니다.");
+			return false;
+		<%}else{%>
+			var url = "?upd_no="+upd_no+"&upd_flag="+upd_flag+"&sts_flag="+sts_flag+"&rft_type="+rft_type
+			newWin("food_update_popup.jsp"+url, 'PRINTVIEW', '1000', '740');
+		<%}%>
     }
 
 	$(function () {

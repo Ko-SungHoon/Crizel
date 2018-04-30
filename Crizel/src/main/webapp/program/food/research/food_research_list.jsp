@@ -59,7 +59,21 @@ int totalCount = 0;
 int cnt = 0;
 int num = 0;
 
+//조사개시 중인 조사번호
+int rsch_no	=	0;
+
 try{
+	//조사개시 중인 조사번호 가져오기
+	sql	=	new StringBuffer();
+	sql.append(" SELECT RSCH_NO			");
+	sql.append(" FROM FOOD_RSCH_TB		");
+	sql.append(" WHERE SHOW_FLAG = 'Y'	");
+	sql.append(" 	AND STS_FLAG = 'N'	");
+	try{
+		rsch_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+	}catch(Exception e){
+		rsch_no	=	0;
+	}
 
 	sql = new StringBuffer();
 	sql.append(" SELECT COUNT(*)																		");
@@ -351,10 +365,15 @@ try{
     
   	//excel up
     function upExcel () {
-        if (confirm("조사자, 권역 엑셀을 업로드 하시겠습니까?\n전반적인 조사자 설정이 변경됩니다.")) {
-            $("#researcher_file").click();
-        }
-        return;
+		<%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 권역/팀 엑셀 업로드가 불가합니다.");
+			return false;
+		<%}else{%>
+			if (confirm("조사자, 권역 엑셀을 업로드 하시겠습니까?\n전반적인 조사자 설정이 변경됩니다.")) {
+				$("#researcher_file").click();
+			}
+			return;
+		<%}%>
     }
   
     function setFile () {
@@ -384,7 +403,14 @@ try{
         var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
     }
     
-    function zonePopup(){newWin("food_zone_popup.jsp", 'PRINTVIEW', '1000', '740');}
+    function zonePopup(){
+		<%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 권역/팀 수정이 불가합니다.");
+			return false;
+		<%}else{%>
+			newWin("food_zone_popup.jsp", 'PRINTVIEW', '1000', '740');
+		<%}%>
+	}
     
     function searchSubmit(){
     	$("#searchForm").attr("action", "").submit();
@@ -409,7 +435,7 @@ try{
        </form>
 	
 		<p class="boxin">
-            <button type="button" class="btn medium mako" onclick="zonePopup()">권역/팀 수정</button>
+            <button type="button" class="btn medium green" onclick="zonePopup()">권역/팀 수정</button>
 		</p>
 		
 		<form id="searchForm" method="get" class="topbox2">

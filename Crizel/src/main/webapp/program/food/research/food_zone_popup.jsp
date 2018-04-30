@@ -260,17 +260,17 @@ function deleteNm(){
                     	<tr>
                     		<td>
                     			<input type="text" name="zone_nm" id="zone_nm" placeholder="권역명을 입력하세요.">
-                    			<button type="button" class="btn small mako" onclick="zoneInsert()">+</button>
+                    			<button type="button" class="btn small darkMblue" onclick="zoneInsert()">+</button>
                     		</td>
                     		<td>
                     		</td>
                     		<td>
                     			<input type="text" name="team_nm" id="team_nm" placeholder="팀명을 입력하세요.">
-                    			<button type="button" class="btn small mako" onclick="teamInsert()">+</button>
+                    			<button type="button" class="btn small darkMblue" onclick="teamInsert()">+</button>
                     		</td>
                     		<td>
                     			<input type="text" name="jo_nm" id="jo_nm" placeholder="조명을 입력하세요.">
-                    			<button type="button" class="btn small mako" onclick="joInsert()">+</button>
+                    			<button type="button" class="btn small darkMblue" onclick="joInsert()">+</button>
                     		</td>
                     	</tr>
                     	<tr>
@@ -307,8 +307,8 @@ function deleteNm(){
                     			<input type="hidden" name="update_type" id="update_type">
                     			<input type="hidden" name="update_no" id="update_no">
                     			<input type="text" name="update_nm" id="update_nm" placeholder="수정할 이름을 입력하세요.">
-                    			<button type="button" class="btn small mako" onclick="updateNm()">적용</button>
-                    			<button type="button" class="btn small mako" onclick="deleteNm()">삭제</button>
+                    			<button type="button" class="btn small darkMblue" onclick="updateNm()">적용</button>
+                    			<button type="button" class="btn small red" onclick="deleteNm()">삭제</button>
                     		</td>
                     	</tr>
                     </tbody>

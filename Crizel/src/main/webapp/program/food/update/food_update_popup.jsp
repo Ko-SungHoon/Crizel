@@ -235,32 +235,32 @@ try{
 						<tbody>
 							<tr>
 								<th scope="row"><label for="item_no">식품번호</label></th>
-								<td><input type="text" id="item_no" name="item_no"
+								<td><input type="text" id="item_no" name="item_no" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.item_no%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="cat_nm">품목구분</label></th>
-								<td><input type="text" id="cat_nm" name="cat_nm"
+								<td><input type="text" id="cat_nm" name="cat_nm" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.cat_nm%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="food_code">식품코드</label></th>
-								<td><input type="text" id="food_code" name="food_code"
+								<td><input type="text" id="food_code" name="food_code" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.food_code%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="nm_food">식품명</label></th>
-								<td><input type="text" id="nm_food" name="nm_food"
+								<td><input type="text" id="nm_food" name="nm_food" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.nm_food%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="dt_nm">상세식품명</label></th>
-								<td><input type="text" id="dt_nm" name="dt_nm"
+								<td><input type="text" id="dt_nm" name="dt_nm" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.dt_nm%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="ex_nm">식품설명</label></th>
-								<td><textarea class="wps_60 h080" id="ex_nm" name="ex_nm"
+								<td><textarea class="wps_60 h080" id="ex_nm" name="ex_nm" class="topbox2 magT10 magB10 txt_c fsize_90"
 										readonly required><%=foodVO.ex_nm.replace("\r", "<br>")%></textarea>
 								</td>
 							</tr>
@@ -278,12 +278,12 @@ try{
 						<tbody>
 							<tr>
 								<th scope="row"><label for="s_item_no">식품번호</label></th>
-								<td><input type="text" id="s_item_no" name="s_item_no"
+								<td><input type="text" id="s_item_no" name="s_item_no" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.s_item_no%>" readonly></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="cat_nm">품목구분</label></th>
-								<td><input type="text" id="cat_nm" name="cat_nm"
+								<td><input type="text" id="cat_nm" name="cat_nm" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.cat_nm%>" readonly></td>
 							</tr>
 							<tr>
@@ -340,17 +340,17 @@ try{
 						<tbody>
 							<tr>
 								<th scope="row"><label for="item_no">식품번호</label></th>
-								<td><input type="text" id="item_no" name="item_no"
+								<td><input type="text" id="item_no" name="item_no" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="자동으로 추가 됩니다." readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="cat_nm">품목구분</label></th>
-								<td><input type="text" id="cat_nm" name="cat_nm"
+								<td><input type="text" id="cat_nm" name="cat_nm" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.cat_nm%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="n_item_nm">식품명</label></th>
-								<td><input type="text" id="n_item_nm" name="n_item_nm"
+								<td><input type="text" id="n_item_nm" name="n_item_nm" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.n_item_nm%>" required></td>
 							</tr>
 							<tr>
@@ -401,32 +401,32 @@ try{
 						<tbody>
 							<tr>
 								<th scope="row"><label for="item_no">식품번호</label></th>
-								<td><input type="text" id="item_no" name="item_no"
+								<td><input type="text" id="item_no" name="item_no" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.item_no%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="cat_nm">품목구분</label></th>
-								<td><input type="text" id="cat_nm" name="cat_nm"
+								<td><input type="text" id="cat_nm" name="cat_nm" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.cat_nm%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="nm_food">식품명</label></th>
-								<td><input type="text" id="nm_food" name="nm_food"
+								<td><input type="text" id="nm_food" name="nm_food" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.nm_food%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="food_code">식품코드</label></th>
-								<td><input type="text" id="food_code" name="food_code"
+								<td><input type="text" id="food_code" name="food_code" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.food_code%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="dt_nm">상세식품명</label></th>
-								<td><input type="text" id="dt_nm" name="dt_nm"
+								<td><input type="text" id="dt_nm" name="dt_nm" class="topbox2 magT10 magB10 txt_c fsize_90"
 									value="<%=foodVO.dt_nm%>" readonly required></td>
 							</tr>
 							<tr>
 								<th scope="row"><label for="ex_nm">식품설명</label></th>
-								<td><textarea class="wps_60 h080" id="ex_nm" name="ex_nm"
+								<td><textarea class="wps_60 h080" id="ex_nm" name="ex_nm" class="topbox2 magT10 magB10 txt_c fsize_90"
 										readonly required><%=foodVO.ex_nm.replace("\r", "<br>")%></textarea>
 								</td>
 							</tr>

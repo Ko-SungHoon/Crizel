@@ -59,7 +59,7 @@ public String parseNull(String val, String defalut){
 <%
 
 WebApplicationContext context = WebApplicationContextUtils.getWebApplicationContext(request.getSession().getServletContext());
-DataSource dataSource = (DataSource) context.getBean("IamDataSource");
+DataSource dataSource = (DataSource) context.getBean("dataSource");
 JdbcTemplate jdbcTemplate = new JdbcTemplate(dataSource);
 
 String sql 				= new String();

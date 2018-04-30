@@ -1,4 +1,5 @@
 package util;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,6 +8,7 @@ import java.util.Map;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class Torrent {
@@ -69,10 +71,8 @@ public class Torrent {
         	map.put("href", hrefList.get(i));
         	map.put("text", textList.get(i));
         	map.put("time", timeList.get(i));
-        	map.put("magnet", getMagnet(hrefList.get(i)));
-        	if(i<imgList.size()){
-        		map.put("img", imgList.get(i));
-        	}
+        	map.put("magnet", getMagnet(hrefList.get(i)).get("magnet"));
+        	map.put("img", getMagnet(hrefList.get(i)).get("img"));
         	list.add(map);
         }
         
@@ -83,13 +83,13 @@ public class Torrent {
 		return list;
 	}
 	
-	public String getMagnet(String addr){
+	public Map<String,Object> getMagnet(String addr){
+		Map<String,Object> map			= new HashMap<String,Object>();
 		String URL 						= null;
         Document doc 					= null;
         Elements elem					= null;
         	
         URL 			= addr;
-        String magnet 	= "";	
         
 		try {
 			doc = Jsoup.connect(URL).get();
@@ -102,12 +102,17 @@ public class Torrent {
 		for (org.jsoup.nodes.Element e : elem) {
 			if(e.text()!=null && !"".equals(e.text())){
 				if("_blank".equals(e.attr("target"))){
-					//System.out.println(e.attr("href"));
-					magnet = e.attr("href");
+					map.put("magnet", e.attr("href"));
 					break;
 				}
 			}
 		}
-		return magnet;
+		
+		elem = doc.select(".view-wrap img");
+		if(elem.size()>0){
+			map.put("img", elem.get(0).attr("src"));
+		}
+		
+		return map;
 	}
 }

@@ -33,13 +33,13 @@
 
 	private List<String> splitComma (String splitString) {
 		String[] retArr	=	splitString.split(",");
-		List<String> retList	=	new ArrayList<String>();
+		List<String> retList	=	new ArrayList<String>(retArr.length);
 		if (retArr != null && retArr.length > 0) {
-			for (int i = 0; i < retArr.length; i++) {
-				retList.add(retArr[i]);
+			for (String val: retArr) {
+				retList.add(val.trim());
 			}
 		} else {
-			retList = null;
+			retList	=	null;
 		}
 		return retList;
 	}
@@ -130,11 +130,11 @@ try{
 		if ("M".equals(upd_flag)) {
 
 			//0th. 변경 식품명, 상세식품명, 식품설명 "," 로 자르기
-			n_item_nm_arc		=	new ArrayList<>();
+			n_item_nm_arc		=	new ArrayList<String>();
 			n_item_nm_arc		=	splitComma(n_item_nm);
-			n_item_dt_nm_arc	=	new ArrayList<>();
+			n_item_dt_nm_arc	=	new ArrayList<String>();
 			n_item_dt_nm_arc	=	splitComma(n_item_dt_nm);
-			n_item_expl_arc		=	new ArrayList<>();
+			n_item_expl_arc		=	new ArrayList<String>();
 			n_item_expl_arc		=	splitComma(n_item_expl);
 
 			//0th. 로그 테이블 insert
@@ -252,17 +252,6 @@ try{
 					}
 					batchResult	=	pstmt.executeBatch();
 					if(pstmt!=null){pstmt.close();}
-
-					/* batch = new ArrayList<Object[]>();
-					if (n_item_nm_arc != null && n_item_nm_arc.size() > 0) {
-						for (int i = 0; i < n_item_nm_arc.size(); i++) {
-							batchData	=	new Object[] {
-								n_item_nm_arc.get(i).trim(), st_nm_no++,
-								cat_nm, n_item_nm_arc.get(i).trim()};
-							batch.add(batchData);
-						}
-					}
-					batchResult	=	jdbcTemplate.batchUpdate(sql.toString(), batch); */
 				}
 				//2nd. 변경 상세식품명 조회
 				if ((n_item_dt_nm_arc.get(0) != null && n_item_dt_nm_arc.get(0).trim().length() > 0) 
@@ -295,17 +284,6 @@ try{
 					}
 					batchResult	=	pstmt.executeBatch();
 					if(pstmt!=null){pstmt.close();}
-					/* batch	=	new ArrayList<Object[]>();
-					if (n_item_dt_nm_arc != null && n_item_dt_nm_arc.size() > 0) {
-						for (int i = 0; i < n_item_dt_nm_arc.size(); i++) {
-							batchData	=	new Object[] {
-								n_item_dt_nm_arc.get(i).trim(), st_dt_nm_no++,
-								cat_nm, n_item_dt_nm_arc.get(i).trim()
-							};
-							batch.add(batchData);
-						}
-					}
-					batchResult	=	jdbcTemplate.batchUpdate(sql.toString(), batch); */
 				}
 				//3rd. 변경 식품설명 조회
 				if ((n_item_expl_arc.get(0) != null && n_item_expl_arc.get(0).trim().length() > 0) 
@@ -338,18 +316,6 @@ try{
 					}
 					batchResult	=	pstmt.executeBatch();
 					if(pstmt!=null){pstmt.close();}
-
-					/* batch	=	new ArrayList<Object[]>();
-					if (n_item_expl_arc != null && n_item_expl_arc.size() > 0) {
-						for (int i = 0; i < n_item_expl_arc.size(); i++) {
-							batchData	=	new Object[] {
-								n_item_expl_arc.get(i).trim(), st_ex_no++,
-								cat_nm, n_item_expl_arc.get(i).trim()
-							};
-							batch.add(batchData);
-						}
-					}
-					batchResult	=	jdbcTemplate.batchUpdate(sql.toString(), batch); */
 				}
 				//4th. 변경 단위 조회
 				//4-1st. 신규일 경우 등록
@@ -374,12 +340,12 @@ try{
 				sql.append(" UPDATE FOOD_ST_ITEM SET											");
 				sql.append(" MOD_DATE = SYSDATE													");
 				/*유닛이 있을 경우에만*/
-				if (!"".equals(n_item_unit) || n_item_unit != null) {
+				if (!"".equals(n_item_unit) && n_item_unit != null) {
 					sql.append(" , FOOD_UNIT = (SELECT UNIT_NO FROM FOOD_ST_UNIT WHERE UNIT_NM = ?)	");
 					setValue.add(n_item_unit);
 				}
 				/*코드가 있을 경우에만*/
-				if (!"".equals(n_item_code) || n_item_code != null) {
+				if (!"".equals(n_item_code) && n_item_code != null) {
 					sql.append(" , FOOD_CODE = ?													");
 					setValue.add(n_item_code);
 				}
@@ -450,11 +416,11 @@ try{
 		//추가 반영 처리
 		} else if ("A".equals(upd_flag)) {
 			//0th. 식품명, 상세식품명, 식품설명 "," 로 자르기
-			n_item_nm_arc		=	new ArrayList<>();
+			n_item_nm_arc		=	new ArrayList<String>();
 			n_item_nm_arc		=	splitComma(n_item_nm);
-			n_item_dt_nm_arc	=	new ArrayList<>();
+			n_item_dt_nm_arc	=	new ArrayList<String>();
 			n_item_dt_nm_arc	=	splitComma(n_item_dt_nm);
-			n_item_expl_arc		=	new ArrayList<>();
+			n_item_expl_arc		=	new ArrayList<String>();
 			n_item_expl_arc		=	splitComma(n_item_expl);
 			//1st. 신규 식품명 조회
 			sql	=	new StringBuffer();
@@ -486,16 +452,6 @@ try{
 			batchResult	=	pstmt.executeBatch();
 			if(pstmt!=null){pstmt.close();}
 
-			/* batch = new ArrayList<Object[]>();
-			if (n_item_nm_arc != null && n_item_nm_arc.size() > 0) {
-				for (int i = 0; i < n_item_nm_arc.size(); i++) {
-					batchData	=	new Object[] {
-						n_item_nm_arc.get(i).trim(), st_nm_no++,
-						cat_nm, n_item_nm_arc.get(i).trim()};
-					batch.add(batchData);
-				}
-			}
-			batchResult	=	jdbcTemplate.batchUpdate(sql.toString(), batch); */
 			//2nd. 신규 상세식품명 조회
 			sql	=	new StringBuffer();
 			sql.append(" SELECT NVL(MAX(DT_NO)+1, 1) FROM FOOD_ST_DT_NM ");
@@ -526,17 +482,6 @@ try{
 			batchResult	=	pstmt.executeBatch();
 			if(pstmt!=null){pstmt.close();}
 
-			/* batch	=	new ArrayList<Object[]>();
-			if (n_item_dt_nm_arc != null && n_item_dt_nm_arc.size() > 0) {
-				for (int i = 0; i < n_item_dt_nm_arc.size(); i++) {
-					batchData	=	new Object[] {
-						n_item_dt_nm_arc.get(i).trim(), st_dt_nm_no++,
-						cat_nm, n_item_dt_nm_arc.get(i).trim()
-					};
-					batch.add(batchData);
-				}
-			}
-			batchResult	=	jdbcTemplate.batchUpdate(sql.toString(), batch); */
 			//3rd. 신규 식품설명 조회
 			sql	=	new StringBuffer();
 			sql.append(" SELECT NVL(MAX(EX_NO)+1, 1) FROM FOOD_ST_EXPL ");
@@ -566,18 +511,6 @@ try{
 			}
 			batchResult	=	pstmt.executeBatch();
 			if(pstmt!=null){pstmt.close();}
-
-			/* batch	=	new ArrayList<Object[]>();
-			if (n_item_expl_arc != null && n_item_expl_arc.size() > 0) {
-				for (int i = 0; i < n_item_expl_arc.size(); i++) {
-					batchData	=	new Object[] {
-						n_item_expl_arc.get(i).trim(), st_ex_no++,
-						cat_nm, n_item_expl_arc.get(i).trim()
-					};
-					batch.add(batchData);
-				}
-			}
-			batchResult	=	jdbcTemplate.batchUpdate(sql.toString(), batch); */
 			
 			//4th. 신규 단위 조회
 			//4-1st. 신규일 경우 등록
@@ -593,6 +526,7 @@ try{
 			sql.append(" 		'F', 'Y', SYSDATE										");
 			sql.append(" 		)														");
 			result	=	jdbcTemplate.update(sql.toString(), new Object[]{n_item_unit, n_item_unit});
+
 			//6th. 품목구분별 마지막 번호 추출 및 신규 등록
 			sql	=	new StringBuffer();
 			sql.append(" INSERT INTO FOOD_ST_ITEM (									");
@@ -698,6 +632,41 @@ try{
 
 			result	=	jdbcTemplate.update(sql.toString(), setObject);
 
+			//6-1st. 공개식품 등록
+			sql	=	new StringBuffer();
+			sql.append(" SELECT	MAX(ITEM_NO) FROM FOOD_ST_ITEM	");
+			temp_item_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class);
+
+			sql	=	new StringBuffer();
+			sql.append(" INSERT INTO FOOD_ITEM_PRE										");
+			sql.append(" (																");
+			sql.append(" 	S_ITEM_NO													");
+			sql.append(" 	, ITEM_NO													");
+			sql.append(" 	, ITEM_NM													");
+			sql.append(" 	, ITEM_GRP_NO												");
+			sql.append(" 	, ITEM_GRP_ORDER											");
+			sql.append(" 	, REG_DATE													");
+			sql.append(" 	, SHOW_FLAG													");
+			sql.append(" 	, FILE_NO													");
+			sql.append(" 	, LOW_RATIO													");
+			sql.append(" 	, AVR_RATIO													");
+			sql.append(" 	, LB_RATIO													");
+			sql.append(" ) VALUES (														");
+			sql.append(" 	(SELECT MAX(S_ITEM_NO)+1 FROM FOOD_ITEM_PRE)				");	//S_ITEM_NO
+			sql.append(" 	, ?															");	//ITEM_NO
+			sql.append(" 	, (SELECT B.NM_FOOD FROM FOOD_ST_ITEM A JOIN FOOD_ST_NM B	");	//ITEM_NM
+			sql.append(" 		ON A.FOOD_NM_1 = B.NM_NO WHERE A.ITEM_NO = ?)			");
+			sql.append(" 	, (SELECT MAX(ITEM_GRP_NO)+1 FROM FOOD_ITEM_PRE)			");//ITEM_GROUP_NO
+			sql.append(" 	, 1															");//ITEM_GROUP_ORDER
+			sql.append(" 	, SYSDATE													");//REG_DATE
+			sql.append(" 	, 'Y'														");//SHOW_FLAG
+			sql.append(" 	, -1														");//FILE_NO
+			sql.append(" 	, 30														");//LOW_RATIO
+			sql.append(" 	, 30														");//AVR_RATIO
+			sql.append(" 	, 50														");//LB_RATIO
+			sql.append(" )																");
+			result	=	jdbcTemplate.update(sql.toString(), new Object[]{temp_item_no, temp_item_no});
+
 			//7th. 업데이트 요청 테이블 업데이트
 			sql	=	new StringBuffer();
 			sql.append(" UPDATE FOOD_UPDATE		");
@@ -737,7 +706,7 @@ try{
 				sql.append(" UPDATE FOOD_UPDATE		");
 				sql.append(" SET					");
 				sql.append(" STS_FLAG = 'A',		");
-				sql.append(" STS_FATE = SYSDATE		");
+				sql.append(" STS_DATE = SYSDATE		");
 				sql.append(" WHERE UPD_NO = ?		");
 				result	=	jdbcTemplate.update(sql.toString(), new Object[]{upd_no});
 			}

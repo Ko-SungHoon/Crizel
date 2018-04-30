@@ -22,16 +22,16 @@ SessionManager sManager =	new SessionManager(request);
 int viewYN			=	0;		//1일경우 페이지 정상 작동
 String moveUrl		=	"/index.gne?contentsSid=2303";					//액션페이지		// 운영서버:2303, 테스트서버:661
 String moveUrlLog	=	"/index.gne?menuCd=DOM_000002101003001000";		//이력페이지(새창)	// 운영서버:DOM_000002101003001000, 테스트서버:DOM_000000127003002000
-String moveUrlMain	=	"";		//메인페이지
+String moveUrlMain	=	"/index.gne?menuCd=DOM_000002101000000000";		//메인페이지
 
 //2차 로그인 여부
 if("Y".equals(session.getAttribute("foodLoginChk")) || sManager.isRoleAdmin() || sManager.isRole(foodRole)){
 	viewYN	=	1;
 }else{
-	out.print("<script> 						\n");
-	out.print("alert('2차 로그인 후 이용하실 수 있습니다.');	\n");
-	out.print("history.back(); 					\n");
-	out.print("</script> 						\n");
+	out.print("<script> 							\n");
+	out.print("alert('2차 로그인 후 이용하실 수 있습니다.');		\n");
+	out.print("location.href='" + moveUrlMain + "'; \n");
+	out.print("</script> 							\n");
   return;
 }
 
@@ -608,24 +608,24 @@ function submissionRsch(number, type){
 function inputCheck(number){
 	var alertMsg	=	"";		//출력할 메시지
 	var checkCnt	=	0;		//입력한 값의 개수
-	var checkSetCnt	=	0;		//(조사가, 조사처, 견적업체) 1set가 온전히 입력된 수
+	var checkSetCnt	=	0;		//(조사가, 조사처, 브랜드) 1set가 온전히 입력된 수
 	
 	var rschVal		=	"";		//조사가
 	var rschLoc		=	"";		//조사처
-	var rschCom		=	"";		//견적업체
+	var rschCom		=	"";		//브랜드
 		
 	for(var i=0; i<5; i++){		
 		rschVal		=	$("#rschVal" + (i+1) + "_" + number).val();	
 		rschLoc		=	$("#rschLoc" + (i+1) + "_" + number).val();	
 		rschCom		=	$("#rschCom" + (i+1) + "_" + number).val();	
 		
-		//조사가, 조사처, 견적업체 1set가 온전히 입력되었을 때 && 조사가 숫자체크
+		//조사가, 조사처, 브랜드 1set가 온전히 입력되었을 때 && 조사가 숫자체크
 		if(rschVal != "" && rschLoc != "" && rschCom != ""){
 			if(numberChk(rschVal) == false)		return false;
 			checkSetCnt	+=	1;
 		}
 		
-		//조사가, 조사처, 견적업체 중 하나라도 입력되었을때 나머지 두값도 무조건 입력하게 하는 기능 && 조사가 숫자체크
+		//조사가, 조사처, 브랜드 중 하나라도 입력되었을때 나머지 두값도 무조건 입력하게 하는 기능 && 조사가 숫자체크
 		else if(rschVal != "" || rschLoc != "" || rschCom != ""){
 			
 			if(rschVal == ""){
@@ -639,7 +639,7 @@ function inputCheck(number){
 			}
 			if(rschCom == ""){
 				if(numberChk(rschVal) == false)		return false;
-				alertMsg	+=	"견적업체" + (i+1) + ", ";
+				alertMsg	+=	"브랜드" + (i+1) + ", ";
 				checkCnt	+=	1;
 			}
 		}		
@@ -903,7 +903,7 @@ if("R".equals(foodVO.sch_grade)){
             </td>
             <td class="padR5 padL5">
               <table class="table_skin02 mag0 th-pd1 td-pd1 rsch_price">
-                <caption>조사가1~5에 대한 조사처 및 견적업체 정보 입력</caption>
+                <caption>조사가1~5에 대한 조사처 및 브랜드 정보 입력</caption>
                 <colgroup>
                   <col style="width:15%" />
                   <col style="width:17%" span="5" />
@@ -937,11 +937,11 @@ if("R".equals(foodVO.sch_grade)){
                   </tr>
                   <tr>
                     <th scope="row" class="bg_green">브랜드</th>
-                    <td><label><input type="text" name="rschCom1" id="rschCom1_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com1%>" title="조사가1 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom2" id="rschCom2_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com2%>" title="조사가2 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom3" id="rschCom3_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com3%>" title="조사가3 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom4" id="rschCom4_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com4%>" title="조사가4 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom5" id="rschCom5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com5%>" title="조사가5 견적업체" /></label></td>
+                    <td><label><input type="text" name="rschCom1" id="rschCom1_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com1%>" title="조사가1 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom2" id="rschCom2_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com2%>" title="조사가2 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom3" id="rschCom3_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com3%>" title="조사가3 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom4" id="rschCom4_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com4%>" title="조사가4 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom5" id="rschCom5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com5%>" title="조사가5 브랜드" /></label></td>
                   </tr>
       		
                 </tbody>
@@ -963,7 +963,7 @@ if("R".equals(foodVO.sch_grade)){
           <%}
           }else{
             	out.print("<tr>");
-              	out.print("<td colspan=\"11\"> 조사 대상이 없습니다. </td>");
+              	out.print("<td colspan=\"12\"> 조사 대상이 없습니다. </td>");
               	out.print("</tr>");
           }%>
         </tbody>
@@ -1021,7 +1021,7 @@ if("R".equals(foodVO.sch_grade)){
 	             <td><%=vo.nu_nm%></td>
 	             <td class="padR5 padL5">
 	               <table class="table_skin02 mag0 th-pd1 td-pd1 rsch_price">
-	                 <caption>조사가1~5에 대한 조사처 및 견적업체 정보 입력</caption>
+	                 <caption>조사가1~5에 대한 조사처 및 브랜드 정보 입력</caption>
 	                 <colgroup>
 	                   <col style="width:15%">
 	                   <col style="width:17%" span="5">
@@ -1054,7 +1054,7 @@ if("R".equals(foodVO.sch_grade)){
 	                     <td><%=vo.rsch_loc5%></td>
 	                   </tr>
 	                   <tr>
-	                     <th scope="row" class="bg_green">견적업체</th>
+	                     <th scope="row" class="bg_green">브랜드</th>
 	                     <td><%=vo.rsch_com1%></td>
 	                     <td><%=vo.rsch_com2%></td>
 	                     <td><%=vo.rsch_com3%></td>
@@ -1070,7 +1070,7 @@ if("R".equals(foodVO.sch_grade)){
          	}
          }else{
         	 out.print("<tr>");
-        	 out.print("<td colspan=\"11\">완료 내역이 없습니다.</td>");
+        	 out.print("<td colspan=\"12\">완료 내역이 없습니다.</td>");
         	 out.print("</tr>");
          }
          %>
@@ -1185,7 +1185,7 @@ else if("T".equals(foodVO.sch_grade)){%>
             </td>
             <td class="padR5 padL5">
               <table class="table_skin02 mag0 th-pd1 td-pd1 rsch_price">
-                <caption>조사가1~5에 대한 조사처 및 견적업체 정보 입력</caption>
+                <caption>조사가1~5에 대한 조사처 및 브랜드 정보 입력</caption>
                 <colgroup>
                   <col style="width:15%" />
                   <col style="width:17%" span="5" />
@@ -1218,12 +1218,12 @@ else if("T".equals(foodVO.sch_grade)){%>
                     <td><label><input type="text" name="rschLoc5" id="rschLoc5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_loc5%>" title="조사가5 조사처" /></label></td>
                   </tr>
                   <tr>
-                    <th scope="row" class="bg_green">견적업체</th>
-                    <td><label><input type="text" name="rschCom1" id="rschCom1_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com1%>" title="조사가1 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom2" id="rschCom2_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com2%>" title="조사가2 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom3" id="rschCom3_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com3%>" title="조사가3 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom4" id="rschCom4_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com4%>" title="조사가4 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom5" id="rschCom5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com5%>" title="조사가5 견적업체" /></label></td>
+                    <th scope="row" class="bg_green">브랜드</th>
+                    <td><label><input type="text" name="rschCom1" id="rschCom1_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com1%>" title="조사가1 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom2" id="rschCom2_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com2%>" title="조사가2 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom3" id="rschCom3_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com3%>" title="조사가3 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom4" id="rschCom4_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com4%>" title="조사가4 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom5" id="rschCom5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com5%>" title="조사가5 브랜드" /></label></td>
                   </tr>
       		
                 </tbody>
@@ -1304,7 +1304,7 @@ else if("T".equals(foodVO.sch_grade)){%>
 	             <td><%=vo.nu_nm%></td>
 	             <td class="padR5 padL5">
 	               <table class="table_skin02 mag0 th-pd1 td-pd1 rsch_price">
-	                 <caption>조사가1~5에 대한 조사처 및 견적업체 정보 입력</caption>
+	                 <caption>조사가1~5에 대한 조사처 및 브랜드 정보 입력</caption>
 	                 <colgroup>
 	                   <col style="width:15%">
 	                   <col style="width:17%" span="5">
@@ -1337,7 +1337,7 @@ else if("T".equals(foodVO.sch_grade)){%>
 	                     <td><%=vo.rsch_loc5%></td>
 	                   </tr>
 	                   <tr>
-	                     <th scope="row" class="bg_green">견적업체</th>
+	                     <th scope="row" class="bg_green">브랜드</th>
 	                     <td><%=vo.rsch_com1%></td>
 	                     <td><%=vo.rsch_com2%></td>
 	                     <td><%=vo.rsch_com3%></td>
@@ -1440,7 +1440,7 @@ else if("T".equals(foodVO.sch_grade)){%>
             </td>
             <td class="padR5 padL5">
               <table class="table_skin02 mag0 th-pd1 td-pd1 rsch_price">
-                <caption>조사가1~5에 대한 조사처 및 견적업체 정보 입력</caption>
+                <caption>조사가1~5에 대한 조사처 및 브랜드 정보 입력</caption>
                 <colgroup>
                   <col style="width:15%" />
                   <col style="width:17%" span="5" />
@@ -1473,12 +1473,12 @@ else if("T".equals(foodVO.sch_grade)){%>
                     <td><label><input type="text" name="rschLoc5" id="rschLoc5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_loc5%>" title="조사가5 조사처" /></label></td>
                   </tr>
                   <tr>
-                    <th scope="row" class="bg_green">견적업체</th>
-                    <td><label><input type="text" name="rschCom1" id="rschCom1_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com1%>" title="조사가1 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom2" id="rschCom2_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com2%>" title="조사가2 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom3" id="rschCom3_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com3%>" title="조사가3 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom4" id="rschCom4_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com4%>" title="조사가4 견적업체" /></label></td>
-                    <td><label><input type="text" name="rschCom5" id="rschCom5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com5%>" title="조사가5 견적업체" /></label></td>
+                    <th scope="row" class="bg_green">브랜드</th>
+                    <td><label><input type="text" name="rschCom1" id="rschCom1_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com1%>" title="조사가1 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom2" id="rschCom2_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com2%>" title="조사가2 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom3" id="rschCom3_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com3%>" title="조사가3 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom4" id="rschCom4_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com4%>" title="조사가4 브랜드" /></label></td>
+                    <td><label><input type="text" name="rschCom5" id="rschCom5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_com5%>" title="조사가5 브랜드" /></label></td>
                   </tr>
       		
                 </tbody>
@@ -1500,7 +1500,7 @@ else if("T".equals(foodVO.sch_grade)){%>
           <%}
           }else{
             	out.print("<tr>");
-              	out.print("<td colspan=\"11\"> 조사 대상이 없습니다. </td>");
+              	out.print("<td colspan=\"12\"> 조사 대상이 없습니다. </td>");
               	out.print("</tr>");
           }%>
         </tbody>

@@ -1,5 +1,6 @@
 package common;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.xml.sax.SAXException;
 
@@ -391,6 +394,31 @@ public class CrizelController {
 		
 		mav.setViewName("onejav");
 		return mav;
+	}
+	
+	@RequestMapping("fileUpload.do")
+	public void fileUpload(	@RequestParam(value="directory", defaultValue="D:\\test\\") String directory
+						,	MultipartHttpServletRequest request
+			) throws Exception {
+		ModelAndView mav = new ModelAndView();
+		String path 	= directory;		// 경로
+		String saveFile = "";				// 저장파일명
+		String realFile = "";				// 실제파일명
+		int extIndex 	= 0;
+
+		File file = new File(path);
+		if (!file.isDirectory()) {file.mkdirs();}
+
+		List<MultipartFile> mf = request.getFiles("file");
+
+		for (int i = 0; i < mf.size(); i++) {
+			extIndex = mf.get(i).getOriginalFilename().lastIndexOf(".");												// 확장자를 구하기 위해 마지막 . 위치를 구함										
+			saveFile =  mf.get(i).getOriginalFilename().substring(0,extIndex) + "_" + System.currentTimeMillis();		// 확장자 앞 텍스트와 구분을 위한 문자열 추가
+			saveFile += mf.get(i).getOriginalFilename().substring(extIndex, mf.get(i).getOriginalFilename().length());	// 확장자 추가
+			realFile = mf.get(i).getOriginalFilename();
+			
+			mf.get(i).transferTo(new File(path + saveFile));
+		}
 	}
 	
 	public String parseNull(String value){

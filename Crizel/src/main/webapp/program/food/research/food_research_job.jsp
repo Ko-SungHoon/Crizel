@@ -487,7 +487,7 @@ try{
         	newWin(url, "PRINTVIEW", "1000", "740");
         } else {
 			<%if (rsch_no > 0) {%>
-				alert("조사 개시 중에는 엑셀 업로드가 안됩니다.\n개시 중인 조사를 취소하거나 완료하세요.");
+				alert("복수의 조사개시를 할 수는 없습니다.\n개시 중인 조사를 취소하거나 완료하세요.");
 				return false;
 			<%} else {%>
 				url = "/program/food/research/research_popup.jsp?mode=" + type;
@@ -778,8 +778,8 @@ try{
 				<button type="button" class="btn small edge mako" onclick="searchSubmit();">조회</button>
 				
 				<div class="f_r">
-					<button type="button" class="btn small edge mako" onclick="researchMod('mod');">조사내용수정</button>
-					<button type="button" class="btn small edge mako" onclick="researchCom('<%=rschVO.rsch_no%>')" >조사완료</button>
+					<button type="button" class="btn small edge green" onclick="researchMod('mod');">조사내용수정</button>
+					<button type="button" class="btn small edge darkMblue" onclick="researchCom('<%=rschVO.rsch_no%>')" >조사완료</button>
 					<button type="button" class="btn small edge mako" onclick="researchCan('<%=rschVO.rsch_no%>')" >조사취소</button>
 				</div>
 			</fieldset>
@@ -940,8 +940,8 @@ try{
 				</select>
 				<button type="button" class="btn small edge mako" onclick="searchSubmit();">조회</button>
 				<div class="f_r">
-					<button type="button" class="btn small edge mako" onclick="researchExcel();">엑셀 업로드</button>
-					<button type="button" class="btn small edge mako" onclick="researchMod('new');">조사개시</button>
+					<button type="button" class="btn small edge green" onclick="researchExcel();">엑셀 업로드</button>
+					<button type="button" class="btn small edge green" onclick="researchMod('new');">조사개시</button>
 				</div>
 			</fieldset>
 		</form>
@@ -1122,11 +1122,11 @@ try{
 				<th scope="col">조사처3</th>
 				<th scope="col">조사처4</th>
 				<th scope="col">조사처5</th>
-				<th scope="col">견적업체1</th>
-				<th scope="col">견적업체2</th>
-				<th scope="col">견적업체3</th>
-				<th scope="col">견적업체4</th>
-				<th scope="col">견적업체5</th>
+				<th scope="col">브랜드1</th>
+				<th scope="col">브랜드2</th>
+				<th scope="col">브랜드3</th>
+				<th scope="col">브랜드4</th>
+				<th scope="col">브랜드5</th>
 				<th scope="col">사유</th>
 			</tr>
 		</thead>

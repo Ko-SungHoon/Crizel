@@ -18,7 +18,7 @@
 .mobMenu li{width: 100%; line-height: 50px; margin: 0; padding: 0; display: block; }
 .mobMenu span{color: white; display: block; cursor: pointer;}
  
-.login_menu{width: 9%; line-height: 50px; margin: 0; padding: 0; display: none; background: #8ad4ff;}
+.login_menu{width: 100%; line-height: 50px; margin: 0; padding: 0; display: block; background: #8ad4ff;}
 .login_menu a{color:white;}
 
 .modal{display: none;}

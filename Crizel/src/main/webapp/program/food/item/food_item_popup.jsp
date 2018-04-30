@@ -172,8 +172,8 @@ try{
 				</tbody>
 			</table>
 			<p class="btn_area txt_c">
+				<button type="button" class="btn medium edge darkMblue">확인</button>
 				<button type="button" class="btn medium edge mako" onclick="window.close();">닫기</button>
-				<button type="button" class="btn medium edge green">확인</button>
 			</p>
 		</fieldset>
 	</form>

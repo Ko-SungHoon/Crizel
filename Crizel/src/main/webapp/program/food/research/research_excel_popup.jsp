@@ -258,7 +258,9 @@ function excelSample(){
 	<div class="box_01">
 		<ul class="type01 fsize_120">
 			<li class="red">※권역, 품목을 검색해야 리스트가 출력됩니다.</li>
+			<%if(!"".equals(rschVO.cnt)){ %>
 			<li>마지막 등록은 <%=rschVO.reg_date %> 입니다. 총 조사건 수는 <%=rschVO.cnt %>건 입니다.</li>
+			<%} %>
 		</ul>
 	</div>
 	<div class="searchBox magB20">
