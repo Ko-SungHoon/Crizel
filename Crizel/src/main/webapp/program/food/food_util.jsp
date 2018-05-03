@@ -59,7 +59,7 @@ try{
 	endCheckSql = new String();
 	endCheckSql += "SELECT COUNT(*) AS CNT								";
 	endCheckSql += "FROM FOOD_RSCH_TB									";
-	endCheckSql += "WHERE SYSDATE >= END_DATE AND STS_FLAG = 'N'		";
+	endCheckSql += "WHERE TO_CHAR(SYSDATE, 'YYYY-MM-DD') > TO_CHAR(END_DATE,'YYYY-MM-DD') AND STS_FLAG = 'N'		";
 	endCnt = endJdbcTemplate.queryForObject(endCheckSql, Integer.class);
 }catch(Exception e){
 	endCnt = 0;

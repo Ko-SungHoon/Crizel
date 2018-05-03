@@ -16,6 +16,54 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+/************************** 접근 허용 체크 - 시작 **************************/
+SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn2 = null;
+try {
+	sqlMapClient.startTransaction();
+	conn2 = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn2, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn2);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
+
 
 String mode         =   parseNull(request.getParameter("mode"), "new");
 String rsch_no      =   parseNull(request.getParameter("rsch_no"), "0");
@@ -78,12 +126,12 @@ try {
     sql.append("SELECT  																						");
     sql.append("    TEAM_NO																						");
     sql.append("  , TEAM_NM																						");
-    sql.append("  , (SELECT ZONE_NM FROM FOOD_ZONE WHERE ZONE_NO = A.ZONE_NO) AS ZONE_NM						");
-    sql.append("  , (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = A.CAT_NO) AS CAT_NM							");
+    sql.append("  , (SELECT ZONE_NM FROM FOOD_ZONE WHERE ZONE_NO = A.ZONE_NO AND SHOW_FLAG = 'Y') AS ZONE_NM	");
+    sql.append("  , (SELECT CAT_NM FROM FOOD_ST_CAT WHERE CAT_NO = A.CAT_NO AND SHOW_FLAG = 'Y') AS CAT_NM		");
     sql.append("  , (SELECT COUNT(*) FROM FOOD_RSCH_TEAM WHERE TEAM_NO = A.TEAM_NO AND RSCH_NO = ?) AS CNT		");
     sql.append("FROM FOOD_TEAM A																				");
     sql.append("WHERE SHOW_FLAG = 'Y' 																			");
-    sql.append("ORDER BY ORDER1, TEAM_NM																		");
+    sql.append("ORDER BY ORDER1, TEAM_NM, ZONE_NM																");
     teamList = jdbcTemplate.query(sql.toString(), new FoodList(), rsch_no);
     
     
@@ -111,6 +159,14 @@ try {
 <script type="text/javascript" src="/program/excel/common/js/common.js"></script>
 <script>
     $(function() {
+    	
+    	$('#str_date').keyup(function(){this.value=this.value.replace(/[^0-9]/g,'');});
+    	$('#str_date').change(function(){this.value=this.value.replace(/[^0-9]/g,'');});
+    	$('#mid_date').keyup(function(){this.value=this.value.replace(/[^0-9]/g,'');});
+    	$('#mid_date').change(function(){this.value=this.value.replace(/[^0-9]/g,'');});
+    	$('#end_date').keyup(function(){this.value=this.value.replace(/[^0-9]/g,'');});
+    	$('#end_date').change(function(){this.value=this.value.replace(/[^0-9]/g,'');});
+    	
         //오늘 날짜 가져오기
         var today   =   new Date();
         var dd      =   today.getDate();

@@ -14,9 +14,6 @@ TORRENT
 <style type="text/css">
 </style>
 <script>
-function getPage(addr){
-	location.href = "/torrent.do?addr=" + encodeURIComponent(addr); 
-}
 function allNewTap(){
 	$("input:checkbox[name='select']:checked").each(function(){
 	    window.open($(this).val(), "_blank");
@@ -69,17 +66,6 @@ function allCheck(){
 	</table>
 	<div class="search center">
 		<button type="button" onclick="allNewTap()">전체 다운</button>
-	</div>
-	<div class="paging">
-	<%
-	int torrentPage = Integer.parseInt((String)request.getAttribute("page"));
-	for(int i=1; i<10; i++){
-	%>
-		<a href="javascript:getPage('https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=<%=i%>')"
-		<%if(i == torrentPage){out.println("style='background:#45bbff; color:white;'");} %>><%=i%></a>
-	<%
-	}
-	%>
 	</div>
 </div>
 </body>

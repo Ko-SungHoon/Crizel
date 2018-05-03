@@ -9,6 +9,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/program/class/UtilClass.jsp" %>
 <%@ page import="java.io.File, java.io.IOException, com.oreilly.servlet.MultipartRequest, com.oreilly.servlet.multipart.DefaultFileRenamePolicy"%>
+<%@ page import="egovframework.rfc3.user.web.SessionManager" %>
 <%@page import="org.apache.poi.xssf.usermodel.XSSFCell"%>
 <%@page import="org.apache.poi.xssf.usermodel.XSSFRow"%>
 <%@page import="org.apache.poi.xssf.usermodel.XSSFSheet"%>
@@ -23,6 +24,8 @@
 <%@ include file="/program/food/foodVO.jsp" %>
 <%
 	request.setCharacterEncoding("UTF-8");
+
+SessionManager sessionManager = new SessionManager(request);
 
 	String root = request.getSession().getServletContext().getRealPath("/");
 	String directory = "/upload_data/food/";
@@ -93,7 +96,7 @@
 	int jo_no			= 0;
 	String sch_grade 	= "";
 	
-	SessionManager sessionManager = new SessionManager(request);
+	//SessionManager sessionManager = new SessionManager(request);
 	
 	String regIp = request.getRemoteAddr();
 	String regId = sessionManager.getId();

@@ -34,6 +34,56 @@ String pageTitle = "구분 추가/수정";
 </head>
 <body>
 <%
+
+/************************** 접근 허용 체크 - 시작 **************************/
+SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn = null;
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
+
+
 StringBuffer sql 			= null;
 List<FoodVO> catList		= null;
 List<FoodVO> unitList		= null;
@@ -111,9 +161,9 @@ $(function(){
         var index           =   $(".chgCat").index(this);
         var cat_cat_no      =   $(".cat_cat_no").eq(index).text();
         var cat_cat_nm      =   $(".cat_cat_nm").eq(index).val();
-        var cat_unit_val    =   $(".cat_unit_val").eq(index).val();
-        var cat_unit_no     =   $(".cat_unit_no").eq(index).val();
-        location.href       =   "./food_item_act.jsp?mode=catUpdate&cat_no="+cat_cat_no+"&cat_nm="+cat_cat_nm+"&unit_val="+cat_unit_val+"&unit_no="+cat_unit_no;
+        /*var cat_unit_val    =   $(".cat_unit_val").eq(index).val();
+        var cat_unit_no     =   $(".cat_unit_no").eq(index).val();*/
+        location.href       =   "./food_item_act.jsp?mode=catUpdate&cat_no="+cat_cat_no+"&cat_nm="+cat_cat_nm;
         return;
     });
 });
@@ -140,7 +190,7 @@ $(function(){
 					</colgroup>
 					<tbody>
 						<tr>
-							<th scope="row">비교 측정 기준</th>
+							<%--<th scope="row">비교 측정 기준</th>
 							<td>
 								<input type="text" id="unit_val" name="unit_val" required>
 								<select id="unit_no" name="unit_no" required>	
@@ -155,7 +205,7 @@ $(function(){
 								}
 								%>
 								</select>
-							</td>
+							</td>--%>
 							<th scope="row">구분명</th>
 							<td>
 								<input type="text" id="cat_nm" name="cat_nm" value="" required>
@@ -204,7 +254,7 @@ $(function(){
                                 <%if ("Y".equals(cat.show_flag)) {%><button class="btn small edge mako" onclick="catDel('N','<%=cat.cat_no %>')">숨김</button><%}
                                 else {%><button class="btn small edge mako" onclick="catDel('Y', '<%=cat.cat_no %>')">노출</button><%}%>
                             </td>
-                            <td><button class="btn small edge darkMblue">적용</button></td>
+                            <td><button class="btn small edge darkMblue chgCat">적용</button></td>
                         </tr>
 						<%}%>
 					</tbody>

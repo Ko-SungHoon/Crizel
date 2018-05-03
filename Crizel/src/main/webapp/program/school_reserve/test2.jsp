@@ -211,7 +211,10 @@ try {
   		}
   		if(pstmt!=null) pstmt.close();
   		
+  		out.println(date_id.size());
+  		
   		if(date_id.size() == 0){
+  			out.println("Tdsafsadf");
   			//개방됬는지 확인(항시개방이 있는지 확인)
  	  		sql = new StringBuffer();
  	  		sql.append("SELECT DATE_ID FROM RESERVE_DATE WHERE RESERVE_TYPE = 'A' AND ROOM_ID = ?  ");	

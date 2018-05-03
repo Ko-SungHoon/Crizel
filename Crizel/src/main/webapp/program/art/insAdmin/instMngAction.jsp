@@ -98,7 +98,8 @@ String pageType = parseNull(request.getParameter("pageType"), "admin");
 String listPage 	= "DOM_000002001003003000";		//악기대여신청 - 목록
 //String listPage 	= "DOM_000000126003003000";		//테스트서버
 
-String writePage 	= "DOM_000002001003003001";		//악기대여신청 - 등록/수정
+//String writePage 	= "DOM_000002001003003001";		//악기대여신청 - 등록/수정
+String writePage 	= "DOM_000002001003003002";		//악기대여신청 - 등록/수정
 //String writePage 	= "DOM_000000126003003001";		//테스트서버
 
 String viewPage 	= "DOM_000002001003003002";		//악기대여신청 - 상세페이지
@@ -248,9 +249,10 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 				}
 				if(result > 0){
 					sql = new StringBuffer();
-					sql.append("SELECT SUM(INST_REQ_CNT)		");
-					sql.append("FROM ART_INST_REQ_CNT		 	");
-					sql.append("WHERE INST_NO = ?		 		");
+					sql.append("SELECT NVL(SUM(INST_REQ_CNT), 0) AS INST_REQ_CNT	");
+					sql.append("FROM (SELECT * FROM ART_INST_REQ WHERE SHOW_FLAG = 'Y' AND APPLY_FLAG IN ('Y', 'N')) A	");
+					sql.append("LEFT JOIN ART_INST_REQ_CNT B ON A.REQ_NO = B.REQ_NO ");
+					sql.append("WHERE B.INST_NO = ?				");
 					sum = jdbcTemplate.queryForObject(
 							sql.toString(),
 							new Object[]{inst_no[i]},
@@ -300,6 +302,7 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 	
 	try{
 		for(int i=0; i<count; i++){
+			
 			sql = new StringBuffer();
 			sql.append("SELECT												");		
 			sql.append("	CURR_CNT,										");		//선택한 악기의 현재 대여량
@@ -307,7 +310,7 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 			sql.append("FROM ART_INST_MNG									");
 			sql.append("WHERE INST_NO = ").append(inst_no[i]).append("		");
 			vo = jdbcTemplate.queryForObject(
-						sql.toString(), 
+						sql.toString(),
 						new InsVOMapper2()
 					);
 			
@@ -317,12 +320,12 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 			sql.append("ON A.REQ_NO = B.REQ_NO								");
 			sql.append("WHERE A.REQ_NO = ? AND A.APPLY_FLAG = 'Y'			");
 			now_cnt2 = jdbcTemplate.queryForObject(
-						sql.toString(), 
+						sql.toString(),
 						new Object[]{req_no},
 						Integer.class
 					);
 			
-			now_cnt = vo.curr_cnt + Integer.parseInt(req_inst_cnt[i]) - now_cnt2;		//악기현재대여량 + 악기 대여량 - 현재악기 대여량
+			now_cnt = vo.curr_cnt/* + Integer.parseInt(req_inst_cnt[i]) */ - now_cnt2;		//악기현재대여량 + 악기 대여량 - 현재악기 대여량
 			
 			/* out.println("<script>");
 			out.println("alert('대여중 : "+vo.curr_cnt+" , 대여량 : "+req_inst_cnt[i]+", 내가한거 : "+now_cnt2+" = "+now_cnt+"');");
@@ -429,11 +432,12 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 						);
 				}
 				
-				if("Y".equals(apply_flag)){
+				/*if("Y".equals(apply_flag)){*/
 					sql = new StringBuffer();
-					sql.append("SELECT SUM(INST_REQ_CNT)		");
-					sql.append("FROM ART_INST_REQ_CNT		 	");
-					sql.append("WHERE INST_NO = ?		 		");
+					sql.append("SELECT NVL(SUM(INST_REQ_CNT), 0) AS INST_REQ_CNT	");
+					sql.append("FROM (SELECT * FROM ART_INST_REQ WHERE SHOW_FLAG = 'Y' AND APPLY_FLAG IN ('Y', 'N')) A	");
+					sql.append("LEFT JOIN ART_INST_REQ_CNT B ON A.REQ_NO = B.REQ_NO ");
+					sql.append("WHERE B.INST_NO = ?				");
 					sum = jdbcTemplate.queryForObject(
 							sql.toString(),
 							new Object[]{inst_no[i]},
@@ -453,7 +457,7 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 								sql.toString(), 
 								setObj
 							);	 
-				}
+				/*}*/
 			}
 		}
 	}catch(Exception e){
@@ -464,7 +468,8 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 			out.println("alert('정상적으로 처리되었습니다.');");
 			if("admin".equals(pageType)){
 				out.println("opener.location.reload();");
-				out.println("location.replace('/program/art/insAdmin/instMngPopup.jsp?mode=update&req_no="+req_no+"');");
+				out.println("window.close();");
+				//out.println("location.replace('/program/art/insAdmin/instMngPopup.jsp?mode=update&req_no="+req_no+"');");
 			}else{
 				out.println("location.replace('/index.gne?menuCd=" + writePage + "&mode=update&req_no="+req_no+"');");
 			}
@@ -496,7 +501,7 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 			
 			for(int i=0; i<instNoList.size(); i++){
 				InsVO ob 			= instNoList.get(i);
-				inst_no[i] 			= Integer.toString(ob.inst_no); 
+				inst_no[i] 			= Integer.toString(ob.inst_no);
 				req_inst_cnt[i]		= Integer.toString(ob.req_inst_cnt);
 			}
 			for(int i=0; i<inst_no.length; i++){
@@ -507,11 +512,12 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 				sql.append("FROM ART_INST_MNG									");
 				sql.append("WHERE INST_NO = ?									");
 				vo = jdbcTemplate.queryForObject(
-							sql.toString(), 
+							sql.toString(),
 							new InsVOMapper2(),
 							new Object[]{inst_no[i]}
 						);
 				now_cnt = vo.curr_cnt + Integer.parseInt(req_inst_cnt[i]);
+				/**대여가능 악기 수에관한 내용 주석처리
 				if(vo.max_cnt < now_cnt){
 					out.println("<script>");
 					out.println("alert('대여가능한 악기 총량보다 신청 한 수량이 많습니다.');");
@@ -529,8 +535,9 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 				}else{
 					countCheck = true;
 				}
+				**/
 			}
-		}
+		}/*END IF*/
 		
 		sql = new StringBuffer();
 		sql.append("SELECT A.INST_NO, B.INST_REQ_CNT					");
@@ -551,7 +558,7 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 			sql.append("	APPLY_DATE 		= TO_CHAR(SYSDATE,'YYYY-MM-DD')		");
 			if("C".equals(apply_flag) || "A".equals(apply_flag) || "R".equals(apply_flag)){
 				if("C".equals(apply_flag) || "A".equals(apply_flag)){
-					sql.append("	,SHOW_FLAG 		='N'								");
+					sql.append("	,SHOW_FLAG 		='Y'								");
 				}
 				sql.append("	,REQ_INST_CNT	= 0									");
 			}
@@ -569,10 +576,10 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 					);
 			
 			sql = new StringBuffer();
-			sql.append("SELECT NVL(SUM(INST_REQ_CNT),0)							");
-			sql.append("FROM ART_INST_REQ_CNT A LEFT JOIN ART_INST_REQ B		");
-			sql.append("ON A.REQ_NO = B.REQ_NO							 		");
-			sql.append("WHERE INST_NO = ? AND B.APPLY_FLAG = 'Y'		 		");
+			sql.append("SELECT NVL(SUM(INST_REQ_CNT), 0) AS INST_REQ_CNT	");
+			sql.append("FROM (SELECT * FROM ART_INST_REQ WHERE SHOW_FLAG = 'Y' AND APPLY_FLAG IN ('Y', 'N')) A	");
+			sql.append("LEFT JOIN ART_INST_REQ_CNT B ON A.REQ_NO = B.REQ_NO ");
+			sql.append("WHERE B.INST_NO = ?				");
 			sum = jdbcTemplate.queryForObject(
 					sql.toString(),
 					new Object[]{vo2.inst_no},
@@ -591,8 +598,9 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 			result = jdbcTemplate.update(
 						sql.toString(), 
 						setObj
-					);	
-		} 
+					);
+			
+		}/* END FOR */
 	}catch(Exception e){
 		out.println(e.toString());
 	}finally{
@@ -749,7 +757,33 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 								setObj
 							);
 				}
-			}
+				if(result > 0){
+					sql = new StringBuffer();
+					sql.append("SELECT NVL(SUM(INST_REQ_CNT), 0) AS INST_REQ_CNT	");
+					sql.append("FROM (SELECT * FROM ART_INST_REQ WHERE SHOW_FLAG = 'Y' AND APPLY_FLAG IN ('Y', 'N')) A	");
+					sql.append("LEFT JOIN ART_INST_REQ_CNT B ON A.REQ_NO = B.REQ_NO ");
+					sql.append("WHERE B.INST_NO = ?				");
+					sum = jdbcTemplate.queryForObject(
+							sql.toString(),
+							new Object[]{inst_no[i]},
+							Integer.class
+						);
+					
+					sql = new StringBuffer();
+					sql.append("UPDATE ART_INST_MNG SET			");
+					sql.append("	CURR_CNT 		= ?			");
+					sql.append("WHERE INST_NO 		= ?			");
+					
+					setObj = new Object[]{
+											sum,
+											inst_no[i]
+										};
+					result = jdbcTemplate.update(
+								sql.toString(),
+								setObj
+							);
+				}
+			}/*END FOR*/
 		}
 	}catch(Exception e){
 		out.println(e.toString());

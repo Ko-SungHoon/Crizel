@@ -18,6 +18,7 @@
 request.setCharacterEncoding("UTF-8");
 response.setCharacterEncoding("UTF-8");
 
+
 String fileName = "학교급식 거래실례가격조사";
 fileName = URLEncoder.encode(fileName, "UTF-8");
 fileName = fileName.replaceAll("\\+", "%20");
@@ -139,11 +140,11 @@ try{
     sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
     sql.append("	, (SELECT NVL(COUNT(ITEM_NO), 0) FROM FOOD_ST_ITEM_LOG WHERE ITEM_NO = ITEM.ITEM_NO) LOG_CNT");
 
-    sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO			");
+    sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO			");
     sql.append("	ORDER BY PRE.ITEM_NO																		");
-    sql.append("	) A WHERE 1=1																				");
-    sql.append("        AND A.CAT_NO = ?                                                                        ");
-    setList.add(cat_no);
+    sql.append("	) A WHERE A.SHOW_FLAG = 'Y'																	");
+    //sql.append("        AND A.CAT_NO = ?                                                                        ");
+    //setList.add(cat_no);
     if(!"".equals(search1)){
     	if("nm_food".equals(search1)){
     		sql.append("AND A.NM_FOOD LIKE '%'||?||'%'															");

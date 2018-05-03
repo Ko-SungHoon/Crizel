@@ -16,6 +16,9 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+SessionManager sessionManager = new SessionManager(request);
+
+
 String mode			= parseNull(request.getParameter("mode"), "insert");
 
 String sch_no		= parseNull(request.getParameter("sch_no"));

@@ -346,14 +346,10 @@ public class CrizelController {
 	}
 	
 	@RequestMapping("torrent")
-	public ModelAndView torrent(
-			@RequestParam(value="addr", required=false, defaultValue="https://manstorrent.com/bbs/board.php?bo_table=javcensored&page=1")String addr) throws UnsupportedEncodingException{
+	public ModelAndView torrent() throws UnsupportedEncodingException{
 		ModelAndView mav = new ModelAndView();
 		Torrent t1 = new Torrent();
-		List<Map<String,Object>> list = t1.getList(addr); 
-		
-		mav.addObject("addr", URLDecoder.decode(addr, "UTF-8"));
-		mav.addObject("page", URLDecoder.decode(addr, "UTF-8").substring(URLDecoder.decode(addr, "UTF-8").length()-1, URLDecoder.decode(addr, "UTF-8").length()));
+		List<Map<String,Object>> list = t1.getList(); 
 		mav.addObject("list", list);
 		mav.setViewName("torrent");
 		return mav;

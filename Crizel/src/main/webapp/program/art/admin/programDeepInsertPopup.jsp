@@ -34,9 +34,9 @@
 			    currentText: '오늘', // 오늘 텍스트 변경
 			    monthNames: ['1 월','2 월','3 월','4 월','5 월','6 월','7 월','8 월','9 월','10 월','11 월','12 월'], // 개월 텍스트 설정
 			    monthNamesShort: ['1 월','2 월','3 월','4 월','5 월','6 월','7 월','8 월','9 월','10 월','11 월','12 월'], // 개월 텍스트 설정
-			    dayNames: ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'], // 요일 텍스트 설정
-			    dayNamesShort: ['월','화','수','목','금','토','일'], // 요일 텍스트 축약 설정
-			    dayNamesMin: ['월','화','수','목','금','토','일'] // 요일 최소 축약 텍스트 설정
+			    dayNames: ['일요일','월요일','화요일','수요일','목요일','금요일','토요일'], // 요일 텍스트 설정
+			    dayNamesShort: ['일','월','화','수','목','금','토'], // 요일 텍스트 축약 설정
+			    dayNamesMin: ['일','월','화','수','목','금','토'] // 요일 최소 축약 텍스트 설정
 			};
 		$.datepicker.setDefaults($.datepicker.regional['kr']);
 
@@ -186,6 +186,53 @@ private class ArtVOMapper2 implements RowMapper<ArtVO> {
 <%
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
+/************************** 접근 허용 체크 - 시작 **************************/
+SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn = null;
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
 
 SessionManager sm = new SessionManager(request);
 
@@ -202,7 +249,7 @@ List<ArtVO> list2 		= null;
 try{
 	if(!"".equals(pro_no)){
 		sql = new StringBuffer();
-		sql.append("SELECT *									");
+		sql.append("SELECT ART_PRO_DEEP.*						");
 		sql.append("FROM ART_PRO_DEEP							");
 		sql.append("WHERE PRO_NO = ?							");
 		sql.append("ORDER BY PRO_NO DESC		 				");
@@ -231,6 +278,12 @@ try{
 function insertSubmit(){
 	var msg;
 	var addr;
+
+	if (Number($("#max_per").val()) < Number($("#curr_per").val())) {
+		alert("정원이 현원보다 적습니다.");
+		$("#max_per").focus();
+		return false;
+	}
 
 	if($("#mode").val() == "insert"){
 		msg 	= "등록";
@@ -344,6 +397,14 @@ $(function(){
 						</tr>
 						<tr>
 							<th scope="row">
+								<label for="curr_per">현원</label>
+							</th>
+							<td>
+								<input type="text" id="curr_per" name="curr_per" class="w_100" value="<%=parseNull(Integer.toString(vo.curr_per))%>" readonly>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
 								<label for="max_per">정원</label>
 							</th>
 							<td>
@@ -352,7 +413,7 @@ $(function(){
 						</tr>
 						<tr>
 							<th scope="row">
-								<label for="max_per">대상</label>
+								<label for="ob_employee">대상</label>
 							</th>
 							<td>
 								<input type="checkbox" id="ob_employee" name="ob_employee" value="Y"

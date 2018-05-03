@@ -42,17 +42,20 @@ request.setCharacterEncoding("UTF-8");
 response.setCharacterEncoding("UTF-8");
 
 SessionManager sessionManager   =   new SessionManager(request);
+String dataType         =   parseNull(request.getParameter("dataType"), "");    //insert, modify, delete, cancel
 
 /* Session Chk */
 if (sessionManager.getName().trim().equals("") || sessionManager.getId().trim().equals("") || sessionManager.getName().trim().length() < 1 || sessionManager.getId().trim().length() < 1) {
     out.println("<script>");
     out.println("alert('로그인 정보 저장 시간초과 입니다. 다시 로그인 하세요.');");
+    if (dataType.equals("app")) {
+        out.println("location.href='http://www.gne.go.kr/iam/login/login.sko';");
+    }
     out.println("history.back();");
     out.println("</script>");
 }
 
 /* default data parameter */
-String dataType         =   parseNull(request.getParameter("dataType"), "");    //insert, modify, delete, cancel
 String pro_no           =   parseNull(request.getParameter("pro_no"), "");
 String req_no           =   parseNull(request.getParameter("req_no"), "");       //only use => modify, delete, cancel
 
@@ -142,6 +145,16 @@ if ("ins".equals(dataType)) {
     sql.append(" SELECT MAX(REQ_NO) AS REQ_NO, COUNT(REQ_NO) AS APPLY_FLAG FROM ART_REQ_DEEP ");
     
     reqData =   jdbcTemplate.queryForObject(sql.toString(), new ReqDataList());
+
+    sql     =   new StringBuffer();
+    sql_str =   " UPDATE ART_PRO_DEEP SET ";
+    sql_str +=  " CURR_PER = ( ";
+    sql_str +=  "   (SELECT CURR_PER FROM ART_PRO_DEEP WHERE PRO_NO = (SELECT PRO_NO FROM ART_REQ_DEEP WHERE REQ_NO = ?)) ";
+    sql_str +=  "   + (SELECT REQ_PER FROM ART_REQ_DEEP WHERE REQ_NO = ?) ";
+    sql_str +=  " ) ";
+    sql_str +=  " WHERE PRO_NO = (SELECT PRO_NO FROM ART_REQ_DEEP WHERE REQ_NO = ?) ";
+    sql.append(sql_str);
+    result  =   jdbcTemplate.update(sql.toString(), new Object[]{reqData.req_no, reqData.req_no, reqData.req_no});
     
     if(result > 0){
         out.println("<script>");
@@ -158,6 +171,16 @@ if ("ins".equals(dataType)) {
 //update
 } else if ("mod".equals(dataType)) {
     
+    sql     =   new StringBuffer();
+    sql_str =   " UPDATE ART_PRO_DEEP SET ";
+    sql_str +=  " CURR_PER = ( ";
+    sql_str +=  "   (SELECT CURR_PER FROM ART_PRO_DEEP WHERE PRO_NO = (SELECT PRO_NO FROM ART_REQ_DEEP WHERE REQ_NO = ?)) ";
+    sql_str +=  "   - (SELECT REQ_PER FROM ART_REQ_DEEP WHERE REQ_NO = ?) + ? ";
+    sql_str +=  " ) ";
+    sql_str +=  " WHERE PRO_NO = (SELECT PRO_NO FROM ART_REQ_DEEP WHERE REQ_NO = ?) ";
+    sql.append(sql_str);
+    result  =   jdbcTemplate.update(sql.toString(), new Object[]{req_no, req_no, req_per, req_no});
+
     sql     =   new StringBuffer();
     sql_str =   " UPDATE ART_REQ_DEEP SET ";
     sql_str +=  " REQ_USER_NM = ? ";
@@ -181,6 +204,7 @@ if ("ins".equals(dataType)) {
     };
     
     result  =   jdbcTemplate.update(sql.toString(), insObj);
+
     if(result > 0){
         out.println("<script>");
         out.println("alert('정상적으로 처리되었습니다.');");
@@ -196,19 +220,28 @@ if ("ins".equals(dataType)) {
 //apply
 } else if ("app".equals(dataType)) {
     
-    //1st. 프로그램 CURR_PER update 하기
+    //0th. 상태 확인 대기 는 skip, 취소 및 관리자 취소 는 update
     sql     =   new StringBuffer();
-    sql_str =   " UPDATE ART_PRO_DEEP SET ";
-    sql_str +=  " CURR_PER = ( ";
-    sql_str +=  "   (SELECT CURR_PER FROM ART_PRO_DEEP WHERE PRO_NO = (SELECT PRO_NO FROM ART_REQ_DEEP WHERE REQ_NO = ?)) ";
-    sql_str +=  "   + (SELECT REQ_PER FROM ART_REQ_DEEP WHERE REQ_NO = ?) ";
-    sql_str +=  " ) ";
-    sql_str +=  " WHERE PRO_NO = (SELECT PRO_NO FROM ART_REQ_DEEP WHERE REQ_NO = ?) ";
+    sql_str =   " SELECT APPLY_FLAG FROM ART_REQ_DEEP WHERE REQ_NO = ? ";
     sql.append(sql_str);
-    result  =   jdbcTemplate.update(sql.toString(), new Object[]{req_no, req_no, req_no});
+    String apply_flag_value =   jdbcTemplate.queryForObject(sql.toString(), new Object[]{req_no}, String.class);
+    
+    //취소와 관리자 취소일 경우 CURR_PER UPDATE
+    if ("C".equals(apply_flag_value) || "A".equals(apply_flag_value)) {
+        //1st. 프로그램 CURR_PER update 하기
+        sql     =   new StringBuffer();
+        sql_str =   " UPDATE ART_PRO_DEEP SET ";
+        sql_str +=  " CURR_PER = ( ";
+        sql_str +=  "   (SELECT CURR_PER FROM ART_PRO_DEEP WHERE PRO_NO = (SELECT PRO_NO FROM ART_REQ_DEEP WHERE REQ_NO = ?)) ";
+        sql_str +=  "   + (SELECT REQ_PER FROM ART_REQ_DEEP WHERE REQ_NO = ?) ";
+        sql_str +=  " ) ";
+        sql_str +=  " WHERE PRO_NO = (SELECT PRO_NO FROM ART_REQ_DEEP WHERE REQ_NO = ?) ";
+        sql.append(sql_str);
+        result  =   jdbcTemplate.update(sql.toString(), new Object[]{req_no, req_no, req_no});
+    }
     
     //2nd. ART_REQ_DEEP apply_flag 변경
-    if (result > 0) {
+    /*if (result > 0) {*/
         result  =   0;
         
         sql     =   new StringBuffer();
@@ -219,7 +252,7 @@ if ("ins".equals(dataType)) {
         sql_str +=  " WHERE REQ_NO = ?";
         sql.append(sql_str);
         result  =   jdbcTemplate.update(sql.toString(), new Object[]{req_no});
-    }
+    /*}*/
     
     if(result > 0){
         out.println("<script>");
@@ -242,7 +275,7 @@ if ("ins".equals(dataType)) {
     reqData =   jdbcTemplate.queryForObject(sql.toString(), new Object[]{req_no},  new ReqDataList());
     
     //2nd. APPLY_FLAG = 'Y' 일 경우 program curr_per 수정하기
-    if ("Y".equals(reqData.apply_flag)) {
+    /*if ("Y".equals(reqData.apply_flag)) {*/
         sql =   new StringBuffer();
         sql_str =   " UPDATE ART_PRO_DEEP SET ";
         sql_str +=  " CURR_PER = GREATEST( ";
@@ -259,7 +292,7 @@ if ("ins".equals(dataType)) {
             out.println("history.back();");
             out.println("</script>");
         }
-    }
+    /*}*/
     
     result  =   0;
     

@@ -12,6 +12,8 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+SessionManager sessionManager = new SessionManager(request);
+
 String mode		= parseNull(request.getParameter("mode"));
 
 String sch_no	= parseNull(request.getParameter("sch_no"));
@@ -32,7 +34,6 @@ String update_nm 	= parseNull(request.getParameter("update_nm"));
 StringBuffer sql 	= null;
 int result 			= 0;
 int cnt				= 0;
-
 try{
 	if("zoneInsert".equals(mode)){
 		// 권역명 중복체크
@@ -73,11 +74,13 @@ try{
 		sql.append("	SHOW_FLAG = 'N'		");
 		sql.append("WHERE ZONE_NO = ?	 	");
 		result = jdbcTemplate.update(sql.toString(), update_no);
+		
 
 		// 해당 권역 하위에 팀이 있는지 확인
 		sql = new StringBuffer();
-		sql.append("SELECT COUNT(*) AS CNT FROM FOOD_TEAM WHERE ZONE_NO = ?		");
+		sql.append("SELECT COUNT(*) AS CNT FROM FOOD_TEAM WHERE ZONE_NO = ? AND SHOW_FLAG = 'Y'	");
 		cnt = jdbcTemplate.queryForObject(sql.toString(), Integer.class, update_no);
+		
 		
 		// 권역 하위에 팀이 있을 경우 하위 팀도 삭제
 		if(cnt > 0){
@@ -85,32 +88,34 @@ try{
 			sql.append("UPDATE FOOD_TEAM SET 	");
 			sql.append("	SHOW_FLAG = 'N'		");
 			sql.append("WHERE ZONE_NO = ?	 	");
-			result = jdbcTemplate.update(sql.toString(), update_no);
+			jdbcTemplate.update(sql.toString(), update_no);
 			
 			sql = new StringBuffer();
 			sql.append("UPDATE FOOD_SCH_TB SET 	");
-			sql.append("	  ZONE_NO = 0		");
-			sql.append("	, TEAM_NO = 0		");
+			sql.append("	  ZONE_NO = NULL	");
+			sql.append("	, TEAM_NO = NULL	");
+			sql.append("	, CAT_NO = NULL		");
 			sql.append("WHERE ZONE_NO = ?	 	");
-			result = jdbcTemplate.update(sql.toString(), update_no);
+			jdbcTemplate.update(sql.toString(), update_no);
 			
 			// 해당 팀 하위에 조가 있는지 확인
 			sql = new StringBuffer();
-			sql.append("SELECT COUNT(*) AS CNT 					");
-			sql.append("FROM FOOD_JO							");
-			sql.append("WHERE TEAM_NO IN (SELECT TEAM_NO		"); 
-			sql.append("				  FROM FOOD_TEAM 		");
-			sql.append("				  WHERE ZONE_NO = ?)	");
+			sql.append("SELECT COUNT(*) AS CNT 										");
+			sql.append("FROM FOOD_JO												");
+			sql.append("WHERE TEAM_NO IN (SELECT TEAM_NO							"); 
+			sql.append("				  FROM FOOD_TEAM 							");
+			sql.append("				  WHERE ZONE_NO = ? AND SHOW_FLAG = 'Y')	");
 			cnt = jdbcTemplate.queryForObject(sql.toString(), Integer.class, update_no);
 			
 			// 팀 하위에 조가 있을 경우 하위 조도 삭제
 			if(cnt>0){
 				sql = new StringBuffer();
-				sql.append("DELETE FROM FOOD_JO 		");
-				sql.append("WHERE TEAM_NO IN (SELECT TEAM_NO		"); 
-				sql.append("				  FROM FOOD_TEAM 		");
-				sql.append("				  WHERE ZONE_NO = ?)	");
-				result = jdbcTemplate.update(sql.toString(), update_no);
+				sql.append("DELETE FROM FOOD_JO 										");
+				sql.append("WHERE TEAM_NO IN (SELECT TEAM_NO							"); 
+				sql.append("				  FROM FOOD_TEAM 							");
+				sql.append("				  WHERE ZONE_NO = ? AND SHOW_FLAG = 'Y')	");
+				jdbcTemplate.update(sql.toString(), update_no);
+				
 			}
 		}
 		
@@ -223,9 +228,10 @@ try{
 		
 		sql = new StringBuffer();
 		sql.append("UPDATE FOOD_SCH_TB SET 	");
-		sql.append("	TEAM_NO = 0			");
+		sql.append("	TEAM_NO = NULL		");
+		sql.append("	,JO_NO = NULL		");
 		sql.append("WHERE TEAM_NO = ?	 	");
-		result = jdbcTemplate.update(sql.toString(), update_no);
+		jdbcTemplate.update(sql.toString(), update_no);
 		
 		// 해당 팀 하위에 조가 있는지 확인
 		sql = new StringBuffer();
@@ -236,7 +242,7 @@ try{
 			// 팀 하위에 조가 있을경우 삭제
 			sql = new StringBuffer();
 			sql.append("DELETE FROM FOOD_JO WHERE TEAM_NO = ?	");
-			result = jdbcTemplate.update(sql.toString(), update_no);
+			jdbcTemplate.update(sql.toString(), update_no);
 		}
 		
 		if(result>0){
@@ -315,6 +321,12 @@ try{
 		sql.append("DELETE FROM FOOD_JO WHERE JO_NO = ?		");
 		result = jdbcTemplate.update(sql.toString(), update_no);
 		
+		sql = new StringBuffer();
+		sql.append("UPDATE FOOD_SCH_TB SET 	");
+		sql.append("	JO_NO = NULL		");
+		sql.append("WHERE JO_NO = ?	 		");
+		jdbcTemplate.update(sql.toString(), update_no);
+		
 		if(result>0){
 			out.println("<script>");
 			out.println("alert('정상적으로 처리되었습니다.');");
@@ -323,6 +335,16 @@ try{
 			out.println("</script>");
 		}else{
 			out.println("<script>alert('처리 중 오류가 발생하였습니다.');location.replace('food_zone_popup.jsp');</script>");
+		}
+	}else if("rschCheck".equals(mode)){
+		sql = new StringBuffer();
+		sql.append("SELECT COUNT(*) AS CNT FROM FOOD_SCH_TB WHERE ZONE_NO = ?	");
+		result = jdbcTemplate.queryForObject(sql.toString(), Integer.class, update_no);
+		
+		if(result>0){
+			out.println("OK");
+		}else{
+			out.println("NO");
 		}
 	}
 	

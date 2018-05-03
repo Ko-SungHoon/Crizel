@@ -17,6 +17,56 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+/************************** 접근 허용 체크 - 시작 **************************/
+SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn2 = null;
+try {
+	sqlMapClient.startTransaction();
+	conn2 = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn2, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn2);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
+
+
+
 String pageTitle = "업데이트 반영처리";
 
 %>
@@ -131,7 +181,7 @@ try{
 	}catch(Exception e){
 		foodVO	=	null;
 	}
-
+	
 	if ("D".equals(upd_flag)) {
 		sql	=	new StringBuffer();
 		sql.append(" SELECT 									");
@@ -139,7 +189,11 @@ try{
 		sql.append(" FROM FOOD_UPDATE A JOIN FOOD_ITEM_PRE B	");
 		sql.append(" ON A.S_ITEM_NO = B.S_ITEM_NO				");
 		sql.append(" WHERE A.UPD_NO = ?							");
-		item_comp_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{upd_no});
+		try{
+			item_comp_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{upd_no});
+		}catch(Exception e){
+			item_comp_no	=	0;
+		}
 	}
 
 }catch(Exception e){
@@ -389,6 +443,7 @@ try{
 					/*삭제*/
 					else if ("D".equals(upd_flag)) {
 					%>
+					<input type="hidden" id="s_item_no" name="s_item_no" value="<%=foodVO.s_item_no%>">
 					<h2 class="tit">삭제 요청 식품 정보</h2>
 					<table class="bbs_list2">
 						<caption><%=pageTitle%>

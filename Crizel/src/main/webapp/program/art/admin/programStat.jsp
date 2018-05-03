@@ -10,6 +10,7 @@
 <%@ include file="/program/class/UtilClass.jsp"%>
 <%@ include file="/program/class/PagingClass.jsp"%>
 <%@ page import="org.springframework.jdbc.core.*" %>
+<%@ page import="egovframework.rfc3.user.web.SessionManager" %>
     
 <%/*************************************** 프로그램 파트 ****************************************/%>
 <%!
@@ -283,10 +284,58 @@
 %>
 
 <%
-    
+/************************** 접근 허용 체크 - 시작 **************************/
+SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn = null;
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/    
+
 StringBuffer sql    =   null;
 String sql_str      =   null;
 String where_str    =   null;
+String where_sub    =   null;
 Object[] setObj		=   null;
 List<ProCatCode> proCate        =   null;
 List<ProAlwayData> alwayPro     =   null;
@@ -375,6 +424,9 @@ if ("deep".equals(search2)) {
 
     where_str   =   " WHERE ";
     where_str   +=  " ARD.REG_DATE BETWEEN '"+start_date+"' AND '"+end_date+"' ";
+    /* subquery where state */
+    where_sub   =   " AND A.REQ_DATE BETWEEN '"+start_date+"' AND '"+end_date+"' ";
+    
     paging.setParams("start_date", start_date);
     paging.setParams("end_date", end_date);
     if (Integer.parseInt(search3) > 0) {
@@ -402,6 +454,9 @@ if ("deep".equals(search2)) {
 
     where_str   =   " WHERE ";
     where_str   +=  " ARA.REQ_DATE BETWEEN '"+start_date+"' AND '"+end_date+"' ";
+    /* subquery where state */
+    where_sub   =   " AND A.REQ_DATE BETWEEN '"+start_date+"' AND '"+end_date+"' ";
+
     paging.setParams("start_date", start_date);
     paging.setParams("end_date", end_date);
     if (Integer.parseInt(search3) > 0) {
@@ -561,19 +616,19 @@ if ("deep".equals(search2)) {
     sql_str +=  "   , (SELECT ";
     sql_str +=  "   NVL(COUNT(APPLY_FLAG), 0) ";
     sql_str +=  "   FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ";
-    sql_str +=  "   ON A.REQ_NO = B.REQ_NO WHERE A.APPLY_FLAG = 'N' AND B.PRO_NO = APA.PRO_NO) AS REQ_HOLD_CNT ";
+    sql_str +=  "   ON A.REQ_NO = B.REQ_NO WHERE A.APPLY_FLAG = 'N' AND B.PRO_NO = APA.PRO_NO "+where_sub+") AS REQ_HOLD_CNT ";
     sql_str +=  "   , (SELECT  ";
     sql_str +=  "   NVL(COUNT(APPLY_FLAG), 0) ";
     sql_str +=  "   FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ";
-    sql_str +=  "   ON A.REQ_NO = B.REQ_NO WHERE A.APPLY_FLAG = 'C' AND B.PRO_NO = APA.PRO_NO) AS REQ_CANCEL_SELF_CNT ";
+    sql_str +=  "   ON A.REQ_NO = B.REQ_NO WHERE A.APPLY_FLAG = 'C' AND B.PRO_NO = APA.PRO_NO "+where_sub+") AS REQ_CANCEL_SELF_CNT ";
     sql_str +=  "   , (SELECT ";
     sql_str +=  "   NVL(COUNT(APPLY_FLAG), 0) ";
     sql_str +=  "   FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ";
-    sql_str +=  "   ON A.REQ_NO = B.REQ_NO WHERE A.APPLY_FLAG = 'A' AND B.PRO_NO = APA.PRO_NO) AS REQ_CANCEL_ADMIN_CNT ";
+    sql_str +=  "   ON A.REQ_NO = B.REQ_NO WHERE A.APPLY_FLAG = 'A' AND B.PRO_NO = APA.PRO_NO "+where_sub+") AS REQ_CANCEL_ADMIN_CNT ";
     sql_str +=  "   , (SELECT ";
     sql_str +=  "   NVL(COUNT(APPLY_FLAG), 0) ";
     sql_str +=  "   FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ";
-    sql_str +=  "   ON A.REQ_NO = B.REQ_NO WHERE A.APPLY_FLAG = 'Y' AND B.PRO_NO = APA.PRO_NO) AS REQ_APPLY_CNT ";
+    sql_str +=  "   ON A.REQ_NO = B.REQ_NO WHERE A.APPLY_FLAG = 'Y' AND B.PRO_NO = APA.PRO_NO "+where_sub+") AS REQ_APPLY_CNT ";
     sql_str +=  "    ";
     sql_str +=  "   FROM (SELECT * FROM ART_REQ_ALWAY ORDER BY REG_DATE DESC) ARA LEFT JOIN ART_REQ_ALWAY_CNT ARAC ";
     sql_str +=  "   ON ARA.REQ_NO = ARAC.REQ_NO ";
@@ -905,6 +960,14 @@ if ("deep".equals(search2)) {
     //submit chk function
     function searchSubmit () {
         return true;
+    }
+
+    /** call the excel download **/
+    function excel() {
+        $("#searchForm").attr("method", "post");
+        $("#searchForm").attr("action", "/program/art/admin/programExcel.jsp");
+        $("#searchForm").submit();
+        $("#searchForm").attr("action", "/program/art/admin/programStat.jsp");
     }
 </script>
 </body>

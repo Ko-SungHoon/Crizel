@@ -130,6 +130,7 @@ try {
 	if(banList !=null && banList.size()>0 ){
 		for(int i=0; i<banList.size(); i++){
 			Map<String,Object> map = banList.get(i);
+			out.println("TEST");
 			for(int k=0; k<time.length; k++){
 				if("평일".equals(getDateDay(date_value, "yyyy-MM-dd"))){
 					if(map.get("TIME_START_A") != null && !"".equals(map.get("TIME_START_A").toString())){

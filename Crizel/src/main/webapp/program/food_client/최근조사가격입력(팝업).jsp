@@ -17,6 +17,8 @@ request.setCharacterEncoding("UTF-8");
 response.setContentType("text/html; charset=UTF-8");
 SessionManager sManager =	new SessionManager(request);
 
+String recentPage = "DOM_000002101003001000";		// 최근조사가격입력(팝업)	운영서버:DOM_000002101003001000, 테스트서버:DOM_000000127003002000
+
 String item_no	=	parseNull(request.getParameter("item_no"));
 
 StringBuffer sql 		=   null;
@@ -43,7 +45,7 @@ try{
     sql.append(" SELECT COUNT(RSCH_VAL_NO)      ");
     sql.append(" FROM FOOD_RSCH_VAL             ");
     sql.append(" WHERE 1=1                      ");
-    sql.append("    /*AND C.STS_FLAG = 'Y'*/    ");
+    sql.append("    /*AND C.STS_FLAG = 'Y'*/        ");
     sql.append("    AND ITEM_NO = ?             ");
     totalCnt    =   jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{item_no});
 
@@ -207,10 +209,10 @@ try{
     sql.append(" ON A.SCH_NO = D.SCH_NO JOIN FOOD_ITEM_PRE E                    \n");
     sql.append(" ON A.ITEM_NO = E.ITEM_NO                                       \n");
     sql.append(" WHERE 1=1                                                      \n");
-    sql.append("    /*AND C.STS_FLAG = 'Y'*/                                    \n"); //조사 식품이 없어 임시 주석 처리 나중에 풀어야 함~~
+    sql.append("    AND C.STS_FLAG = 'Y'                                        \n"); //조사 식품이 없어 임시 주석 처리 나중에 풀어야 함~~
     sql.append("    AND A.ITEM_NO = ?                                           \n");
     sql.append("    AND ROWNUM <= ?                                             \n");
-    sql.append(" ORDER BY A.RSCH_VAL_NO, C.REG_DATE, A.REG_DATE                 \n");
+    sql.append(" ORDER BY A.RSCH_VAL_NO DESC, C.REG_DATE DESC, A.REG_DATE DESC  \n");
     try {
         foodList    =   jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{item_no, defaultItemCnt});
     } catch(Exception e) {
@@ -537,7 +539,7 @@ try{
         $("#addMore").click(function (){
             var item_no =   "<%=item_no %>";
             var defaultItemCnt  =   $("#addMore").data("value") + 1;
-            location.href   =   "/index.gne?menuCd=DOM_000000127003002000&item_no="+item_no+"&defaultItemCnt="+defaultItemCnt;
+            location.href   =   "/index.gne?menuCd=<%=recentPage%>&item_no="+item_no+"&defaultItemCnt="+defaultItemCnt;
         });
     });
 

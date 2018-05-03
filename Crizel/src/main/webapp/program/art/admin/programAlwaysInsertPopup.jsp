@@ -40,6 +40,8 @@ private class ArtVO{
 	public String aft_flag;
 	public String pro_tch_nm;
 
+	public int req_per;
+
 	public int artcode_no;
 	public String code_tbl;
 	public String code_col;
@@ -55,21 +57,24 @@ private class ArtVO{
 private class ArtVOMapper implements RowMapper<ArtVO> {
     public ArtVO mapRow(ResultSet rs, int rowNum) throws SQLException {
     	ArtVO vo = new ArtVO();
-        vo.pro_no			= rs.getInt("PRO_NO");
-        vo.pro_cat			= rs.getString("PRO_CAT");
-        vo.pro_cat_nm 		= rs.getString("PRO_CAT_NM");
-        vo.pro_name			= rs.getString("PRO_NAME");
-        vo.pro_memo 		= rs.getString("PRO_MEMO");
-        vo.pro_year 		= rs.getString("PRO_YEAR");
-        vo.reg_id			= rs.getString("REG_ID");
-        vo.reg_ip			= rs.getString("REG_IP");
-        vo.reg_date 		= rs.getString("REG_DATE");
-        vo.mod_date 		= rs.getString("MOD_DATE");
-        vo.show_flag 		= rs.getString("SHOW_FLAG");
-        vo.del_flag 		= rs.getString("DEL_FLAG");
-        vo.max_per 			= rs.getInt("MAX_PER");
-        vo.aft_flag 		= rs.getString("AFT_FLAG");
-        vo.pro_tch_nm 		= rs.getString("PRO_TCH_NM");
+        vo.pro_no			=	rs.getInt("PRO_NO");
+        vo.pro_cat			=	rs.getString("PRO_CAT");
+        vo.pro_cat_nm 		=	rs.getString("PRO_CAT_NM");
+        vo.pro_name			=	rs.getString("PRO_NAME");
+        vo.pro_memo 		=	rs.getString("PRO_MEMO");
+        vo.pro_year 		=	rs.getString("PRO_YEAR");
+        vo.reg_id			=	rs.getString("REG_ID");
+        vo.reg_ip			=	rs.getString("REG_IP");
+        vo.reg_date 		=	rs.getString("REG_DATE");
+        vo.mod_date 		=	rs.getString("MOD_DATE");
+        vo.show_flag 		=	rs.getString("SHOW_FLAG");
+        vo.del_flag 		=	rs.getString("DEL_FLAG");
+        vo.max_per 			=	rs.getInt("MAX_PER");
+        vo.aft_flag 		=	rs.getString("AFT_FLAG");
+        vo.pro_tch_nm 		=	rs.getString("PRO_TCH_NM");
+
+		vo.req_per			=	rs.getInt("REQ_PER");
+
         return vo;
     }
 }
@@ -96,6 +101,53 @@ private class ArtVOMapper2 implements RowMapper<ArtVO> {
 <%
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
+/************************** 접근 허용 체크 - 시작 **************************/
+SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn = null;
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
 
 SessionManager sm = new SessionManager(request);
 
@@ -112,7 +164,8 @@ List<ArtVO> list2 		= null;
 try{
 	if(!"".equals(pro_no)){
 		sql = new StringBuffer();
-		sql.append("SELECT *								");
+		sql.append("SELECT ART_PRO_ALWAY.*					");
+		sql.append("	, (SELECT NVL(MAX(ART_REQ_ALWAY_CNT.REQ_PER), 0) FROM ART_REQ_ALWAY_CNT WHERE PRO_NO = ART_PRO_ALWAY.PRO_NO) AS REQ_PER ");
 		sql.append("FROM ART_PRO_ALWAY						");
 		sql.append("WHERE PRO_NO = ?						");
 		sql.append("ORDER BY PRO_NO DESC		 			");
@@ -142,6 +195,12 @@ try{
 function insertSubmit(){
 	var msg;
 	var addr;
+
+	if (Number($("#max_per").val()) < Number($("#curr_per").val())) {
+		alert("정원이 신청인원 보다 적습니다.");
+		$("#max_per").focus();
+		return false;
+	}
 
 	if($("#mode").val() == "insert"){
 		msg 	= "등록";
@@ -245,6 +304,14 @@ $(function(){
 						</tr>
                         --%>
 
+						<tr>
+							<th scope="row">
+								가장 많은 신청 인원
+							</th>
+							<td>
+								<input type="text" id="curr_per" name="curr_per" class="w_100" value="<%=vo.req_per%>" readonly>
+							</td>
+						</tr>
 						<tr>
 							<th scope="row">
 								정원

@@ -18,6 +18,8 @@
 request.setCharacterEncoding("UTF-8");
 response.setCharacterEncoding("UTF-8");
 
+SessionManager sessionManager = new SessionManager(request);
+
 String fileName = "조사자 목록";
 fileName = URLEncoder.encode(fileName, "UTF-8");
 fileName = fileName.replaceAll("\\+", "%20");

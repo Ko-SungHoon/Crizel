@@ -16,11 +16,13 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+SessionManager sessionManager = new SessionManager(request);
+
 String mode			=   parseNull(request.getParameter("mode"));
 
 String s_item_no    =   parseNull(request.getParameter("s_item_no"));
 String cat_no       =   parseNull(request.getParameter("cat_no"));
-String foodName     =   parseNull(request.getParameter("foodName"));
+/* String foodName     =   parseNull(request.getParameter("foodName")); */
 String n_cat_no     =   parseNull(request.getParameter("n_cat_no"));
 String n_item_nm    =   parseNull(request.getParameter("n_item_nm"));
 String n_item_code  =   parseNull(request.getParameter("n_item_code"));
@@ -38,7 +40,7 @@ List<String> setList	= new ArrayList<String>();
 StringBuffer sql 	=   null;
 int result 			=   0;
 
-out.println("s_item_no ::  "+ s_item_no + "<br>");
+/* out.println("s_item_no ::  "+ s_item_no + "<br>");
 out.println("cat_no ::  "+ cat_no + "<br>");
 out.println("foodName ::  "+ foodName + "<br>");
 out.println("n_item_nm ::  "+ n_item_nm + "<br>");
@@ -48,7 +50,7 @@ out.println("n_item_expl ::  "+ n_item_expl + "<br>");
 out.println("n_item_unit ::  "+ n_item_unit + "<br>");
 
 out.println("selRequester ::  "+ selRequester + "<br>");
-out.println("upd_reason ::  "+ upd_reason + "<br>");
+out.println("upd_reason ::  "+ upd_reason + "<br>"); */
 
 try{
 

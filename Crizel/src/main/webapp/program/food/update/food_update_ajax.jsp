@@ -17,7 +17,6 @@
 
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
-SessionManager sessionManager   =   new SessionManager(request);
 
 String nm_food		= parseNull(request.getParameter("nm_food"));   //검색할 식품명
 

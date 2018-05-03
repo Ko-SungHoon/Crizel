@@ -17,6 +17,55 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+/************************** 접근 허용 체크 - 시작 **************************/
+SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn = null;
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
+
+
 String pageTitle = "단위 추가/수정";
 %>
 
@@ -70,6 +119,11 @@ function updateSubmit(){
 }
 
 function unitInsert(){
+	var unit_type	=	$("#unit_type").val();
+	if (unit_type < 0) {
+		alert("단위타입을 선택하세요.");
+		return;
+	}
 	if(confirm("단위를 추가하시겠습니까?")){
 		$("#insertForm").attr("action","food_item_act.jsp");
 		$("#insertForm").attr("method","post");
@@ -111,8 +165,7 @@ $(function(){
 							<th scope="row">단위타입</th>
 							<td>
 								<select id="unit_type" name="unit_type" required>
-									<option>타입선택</option>
-									<option value="P">화폐</option>
+									<option value="-1">타입선택</option>
 									<option value="F">품목</option>
 								</select>
 							</td>

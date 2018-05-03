@@ -7,32 +7,7 @@
 
 
 <%!
-    //category
-    private class ProCatCode {
-        int artcode_no;
-        String code_tbl;
-        String code_col;
-        String code_name;
-        String code_val1;
-        String code_val2;
-        String code_val3;
-    }
-    //category list
-    private class ProCatList implements RowMapper<ProCatCode> {
-        public ProCatCode mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ProCatCode cate =   new ProCatCode();
-            cate.artcode_no =   rs.getInt("ARTCODE_NO");
-            cate.code_tbl   =   rs.getString("CODE_TBL");
-            cate.code_col   =   rs.getString("CODE_COL");
-            cate.code_name  =   rs.getString("CODE_NAME");
-            cate.code_val1  =   rs.getString("CODE_VAL1");
-            cate.code_val2  =   rs.getString("CODE_VAL2");
-            cate.code_val3  =   rs.getString("CODE_VAL3");
-            
-            return cate;
-        }
-    }
-    
+        
     private class ProAlwayData {
         int req_no;
         String pro_cat_nm;
@@ -79,9 +54,6 @@
             
             //program
             data.pro_no         =   rs.getInt("PRO_NO");
-            
-            //index
-            data.rnum           =   rs.getInt("RNUM");
             
             return data;
         }
@@ -202,9 +174,6 @@
             data.req_user_nm    =   rs.getString("REQ_USER_NM");
             data.req_per        =   rs.getInt("REQ_PER");
             data.apply_flag     =   rs.getString("APPLY_FLAG");
-
-            //index
-            data.rnum           =   rs.getInt("RNUM");
             
             return data;
         }
@@ -294,7 +263,7 @@ HSSFCell cell = row.createCell(0);
 HSSFFont font = wb.createFont();
 font.setFontHeightInPoints((short)13);
 font.setBoldweight((short)font.BOLDWEIGHT_BOLD);
-
+/** Cell Style Setting **/
 HSSFCellStyle headCellStyle = wb.createCellStyle();			
 headCellStyle.setAlignment(HSSFCellStyle.ALIGN_CENTER);
 headCellStyle.setBorderBottom(HSSFCellStyle.BORDER_THIN);
@@ -323,7 +292,9 @@ cellStyle.setTopBorderColor(HSSFColor.BLACK.index);
 cellStyle.setAlignment (HSSFCellStyle.ALIGN_CENTER);
 cellStyle.setVerticalAlignment (HSSFCellStyle.VERTICAL_CENTER);
 cellStyle.setWrapText(true);
+/** Cell Style Setting **/
 
+/** Cell Title Setting **/
 row = sheet.createRow(0);
 cell = row.createCell(0);
 cell.setCellValue("순서");
@@ -350,7 +321,7 @@ cell = row.createCell(7);
 cell.setCellValue("이름(학교)");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(8);
-cell.setCellValue("신청자명");
+cell.setCellValue("신청자명/그룹명");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(9);
 cell.setCellValue("신청인원");
@@ -380,6 +351,7 @@ cell.setCellStyle(headCellStyle);
 cell = row.createCell(18);
 cell.setCellValue("승인");
 cell.setCellStyle(headCellStyle);
+/** Cell Title Setting **/
 
 int rowCnt = 1;
 int rowCnt2 = 1;
@@ -522,7 +494,8 @@ try {
         String pro_cat_nm = "";
         int startPoint = 1;
         int size = 0;
-        ProDeepData data = null;
+        ProDeepData data    =   null;
+        ProDeepData total   =   null;
 
         if(deepList.size() > deepTotal.size()){
             size = deepList.size();
@@ -537,9 +510,62 @@ try {
                 cell    =   row.createCell(0);
                 cell.setCellValue(++num);
                 cell.setCellStyle(cellStyle);
-            }
-        }
-        
+                cell    =   row.createCell(1);
+                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(2);
+                cell.setCellValue(data.pro_name);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(3);
+                cell.setCellValue(data.max_per);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(4);
+                cell.setCellValue(data.reg_date.substring(0, 10));
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(5);
+                cell.setCellValue(data.pro_time);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(6);
+                cell.setCellValue(data.req_user_id);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(7);
+                cell.setCellValue(data.req_user_nm);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(8);
+                cell.setCellValue(data.req_group);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(9);
+                cell.setCellValue(data.req_per);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(10);
+                cell.setCellValue(data.apply_flag);
+                cell.setCellStyle(cellStyle);
+            }//END IF
+            if (i < deepTotal.size()) {
+                total   =   deepTotal.get(i);
+                cell    =   row.createCell(12);
+                cell.setCellValue(total.pro_cat_nm);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(13);
+                cell.setCellValue(total.pro_name);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(14);
+                cell.setCellValue(total.req_total_per);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(15);
+                cell.setCellValue(total.req_hold_cnt);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(16);
+                cell.setCellValue(total.req_cancel_self_cnt);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(17);
+                cell.setCellValue(total.req_cancel_admin_cnt);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(18);
+                cell.setCellValue(total.req_apply_cnt);
+                cell.setCellStyle(cellStyle);
+            }//END IF
+        }//END FOR
         
     } else {
         //상시 프로그램 통계
@@ -617,11 +643,12 @@ try {
         String pro_cat_nm = "";
         int startPoint = 1;
         int size = 0;
-        ProAlwayData data = null;
+        ProAlwayData data   =   null;
+        ProAlwayData total  =   null;
 
         if(alwayList.size() > alwayTotal.size()){
             size = alwayList.size();
-        }else{
+        } else {
             size = alwayTotal.size();
         }
         
@@ -636,35 +663,58 @@ try {
                 cell.setCellValue(data.pro_cat_nm);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(2);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(data.pro_name);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(3);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(data.max_per);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(4);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(data.req_date);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(5);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(data.req_sch_id);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(6);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(data.req_sch_nm);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(7);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(data.sch_mng_nm);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(8);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(data.req_per);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(9);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(data.req_aft_flag);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(10);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(data.apply_flag);
                 cell.setCellStyle(cellStyle);
-            }
-        }
-        
+            }//END IF
+            if (i < alwayTotal.size()) {
+                total   =   alwayTotal.get(i);
+                cell    =   row.createCell(12);
+                cell.setCellValue(total.pro_cat_nm);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(13);
+                cell.setCellValue(total.pro_name);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(14);
+                cell.setCellValue(total.req_total_per);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(15);
+                cell.setCellValue(total.req_hold_cnt);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(16);
+                cell.setCellValue(total.req_cancel_self_cnt);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(17);
+                cell.setCellValue(total.req_cancel_admin_cnt);
+                cell.setCellStyle(cellStyle);
+                cell    =   row.createCell(18);
+                cell.setCellValue(total.req_apply_cnt);
+                cell.setCellStyle(cellStyle);
+            }//END IF
+        }   //END FOR
     }
     
 

@@ -333,8 +333,8 @@
 		sqlMapClient.endTransaction();
 		if(result > 0){
 			out.println("<script type=\"text/javascript\">");
-			//out.println("alert('정상적으로 처리되었습니다.');");
-			//out.println("location.replace('/index.gne?menuCd=DOM_000001201007001001');");
+			out.println("alert('정상적으로 처리되었습니다.');");
+			out.println("location.replace('/index.gne?menuCd=DOM_000001201007001001');");
 			//out.println("location.replace('/index.gne?menuCd=DOM_000000106007001001');");		//테스트서버
 			out.println("</script>");
 		}

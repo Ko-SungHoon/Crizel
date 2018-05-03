@@ -17,7 +17,54 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+/************************** 접근 허용 체크 - 시작 **************************/
 SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn = null;
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
+
 String pageTitle = "품목관리";
 %>
 <!DOCTYPE html>
@@ -141,7 +188,7 @@ try{
     sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
 
     sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO			");
-    sql.append(")A WHERE 1=1																					");
+    sql.append(")A WHERE A.SHOW_FLAG = 'Y'																	");
     sql.append("    AND A.CAT_NO = ?                                                                            ");
     paging.setParams("cat_no", cat_no);
     setList.add(cat_no);
@@ -212,7 +259,7 @@ try{
     sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO			");
     sql.append("	ORDER BY PRE.ITEM_NO																		");
     sql.append("	) A WHERE ROWNUM <= " + paging.getEndRowNo() + "											");
-    sql.append("        AND A.CAT_NO = ?                                                                        ");
+    sql.append("      AND A.SHOW_FLAG = 'Y' AND A.CAT_NO = ?                                                    ");
     if(!"".equals(search1)){
     	if("nm_food".equals(search1)){
     		sql.append("AND A.NM_FOOD LIKE '%'||?||'%'															");
@@ -392,8 +439,8 @@ try{
 			<col style="width: 6.7%">
 			<col style="width: 6.7%">
 			<col style="width: 6.7%">
-			<col style="width: 6.7%">
-			<col style="width: 5%">
+			<%--<col style="width: 6.7%">--%>
+			<%--<col style="width: 5%">--%>
 			<col style="width: 6.7%">
 			<col style="width: 6.7%">
 		</colgroup>
@@ -410,8 +457,8 @@ try{
 				<th scope="col">단위</th>
 				<th scope="col">등록일</th>
 				<th scope="col">수정일</th>
-				<th scope="col">등록ID</th>
-				<th scope="col">공개여부</th>
+				<%--<th scope="col">등록ID</th>--%>
+				<%--<th scope="col">공개여부</th>--%>
 				<th scope="col">수정</th>
 				<th scope="col">변경기록</th>
 			</tr>
@@ -433,8 +480,8 @@ try{
 				<td><%=ob.unit_nm %></td>
 				<td><%=ob.reg_date %></td>
 				<td><%=ob.mod_date %></td>
-				<td><%=ob.reg_id %></td>
-				<td><%=ob.show_flag %></td>
+				<%--<td><%=ob.reg_id %></td>--%>
+				<%--<td><%=ob.show_flag %></td>--%>
 				<td>
 					<button class="btn small edge green" type="button" onclick="updatePopup('<%=ob.item_no %>')">수정</button>
 				</td>

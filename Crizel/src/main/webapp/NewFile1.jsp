@@ -1,454 +1,212 @@
-<%@ page import="java.util.*" %>
-<%@ page import="egovframework.rfc3.menu.vo.MenuVO;" %>
-<%   
-	String nowmenuCD = "";
-    MenuVO currentMenuVO = cm.getMenuVO(); 
-
-
-	nowmenuCD = currentMenuVO.getMenuCd(); 
-	if(nowmenuCD== null){
-		nowmenuCD = "DOM_0000000000000";
-	}else{
-		nowmenuCD = nowmenuCD.substring(0,13); 
-	}
-
-
-    String menuCD = "";   
+<%@ page import = "java.util.*, egovframework.rfc3.board.vo.CommentVO,java.text.SimpleDateFormat" %>
+<%@ page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper"%>
+<%@ page import="egovframework.rfc3.board.vo.BoardDataVO"%>
+<%@ page import="egovframework.rfc3.board.vo.BoardCategoryVO"%>
+<%@ page import="egovframework.rfc3.common.util.EgovStringUtil"%>
+<%@page import="egovframework.rfc3.board.vo.BoardFileVO"%>
+<%
+	ArrayList<BoardDataVO> answerList = (ArrayList<BoardDataVO>)bm.getBoardReplyDataList(bm.getDataIdx());
 %>
+<%
+		BoardManager bms= new BoardManager(request);
+%>
+<section class="board">
+<table class="board_read02">  
+		     <caption><%=bm.getDataTitle()%>의 작성자, 등록일, 첨부파일, 내용 등 상세보기표입니다.</caption>
+		     <thead>
+		      <tr>
+		       <th scope="col" colspan="4"  class="topline"><%=bm.getDataTitle()%></th>
+		      </tr>
+		     </thead>
+		     <tbody>
+		      <tr>
+		       <th scope="row" style="width: 20%;">작성자</th>
+		       <td style="width: 30%;"><%=bm.getUserNick()%></td>
+		       <th scope="row" class="lline" style="width: 20%;">등록일</th>
+		       <td style="width: 30%;"><%=bm.getRegister_dt("yyyy/MM/dd")%></td>
+		      </tr>
+				<tr>
+				 <th scope="row">첨부파일</th>
+				 <td colspan="3">		
+		<%
+					String userAgent = request.getHeader("user-agent");
+					if(bm.getFileCount() > 0){
+					for(int fcnt = 0;fcnt<bm.getFileCount();fcnt++)
+					{
+						boolean isMobile = false;
+						boolean isHtml5 = !(userAgent.toLowerCase().indexOf("msie 6.0")>-1||userAgent.toLowerCase().indexOf("msie 7.0")>-1||userAgent.toLowerCase().indexOf("msie 8.0")>-1);
+						if(userAgent.toLowerCase().indexOf("mobile") >=0)
+						{
+							isMobile = true;
+						}
+						if(fcnt > 0)
+						{
+							%>
+							<br/>
+							<%
+						}
+						if(bm.getBoardFileVO(fcnt) != null)
+						{	
+							out.print(bm.getFileList(bm.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
+							if(bm.getBoardFileVO(fcnt).getFileId()!=null && !bm.getBoardFileVO(fcnt).getFileId().equals("")){
+							out.print(bm.getHtmlViewerIcon(bm.getBoardFileVO(fcnt),"",isMobile).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
+							}else{
+							out.print(bm.getConvertIcon(bm.getBoardFileVO(fcnt),null).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
+							}
+							
+																	
+						}
+					}
+					}
+					%>
+					</td>
+					</tr>
+			<%
+			int tdCnt = 0;
+			%>
 
-<nav id="gnb_menu">	
-	<ul class="depth1">
+		<%
+			int extensionCount = bm.extensionCount();
+			for(int i=0;i<extensionCount;i++)
+			{
+				if(tdCnt == 0){ out.print("<tr>");}
+				tdCnt++;
+				bm.setExtensionVO(i);
+				%>
+				<th scope="row" style="width: 20%;"><%=bm.getExtensionDesc() %></th>
+		    	<td style="width: 30%;"><%=bm.getExtensionValue(bm.getExtensionKey())%></td>
+				<%
+				if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
+			}
+			%>
+			<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
+			<tr>
+			<th scope="row">내용</th>
+			<td colspan="3"><%=bm.getDataContent().replace("\r\n","<br>")%><br>
+				<%
+					int [] ext = bm.searchFileNameExt("jpg|bmp|png");
+					for(int i=0;i<ext.length;i++)
+					{
+						%>
+						<img src="<%=bm.getThumbnailPath(ext[i]) %>"  onError="this.src='<%=bm.getFilePath(ext[i]) %>'" style="max-width:500px;" />	<br>
 
-
-
-
-		<li id="menu_01"><a href="/index.gne?menuCd=DOM_000000103001001001" id="menu_a_01" <%if(nowmenuCD.equals("DOM_000000103")){%>class="on"<%}%>><span>전자민원마당</span></a>
-		<div class="depth2_box" id="menu_sub_01" style="display:none">
-				<dl class="mbg_01">
-					<dt>전자민원마당</dt>
-					<dd>함께 배우며 미래를 열어가는<br /> 민주시민 육성</dd>
-				</dl>
+						<%
+					}
+					%>			
+			
+			</td>
+			<tr>	
+				</tbody>
+				</table>
+								<p class="read_page" style="margin:20px 0px;">
+<!--RFC 공통 버튼 시작-->
+<div class="rfc_bbs_btn">
+	<%=bm.getViewIcons()%>
+</div>
+<!--RFC 공통 버튼 끝-->					
+				</p>
+</section>		
 
 <%
-menuCD = "DOM_000000103000000000";  
-ArrayList menuList = (ArrayList)cm.getMenuList(menuCD, 2);   
-MenuVO parentMenuVO = cm.getMenuCd(menuCD, 1);
-int depth = cm.getMainNum();   
-    if(depth > 6)   
-    {   
-        depth = 0;   
-    }   
-    String menuTheme  = "";   
-
-	    //2차 메뉴 출력   
-            if(menuList != null && menuList.size() > 0) {       
+if(answerList.size() > 0)
+{
+	for(int j=0; j < answerList.size(); j++) {
+		bms.setBoardDataVO(answerList.get(j));
 %>
-				<ul class="depth2">
-<%
-                for(int i=0; i<menuList.size(); i++) {   
-                    MenuVO menuVO = (MenuVO)menuList.get(i);   
-                    //로그인 상태에 따른 메뉴 출력 여부   
-%>
-
-
-
-
-
-					<li><%=getLink(menuVO,menuCD,2,"","","RFCShowMenu",cm.getUrlExt(),request.getContextPath())%>
-
-                    <%   
-                    //3차메뉴 목록   
-                    ArrayList menuList2 = (ArrayList)cm.getMenuList(menuVO.getMenuCd(), 3);   
-                    if(menuList2 != null && menuList2.size() > 0) {   
-                        %>
-						<ul class="depth3">
-                               <%   
-                                for(int j=0; j<menuList2.size(); j++) {   
-                                    MenuVO menuVO2 = (MenuVO)menuList2.get(j);   
-  
-                                %> 
-							<li><%=getLink(menuVO2,menuCD,3,"","","RFCShowMenu2",cm.getUrlExt(),request.getContextPath())%></li>
-				<%}%>
-						</ul>
-			<%}%>
-
-					</li>
-
-
-		<%}%>
-
-				</ul>
-
-	<%}%>
-
-
-
-
-
-				<a href="#menu_01" class="menuclose" id="menu_sub_close_01"><img src="/img/common/menu_close.png" alt="메뉴닫기" /></a>
-				<div class="clr"></div>
-			</div>
-		</li>
-
-
-
-
-
-
-
-		<li id="menu_02"><a href="/board/list.gne?boardId=notice034&menuCd=DOM_000000104002001000&contentsSid=61" id="menu_a_02" <%if(nowmenuCD.equals("DOM_000000104")){%>class="on"<%}%>><span>참여마당</span></a>
-		<div class="depth2_box" id="menu_sub_02" style="display:none">
-				<dl class="mbg_02">
-					<dt>참여마당</dt>
-					<dd>함께 배우며 미래를 열어가는<br /> 민주시민 육성</dd>
-
-				</dl>
-<%
-menuCD = "DOM_000000104000000000";  
-menuList = (ArrayList)cm.getMenuList(menuCD, 2);   
-parentMenuVO = cm.getMenuCd(menuCD, 1);
-depth = cm.getMainNum();   
-    if(depth > 6)   
-    {   
-        depth = 0;   
-    }   
-    menuTheme  = "";   
-
-	    //2차 메뉴 출력   
-            if(menuList != null && menuList.size() > 0) {       
-%>
-				<ul class="depth2">
-<%
-                for(int i=0; i<menuList.size(); i++) {   
-                    MenuVO menuVO = (MenuVO)menuList.get(i);   
-                    //로그인 상태에 따른 메뉴 출력 여부   
-%>
-
-
-
-
-
-					<li><%=getLink(menuVO,menuCD,2,"","","RFCShowMenu",cm.getUrlExt(),request.getContextPath())%>
-
-                    <%   
-                    //3차메뉴 목록   
-                    ArrayList menuList2 = (ArrayList)cm.getMenuList(menuVO.getMenuCd(), 3);   
-                    if(menuList2 != null && menuList2.size() > 0) {   
-                        %>
-						<ul class="depth3">
-                               <%   
-                                for(int j=0; j<menuList2.size(); j++) {   
-                                    MenuVO menuVO2 = (MenuVO)menuList2.get(j);   
-  
-                                %> 
-							<li><%=getLink(menuVO2,menuCD,3,"","","RFCShowMenu2",cm.getUrlExt(),request.getContextPath())%></li>
-				<%}%>
-						</ul>
-			<%}%>
-
-					</li>
-
-
-		<%}%>
-
-				</ul>
-
-	<%}%>
-				<a href="#menu_02" class="menuclose" id="menu_sub_close_02"><img src="/img/common/menu_close.png" alt="메뉴닫기" /></a>
-				<div class="clr"></div>
-			</div>
-		</li>
-
-
-
-
-		<li id="menu_03"><a href="/index.gne?menuCd=DOM_000000105013001000" id="menu_a_03" <%if(nowmenuCD.equals("DOM_000000105")){%>class="on"<%}%>><span>알림마당</span></a>
-		<div class="depth2_box" id="menu_sub_03" style="display:none">
-				<dl class="mbg_03">
-					<dt>알림마당</dt>
-					<dd>함께 배우며 미래를 열어가는<br /> 민주시민 육성</dd>
-				</dl>
-<%
-menuCD = "DOM_000000105000000000";  
-menuList = (ArrayList)cm.getMenuList(menuCD, 2);   
-parentMenuVO = cm.getMenuCd(menuCD, 1);
-depth = cm.getMainNum();   
-    if(depth > 6)   
-    {   
-        depth = 0;   
-    }   
-    menuTheme  = "";   
-
-	    //2차 메뉴 출력   
-            if(menuList != null && menuList.size() > 0) {       
-%>
-				<ul class="depth2">
-<%
-                for(int i=0; i<menuList.size(); i++) {   
-                    MenuVO menuVO = (MenuVO)menuList.get(i);   
-                    //로그인 상태에 따른 메뉴 출력 여부   
-%>
-
-
-
-
-
-					<li><%=getLink(menuVO,menuCD,2,"","","RFCShowMenu",cm.getUrlExt(),request.getContextPath())%>
-
-                    <%   
-                    //3차메뉴 목록   
-                    ArrayList menuList2 = (ArrayList)cm.getMenuList(menuVO.getMenuCd(), 3);   
-                    if(menuList2 != null && menuList2.size() > 0) {   
-                        %>
-						<ul class="depth3">
-                               <%   
-                                for(int j=0; j<menuList2.size(); j++) {   
-                                    MenuVO menuVO2 = (MenuVO)menuList2.get(j);   
-  
-                                %> 
-							<li><%=getLink(menuVO2,menuCD,3,"","","RFCShowMenu2",cm.getUrlExt(),request.getContextPath())%></li>
-				<%}%>
-						</ul>
-			<%}%>
-
-					</li>
-
-
-		<%}%>
-
-				</ul>
-
-	<%}%>
-				<a href="#menu_03" class="menuclose" id="menu_sub_close_03"><img src="/img/common/menu_close.png" alt="메뉴닫기" /></a>
-				<div class="clr"></div>
-			</div>
-		</li>
-
-
-
-		<li id="menu_04"><a href="/board/list.gne?boardId=notice020&menuCd=DOM_000000106002001000&contentsSid=98" id="menu_a_04" <%if(nowmenuCD.equals("DOM_000000106")){%>class="on"<%}%>><span>정부3.0 정보마당</span></a>
-		<div class="depth2_box" id="menu_sub_04" style="display:none">
-				<dl class="mbg_04">
-					<dt>정부3.0 정보마당</dt>
-					<dd>함께 배우며 미래를 열어가는<br /> 민주시민 육성</dd>
-				</dl>
-<%
-menuCD = "DOM_000000106000000000";  
-menuList = (ArrayList)cm.getMenuList(menuCD, 2);   
-parentMenuVO = cm.getMenuCd(menuCD, 1);
-depth = cm.getMainNum();   
-    if(depth > 6)   
-    {   
-        depth = 0;   
-    }   
-    menuTheme  = "";   
-
-	    //2차 메뉴 출력   
-            if(menuList != null && menuList.size() > 0) {       
-%>
-				<ul class="depth2">
-<%
-                for(int i=0; i<menuList.size(); i++) {   
-                    MenuVO menuVO = (MenuVO)menuList.get(i);   
-                    //로그인 상태에 따른 메뉴 출력 여부   
-                    if("DOM_000000106016000000".equals(menuVO.getMenuCd())){
-                    %>
-                    <li>
-                    <a href="#findteacher" title="새창이 열립니다." onClick="javascript:window.open('/index.gne?menuCd=DOM_000000106016000000','findteacher','width=650, height=750, top=20, scrollbars=yes, fullscreen=no, menubar=no, status=no, toolbar=no, titlebar=yes, location=no, resizable=no');"><%=menuVO.getMenuNm()%></a>
-                    <% 	
-                    }else{
-                    	%>
-                        <li><%=getLink(menuVO,menuCD,2,"","","RFCShowMenu",cm.getUrlExt(),request.getContextPath())%>
-                  <% } %>
-
-                    <%   
-                    //3차메뉴 목록   
-                    ArrayList menuList2 = (ArrayList)cm.getMenuList(menuVO.getMenuCd(), 3);   
-                    if(menuList2 != null && menuList2.size() > 0) {   
-                        %>
-						<ul class="depth3">
-                               <%   
-                                for(int j=0; j<menuList2.size(); j++) {   
-                                    MenuVO menuVO2 = (MenuVO)menuList2.get(j);   
-  
-                                %> 
-							<li><%=getLink(menuVO2,menuCD,3,"","","RFCShowMenu2",cm.getUrlExt(),request.getContextPath())%></li>
-				<%}%>
-						</ul>
-			<%}%>
-
-					</li>
-
-
-		<%}%>
-
-				</ul>
-
-	<%}%>
-				<a href="#menu_04" class="menuclose" id="menu_sub_close_04"><img src="/img/common/menu_close.png" alt="메뉴닫기" /></a>
-				<div class="clr"></div>
-			</div>
-		</li>
-
-
-
-		<li id="menu_05" class="last"><a href="/index.gne?menuCd=DOM_000000107001001000" id="menu_a_05" <%if(nowmenuCD.equals("DOM_000000107")){%>class="on"<%}%>><span>교육청안내</span></a>
-			<div class="depth2_box" id="menu_sub_05" style="display:none">
-				<dl class="mbg_05">
-					<dt>교육청 안내</dt>
-					<dd>함께 배우며 미래를 열어가는<br /> 민주시민 육성</dd>
-				</dl>
-<%
-menuCD = "DOM_000000107000000000";  
-menuList = (ArrayList)cm.getMenuList(menuCD, 2);   
-parentMenuVO = cm.getMenuCd(menuCD, 1);
-depth = cm.getMainNum();   
-    if(depth > 6)   
-    {   
-        depth = 0;   
-    }   
-    menuTheme  = "";   
-
-	    //2차 메뉴 출력   
-            if(menuList != null && menuList.size() > 0) {       
-%>
-				<ul class="depth2">
-<%
-                for(int i=0; i<menuList.size(); i++) {   
-                    MenuVO menuVO = (MenuVO)menuList.get(i);   
-                    //로그인 상태에 따른 메뉴 출력 여부   
-%>
-
-
-
-
-
-					<li><%=getLink(menuVO,menuCD,2,"","","RFCShowMenu",cm.getUrlExt(),request.getContextPath())%>
-
-                    <%   
-                    //3차메뉴 목록   
-                    ArrayList menuList2 = (ArrayList)cm.getMenuList(menuVO.getMenuCd(), 3);   
-                    if(menuList2 != null && menuList2.size() > 0) {   
-                        %>
-						<ul class="depth3">
-                               <%   
-                                for(int j=0; j<menuList2.size(); j++) {   
-                                    MenuVO menuVO2 = (MenuVO)menuList2.get(j);   
-  
-                                %> 
-							<li><%=getLink(menuVO2,menuCD,3,"","","RFCShowMenu2",cm.getUrlExt(),request.getContextPath())%></li>
-				<%}%>
-						</ul>
-			<%}%>
-
-					</li>
-
-
-		<%}%>
-
-				</ul>
-
-	<%}%>
-				<a href="#menu_05" class="menuclose" id="menu_sub_close_05"><img src="/img/common/menu_close.png" alt="메뉴닫기" /></a>
-				<div class="clr"></div>
-			</div>
-		</li>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	</ul>
-</nav>
-
-<%!   
-    //메뉴 링크 작성 함수   
-    public static String getLink(MenuVO menuVO,String menuCd,int depth,String id,String classNm,String script,String urlExt,String contextPath)   
-    {   
-        //메뉴링크   
-        String link="";   
-        //메뉴 제목 또는 메뉴 이미지   
-        String title="";   
-        //메뉴 기본 이미지   
-        String img="";   
-        //링크주소   
-        String url = "";
-	
-	// 새창 여부
-	boolean new_icon = false;
-  
-        // 이미지 메뉴 여부 확인   
-        if(menuVO.getMenuLeftOverimg() == null || "".equals(menuVO.getMenuLeftOverimg()))   
-        {   
-            title = menuVO.getMenuNm();   
-        }else  
-        {   
-            //현재 메뉴와 같거나 상위 메뉴인 경우 over 이미지 처리   
-            if( menuCd != null && !"".equals(menuCd))   
-            {   
-                if( (menuVO.getMenuCd().substring(0,(4+((depth-1)*3)))).equals(menuCd.substring(0,(4+((depth-1)*3)))) )   
-                {   
-                    img = menuVO.getMenuLeftOverimg();   
-                }else  
-                {   
-                    img = menuVO.getMenuLeftOutimg();   
-                }   
-            }else  
-            {   
-                img = menuVO.getMenuLeftOutimg();   
-            }   
-            //이미지 태그 및 마우스 오버, 아웃등 처리   
-            title =  "<img src=\""+img+"\"";   
-            title += " onfocus=\"this.src='"+menuVO.getMenuLeftOverimg()+"';\" onblur=\"this.src='"+img+"';\"";   
-            title += " onmouseover=\"this.src='"+menuVO.getMenuLeftOverimg()+"';\" onmouseout=\"this.src='"+img+"';\"";   
-            title += " alt=\""+menuVO.getMenuNm()+"\" id=\""+id+"\" class=\""+classNm+"\">";   
-        }   
-        // 컨텐츠가 없는 메뉴인 경우 하위메뉴 펼침 태그 작성   
-        if(menuVO.getMenuContentsSid() == 0) {   
-            //link = "<a href=\"#"+menuVO.getMenuCd()+"\" onclick=\""+script+"('"+menuVO.getMenuCd()+"')\">";   
-            link = "<a href=\"#"+menuVO.getMenuCd()+"\" onclick=\""+script+"('"+menuVO.getMenuCd()+"');\" onkeypress=\""+script+"('"+menuVO.getMenuCd()+"');\">";   
-        }else{   
-            url = "/index."+urlExt+"?menuCd=" + menuVO.getMenuCd();    
-  
-            if("_blank".equals(menuVO.getMenuTg())) {                  
-                if(menuVO.getMenuTgOption() != null && !"".equals(menuVO.getMenuTgOption()))   
-                {   
-                    link =  "<a href=\""+contextPath+url+"\" ";   
-                    link += " onclick=\"window.open(this.href,'"+menuVO.getMenuCd()+"','"+menuVO.getMenuTgOption()+"');return false;\" title=\""+menuVO.getMenuNm()+"\"";   
-                    link += " onkeypress=\"window.open(this.href,'"+menuVO.getMenuCd()+"','"+menuVO.getMenuTgOption()+"');return false;\" title=\""+menuVO.getMenuNm()+"\">";   
-                       
-                }else  
-                {   
-                    link = "<a href=\""+contextPath+url+"\" target=\"_blank\" title=\"새창으로 열립니다.\">";   
-		    new_icon = true;
-                }   
-            }else  
-            {   
-                link = "<a href=\""+contextPath+url+"\">";   
-            }   
-               
-        }   
-        link += title;   
-	if(new_icon) {
-		link += " <img src=\"/img/common/open_new2.png\" alt=\"새창이 열립니다.\" class=\"open_new\" />";
-	}
-	link += "</a>";   
-        return link;   
-    }   
-%>
+			<section class="board">
+			<table class="board_read02">
+				<caption><%=bm.getDataTitle()%>의 작성자, 등록일, 첨부파일, 내용등 답변상세내용표입니다.</caption>
+				<thead>
+					<tr>
+					<th scope="col" colspan="4"  class="topline"><%=bms.getDataTitle()%></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+					<th scope="row" style="width: 20%;">작성자</th>
+					<td style="width: 30%;"><%=bms.getUserNick()%></td>
+					<th scope="row" class="lline" style="width: 20%;">등록일</th>
+					<td style="width: 30%;"><%=bms.getRegister_dt("yyyy/MM/dd")%></td>
+					</tr>
+				<tr>
+				<th scope="row">첨부파일</th>
+				<td colspan="3">
+		<%
+					String userAgent2 = request.getHeader("user-agent");
+					if(bms.getFileCount() > 0){
+					for(int fcnt = 0;fcnt<bms.getFileCount();fcnt++)
+					{
+						boolean isMobile = false;
+						boolean isHtml5 = !(userAgent2.toLowerCase().indexOf("msie 6.0")>-1||userAgent2.toLowerCase().indexOf("msie 7.0")>-1||userAgent2.toLowerCase().indexOf("msie 8.0")>-1);
+						if(userAgent2.toLowerCase().indexOf("mobile") >=0)
+						{
+							isMobile = true;
+						}
+						if(fcnt > 0)
+						{
+							%>
+							<br/>
+							<%
+						}
+						if(bms.getBoardFileVO(fcnt) != null)
+						{
+							if("fileUpload".equals(bms.getBoardFileVO(fcnt).getFileId()) || "upload".equals(bms.getBoardFileVO(fcnt).getFileId())
+									|| "ksboard".equals(bms.getBoardFileVO(fcnt).getFileId()) || "data".equals(bms.getBoardFileVO(fcnt).getFileId())) {
+								out.print(bms.getFileList(bms.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)","").replace("/board/download.gne", "/program/board/download.jsp"));
+							} else {
+								out.print(bms.getFileList(bms.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
+							}
+							//out.print(bms.getFileList(bms.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
+							if(bms.getBoardFileVO(fcnt).getFileId()!=null && !bms.getBoardFileVO(fcnt).getFileId().equals("")){
+							out.print(bms.getHtmlViewerIcon(bms.getBoardFileVO(fcnt),"",isMobile).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
+							}else{
+							out.print(bms.getConvertIcon(bms.getBoardFileVO(fcnt),null).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
+							}
+
+
+						}
+					}
+					}
+					%>
+					</td>
+					</tr>
+			<tr>
+			<th scope="row">내용</th>
+			<td colspan="3"><%=bms.getDataContent().replace("\r\n","<br>")%><br>
+				<%-- // 첨부파일 이미지 출력 주석처리
+				if(bms.getFileCount() > 0) {
+					String fileName = null;
+					String ext = null;
+					String img = null;
+					for(int i=0; i<bms.getFileCount(); i++) {
+						BoardFileVO fileVO = (BoardFileVO)bms.getBoardFileVO(i);
+						fileName = fileVO.getFileMask();
+						ext = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
+						if("jpg".equals(ext) || "bmp".equals(ext) || "png".equals(ext) || "gif".equals(ext) || "jpeg".equals(ext)) {
+							if("fileUpload".equals(fileVO.getFileId())) {
+								img = "/fileUpload/real/" + fileVO.getFileMask();
+							} else if("ksboard".equals(fileVO.getFileId())) {
+								img = "/ksboard/data/photo/" + fileVO.getFileMask();
+							} else {
+								img = "/upload_data/board_data/" + fileVO.getBoardId() + "/" + fileVO.getFileMask();
+							}
+				%>
+				<img src="<%=img %>"  onerror="this.src='/images/no_img.gif';"  /><br>
+				<%
+
+						}
+					}
+				}
+				--%>
+
+			</td>
+			</tr>
+				</tbody>
+				</table>
+<div class="rfc_bbs_btn">
+	<%=bms.getViewIcons()%>
+</div>
+</section>
+<%	}
+}
+%>								

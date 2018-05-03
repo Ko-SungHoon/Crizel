@@ -6,6 +6,8 @@
 *   MODIFY  :   엑셀업로드 추가	20180403_tue	KO
 *   MODIFY  :   학교/기관 select 추가 set the query where setting value	20180404_wed	JI
 *   MODIFY  :   엑셀다운로드 추가	20180423_mon	KO
+*   MODIFY  :   삭제회원 보이는 기능 추가	20180423_mon	KO
+*   MODIFY  :   20180503_mon	KO		학교,지역명 같을 경우 승인버튼 대신 중복된다는 텍스트 출력	
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -17,7 +19,53 @@
 <%@ include file="/program/food/foodVO.jsp" %>
 
 <%
+/************************** 접근 허용 체크 - 시작 **************************/
 SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn2 = null;
+try {
+	sqlMapClient.startTransaction();
+	conn2 = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn2, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn2);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
 String pageTitle = "조사자(팀장) 관리";
 %>
 <!DOCTYPE html>
@@ -45,6 +93,8 @@ String search2		= parseNull(request.getParameter("search2"));   //팀
 String search3		= parseNull(request.getParameter("search3"));   //조사자/조사팀장 여부
 String search1		= parseNull(request.getParameter("search1"));   //검색 선택 분류
 String keyword		= parseNull(request.getParameter("keyword"));   //검색어
+
+String delMem		= parseNull(request.getParameter("delMem"));	//삭제회원 보이기 checkbox
 
 StringBuffer sql 		= null;
 Object[] setObj         = null;
@@ -79,11 +129,8 @@ try{
 	sql.append(" SELECT COUNT(*)																		");
 	sql.append(" FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B												");
 	sql.append(" ON A.SCH_NO = B.SCH_NO																	");
-	sql.append(" WHERE (B.SHOW_FLAG = 'Y'																");
-	sql.append(" 	OR A.SCH_NO IN (SELECT A.SCH_NO														");
-	sql.append("        			FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B ON A.SCH_NO = B.SCH_NO	");
-	sql.append("         		 	GROUP BY A.SCH_NO, B.NU_NO											");
-	sql.append("         		 	HAVING NVL(B.NU_NO,0) = 0))											");
+
+	sql.append(" WHERE 1=1																				");
 	sql.append(whereSchType);
 	
 	if(!"".equals(search0)){
@@ -111,7 +158,25 @@ try{
 		setList.add(search3);
 		paging.setParams("search3", search3);
 	}
-	
+////삭제회원 보이기
+	if("on".equals(delMem)){
+		sql.append(" AND (B.SHOW_FLAG IN ('Y','N')															");
+		sql.append(" 	OR A.SCH_NO IN (SELECT A.SCH_NO														");
+		sql.append("        			FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B ON A.SCH_NO = B.SCH_NO	");
+		sql.append("         		 	GROUP BY A.SCH_NO, B.NU_NO											");
+		sql.append("         		 	HAVING NVL(B.NU_NO,0) = 0))											");
+		sql.append("    AND A.SHOW_FLAG IN ('Y','N')														");
+		paging.setParams("delMem", delMem);
+	} else {
+		sql.append(" AND (B.SHOW_FLAG IN ('Y')																");
+		sql.append(" 	OR A.SCH_NO IN (SELECT A.SCH_NO														");
+		sql.append("        			FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B ON A.SCH_NO = B.SCH_NO	");
+		sql.append("         		 	GROUP BY A.SCH_NO, B.NU_NO											");
+		sql.append("         		 	HAVING NVL(B.NU_NO,0) = 0))											");
+		sql.append("    AND A.SHOW_FLAG IN ('Y')															");
+		paging.setParams("delMem", delMem);
+	}
+
 	setObj = new Object[setList.size()];
 	for(int i=0; i<setList.size(); i++){
 		setObj[i] = setList.get(i);
@@ -158,6 +223,7 @@ try{
 	sql.append("	A.ETC1,													");
 	sql.append("	A.ETC2,													");
 	sql.append("	A.ETC3,													");
+	sql.append("	(SELECT COUNT(*) FROM FOOD_SCH_TB WHERE SHOW_FLAG = 'Y' AND SCH_APP_FLAG = 'Y' AND SCH_NM = A.SCH_NM AND AREA_NO = A.AREA_NO) AS CNT,	");
 	sql.append("	B.NU_NO,												");
 	sql.append("	B.NU_NM,												");
 	sql.append("	B.NU_TEL,												");
@@ -182,11 +248,7 @@ try{
 	sql.append("		WHERE SCH_NO = A.SCH_NO	) AS RSCH_ITEM_CNT			");
 	sql.append(" FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B					");
 	sql.append(" ON A.SCH_NO = B.SCH_NO										");
-	sql.append(" WHERE (B.SHOW_FLAG = 'Y'									");
-	sql.append(" 	OR A.SCH_NO IN (SELECT A.SCH_NO														");
-	sql.append("        			FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B ON A.SCH_NO = B.SCH_NO	");
-	sql.append("         		 	GROUP BY A.SCH_NO, B.NU_NO											");
-	sql.append("         		 	HAVING NVL(B.NU_NO,0) = 0))											");
+	sql.append(" WHERE 1=1													");
 	sql.append(whereSchType);
 	
 	if(!"".equals(search0)){
@@ -204,6 +266,24 @@ try{
 	}
 	if(!"".equals(search3)){
 		sql.append(" AND A.SCH_GRADE = ?									");
+	}
+////삭제회원 보이기
+	if("on".equals(delMem)){
+		sql.append(" AND (B.SHOW_FLAG IN ('Y','N')															");
+		sql.append(" 	OR A.SCH_NO IN (SELECT A.SCH_NO														");
+		sql.append("        			FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B ON A.SCH_NO = B.SCH_NO	");
+		sql.append("         		 	GROUP BY A.SCH_NO, B.NU_NO											");
+		sql.append("         		 	HAVING NVL(B.NU_NO,0) = 0))											");
+		sql.append("    AND A.SHOW_FLAG IN ('Y','N')														");
+		paging.setParams("delMem", delMem);
+	} else {
+		sql.append(" AND (B.SHOW_FLAG IN ('Y')																");
+		sql.append(" 	OR A.SCH_NO IN (SELECT A.SCH_NO														");
+		sql.append("        			FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B ON A.SCH_NO = B.SCH_NO	");
+		sql.append("         		 	GROUP BY A.SCH_NO, B.NU_NO											");
+		sql.append("         		 	HAVING NVL(B.NU_NO,0) = 0))											");
+		sql.append("    AND A.SHOW_FLAG IN ('Y')															");
+		paging.setParams("delMem", delMem);
 	}
 	
 	
@@ -238,7 +318,7 @@ try{
 <script>
 
     function applySubmit(sch_no, sch_app_flag){
-        if(confirm("승인상태를 변경하시겠습니까?")){
+        if(confirm("승인상태를 변경하시겠습니까?\n※해당기관의 모든 조사자의 상태가 변경됩니다.")){
             $.ajax({
                 type : "POST",
                 url : "/program/food/research/researcher_approval.jsp",
@@ -268,12 +348,12 @@ try{
 	}
 
 	/* 권역 선택 select */
-    function teamSelect(value){
+    function teamSelect(mode, value){
         var zone_no = value;
         $.ajax({
             type : "POST",
             url : "/program/food/research/team_list.jsp",
-            data : {"zone_no" : zone_no},
+            data : {"mode" : mode, "zone_no" : zone_no},
             async : false,
             success : function(data){
                 $("#search2").html(data.trim());
@@ -294,8 +374,13 @@ try{
             }
             $(".sch_chk").prop('checked', false);
             return;
-            
         });
+		//삭제회원 보이기 click function
+		$("#delMem").click(function () {
+			$("#searchForm").attr("action", "food_research_list.jsp");
+       		$("#searchForm").submit();
+			return;
+		});
     });
 
     //일괄승인 function
@@ -415,6 +500,62 @@ try{
     function searchSubmit(){
     	$("#searchForm").attr("action", "").submit();
     }
+    
+    function deleteSubmit(sch_no){
+    	<%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 조사자 삭제가 불가합니다.");
+			return false;
+		<%}else{%>
+    	if(confirm("해당 조사자를 삭제하시겠습니까?\n※해당 기관에 속한 모든 조사자가 삭제됩니다.")){
+    		$.ajax({
+				type : "POST",
+				url : "/program/food/research/researcher_approval.jsp",
+				data : {"sch_no" : sch_no, "sch_app_flag" : "D"},
+				success : function(data){
+					if(data.trim() == "OK") {
+						alert('정상적으로 처리되었습니다.');
+						location.reload();
+					}else{
+						alert(data.trim());
+						alert("처리 중 오류가 발생하였습니다.");
+					}
+				},
+				error : function(request, status, error){
+					alert("처리 중 오류가 발생하였습니다..");
+				}
+			});
+    	}
+    	<%}%>
+    }
+	//복원 fucntion
+	function reflecSubmit (sch_no) {
+		alert("죄송합니다. 준비 중 입니다.");
+		return;
+		<%if(rsch_no > 0) {%>
+			alert("조사개시 중에는 조사자 복원이 불가합니다.");
+			return false;
+		<%}else{%>
+    	if(confirm("해당 조사자를 복원 하시겠습니까?\n※해당 기관에 속한 모든 조사자가 복원됩니다.")) {
+    		$.ajax({
+				type : "POST",
+				url : "/program/food/research/researcher_approval.jsp",
+				data : {"sch_no" : sch_no, "sch_app_flag" : "R"},
+				success : function(data){
+					if(data.trim() == "OK") {
+						alert('정상적으로 처리되었습니다.');
+						location.reload();
+					}else{
+						alert(data.trim());
+						alert("처리 중 오류가 발생하였습니다.");
+					}
+				},
+				error : function(request, status, error){
+					alert("처리 중 오류가 발생하였습니다..");
+				}
+			});
+    	}
+    	<%}%>
+	}
 
 </script>
 
@@ -445,7 +586,7 @@ try{
 					<option value="ang" <%if ("ang".equals(searchSch)) {out.println("selected");}%>>기관</option>
 				</select>
 		<%if ("sch".equals(searchSch)) {%>
-                <select id="search0" name="search0" onchange="teamSelect(this.value)">
+                <select id="search0" name="search0" onchange="teamSelect('team', this.value)">
 					<option value="">권역선택</option>
 					<%
 					if(zoneList!=null && zoneList.size()>0){
@@ -486,6 +627,8 @@ try{
 				</select>
 				<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
 				<button type="button" class="btn small edge mako" onclick="searchSubmit();">검색하기</button>
+				<input type="checkbox" id="delMem" name="delMem" <%if("on".equals(delMem)){out.println("checked");}else{out.println("");}%>>
+				<label for="delMem">삭제회원 보이기</label>
 				<div class="f_r">
 					<button type="button" class="btn small edge mako" onclick="sampleExcel();">샘플엑셀</button>
 					<button type="button" class="btn small edge mako" onclick="upExcel();">엑셀업로드</button>
@@ -518,9 +661,10 @@ try{
 			<col>
 			<col style="width: 5%">
 			<col style="width: 10%">
-			<col style="width: 10%">
+			<col style="width: 7%">
 			<col style="width: 5%">
 			<col style="width: 10%">
+			<col style="width: 5%">
 		</colgroup>
 		<thead>
 			<tr>
@@ -532,13 +676,14 @@ try{
 				<th scope="col">팀</th>
 				<th scope="col">조</th>
 				<th scope="col">지역</th>
-				<th scope="col">조사 식품 수</th>
+				<th scope="col">조사<br>식품 수</th>
 				<th scope="col">학교/기관명</th>
-				<th scope="col">조사자/조사팀장</th>
+				<th scope="col">조사자<br>/조사팀장</th>
 				<th scope="col">영양사명</th>
 				<th scope="col">등록일</th>
 				<th scope="col">승인여부</th>
 				<th scope="col">승인일시</th>
+				<th scope="col">삭제</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -557,27 +702,37 @@ try{
 				<td><%=vo.jo_nm %></td>
 				<td><%=vo.area_nm %></td>
                 <td><%=vo.rsch_item_cnt %></td>
-				<td><a href="food_research_view.jsp?sch_no=<%=vo.sch_no%>"><%=vo.sch_nm %></a></td>
+				<td><a href="food_research_view.jsp?sch_no=<%=vo.sch_no%>"><%=vo.sch_nm %> (<%=vo.sch_id%>)</a></td>
 				<td><%=outSchGrade(vo.sch_grade) %></td>
 				<td><%=vo.nu_nm %></td>
 				<td><%=vo.reg_date%></td>
 				<td>
 				<%
 				if("N".equals(vo.sch_app_flag)){
-				%>
-					<button class="btn small edge green" type="button" onclick="applySubmit('<%=vo.sch_no%>', 'Y')">승인</button>
-				<%}else if("Y".equals(vo.sch_app_flag)){ %>
+					if(!"ang".equals(searchSch) && Integer.parseInt(vo.cnt)>0){
+						out.println("학교,지역명이 중복됩니다.");
+					}else{
+					%>
+						<button class="btn small edge green" type="button" onclick="applySubmit('<%=vo.sch_no%>', 'Y')">승인</button>
+					<%	
+					}
+				}else if("Y".equals(vo.sch_app_flag)){ %>
 					<button class="btn small edge white" type="button" onclick="applySubmit('<%=vo.sch_no%>', 'N')">취소</button>
 				<%} %>
 				</td>
 				<td><%=vo.app_date %></td>
+				<%if("Y".equals(vo.show_flag)){%>
+				<td><button class="btn small edge red" type="button" onclick="deleteSubmit('<%=vo.sch_no%>')">삭제</button></td>
+				<%}else{%>
+				<td><button class="btn small edge white" type="button" onclick="reflecSubmit('<%=vo.sch_no%>')">복원</button></td>
+				<%}%>
 			</tr>
 		<%
 			}
 		}else{
 		%>	
 			<tr>
-				<td colspan="15">데이터가 없습니다.</td>			
+				<td colspan="16">데이터가 없습니다.</td>			
 			</tr>
 		<%} %>
 		</tbody>

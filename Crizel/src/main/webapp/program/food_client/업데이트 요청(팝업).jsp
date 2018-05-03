@@ -40,13 +40,16 @@ try{
 	//나중에 아이디 세션에서 받아서 조회 후 where 절에서 던져야 함.
 	//영양사 리스트
 	sql	=	new StringBuffer();
-	sql.append(" SELECT	* ");
-	sql.append(" FROM FOOD_SCH_TB A JOIN FOOD_SCH_NU B	");
-	sql.append(" ON A.SCH_NO = B.SCH_NO					");
+	sql.append(" SELECT	* 										");
+	sql.append(" FROM FOOD_SCH_TB A JOIN FOOD_SCH_NU B			");
+	sql.append(" ON A.SCH_NO = B.SCH_NO AND B.SHOW_FLAG = 'Y'	");
+	sql.append(" WHERE A.TEAM_NO = (SELECT TEAM_NO				");
+	sql.append(" 	FROM FOOD_SCH_TB WHERE SCH_ID = ?)			");
 	try {
-		nuList	=	jdbcTemplate.query(sql.toString(), new FoodList());
+		nuList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{sManager.getId()});
 	}catch(Exception e){
 		nuList	=   null;
+		out.println("<script>console.log('" + e.toString() + "');</script>");
 	}
 
 }catch(Exception e){
@@ -256,7 +259,7 @@ try{
 						selRequester: selRequester,
 						upd_reason: upd_reason,
 						s_item_no: s_item_no,
-						foodName: foodName,
+						/* foodName: foodName, */
 						n_cat_no: n_cat_no,
 						n_item_nm: n_item_nm,
 						n_item_code: n_item_code,

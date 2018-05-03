@@ -247,7 +247,7 @@ public class Paging {
         		this.params.append(key);
         		this.params.append("\" value=\"");
         		this.params.append(value[i]);
-        		this.params.append("\" checked style=\"display:none\" /> \n");
+        		this.params.append("\" style=\"display:none\" /> \n");
     		}
     	}
     }
@@ -314,19 +314,19 @@ public class Paging {
     	
     	StringBuffer html = new StringBuffer();
     	
-    	html.append("<a class='bt' href=\"javascript:;\" onclick=\"goPage(");
+    	html.append("<a href=\"javascript:;\" onclick=\"goPage(");
     	html.append(Integer.toString(this.firstPageNo));
     	html.append("); return false;\">");
     	if("2".equals(mode)) html.append("&lt;&lt;");
-    	else html.append("<<");
+    	else html.append("[처음]");
     	html.append("</a>");
     	//if("2".equals(mode)) html.append("&nbsp;");
     	if("1".equals(mode)) html.append("&#160;");
-    	html.append("<a class='bt' href=\"javascript:;\" onclick=\"goPage(");
+    	html.append("<a href=\"javascript:;\" onclick=\"goPage(");
     	html.append(Integer.toString(this.prevStartPageNo));
     	html.append("); return false;\">");
     	if("2".equals(mode)) html.append("&lt;");
-    	else html.append("<");
+    	else html.append("[이전]");
     	html.append("</a>");
     	if("1".equals(mode)) html.append("&#160;");
     	
@@ -339,9 +339,9 @@ public class Paging {
         			html.append(Integer.toString(i));
         			html.append("</a>");
     			} else {
-    				html.append("<a class='on' title='선택된 페이지'>");
+    				html.append("<strong>");
         			html.append(Integer.toString(i));
-        			html.append("</a>");
+        			html.append("</strong>");
     			}
     		} else {
     			html.append("<a href=\"javascript:;\" onclick=\"goPage(");
@@ -353,24 +353,24 @@ public class Paging {
     		if("1".equals(mode)) html.append("&#160;");
     	}
     	
-    	html.append("<a class='bt' href=\"javascript:;\" onclick=\"goPage(");
+    	html.append("<a href=\"javascript:;\" onclick=\"goPage(");
     	html.append(Integer.toString(this.nextEndPageNo));
     	html.append("); return false;\">");
     	if("2".equals(mode)) html.append("&gt;");
-    	else html.append(">");
+    	else html.append("[다음]");
     	html.append("</a>");
     	if("1".equals(mode)) html.append("&#160;");
-    	html.append("<a class='bt' href=\"javascript:;\" onclick=\"goPage(");
+    	html.append("<a href=\"javascript:;\" onclick=\"goPage(");
     	html.append(Integer.toString(this.finalPageNo));
     	html.append("); return false;\">");
     	if("2".equals(mode)) html.append("&gt;&gt;");
-    	else html.append(">>");
+    	else html.append("[마지막]");
     	html.append("</a>");
     	if("1".equals(mode)) html.append("&#160;");
     	
     	html.append(" \n");
     	
-    	html.append("<form method=\"post\" id=\"pagingForm\" name=\"pagingForm\">");
+    	html.append("<form action=\"\" method=\"post\" id=\"pagingForm\" name=\"pagingForm\">");
     	html.append("<input type=\"hidden\" name=\"pageNo\" value=\"\">");
     	html.append(this.getParams());
     	html.append("</form> \n");

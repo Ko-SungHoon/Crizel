@@ -14,6 +14,8 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+SessionManager sessionManager = new SessionManager(request);
+
 String mode		=   parseNull(request.getParameter("mode"), "");
 String item_no	=   parseNull(request.getParameter("item_no"));
 String sch_id	=   parseNull(request.getParameter("sch_id"));

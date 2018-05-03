@@ -70,8 +70,55 @@ private class InsVOMapper implements RowMapper<InsVO> {
 }
 %>
 <%
-
+/************************** 접근 허용 체크 - 시작 **************************/
 SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn = null;
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
+
+//SessionManager sessionManager = new SessionManager(request);
 StringBuffer sql	= null;
 List<InsVO> list 	= null;
 String search1		= parseNull(request.getParameter("search1"));
@@ -159,7 +206,7 @@ if(!"".equals(search1) && !"".equals(keyword)){
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
 }
-sql.append("ORDER BY A.REQ_NO DESC			 								");
+sql.append("ORDER BY CASE WHEN A.APPLY_FLAG IN ('N') THEN 0 ELSE 1 END,A.REQ_NO DESC			 								");
 sql.append("	) A WHERE ROWNUM <= ").append(paging.getEndRowNo()).append(" \n");
 sql.append(") WHERE RNUM >= ").append(paging.getStartRowNo()).append(" \n	");
 
@@ -218,6 +265,7 @@ function applySubmit(req_no, apply_flag, inst_no){
 }
 
 </script>
+
 <div id="right_view">
 	<div class="top_view">
 		<p class="location"><strong>신청 관리</strong></p>
@@ -294,7 +342,8 @@ function applySubmit(req_no, apply_flag, inst_no){
 			<%
 			if(list!=null && list.size()>0){
 			for(InsVO ob : list){ %>
-			<tr>
+			
+			<tr <%if("N".equals(ob.apply_flag)){out.println("class=\"bak-yellow\""); }%> >
 				<td><%=num--%></td>
 				<td><%=ob.inst_cat_nm%></td>
 				<td><%=ob.inst_nm %></td>
@@ -309,24 +358,24 @@ function applySubmit(req_no, apply_flag, inst_no){
 					if("N".equals(ob.apply_flag)){
 					%>
 						<button class="btn small edge green" type="button" onclick="applySubmit('<%=ob.req_no%>', 'Y', '<%=ob.inst_no%>')">승인</button>
-						<button class="btn small edge white" type="button" onclick="applySubmit('<%=ob.req_no%>', 'A', '')">취소</button>
+						<button class="btn small edge white" type="button" onclick="applySubmit('<%=ob.req_no%>', 'A', '')">반려</button>
 					<%
 					}else if("Y".equals(ob.apply_flag)){
 					%>
-						<button class="btn small edge white" type="button" onclick="applySubmit('<%=ob.req_no%>', 'A', '')">취소</button>
 						<button class="btn small edge green" type="button" onclick="applySubmit('<%=ob.req_no%>', 'R', '')">반납</button>
+						<button class="btn small edge white" type="button" onclick="applySubmit('<%=ob.req_no%>', 'A', '')">취소</button>
 					<%
 					}else if("A".equals(ob.apply_flag)){		//관리자 취소
 					%>
-						관리자 취소
+						<span class="red">관리자 취소</span>
 					<%
 					}else if("C".equals(ob.apply_flag)){		//사용자 취소
 					%>
-						사용자 취소
+						<span class="red">사용자 취소</span>
 					<%
 					}else if("R".equals(ob.apply_flag)){		//반납
 					%>
-						반납완료
+						<span>반납완료</span>
 					<%
 					}
 					%>

@@ -112,7 +112,8 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 			out.println("<script>");
 			out.println("alert('정상적으로 처리되었습니다.');");
 			out.println("opener.location.reload();");
-			out.println("location.replace('/program/art/insAdmin/instInsertPopup.jsp');");
+			out.println("window.close();");
+			//out.println("location.replace('/program/art/insAdmin/instInsertPopup.jsp');");
 			out.println("</script>");
 		}
 	}
@@ -205,7 +206,8 @@ if("insert".equals(mode)){	//******************************** 추가 ***********
 			out.println("<script>");
 			out.println("alert('정상적으로 처리되었습니다.');");
 			out.println("opener.location.reload();");
-			out.println("location.replace('/program/art/insAdmin/instInsertPopup.jsp?mode=update&inst_no="+inst_no+"');");
+			out.println("window.close();");
+			//out.println("location.replace('/program/art/insAdmin/instInsertPopup.jsp?mode=update&inst_no="+inst_no+"');");
 			out.println("</script>");
 		}
 	}

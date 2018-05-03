@@ -16,6 +16,57 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+
+/************************** 접근 허용 체크 - 시작 **************************/
+SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn2 = null;
+try {
+	sqlMapClient.startTransaction();
+	conn2 = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn2, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn2);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
+
+
+
 StringBuffer sql    =   null;
 
 List<FoodVO> zoneList		=	null;	// 권역 리스트
@@ -198,6 +249,30 @@ function updateNm(){
 	
 	if(update_no == "" || update_no == null){alert("수정할 항목을 선택하여주시기 바랍니다."); return;}
 	if(update_nm == "" || update_nm == null){alert("수정할 이름을 선택하여주시기 바랍니다."); return;}
+	
+	var check;
+	$.ajax({
+		type : "POST",
+		url : "/program/food/research/food_zone_act.jsp",
+		data : {
+			"update_no" : update_no,
+			"mode"	  : "rschCheck"    
+			},
+		async : false,
+		success : function(data){
+			check = data.trim();
+		},
+		error : function(request, status, error){
+		}
+	});
+	
+	if(check == "OK"){
+		if(confirm("해당 권역으로 설정된 조사자가 있습니다. 계속 수정하시겠습니까?")){
+			
+		}else{
+			return;
+		}
+	}
 	
 	if(confirm("해당 항목의 이름을 수정하시겠습니까?")){
 		$("#researchForm #mode").val(update_type + "Update");

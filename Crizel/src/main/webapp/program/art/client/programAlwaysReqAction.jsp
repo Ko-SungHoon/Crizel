@@ -2,7 +2,8 @@
 /**
 *   PURPOSE :   상시프로그램 insert action page
 *   CREATE  :   20180212_mon    Ji
-*   MODIFY  :   실서버 이전  20180302_fri    Ji
+*   MODIFY  :   20180302_fri    Ji  실서버 이전
+*   MODIFY  :   20180404_wed    Ji  학년 처리 추가 column name ETC2, 인솔자명(SCH_LEAD_NM)/인솔자(SCH_LEAD_TEL) 연락처 추가
 **/
 %>
 
@@ -39,19 +40,24 @@ response.setCharacterEncoding("UTF-8");
 
 SessionManager sessionManager   =   new SessionManager(request);
 
+/* dataType */
+String dataType         =   parseNull(request.getParameter("dataType"));    //insert, modify, delete, cancel
+
 /* Session Chk */
 if (sessionManager.getName().trim().equals("") || sessionManager.getId().trim().equals("") || sessionManager.getName().trim().length() < 1 || sessionManager.getId().trim().length() < 1 || !sessionManager.getGroupId().equals("GRP_000009")) {
-    if (sessionManager.getId().equals("gne_focus1")) {
+	if (sessionManager.isRoleAdmin() || "gne_wwoof2002".equals(sessionManager.getId()) || "gne_dream1".equals(sessionManager.getId()) || "gne_dream2".equals(sessionManager.getId())) {
 	} else {
-    out.println("<script>");
-    out.println("alert('로그인 정보 저장 시간초과 입니다. 다시 로그인 하세요.');");
-    out.println("location.href='/index.gne?menuCd=DOM_000002001002003002';");
-    out.println("</script>");
+        out.println("<script>");
+        out.println("alert('로그인 정보 저장 시간초과 입니다. 다시 로그인 하세요.');");
+        if (dataType.equals("app")) {
+            out.println("location.href='http://www.gne.go.kr/iam/login/login.sko';");
+        }
+        out.println("location.href='/index.gne?menuCd=DOM_000002001002003002';");
+        out.println("</script>");
+        return;
     }
 }
 
-/* dataType */
-String dataType         =   parseNull(request.getParameter("dataType"));    //insert, modify, delete, cancel
 
 String req_no           =   parseNull(request.getParameter("reqNo"));       //only use => modify, delete, cancel
 
@@ -80,11 +86,14 @@ if (dataType != null && dataType.length() > 0) {
         
         String[] proNo          =   request.getParameterValues("proNo");
         String[] req_per        =   request.getParameterValues("req_per");
+        String[] etc2           =   request.getParameterValues("etc2");
         int req_total_cnt       =   0;
         for (int i = 0; i < req_per.length; i++) {req_total_cnt   +=  Integer.parseInt(req_per[i]);}
         String sch_mng_name     =   parseNull(request.getParameter("sch_mng_name"));
         String sch_mng_tel      =   parseNull(request.getParameter("sch_mng_tel"));
         String sch_mng_mail     =   parseNull(request.getParameter("sch_mng_mail"));
+        String sch_lead_name    =   parseNull(request.getParameter("sch_lead_name"));
+        String sch_lead_tel     =   parseNull(request.getParameter("sch_lead_tel"));
         
         //total chk
         if (req_total_cnt < 1) {
@@ -124,6 +133,8 @@ if (dataType != null && dataType.length() > 0) {
             sql_str     +=  " , REQ_SCH_NM ";
             sql_str     +=  " , REQ_SCH_GRADE ";
             sql_str     +=  " , REQ_SCH_GROUP ";
+            sql_str     +=  " , SCH_LEAD_NM ";
+            sql_str     +=  " , SCH_LEAD_TEL ";
             sql_str     +=  " ) ";
             sql_str     +=  " VALUES ";
             sql_str     +=  " ( ";
@@ -141,6 +152,8 @@ if (dataType != null && dataType.length() > 0) {
             sql_str     +=  " , ? ";//REQ_SCH_NM
             sql_str     +=  " , NULL ";//REQ_SCH_GRADE
             sql_str     +=  " , NULL ";//REQ_SCH_GROUP
+            sql_str     +=  " , ? ";//SCH_LEAD_NM
+            sql_str     +=  " , ? ";//SCH_LEAD_TEL
             sql_str     +=  " ) ";//
             sql.append(sql_str);
             
@@ -155,6 +168,8 @@ if (dataType != null && dataType.length() > 0) {
                     , req_date
                     , aft_flag
                     , sessionManager.getName()
+                    , sch_lead_name
+                    , sch_lead_tel
             };
             result = jdbcTemplate.update(
 					sql.toString()
@@ -176,11 +191,13 @@ if (dataType != null && dataType.length() > 0) {
                 sql_str     +=  " , PRO_NAME ";
                 sql_str     +=  " , REQ_PER ";
                 sql_str     +=  " , REQ_DATE ";
+                sql_str     +=  " , ETC2 ";
                 sql_str     +=  " ) ";
                 sql_str     +=  " VALUES ( ";
                 sql_str     +=  " ? ";
                 sql_str     +=  " , ? ";
                 sql_str     +=  " , (SELECT PRO_NAME FROM ART_PRO_ALWAY WHERE PRO_NO = ? ) ";
+                sql_str     +=  " , ? ";
                 sql_str     +=  " , ? ";
                 sql_str     +=  " , ? ";
                 sql_str     +=  " ) ";
@@ -194,6 +211,7 @@ if (dataType != null && dataType.length() > 0) {
                         pstmt.setString(3, proNo[i]);
                         pstmt.setString(4, req_per[i]);
                         pstmt.setString(5, req_date);
+                        pstmt.setString(6, etc2[i]);
                         pstmt.addBatch();
                     //}
                 }
@@ -231,11 +249,14 @@ if (dataType != null && dataType.length() > 0) {
         
         String[] proNo          =   request.getParameterValues("proNo");
         String[] req_per        =   request.getParameterValues("req_per");
+        String[] etc2           =   request.getParameterValues("etc2");
         int req_total_cnt       =   0;
         for (int i = 0; i < req_per.length; i++) {req_total_cnt   +=  Integer.parseInt(req_per[i]);}
         String sch_mng_name     =   parseNull(request.getParameter("sch_mng_name"));
         String sch_mng_tel      =   parseNull(request.getParameter("sch_mng_tel"));
         String sch_mng_mail     =   parseNull(request.getParameter("sch_mng_mail"));
+        String sch_lead_name    =   parseNull(request.getParameter("sch_lead_name"));
+        String sch_lead_tel     =   parseNull(request.getParameter("sch_lead_tel"));
         
         req_total_cnt           =   0;
         for (int i = 0; i < req_per.length; i++) {req_total_cnt   +=  Integer.parseInt(req_per[i]);}
@@ -273,11 +294,13 @@ if (dataType != null && dataType.length() > 0) {
                 sql_str     +=  " , PRO_NAME ";
                 sql_str     +=  " , REQ_PER ";
                 sql_str     +=  " , REQ_DATE ";
+                sql_str     +=  " , ETC2 ";
                 sql_str     +=  " ) ";
                 sql_str     +=  " VALUES ( ";
                 sql_str     +=  " ? ";
                 sql_str     +=  " , ? ";
                 sql_str     +=  " , (SELECT PRO_NAME FROM ART_PRO_ALWAY WHERE PRO_NO = ? ) ";
+                sql_str     +=  " , ? ";
                 sql_str     +=  " , ? ";
                 sql_str     +=  " , ? ";
                 sql_str     +=  " ) ";
@@ -291,6 +314,7 @@ if (dataType != null && dataType.length() > 0) {
                         pstmt.setString(3, proNo[i]);
                         pstmt.setString(4, req_per[i]);
                         pstmt.setString(5, req_date);
+                        pstmt.setString(6, etc2[i]);
                         pstmt.addBatch();
                     //}
                 }
@@ -313,6 +337,8 @@ if (dataType != null && dataType.length() > 0) {
                 sql_str +=  " , MOD_DATE = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') ";
                 sql_str +=  " , REG_IP = ? ";
                 sql_str +=  " , REQ_CNT = ? ";
+                sql_str +=  " , SCH_LEAD_NM = ? ";
+                sql_str +=  " , SCH_LEAD_TEL = ? ";
                 sql_str +=  " WHERE REQ_NO = ? ";
                 sql.append(sql_str);
                 
@@ -322,6 +348,8 @@ if (dataType != null && dataType.length() > 0) {
                     , sch_mng_mail
                     , request.getRemoteAddr()
                     , req_total_cnt
+                    , sch_lead_name
+                    , sch_lead_tel
                     , req_no
                 };
                 
@@ -401,19 +429,14 @@ if (dataType != null && dataType.length() > 0) {
         try {
         
             sql         =   new StringBuffer();
-            sql_str     =   " UPDATE ART_REQ_ALWAY SET ";
-            sql_str     +=  " APPLY_FLAG = ? ";
-            sql_str     +=  " , MOD_DATE = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') ";
-            sql_str     +=  " , APPLY_DATE = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24MISS') ";
-            sql_str     +=  " WHERE REQ_NO = ? ";
+            sql_str     =   " UPDATE ART_REQ_ALWAY SET                                  ";
+            sql_str     +=  " APPLY_FLAG = ?                                            ";
+            sql_str     +=  " , MOD_DATE = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS')    ";
+            sql_str     +=  " , APPLY_DATE = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24MISS')    ";
+            sql_str     +=  " WHERE REQ_NO = ?                                          ";
             sql.append(sql_str);
 
-            insObj = new Object[]{
-                canAdmin
-                , req_no
-            };
-
-            result      =   jdbcTemplate.update(sql.toString(), insObj);
+            result      =   jdbcTemplate.update(sql.toString(), new Object[]{canAdmin, req_no});
         
         }catch(Exception e){
             if(conn!=null){conn.close();}

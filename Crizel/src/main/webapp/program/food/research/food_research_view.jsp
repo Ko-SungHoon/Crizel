@@ -36,7 +36,53 @@ String pageTitle = "조사자, 조사팀장 상세보기";
 </head>
 <body>
 <%
+/************************** 접근 허용 체크 - 시작 **************************/
 SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn2 = null;
+try {
+	sqlMapClient.startTransaction();
+	conn2 = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn2, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn2);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
 
 String sch_no = parseNull(request.getParameter("sch_no"));
 
@@ -274,10 +320,21 @@ try{
 <script>
 	//조사식품 추가 popup
 	function addFood(sch_id) {
+
 		<%if(rsch_no > 0) {%>
 			alert("조사개시 중에는 조사식품 추가삭제가 불가합니다.");
 			return false;
 		<%}else{%>
+			var zone_cnt	=	0;
+			<%if(!"".equals(foodVO.zone_nm)){%>zone_cnt++;<%}%>
+			<%if(!"".equals(foodVO.cat_nm)){%>zone_cnt++;<%}%>
+			<%if(!"".equals(foodVO.team_nm)){%>zone_cnt++;<%}%>
+			<%if(!"".equals(foodVO.jo_nm)){%>zone_cnt++;<%}%>
+
+			if (zone_cnt < 4) {
+				alert("수정화면에서 \n권역/품목/팀/조 를 모두 설정하여야 합니다.");
+				return;
+			}
 			if (confirm("조사식품을 추가 하시겠습니까?")) {
 				newWin("food_research_popup.jsp?sch_id=" + sch_id, 'PRINTVIEW', '1000', '740');
 			}
@@ -406,7 +463,7 @@ try{
                         </tr>
 						<tr>
 							<th scope="row"><label for="zone_no">권역/품목/팀/조</label></th>
-                            <td colspan="3">
+                            <td colspan="3" id="zone_group">
                             	<%
                             	if(!"".equals(foodVO.zone_nm)){out.println(foodVO.zone_nm);}
                             	if(!"".equals(foodVO.cat_nm)){out.println(" / " + foodVO.cat_nm);}

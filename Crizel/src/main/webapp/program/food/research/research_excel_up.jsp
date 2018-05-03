@@ -10,6 +10,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ include file="/program/class/UtilClass.jsp" %>
 <%@ page import="java.io.File, java.io.IOException, com.oreilly.servlet.MultipartRequest, com.oreilly.servlet.multipart.DefaultFileRenamePolicy"%>
+<%@ page import="egovframework.rfc3.user.web.SessionManager" %>
 <%@page import="org.apache.poi.xssf.usermodel.XSSFCell"%>
 <%@page import="org.apache.poi.xssf.usermodel.XSSFRow"%>
 <%@page import="org.apache.poi.xssf.usermodel.XSSFSheet"%>
@@ -24,6 +25,8 @@
 <%@ include file="/program/food/foodVO.jsp" %>
 <%
 	request.setCharacterEncoding("UTF-8");
+	
+SessionManager sessionManager = new SessionManager(request);
 
 	String root = request.getSession().getServletContext().getRealPath("/");
 	String directory = "/upload_data/food/";
@@ -94,7 +97,11 @@
 	String dt_nm_str 	= "";
 	String ex_nm_str 	= "";
 	
-	SessionManager sessionManager = new SessionManager(request);
+	//SessionManager sessionManager = new SessionManager(request);
+	
+	if(!sessionManager.isRoleAdmin()){
+		out.print("<script>alert('비정상적인 접근입니다.'); history.back();</script>");
+	}
 	
 	String regIp = request.getRemoteAddr();
 	String regId = sessionManager.getId();
@@ -118,6 +125,18 @@
 	String lowRatCell	= "cell11";		// 최저가 비율 셀 
 	String avrRatCell	= "cell12";		// 평균가 비율 셀
 	String lbRaCell		= "cell13";		// 최저가/최고가 비율 셀
+	
+	String[] areaCell = {
+			  "cell15", "cell17"
+			, "cell19", "cell21", "cell23", "cell25", "cell27"
+			, "cell29", "cell31", "cell33", "cell35", "cell37"
+			, "cell39", "cell41", "cell43", "cell45", "cell47"
+			, "cell49", "cell51", "cell53", "cell55", "cell57"
+			, "cell59", "cell61", "cell63", "cell65", "cell67"
+			, "cell69", "cell71", "cell73", "cell75", "cell77"
+			, "cell79", "cell81", "cell83", "cell85", "cell87"
+	};
+	
 	
 	String[] schCell = {
 			  "cell16", "cell18"
@@ -143,9 +162,12 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 	else{return false;}
 }
 
-public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
+public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm, String[] area_nm){
 	Map<String,Object> map = new HashMap<String,Object>();
-	String val = "";
+	String val 	= "";
+	String val2 = "";
+	
+	// 학교명
 	if(ob.get(cat_nm[0])!=null && !"".equals(ob.get(cat_nm[0]).toString())){
 		val = ob.get(cat_nm[0]).toString();
 	}
@@ -156,8 +178,19 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 		}
 	}
 	
+	// 지역명
+	if(ob.get(area_nm[0])!=null && !"".equals(ob.get(area_nm[0]).toString())){
+		val2 = ob.get(area_nm[0]).toString();
+	}
+	for(int i=1; i<area_nm.length; i++){
+		if(ob.get(area_nm[i])!=null && !"".equals(ob.get(area_nm[i]).toString())){
+			val2 += "," + ob.get(area_nm[i]).toString();
+		}
+	}
+	
 	map.put("cat_nm", ob.get("cell1").toString());
 	map.put("sch_nm", val);
+	map.put("area_nm", val2);
 	
 	return map;
 }
@@ -230,7 +263,7 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 					
 					// Map에 구분값과 해당 구분값을 기준으로 한 학교를 ',' 를 기준으로 문자열에 저장한 데이터를 넣음
 					catMap = new HashMap<String,Object>();
-					catMap.putAll(getCatStr(ob, schCell));
+					catMap.putAll(getCatStr(ob, schCell, areaCell));
 					catList.add(catMap);
 				}
 			}
@@ -313,14 +346,15 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 		sql.append("VALUES(   ?, ?																								");
 		sql.append("		, (SELECT B.ITEM_NO 																				");
 		sql.append("		   FROM FOOD_ITEM_PRE A LEFT JOIN FOOD_ST_ITEM B ON A.S_ITEM_NO = B.ITEM_NO 						");
-		sql.append("		   WHERE B.CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ?) 								");
+		sql.append("		   WHERE B.CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y')			");
 		sql.append("		     AND B.FOOD_CAT_INDEX = ?) 																		");
-		sql.append("		, (SELECT SCH_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y')								");
-		sql.append("		, (SELECT TEAM_NO FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y')	)						");
+		sql.append("		, (SELECT MIN(SCH_NO) FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y' AND AREA_NO = (SELECT AREA_NO FROM FOOD_AREA WHERE AREA_NM = ?) )		");
+		sql.append("		, (SELECT MIN(TEAM_NO) FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y' AND AREA_NO = (SELECT AREA_NO FROM FOOD_AREA WHERE AREA_NM = ?)	) )		");
 		pstmt = conn.prepareStatement(sql.toString());
 		if(catList!=null && catList.size()>0){
 			for(Map<String,Object> ob : catList){
 				String[] sch_nm_split = ob.get("sch_nm").toString().split(",");
+				String[] area_nm_split = ob.get("area_nm").toString().split(",");
 				for(int i=0; i<sch_nm_split.length; i++){
 					if(!"".equals(sch_nm_split[i].trim())){
 						key = 0;
@@ -329,7 +363,9 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 						pstmt.setString(++key,  ob.get("cat_nm").toString().split("-")[0].trim());
 						pstmt.setString(++key,  ob.get("cat_nm").toString().split("-")[1].trim());
 						pstmt.setString(++key,  sch_nm_split[i].trim());
+						pstmt.setString(++key,  area_nm_split[i].trim());
 						pstmt.setString(++key,  sch_nm_split[i].trim());
+						pstmt.setString(++key,  area_nm_split[i].trim());
 						pstmt.addBatch();
 					}
 				}
@@ -446,6 +482,8 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm){
 			out.println("window.close()");
 			out.println("location.replace('" + returnPage + "');");
 			out.println("</script>");
+		}else{
+			out.println("<script>alert('처리 중 오류가 발생하였습니다.\n엑셀을 확인하여주시기 바랍니다.');location.replace('"+returnPage+"');</script>");
 		}
 		
 	}catch(Exception e){

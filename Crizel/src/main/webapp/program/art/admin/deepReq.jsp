@@ -89,9 +89,9 @@ private String reqFlag (String req_flag, String sts_flag, int per_remain) {
         } else if ("C".equals(req_flag)) {
             retStr  =   "<span class='fb red'>직접 취소</span>";
         } else {
-            if (per_remain < 0) {
+            /*if (per_remain < 0) {
                 retStr  =   "<span class='red'>승인불가</span>";
-            } else retStr  =   "<span class='blue'>승인대기</span>";
+            } else */retStr  =   "<span class='blue'>승인대기</span>";
         }
     } else {
         retStr  =   "<span>프로그램 종료</span>";
@@ -114,9 +114,12 @@ private String reqFlag (String req_flag, String sts_flag, int per_remain, int re
                 retStr  =   "승인불가";
             } else retStr  =   "<button class=\"btn small edge green\" type=\"button\" onclick=\"approvalSubmit('"+ req_no +"')\">승인</button>";
         } else {
-            if (per_remain < 0) {
+            /*if (per_remain < 0) {
                 retStr  =   "승인불가";
-            } else retStr  =   "<button class=\"btn small edge green\" type=\"button\" onclick=\"approvalSubmit('"+ req_no +"')\">승인</button>";
+            } else {*/
+				retStr  =   "<button class=\"btn small edge green\" type=\"button\" onclick=\"approvalSubmit('"+ req_no +"')\">승인</button>";
+				retStr  +=	"<button class=\"btn small edge white\" type=\"button\" onclick=\"cancelSubmit('"+ req_no +"')\">반려</button>";
+			/*}*/
         }
     } else {
         retStr  =   "<span>승인불가</span>";
@@ -126,8 +129,55 @@ private String reqFlag (String req_flag, String sts_flag, int per_remain, int re
 
 %>
 <%
-
+/************************** 접근 허용 체크 - 시작 **************************/
 SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn = null;
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
+
+//SessionManager sessionManager = new SessionManager(request);
 StringBuffer sql	= null;
 List<ArtVO> list 	= null;
 String search1		= parseNull(request.getParameter("search1"));
@@ -203,7 +253,7 @@ sql.append("			B.CURR_PER,					 						");
 sql.append("			(CASE  					 					       	");
 sql.append("			WHEN SYSDATE > B.PROEND_DATE THEN 'PE'  			");
 sql.append("			WHEN SYSDATE > B.APPEND_DATE OR  					");
-sql.append("			B.MAX_PER <= (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM ART_REQ_DEEP WHERE APPLY_FLAG = 'Y' AND SHOW_FLAG = 'Y' AND DEL_FLAG != 'Y') WHERE PRO_NO = A.PRO_NO)  ");
+sql.append("			B.MAX_PER < (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM ART_REQ_DEEP WHERE APPLY_FLAG = 'Y' AND SHOW_FLAG = 'Y' AND DEL_FLAG != 'Y') WHERE PRO_NO = A.PRO_NO)  ");
 sql.append("			THEN 'AE'  					 						");
 sql.append("			WHEN SYSDATE < B.APPSTR_DATE THEN 'N'  	     		");
 sql.append("			ELSE 'Y'  					 						");
@@ -221,7 +271,7 @@ if(!"".equals(search1) && !"".equals(keyword)){
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
 }
-sql.append("		ORDER BY A.REQ_NO DESC		 							");
+sql.append("		ORDER BY CASE WHEN A.APPLY_FLAG IN ('N') AND PRO_STS_FLAG IN ('Y') THEN 0 ELSE 1 END, A.REQ_NO DESC	");
 sql.append("	) A WHERE ROWNUM <= ").append(paging.getEndRowNo()).append(" \n");
 sql.append(") WHERE RNUM >= ").append(paging.getStartRowNo()).append(" \n");
 

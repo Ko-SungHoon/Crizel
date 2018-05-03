@@ -2,6 +2,8 @@
 /**
 *   PURPOSE :   업데이트 요청 - 액션
 *   CREATE  :   20180323_fri    Ko
+*   MODIFY  : 	20180502	KO		변경 시 FOOD_ST_ITEM UPDATE WHERE절의 ITEM_NO 변수값을 s_item_no 에서 item_no로 수정
+*   MODIFY  : 	20180502	KO		삭제시 로그남기기
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
@@ -50,6 +52,8 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+SessionManager sessionManager = new SessionManager(request);
+
 String mode			= 	parseNull(request.getParameter("mode"));
 
 String upd_flag		= 	parseNull(request.getParameter("upd_flag"));
@@ -77,6 +81,7 @@ int[] batchResult				=	null;
 List<String> n_item_nm_arc		=	null;
 List<String> n_item_dt_nm_arc	=	null;
 List<String> n_item_expl_arc	=	null;
+List<FoodVO> deleteLogList		= 	null;
 
 List<Object> setValue			=	null;
 Object[] setObject				=	null;
@@ -155,7 +160,8 @@ try{
 			sql.append(" 	FOOD_CODE,														");
 			sql.append(" 	REG_DATE,														");
 			sql.append(" 	UPDATE_FLAG,													");
-			sql.append(" 	FOOD_CAT_INDEX													");
+			sql.append(" 	FOOD_CAT_INDEX,													");
+			sql.append(" 	UPD_NO															");
 			sql.append(" ) VALUES (															");
 			sql.append(" 	?,																");	//ITEM_NO
 			sql.append(" 	(SELECT CAT_NO FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//CAT_NO
@@ -203,7 +209,8 @@ try{
 			sql.append(" 	(SELECT FOOD_CODE FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_CODE
 			sql.append(" 	SYSDATE,														");	//REG_DATE
 			sql.append(" 	'Y',															");	//UPDATE_FLAG
-			sql.append(" 	(SELECT FOOD_CAT_INDEX FROM FOOD_ST_ITEM WHERE ITEM_NO = ?)		");	//FOOD_CAT_INDEX
+			sql.append(" 	(SELECT FOOD_CAT_INDEX FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),	");	//FOOD_CAT_INDEX
+			sql.append(" 	?																");	//UPD_NO
 			sql.append(" )																	");
 			
 			result	=	jdbcTemplate.update(sql.toString(), new Object[]{
@@ -215,7 +222,8 @@ try{
 				item_no, item_no, item_no, item_no, item_no, 
 				item_no, item_no, item_no, item_no, item_no, 
 				item_no, item_no, item_no, item_no, item_no, 
-				item_no, item_no, item_no, item_no, item_no
+				item_no, item_no, item_no, item_no, item_no,
+				upd_no
 			});
 
 			if (result > 0) {
@@ -374,7 +382,7 @@ try{
 				}
 
 				sql.append(" WHERE ITEM_NO = ?													");
-				setValue.add(s_item_no);
+				setValue.add(item_no);
 				setObject	=	new Object[setValue.size()];
 				for(int i=0; i < setValue.size(); i++){
 					setObject[i]	=	setValue.get(i);
@@ -393,7 +401,7 @@ try{
 					sql.append(" 		WHERE ITEM_NO = ?							");
 					sql.append(" 	))												");
 					sql.append(" WHERE ITEM_NO = ?									");
-					result	=	jdbcTemplate.update(sql.toString(), new Object[]{s_item_no, s_item_no});
+					result	=	jdbcTemplate.update(sql.toString(), new Object[]{item_no, s_item_no});
 
 					sql	=	new StringBuffer();
 					sql.append(" UPDATE FOOD_UPDATE		");
@@ -689,7 +697,11 @@ try{
 			sql.append(" SELECT ITEM_COMP_NO 	");
 			sql.append(" FROM FOOD_ITEM_PRE		");
 			sql.append(" WHERE S_ITEM_NO = ?	");
-			item_comp_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{s_item_no});
+			try{
+				item_comp_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{s_item_no});
+			}catch(Exception e){
+				item_comp_no	=	0;
+			}
 			//2nd. 아이템 상태 처리
 			sql	=	new StringBuffer();
 			sql.append(" UPDATE	FOOD_ITEM_PRE		");
@@ -699,6 +711,134 @@ try{
 			sql.append(" WHERE ITEM_COMP_NO = ?		");
 			sql.append(" OR S_ITEM_NO = ?			");
 			result	=	jdbcTemplate.update(sql.toString(), new Object[]{item_comp_no, s_item_no});
+			
+			
+			//0th. 비교군그룹이 있을 경우 해당 비교군에 있는 모든 데이터를 로그에 쌓기 위해 item_no를 찾아 list에 넣는다
+			sql = new StringBuffer();
+			sql.append("SELECT ITEM_NO FROM FOOD_ITEM_PRE WHERE ITEM_COMP_NO = ?	");
+			deleteLogList = jdbcTemplate.query(sql.toString(), new FoodList(), item_comp_no);
+			
+			//0th. 변경 식품명, 상세식품명, 식품설명 "," 로 자르기
+			n_item_nm_arc		=	new ArrayList<String>();
+			n_item_nm_arc		=	splitComma(n_item_nm);
+			n_item_dt_nm_arc	=	new ArrayList<String>();
+			n_item_dt_nm_arc	=	splitComma(n_item_dt_nm);
+			n_item_expl_arc		=	new ArrayList<String>();
+			n_item_expl_arc		=	splitComma(n_item_expl);
+			
+			//0th. 로그 테이블 insert
+			sql	=	new StringBuffer();
+			sql.append(" INSERT INTO FOOD_ST_ITEM_LOG										");
+			sql.append(" (																	");
+			sql.append(" 	ITEM_NO,														");
+			sql.append(" 	CAT_NO,															");
+			sql.append(" 	FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5,			");
+			sql.append(" 	FOOD_UNIT,														");
+			sql.append(" 	FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5,			");
+			sql.append(" 	FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10,			");
+			sql.append(" 	FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,			");
+			sql.append(" 	FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10,			");
+			sql.append(" 	FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15,		");
+			sql.append(" 	FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20,		");
+			sql.append(" 	FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25,		");
+			sql.append(" 	FOOD_CODE,														");
+			sql.append(" 	REG_DATE,														");
+			sql.append(" 	UPDATE_FLAG,													");
+			sql.append(" 	FOOD_CAT_INDEX,													");
+			sql.append(" 	UPD_NO															");
+			sql.append(" ) VALUES (															");
+			sql.append(" 	?,																");	//ITEM_NO
+			sql.append(" 	(SELECT CAT_NO FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//CAT_NO
+			sql.append(" 	(SELECT FOOD_NM_1 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_NM_1
+			sql.append(" 	(SELECT FOOD_NM_2 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_NM_2
+			sql.append(" 	(SELECT FOOD_NM_3 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_NM_3
+			sql.append(" 	(SELECT FOOD_NM_4 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_NM_4
+			sql.append(" 	(SELECT FOOD_NM_5 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_NM_5
+			sql.append(" 	(SELECT FOOD_UNIT FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_UNIT
+			sql.append(" 	(SELECT FOOD_DT_1 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_DT_1
+			sql.append(" 	(SELECT FOOD_DT_2 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_DT_2
+			sql.append(" 	(SELECT FOOD_DT_3 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_DT_3
+			sql.append(" 	(SELECT FOOD_DT_4 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_DT_4
+			sql.append(" 	(SELECT FOOD_DT_5 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_DT_5
+			sql.append(" 	(SELECT FOOD_DT_6 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_DT_6
+			sql.append(" 	(SELECT FOOD_DT_7 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_DT_7
+			sql.append(" 	(SELECT FOOD_DT_8 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_DT_8
+			sql.append(" 	(SELECT FOOD_DT_9 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_DT_9
+			sql.append(" 	(SELECT FOOD_DT_10 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_DT_10
+			sql.append(" 	(SELECT FOOD_EP_1 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_EP_1
+			sql.append(" 	(SELECT FOOD_EP_2 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_EP_2
+			sql.append(" 	(SELECT FOOD_EP_3 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_EP_3
+			sql.append(" 	(SELECT FOOD_EP_4 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_EP_4
+			sql.append(" 	(SELECT FOOD_EP_5 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_EP_5
+			sql.append(" 	(SELECT FOOD_EP_6 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_EP_6
+			sql.append(" 	(SELECT FOOD_EP_7 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_EP_7
+			sql.append(" 	(SELECT FOOD_EP_8 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_EP_8
+			sql.append(" 	(SELECT FOOD_EP_9 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_EP_9
+			sql.append(" 	(SELECT FOOD_EP_10 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_10
+			sql.append(" 	(SELECT FOOD_EP_11 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_11
+			sql.append(" 	(SELECT FOOD_EP_12 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_12
+			sql.append(" 	(SELECT FOOD_EP_13 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_13
+			sql.append(" 	(SELECT FOOD_EP_14 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_14
+			sql.append(" 	(SELECT FOOD_EP_15 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_15
+			sql.append(" 	(SELECT FOOD_EP_16 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_16
+			sql.append(" 	(SELECT FOOD_EP_17 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_17
+			sql.append(" 	(SELECT FOOD_EP_18 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_18
+			sql.append(" 	(SELECT FOOD_EP_19 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_19
+			sql.append(" 	(SELECT FOOD_EP_20 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_20
+			sql.append(" 	(SELECT FOOD_EP_21 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_21
+			sql.append(" 	(SELECT FOOD_EP_22 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_22
+			sql.append(" 	(SELECT FOOD_EP_23 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_23
+			sql.append(" 	(SELECT FOOD_EP_24 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_24
+			sql.append(" 	(SELECT FOOD_EP_25 FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),		");	//FOOD_EP_25
+			sql.append(" 	(SELECT FOOD_CODE FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),			");	//FOOD_CODE
+			sql.append(" 	SYSDATE,														");	//REG_DATE
+			sql.append(" 	'Y',															");	//UPDATE_FLAG
+			sql.append(" 	(SELECT FOOD_CAT_INDEX FROM FOOD_ST_ITEM WHERE ITEM_NO = ?),	");	//FOOD_CAT_INDEX
+			sql.append(" 	?																");	//UPD_NO
+			sql.append(" )																	");
+			if(deleteLogList!=null && deleteLogList.size()>0){		// 비교군그룹이 있을 경우
+				pstmt = conn.prepareStatement(sql.toString());
+				if (deleteLogList != null && deleteLogList.size() > 0) {
+					for (int i = 0; i < deleteLogList.size(); i++) {
+						item_no = deleteLogList.get(i).item_no;
+						key = 0;
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key,item_no); pstmt.setString(++key,item_no); pstmt.setString(++key,item_no);
+						pstmt.setString(++key, upd_no);
+						pstmt.addBatch();
+					}
+				}
+				result	=	pstmt.executeBatch().length;
+				if(pstmt!=null){pstmt.close();}
+				
+			}else{				//비교군 그룹이 없을 경우
+				result	=	jdbcTemplate.update(sql.toString(), new Object[]{
+					item_no, item_no, item_no, item_no, item_no, 
+					item_no, item_no, item_no, item_no, item_no, 
+					item_no, item_no, item_no, item_no, item_no, 
+					item_no, item_no, item_no, item_no, item_no, 
+					item_no, item_no, item_no, item_no, item_no, 
+					item_no, item_no, item_no, item_no, item_no, 
+					item_no, item_no, item_no, item_no, item_no, 
+					item_no, item_no, item_no, item_no, item_no, 
+					item_no, item_no, item_no, item_no, item_no,
+					upd_no
+				});
+			}
+			
 
 			//3rd. 업데이트 테이블 처리
 			if (result > 0) {
