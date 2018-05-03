@@ -24,21 +24,20 @@ if(sessionId == null || "".equals(sessionId)) {
 
 String roleId= null;
 String[] allowIp = null;
-Connection conn2 = null;
+Connection conn = null;
 try {
 	sqlMapClient.startTransaction();
-	conn2 = sqlMapClient.getCurrentConnection();
+	conn = sqlMapClient.getCurrentConnection();
 	
 	// 접속한 관리자 회원의 권한 롤
-	roleId= getRoleId(sqlMapClient, conn2, sessionId);
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
 	
 	// 관리자 접근 허용된 IP 배열
-	allowIp = getAllowIpArrays(sqlMapClient, conn2);
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
 } catch (Exception e) {
 	sqlMapClient.endTransaction();
 	alertBack(out, "트랜잭션 오류가 발생했습니다.");
 } finally {
-	sqlMapClient.endTransaction();
 }
 
 // 권한정보 체크
@@ -271,6 +270,10 @@ function teamSelect(cat_no){
 	});
 }
 function joSelect(team_no){
+	if ($('#sch_gradeT').is(":checked")) {
+		alert("조사자로 변경됩니다.");
+		$('#sch_gradeR').prop("checked", true);
+	}
 	var html = "<option value=''>조 선택</option>";
 	$.ajax({
 		type : "POST",
@@ -289,6 +292,14 @@ function joSelect(team_no){
 	});
 }
 
+function joChange (jo_no) {
+	if ($('#sch_gradeT').is(":checked")) {
+		alert("조사자로 변경됩니다.");
+		$('#sch_gradeR').prop("checked", true);
+	}
+	return;
+}
+
 function selInput(sch_org_sid, sch_nm, sch_addr, sch_tel, sch_area, found, sch_gen){
 	$("#sch_org_sid").val(sch_org_sid);
 	$("#sch_nm").val(sch_nm);
@@ -301,6 +312,9 @@ function selInput(sch_org_sid, sch_nm, sch_addr, sch_tel, sch_area, found, sch_g
 $(function(){
 	$("#ne_tel").change(function(){this.value = this.value.replace(/[^0-9]/g,'');});
 	$("#sch_tel").change(function(){this.value = this.value.replace(/[^0-9]/g,'');});
+	$('#sch_gradeT').click(function () {
+		alert("조사팀장을 선택했습니다. \n죄송합니다. 다른 조사팀장 여부 확인 기능 작업 중입니다.");
+	});
 });
 
 function rstPass(sch_no) {
@@ -529,7 +543,7 @@ function insertTypeChange(){
 						</td>
 						<th scope="row"><label for="zone_no">조 선택</label></th>
 						<td>
-							<select id="jo_no" name="jo_no" >
+							<select id="jo_no" name="jo_no" onchange="joChange(this.value)">
                                 <option value="">조선택</option>
                             <%
                             if(joList!=null && joList.size()>0){

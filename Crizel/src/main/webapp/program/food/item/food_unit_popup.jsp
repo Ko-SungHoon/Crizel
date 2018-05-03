@@ -166,7 +166,7 @@ $(function(){
 							<td>
 								<select id="unit_type" name="unit_type" required>
 									<option value="-1">타입선택</option>
-									<option value="F">품목</option>
+									<option value="F">식품</option>
 								</select>
 							</td>
 							<th scope="row">단위명</th>

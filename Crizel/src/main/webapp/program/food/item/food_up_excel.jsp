@@ -45,7 +45,7 @@
 		
 		//excelList = getExcelRead(file, 1);
 		
-		fileExt = realFile.split("\\.")[1];
+		fileExt = realFile.split("\\.")[realFile.split("\\.").length-1];
 
 		if("xls".equals(fileExt)){
 			excelList = getExcelRead(file, 4);
@@ -171,49 +171,53 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			byte[] b = null;
 			int exceptionCheck = 0;
 			for(Map<String,Object> ob : excelList){
-				// 구분값 형식 체크 (구분명-번호)
-				if(ob.get(catCell).toString().split("-").length<2){
-					out.println("<script>alert('구분 형식을 확인하여 주시기 바랍니다.\\nex)농산물-1');location.replace('" + returnPage + "');</script>"); return;
-				}
-				
-				catDupCheckList.add(ob.get(catCell).toString().split("-")[0].trim() + ob.get(catCell).toString().split("-")[1].trim());
-				// DB 데이터 길이보다 글자가 많을 때 오류처리
-				if(getException(ob, catCell, 50)){out.println("<script>alert('구분명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
-				if(getException(ob, codeCell, 50)){out.println("<script>alert('식품코드 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
-				if(getException(ob, nmCell, 100*5)){out.println("<script>alert('식품명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
-				if(getException(ob, dtCell, 100*10)){out.println("<script>alert('상세식품명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
-				if(getException(ob, exCell, 200*25)){out.println("<script>alert('식품설명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
-				if(getException(ob, unitCell, 20)){out.println("<script>alert('단위 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
-				if(getException(ob, compValCell, 2)){out.println("<script>alert('비교 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
-				
-				// 숫자값이 필요한 데이터가 숫자가 아닐경우 오류처리
-				try{if(!"".equals(ob.get(grpNoCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(grpNoCell).toString());}}
-				catch(Exception e){out.println("<script>alert('그룹번호의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
-				try{if(!"".equals(ob.get(grpOrderCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(grpOrderCell).toString());}}
-				catch(Exception e){out.println("<script>alert('그룹순서의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
-				try{if(!"".equals(ob.get(compNoCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(compNoCell).toString());}}
-				catch(Exception e){out.println("<script>alert('비교번호의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
-				try{if(!"".equals(ob.get(lowRatCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(lowRatCell).toString());}}
-				catch(Exception e){out.println("<script>alert('최저가 비율의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
-				try{if(!"".equals(ob.get(avrRatCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(avrRatCell).toString());}}
-				catch(Exception e){out.println("<script>alert('평균가 비율의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
-				try{if(!"".equals(ob.get(lbRaCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(lbRaCell).toString());}}
-				catch(Exception e){out.println("<script>alert('최저가/최고가의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
-				
-				// 모든셀이 빈칸이 아니면서 필수입력값 데이터가 비어있을 경우 오류처리
-				if(!(   "".equals(ob.get(codeCell).toString()) 	&& "".equals(ob.get(catCell).toString())
-					&& 	"".equals(ob.get(nmCell).toString()) 	&& "".equals(ob.get(dtCell).toString())
-					&& 	"".equals(ob.get(exCell).toString()) )){
-					if("".equals(ob.get(codeCell).toString())){ out.println("<script>alert('식품코드 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
-					if("".equals(ob.get(catCell).toString())){out.println("<script>alert('구분 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
-					if("".equals(ob.get(nmCell).toString())){out.println("<script>alert('식품명 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
-					if("".equals(ob.get(dtCell).toString())){out.println("<script>alert('상세식품명 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
-					if("".equals(ob.get(exCell).toString())){out.println("<script>alert('식품설명 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
-					if("".equals(ob.get(grpNoCell).toString())){out.println("<script>alert('그룹번호 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
-					if("".equals(ob.get(grpOrderCell).toString())){out.println("<script>alert('그룹순서 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
-					if("".equals(ob.get(lowRatCell).toString())){out.println("<script>alert('최저가 비율 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
-					if("".equals(ob.get(avrRatCell).toString())){out.println("<script>alert('평균가 비율 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
-					if("".equals(ob.get(lbRaCell).toString())){out.println("<script>alert('최저가/최고가 비율 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+				if((   ob.get(codeCell)!=null 	&& ob.get(catCell)!=null
+						&& 	ob.get(nmCell)!=null 	&& ob.get(dtCell)!=null
+						&& 	ob.get(exCell)!=null )){
+					// 구분값 형식 체크 (구분명-번호)
+					if(ob.get(catCell).toString().split("-").length<2){
+						out.println("<script>alert('구분 형식을 확인하여 주시기 바랍니다.\\nex)농산물-1');location.replace('" + returnPage + "');</script>"); return;
+					}
+					
+					catDupCheckList.add(ob.get(catCell).toString().split("-")[0].trim() + ob.get(catCell).toString().split("-")[1].trim());
+					// DB 데이터 길이보다 글자가 많을 때 오류처리
+					if(getException(ob, catCell, 50)){out.println("<script>alert('구분명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+					if(getException(ob, codeCell, 50)){out.println("<script>alert('식품코드 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+					if(getException(ob, nmCell, 100*5)){out.println("<script>alert('식품명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+					if(getException(ob, dtCell, 100*10)){out.println("<script>alert('상세식품명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+					if(getException(ob, exCell, 200*25)){out.println("<script>alert('식품설명 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+					if(getException(ob, unitCell, 20)){out.println("<script>alert('단위 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+					if(getException(ob, compValCell, 2)){out.println("<script>alert('비교 값이 너무 큽니다');location.replace('" + returnPage + "');</script>"); return;}
+					
+					// 숫자값이 필요한 데이터가 숫자가 아닐경우 오류처리
+					try{if(!"".equals(ob.get(grpNoCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(grpNoCell).toString());}}
+					catch(Exception e){out.println("<script>alert('그룹번호의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
+					try{if(!"".equals(ob.get(grpOrderCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(grpOrderCell).toString());}}
+					catch(Exception e){out.println("<script>alert('그룹순서의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
+					try{if(!"".equals(ob.get(compNoCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(compNoCell).toString());}}
+					catch(Exception e){out.println("<script>alert('비교번호의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
+					try{if(!"".equals(ob.get(lowRatCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(lowRatCell).toString());}}
+					catch(Exception e){out.println("<script>alert('최저가 비율의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
+					try{if(!"".equals(ob.get(avrRatCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(avrRatCell).toString());}}
+					catch(Exception e){out.println("<script>alert('평균가 비율의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
+					try{if(!"".equals(ob.get(lbRaCell).toString())){exceptionCheck = (int)Float.parseFloat(ob.get(lbRaCell).toString());}}
+					catch(Exception e){out.println("<script>alert('최저가/최고가의 값이 숫자가 아닙니다.');location.replace('" + returnPage + "');</script>"); return;}
+					
+					// 모든셀이 빈칸이 아니면서 필수입력값 데이터가 비어있을 경우 오류처리
+					if(!(   "".equals(ob.get(codeCell).toString()) 	&& "".equals(ob.get(catCell).toString())
+						&& 	"".equals(ob.get(nmCell).toString()) 	&& "".equals(ob.get(dtCell).toString())
+						&& 	"".equals(ob.get(exCell).toString()) )){
+						if("".equals(ob.get(codeCell).toString())){ out.println("<script>alert('식품코드 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+						if("".equals(ob.get(catCell).toString())){out.println("<script>alert('구분 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+						if("".equals(ob.get(nmCell).toString())){out.println("<script>alert('식품명 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+						if("".equals(ob.get(dtCell).toString())){out.println("<script>alert('상세식품명 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+						if("".equals(ob.get(exCell).toString())){out.println("<script>alert('식품설명 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+						if("".equals(ob.get(grpNoCell).toString())){out.println("<script>alert('그룹번호 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+						if("".equals(ob.get(grpOrderCell).toString())){out.println("<script>alert('그룹순서 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+						if("".equals(ob.get(lowRatCell).toString())){out.println("<script>alert('최저가 비율 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+						if("".equals(ob.get(avrRatCell).toString())){out.println("<script>alert('평균가 비율 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+						if("".equals(ob.get(lbRaCell).toString())){out.println("<script>alert('최저가/최고가 비율 데이터가 비어있습니다.');location.replace('" + returnPage + "');</script>"); return;}
+					}
 				}
 			}
 			
@@ -297,13 +301,18 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		pstmt = conn.prepareStatement(sql.toString());
 		if(excelList!=null && excelList.size()>0){
 			for(Map<String,Object> ob : excelList){
-				if(ob.get(catCell) != null && !"".equals(ob.get(catCell).toString())){
-					key = 0;
-					pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
-					pstmt.setInt(++key, cat_no++);
-					pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
-					pstmt.addBatch();			
+				if((   ob.get(codeCell)!=null 	&& ob.get(catCell)!=null
+						&& 	ob.get(nmCell)!=null 	&& ob.get(dtCell)!=null
+						&& 	ob.get(exCell)!=null )){
+					if(ob.get(catCell) != null && !"".equals(ob.get(catCell).toString())){
+						key = 0;
+						pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
+						pstmt.setInt(++key, cat_no++);
+						pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
+						pstmt.addBatch();			
+					}
 				}
+				
 			}
 			pstmt.executeBatch();
 		}
@@ -344,17 +353,21 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		pstmt = conn.prepareStatement(sql.toString());
 		if(excelList!=null && excelList.size()>0){
 			for(Map<String,Object> ob : excelList){
-				if(ob.get(nmCell) != null && !"".equals(ob.get(nmCell).toString())){
-					nm_food = ob.get(nmCell).toString().split(",");
-					for(String nm_food_value : nm_food){
-						key = 0;
-						pstmt.setString(++key, nm_food_value.trim());
-						pstmt.setInt(++key, nm_no++);
-						pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
-						pstmt.setString(++key, nm_food_value.trim());
-						pstmt.addBatch();	
+				if((   ob.get(codeCell)!=null 	&& ob.get(catCell)!=null
+						&& 	ob.get(nmCell)!=null 	&& ob.get(dtCell)!=null
+						&& 	ob.get(exCell)!=null )){
+					if(ob.get(nmCell) != null && !"".equals(ob.get(nmCell).toString())){
+						nm_food = ob.get(nmCell).toString().split(",");
+						for(String nm_food_value : nm_food){
+							key = 0;
+							pstmt.setString(++key, nm_food_value.trim());
+							pstmt.setInt(++key, nm_no++);
+							pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
+							pstmt.setString(++key, nm_food_value.trim());
+							pstmt.addBatch();	
+						}
+						
 					}
-					
 				}
 			}
 			pstmt.executeBatch();
@@ -398,17 +411,23 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		pstmt = conn.prepareStatement(sql.toString());
 		if(excelList!=null && excelList.size()>0){
 			for(Map<String,Object> ob : excelList){
-				if(ob.get(dtCell) != null && !"".equals(ob.get(dtCell).toString())){
-					dt_nm = ob.get(dtCell).toString().split(",");
-					for(String dt_nm_value : dt_nm){
-						key = 0;
-						pstmt.setString(++key, dt_nm_value.trim());
-						pstmt.setInt(++key, dt_no++);
-						pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
-						pstmt.setString(++key, dt_nm_value.trim());
-						pstmt.addBatch();	
+				if((   ob.get(codeCell)!=null 	&& ob.get(catCell)!=null
+						&& 	ob.get(nmCell)!=null 	&& ob.get(dtCell)!=null
+						&& 	ob.get(exCell)!=null )){
+
+					if(ob.get(dtCell) != null && !"".equals(ob.get(dtCell).toString())){
+						dt_nm = ob.get(dtCell).toString().split(",");
+						for(String dt_nm_value : dt_nm){
+							key = 0;
+							pstmt.setString(++key, dt_nm_value.trim());
+							pstmt.setInt(++key, dt_no++);
+							pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
+							pstmt.setString(++key, dt_nm_value.trim());
+							pstmt.addBatch();	
+						}
 					}
 				}
+				
 			}
 			pstmt.executeBatch();
 		}
@@ -452,19 +471,24 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 		pstmt = conn.prepareStatement(sql.toString());
 		if(excelList!=null && excelList.size()>0){
 			for(Map<String,Object> ob : excelList){
-				if(!"".equals(ob.get(exCell)) && !"".equals(ob.get(exCell).toString())){
-					ex_nm = ob.get(exCell).toString().split(",");
-					for(String ex_nm_value : ex_nm){
-						if(!"".equals(ex_nm_value)){
-							key = 0;
-							pstmt.setString(++key, ex_nm_value.trim());
-							pstmt.setInt(++key, ex_no++);
-							pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
-							pstmt.setString(++key, ex_nm_value.trim());
-							pstmt.addBatch();	
+				if((   ob.get(codeCell)!=null 	&& ob.get(catCell)!=null
+						&& 	ob.get(nmCell)!=null 	&& ob.get(dtCell)!=null
+						&& 	ob.get(exCell)!=null )){
+					if(!"".equals(ob.get(exCell)) && !"".equals(ob.get(exCell).toString())){
+						ex_nm = ob.get(exCell).toString().split(",");
+						for(String ex_nm_value : ex_nm){
+							if(!"".equals(ex_nm_value)){
+								key = 0;
+								pstmt.setString(++key, ex_nm_value.trim());
+								pstmt.setInt(++key, ex_no++);
+								pstmt.setString(++key, ob.get(catCell).toString().split("-")[0].trim());
+								pstmt.setString(++key, ex_nm_value.trim());
+								pstmt.addBatch();	
+							}
 						}
 					}
 				}
+				
 			}
 			pstmt.executeBatch();
 		}
@@ -511,13 +535,18 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			String unitNmCheck = "";
 			for(int i=0; i<excelList.size(); i++){
 				Map<String,Object> ob = excelList.get(i);
-				if(ob.get(unitCell) != null && !"".equals(ob.get(unitCell).toString())){
-					key = 0;
-					pstmt.setString(++key, ob.get(unitCell).toString());
-					pstmt.setInt(++key, unit_no++);
-					pstmt.setString(++key, ob.get(unitCell).toString());
-					pstmt.addBatch();	
+				if((   ob.get(codeCell)!=null 	&& ob.get(catCell)!=null
+						&& 	ob.get(nmCell)!=null 	&& ob.get(dtCell)!=null
+						&& 	ob.get(exCell)!=null )){
+					if(ob.get(unitCell) != null && !"".equals(ob.get(unitCell).toString())){
+						key = 0;
+						pstmt.setString(++key, ob.get(unitCell).toString());
+						pstmt.setInt(++key, unit_no++);
+						pstmt.setString(++key, ob.get(unitCell).toString());
+						pstmt.addBatch();	
+					}
 				}
+				
 			}
 			pstmt.executeBatch();
 		}
@@ -710,75 +739,81 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			pstmt = conn.prepareStatement(sql.toString());
 			if(excelList!=null && excelList.size()>0){
 				for(Map<String,Object> ob : excelList){
-					setList = new ArrayList<Object>();
-					if(ob.get(nmCell)!=null && !"".equals(ob.get(nmCell))){
-						key = 0;
-						
-						nm_food = ob.get(nmCell).toString().split(",");
-						dt_nm = ob.get(dtCell).toString().split(",");
-						ex_nm = ob.get(exCell).toString().split(",");
-						
-						nm_food_str = "";
-						dt_nm_str = "";
-						ex_nm_str = "";
-						
-						// MERGE 조건문
-						setList.add(ob.get(codeCell).toString().split("[.]")[0]);	// FOOD_CODE
-						pstmt.setString(++key, ob.get(codeCell).toString().split("[.]")[0]);
-						for(int i=0; i<5; i++){										// FOOD_NM_1~5
-							if(nm_food.length>i){ nm_food_str += nm_food[i].trim(); }
-							else{ nm_food_str +=""; }
+					if((   ob.get(codeCell)!=null 	&& ob.get(catCell)!=null
+							&& 	ob.get(nmCell)!=null 	&& ob.get(dtCell)!=null
+							&& 	ob.get(exCell)!=null )){
+
+						setList = new ArrayList<Object>();
+						if(ob.get(nmCell)!=null && !"".equals(ob.get(nmCell))){
+							key = 0;
+							
+							nm_food = ob.get(nmCell).toString().split(",");
+							dt_nm = ob.get(dtCell).toString().split(",");
+							ex_nm = ob.get(exCell).toString().split(",");
+							
+							nm_food_str = "";
+							dt_nm_str = "";
+							ex_nm_str = "";
+							
+							// MERGE 조건문
+							setList.add(ob.get(codeCell).toString().split("[.]")[0]);	// FOOD_CODE
+							pstmt.setString(++key, ob.get(codeCell).toString().split("[.]")[0]);
+							for(int i=0; i<5; i++){										// FOOD_NM_1~5
+								if(nm_food.length>i){ nm_food_str += nm_food[i].trim(); }
+								else{ nm_food_str +=""; }
+							}
+							for(int i=0; i<10; i++){									// FOOD_DT_1~10
+								if(dt_nm.length>i){ dt_nm_str += dt_nm[i].trim(); }
+								else{ dt_nm_str += ""; }
+							}
+							for(int i=0; i<25; i++){									// FOOD_EP_1~25
+								if(ex_nm.length>i){ ex_nm_str += ex_nm[i].trim(); }
+								else{ ex_nm_str += ""; }
+							}
+							
+							setList.add(nm_food_str);
+							pstmt.setString(++key, nm_food_str);
+							
+							setList.add(dt_nm_str);
+							pstmt.setString(++key, dt_nm_str);
+							
+							setList.add(ex_nm_str);
+							pstmt.setString(++key, ex_nm_str);
+							
+							
+							// MERGE UPDATE 문
+							setList.add(ob.get(unitCell));								// FOOD_UNIT
+							pstmt.setString(++key, ob.get(unitCell).toString());
+							for(String ob2 : dt_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_DT_1~10
+							if(dt_nm.length<10){for(int i=0; i<10-dt_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
+							for(String ob2 : ex_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_EP_1~25
+							if(ex_nm.length<25){for(int i=0; i<25-ex_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
+							setList.add(ob.get(catCell).toString().split("-")[1]);
+							pstmt.setString(++key, ob.get(catCell).toString().split("-")[1]);
+							
+							// MERGE INSERT 문
+							//setList.add(item_no++);										// ITEM_NO
+							pstmt.setInt(++key, item_no++);
+							setList.add(ob.get(catCell).toString().split("-")[0]);		// CAT_NM
+							pstmt.setString(++key, ob.get(catCell).toString().split("-")[0]);
+							for(String ob2 : nm_food){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_NM_1~5
+							if(nm_food.length<5){for(int i=0; i<5-nm_food.length; i++){setList.add(""); pstmt.setString(++key, "");}}
+							setList.add(ob.get(unitCell));								// FOOD_UNIT
+							pstmt.setString(++key, ob.get(unitCell).toString());
+							for(String ob2 : dt_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_DT_1~10
+							if(dt_nm.length<10){for(int i=0; i<10-dt_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
+							for(String ob2 : ex_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());}		// FOOD_EP_1~25
+							if(ex_nm.length<25){for(int i=0; i<25-ex_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
+							setList.add(ob.get(codeCell).toString().split("[.]")[0]);
+							pstmt.setString(++key, ob.get(codeCell).toString().split("[.]")[0]);
+							setList.add(ob.get(catCell).toString().split("-")[1]);
+							pstmt.setString(++key, ob.get(catCell).toString().split("-")[1]);
+							
+							pstmt.addBatch();
+							itemNoList.add(Integer.toString(item_no-1));	// FOOD_ITEM_PRE의 S_ITEM_NO에 넣을 ITEM_NO 값
 						}
-						for(int i=0; i<10; i++){									// FOOD_DT_1~10
-							if(dt_nm.length>i){ dt_nm_str += dt_nm[i].trim(); }
-							else{ dt_nm_str += ""; }
-						}
-						for(int i=0; i<25; i++){									// FOOD_EP_1~25
-							if(ex_nm.length>i){ ex_nm_str += ex_nm[i].trim(); }
-							else{ ex_nm_str += ""; }
-						}
-						
-						setList.add(nm_food_str);
-						pstmt.setString(++key, nm_food_str);
-						
-						setList.add(dt_nm_str);
-						pstmt.setString(++key, dt_nm_str);
-						
-						setList.add(ex_nm_str);
-						pstmt.setString(++key, ex_nm_str);
-						
-						
-						// MERGE UPDATE 문
-						setList.add(ob.get(unitCell));								// FOOD_UNIT
-						pstmt.setString(++key, ob.get(unitCell).toString());
-						for(String ob2 : dt_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_DT_1~10
-						if(dt_nm.length<10){for(int i=0; i<10-dt_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
-						for(String ob2 : ex_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_EP_1~25
-						if(ex_nm.length<25){for(int i=0; i<25-ex_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
-						setList.add(ob.get(catCell).toString().split("-")[1]);
-						pstmt.setString(++key, ob.get(catCell).toString().split("-")[1]);
-						
-						// MERGE INSERT 문
-						//setList.add(item_no++);										// ITEM_NO
-						pstmt.setInt(++key, item_no++);
-						setList.add(ob.get(catCell).toString().split("-")[0]);		// CAT_NM
-						pstmt.setString(++key, ob.get(catCell).toString().split("-")[0]);
-						for(String ob2 : nm_food){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_NM_1~5
-						if(nm_food.length<5){for(int i=0; i<5-nm_food.length; i++){setList.add(""); pstmt.setString(++key, "");}}
-						setList.add(ob.get(unitCell));								// FOOD_UNIT
-						pstmt.setString(++key, ob.get(unitCell).toString());
-						for(String ob2 : dt_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());	}		// FOOD_DT_1~10
-						if(dt_nm.length<10){for(int i=0; i<10-dt_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
-						for(String ob2 : ex_nm){		setList.add(ob2.trim());	pstmt.setString(++key, ob2.trim());}		// FOOD_EP_1~25
-						if(ex_nm.length<25){for(int i=0; i<25-ex_nm.length; i++){setList.add(""); pstmt.setString(++key, "");}}
-						setList.add(ob.get(codeCell).toString().split("[.]")[0]);
-						pstmt.setString(++key, ob.get(codeCell).toString().split("[.]")[0]);
-						setList.add(ob.get(catCell).toString().split("-")[1]);
-						pstmt.setString(++key, ob.get(catCell).toString().split("-")[1]);
-						
-						pstmt.addBatch();
-						itemNoList.add(Integer.toString(item_no-1));	// FOOD_ITEM_PRE의 S_ITEM_NO에 넣을 ITEM_NO 값
 					}
+					
 				}
 				
 				pstmt.executeBatch();
@@ -970,67 +1005,73 @@ public boolean getException(Map<String,Object> ob, String cell, int length){
 			pstmt = conn.prepareStatement(sql.toString());
 			if(excelList!=null && excelList.size()>0){
 				for(Map<String,Object> ob : excelList){
-					setList = new ArrayList<Object>();
-					if(ob.get(nmCell)!=null && !"".equals(ob.get(nmCell))){
-						key = 0;
-						
-						nm_food = ob.get(nmCell).toString().split(",");
-						dt_nm = ob.get(dtCell).toString().split(",");
-						ex_nm = ob.get(exCell).toString().split(",");
-						
-						nm_food_str = "";
-						dt_nm_str = "";
-						ex_nm_str = "";
-						
-						// S_ITEM_NO를 구하기 위한 조건문
-						setList.add(ob.get(codeCell).toString().split("[.]")[0]);	// FOOD_CODE
-						pstmt.setString(++key,  ob.get(codeCell).toString().split("[.]")[0]);
-						for(int i=0; i<5; i++){										// FOOD_NM_1~5
-							if(nm_food.length>i){ nm_food_str += nm_food[i].trim(); }
-							else{ nm_food_str +=""; }
+					if((   ob.get(codeCell)!=null 	&& ob.get(catCell)!=null
+							&& 	ob.get(nmCell)!=null 	&& ob.get(dtCell)!=null
+							&& 	ob.get(exCell)!=null )){
+
+						setList = new ArrayList<Object>();
+						if(ob.get(nmCell)!=null && !"".equals(ob.get(nmCell))){
+							key = 0;
+							
+							nm_food = ob.get(nmCell).toString().split(",");
+							dt_nm = ob.get(dtCell).toString().split(",");
+							ex_nm = ob.get(exCell).toString().split(",");
+							
+							nm_food_str = "";
+							dt_nm_str = "";
+							ex_nm_str = "";
+							
+							// S_ITEM_NO를 구하기 위한 조건문
+							setList.add(ob.get(codeCell).toString().split("[.]")[0]);	// FOOD_CODE
+							pstmt.setString(++key,  ob.get(codeCell).toString().split("[.]")[0]);
+							for(int i=0; i<5; i++){										// FOOD_NM_1~5
+								if(nm_food.length>i){ nm_food_str += nm_food[i].trim(); }
+								else{ nm_food_str +=""; }
+							}
+							for(int i=0; i<10; i++){									// FOOD_DT_1~10
+								if(dt_nm.length>i){ dt_nm_str += dt_nm[i].trim(); }
+								else{ dt_nm_str += ""; }
+							}
+							for(int i=0; i<25; i++){									// FOOD_EP_1~25
+								if(ex_nm.length>i){ ex_nm_str += ex_nm[i].trim(); }
+								else{ ex_nm_str += ""; }
+							}
+							
+							setList.add(nm_food_str);
+							setList.add(dt_nm_str);
+							setList.add(ex_nm_str);
+							
+							pstmt.setString(++key,  nm_food_str);
+							pstmt.setString(++key,  dt_nm_str);
+							pstmt.setString(++key,  ex_nm_str);
+							
+							//setList.add(item_pre_no++);
+							setList.add(ob.get(nmCell));
+							setList.add(ob.get(grpNoCell));
+							setList.add(ob.get(grpOrderCell));
+							setList.add(ob.get(compNoCell));
+							setList.add(ob.get(compValCell));
+							setList.add(saveFile);
+							setList.add(ob.get(lowRatCell));
+							setList.add(ob.get(avrRatCell));
+							setList.add(ob.get(lbRaCell));
+							
+							pstmt.setInt(++key,  item_pre_no++);
+							pstmt.setString(++key,  ob.get(nmCell).toString());
+							pstmt.setString(++key,  ob.get(grpNoCell).toString());
+							pstmt.setString(++key,  ob.get(grpOrderCell).toString());
+							pstmt.setString(++key,  ob.get(compNoCell).toString());
+							pstmt.setString(++key,  ob.get(compValCell).toString());
+							pstmt.setString(++key,  saveFile);
+							pstmt.setString(++key,  ob.get(lowRatCell).toString());
+							pstmt.setString(++key,  ob.get(avrRatCell).toString());
+							pstmt.setString(++key,  ob.get(lbRaCell).toString());
+							
+							pstmt.addBatch();
+							
 						}
-						for(int i=0; i<10; i++){									// FOOD_DT_1~10
-							if(dt_nm.length>i){ dt_nm_str += dt_nm[i].trim(); }
-							else{ dt_nm_str += ""; }
-						}
-						for(int i=0; i<25; i++){									// FOOD_EP_1~25
-							if(ex_nm.length>i){ ex_nm_str += ex_nm[i].trim(); }
-							else{ ex_nm_str += ""; }
-						}
-						
-						setList.add(nm_food_str);
-						setList.add(dt_nm_str);
-						setList.add(ex_nm_str);
-						
-						pstmt.setString(++key,  nm_food_str);
-						pstmt.setString(++key,  dt_nm_str);
-						pstmt.setString(++key,  ex_nm_str);
-						
-						//setList.add(item_pre_no++);
-						setList.add(ob.get(nmCell));
-						setList.add(ob.get(grpNoCell));
-						setList.add(ob.get(grpOrderCell));
-						setList.add(ob.get(compNoCell));
-						setList.add(ob.get(compValCell));
-						setList.add(saveFile);
-						setList.add(ob.get(lowRatCell));
-						setList.add(ob.get(avrRatCell));
-						setList.add(ob.get(lbRaCell));
-						
-						pstmt.setInt(++key,  item_pre_no++);
-						pstmt.setString(++key,  ob.get(nmCell).toString());
-						pstmt.setString(++key,  ob.get(grpNoCell).toString());
-						pstmt.setString(++key,  ob.get(grpOrderCell).toString());
-						pstmt.setString(++key,  ob.get(compNoCell).toString());
-						pstmt.setString(++key,  ob.get(compValCell).toString());
-						pstmt.setString(++key,  saveFile);
-						pstmt.setString(++key,  ob.get(lowRatCell).toString());
-						pstmt.setString(++key,  ob.get(avrRatCell).toString());
-						pstmt.setString(++key,  ob.get(lbRaCell).toString());
-						
-						pstmt.addBatch();
-						
 					}
+					
 				}
 			}
 			

@@ -48,7 +48,7 @@ SessionManager sessionManager = new SessionManager(request);
 		saveFile = mr.getFilesystemName(fileName);
 		
 		if(file!=null){
-			fileExt = realFile.split("\\.")[1];
+			fileExt = realFile.split("\\.")[realFile.split("\\.").length-1];
 
 			if("xls".equals(fileExt)){
 				excelList = getExcelRead(file, 4);
@@ -98,10 +98,6 @@ SessionManager sessionManager = new SessionManager(request);
 	String ex_nm_str 	= "";
 	
 	//SessionManager sessionManager = new SessionManager(request);
-	
-	if(!sessionManager.isRoleAdmin()){
-		out.print("<script>alert('비정상적인 접근입니다.'); history.back();</script>");
-	}
 	
 	String regIp = request.getRemoteAddr();
 	String regId = sessionManager.getId();
@@ -335,6 +331,8 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm, Stri
 			result = jdbcTemplate.update(sql.toString(), saveFile, realFile, regIp, regId);
 		}
 		
+		
+		
 		// 구분,학교명 저장 테이블을 삭제
 		sql = new StringBuffer();
 		sql.append("DELETE FROM FOOD_RSCH_SCH			");
@@ -483,7 +481,7 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm, Stri
 			out.println("location.replace('" + returnPage + "');");
 			out.println("</script>");
 		}else{
-			out.println("<script>alert('처리 중 오류가 발생하였습니다.\n엑셀을 확인하여주시기 바랍니다.');location.replace('"+returnPage+"');</script>");
+			out.println("<script>alert('처리 중 오류가 발생하였습니다.\\n엑셀을 확인하여주시기 바랍니다.');location.replace('"+returnPage+"');</script>");
 		}
 		
 	}catch(Exception e){
@@ -496,5 +494,7 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm, Stri
 		if(conn!=null){conn.close();}
 		sqlMapClient.endTransaction();
 	}
+
+
 
 %>

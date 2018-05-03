@@ -31,7 +31,6 @@ try {
 	sqlMapClient.endTransaction();
 	alertBack(out, "트랜잭션 오류가 발생했습니다.");
 } finally {
-	sqlMapClient.endTransaction();
 }
 
 // 권한정보 체크
@@ -134,6 +133,7 @@ try {
                 returnVal = "OK";
             }
         } else if ("D".equals(sch_app_flag)) {
+
             // 조사자 삭제
             sql = new StringBuffer();
             sql.append("UPDATE FOOD_SCH_NU SET SHOW_FLAG = 'N' WHERE SCH_NO = ?		");
@@ -148,8 +148,24 @@ try {
             }else{
                 returnVal = "NO";
             }
+
+        } else if ("R".equals(sch_app_flag)) {
+
+            //조사자 복원
+            sql = new StringBuffer();
+            sql.append("UPDATE FOOD_SCH_NU SET SHOW_FLAG = 'Y' WHERE SCH_NO = ?		");
+            result = jdbcTemplate.update(sql.toString(), sch_no);
+            
+            sql = new StringBuffer();
+            sql.append("UPDATE FOOD_SCH_TB SET SHOW_FLAG = 'Y' WHERE SCH_NO = ?		");
+            result = jdbcTemplate.update(sql.toString(), sch_no);
+
+            if(result > 0){
+                returnVal = "OK";
+            }else{
+                returnVal = "NO";
+            }
         }
-        
     }
 	
 } catch (Exception e) {

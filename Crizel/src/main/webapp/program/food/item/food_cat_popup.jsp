@@ -251,8 +251,8 @@ $(function(){
                                 </select>
                             </td>--%>
                             <td>
-                                <%if ("Y".equals(cat.show_flag)) {%><button class="btn small edge mako" onclick="catDel('N','<%=cat.cat_no %>')">숨김</button><%}
-                                else {%><button class="btn small edge mako" onclick="catDel('Y', '<%=cat.cat_no %>')">노출</button><%}%>
+                                <%if ("Y".equals(cat.show_flag)) {%><button class="btn small edge mako" onclick="catDel('N','<%=cat.cat_no %>')">숨김처리</button><%}
+                                else {%><button class="btn small edge white" onclick="catDel('Y', '<%=cat.cat_no %>')">노출처리</button><%}%>
                             </td>
                             <td><button class="btn small edge darkMblue chgCat">적용</button></td>
                         </tr>

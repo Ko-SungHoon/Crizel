@@ -24,7 +24,10 @@ List<FoodVO> regTeamList	= null;
 try {
 	if("team".equals(mode)){
 		sql = new StringBuffer();
-		sql.append("SELECT *							");
+		sql.append("SELECT FOOD_TEAM.*,					");
+		sql.append("	(SELECT CAT_NM FROM FOOD_ST_CAT	");
+		sql.append("	WHERE CAT_NO = FOOD_TEAM.CAT_NO	");
+		sql.append("	) AS CAT_NM						");
 		sql.append("FROM FOOD_TEAM						");
 		sql.append("WHERE ZONE_NO = ? 					");
 		if(!"".equals(cat_no)){
@@ -41,7 +44,7 @@ try {
 		
 		if(teamList != null && teamList.size() > 0){
 			for(FoodVO ob : teamList){
-				out.println("<option value='" + ob.team_no + "'>"+ ob.team_nm +"</option>");
+				out.println("<option value='" + ob.team_no + "'>"+ ob.cat_nm + "-" + ob.team_nm +"</option>");
 			}
 		}
 	}else if("jo".equals(mode)){

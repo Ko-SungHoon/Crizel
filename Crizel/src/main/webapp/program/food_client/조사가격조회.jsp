@@ -43,10 +43,10 @@ String moveUrlMain	=	"/index.gne?menuCd=DOM_000002101000000000";		//메인페이
 if("Y".equals(session.getAttribute("foodLoginChk")) || sManager.isRoleAdmin() || sManager.isRole(foodRole)){
 	viewYN	=	1;
 }else{
-	out.print("<script> 						\n");
-	out.print("alert('2차 로그인 후 이용하실 수 있습니다.');	\n");
-	out.print("history.back(); 					\n");
-	out.print("</script> 						\n");
+	out.print("<script> 							\n");
+	out.print("alert('2차 로그인 후 이용하실 수 있습니다.');		\n");
+	out.print("location.href='" + moveUrlMain + "';	\n");
+	out.print("</script> 							\n");
 	return;
 }
 
@@ -61,6 +61,7 @@ if(viewYN == 1){
 	List<FoodVO> cateList	=	null;
 	List<FoodVO> searchList	=	null;
 	List<String> setWhere	=	new ArrayList<String>();
+	List<FoodVO> rschList	=	null;
 	HashMap<Integer, String> valMap	=	null;
 	int valMapCnt	=	0;
 	int minVal		=	0;
@@ -84,6 +85,7 @@ if(viewYN == 1){
 	String foodName		=	parseNull(request.getParameter("foodName"));
 	String keywordCate 	=	parseNull(request.getParameter("keywordCate"));
 	String keywordInp	=	parseNull(request.getParameter("keywordInp"));
+	String rsch_no		= 	parseNull(request.getParameter("rsch_no"));
 	int pageNo			=	Integer.parseInt(parseNull(request.getParameter("pageNo"), "1"));
 	
 	String[] keyCateOp	=	{"title", "detail"};
@@ -152,6 +154,13 @@ if(viewYN == 1){
 					pagingVO.setParams("zoneType", zoneType);
 				}
 			}
+		}
+		
+		//월별조사 where
+		if(!"".equals(rsch_no)){
+			sqlWhere += "AND TB.RSCH_NO = ?			";
+			setWhere.add(rsch_no);
+			pagingVO.setParams("rsch_no", rsch_no);
 		}
 
 		//카테고리 목록
@@ -288,7 +297,8 @@ if(viewYN == 1){
 		sql.append(" VAL.RSCH_VAL2,													\n");
 		sql.append(" VAL.RSCH_VAL3,													\n");
 		sql.append(" VAL.RSCH_VAL4,													\n");
-		sql.append(" VAL.RSCH_VAL5													\n");
+		sql.append(" VAL.RSCH_VAL5,													\n");
+		sql.append(" VAL.RSCH_REASON												\n");
 		sql.append("    , (                        									\n");
 		sql.append("        CASE                                                    \n");
 		sql.append("        WHEN (                                                  \n");
@@ -352,9 +362,9 @@ if(viewYN == 1){
 		sql.append(" LEFT JOIN FOOD_ZONE ZONE ON VAL.ZONE_NO = ZONE.ZONE_NO			\n");
 		
 		sql.append(" WHERE TB.SHOW_FLAG = 'Y'										\n");
- 		sql.append(" /*AND VAL.STS_FLAG = 'Y'*/										\n");		
+ 		sql.append(" AND TB.STS_FLAG = 'Y'											\n");		
 		sql.append(sqlWhere);
-		sql.append(" ORDER BY PRE.ITEM_NO											\n");
+		sql.append(" ORDER BY TB.RSCH_NO DESC, PRE.ITEM_NO							\n");
 		sql.append(" )A WHERE ROWNUM <= ?											\n");
 		sql.append(" ) WHERE RNUM > ?												\n");
 		
@@ -369,6 +379,28 @@ if(viewYN == 1){
 		}
 		
 		searchList		=	jdbcTemplate.query(sql.toString(), new FoodList(), setObject);			
+		
+		
+		
+		
+		// 월별조사 리스트
+		sql = new StringBuffer();
+		sql.append("SELECT * 					");
+		sql.append("FROM FOOD_RSCH_TB TB		");
+		if(!"".equals(srchSdate) && !"".equals(srchEdate)){
+			sql.append("WHERE ((TB.STR_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.STR_DATE <= TO_DATE(?, 'YY/MM/DD'))			");
+			sql.append("		OR (TB.END_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.END_DATE <= TO_DATE(?, 'YY/MM/DD')))		");
+		}
+		sql.append("ORDER BY RSCH_NO DESC		");
+		
+		if(!"".equals(srchSdate) && !"".equals(srchEdate)){
+			rschList = jdbcTemplate.query(sql.toString(), new FoodList(), srchSdate, srchEdate, srchSdate, srchEdate );
+		}else{
+			rschList = jdbcTemplate.query(sql.toString(), new FoodList());
+		}
+		
+		
+		
 	}catch(Exception e){
 		alert(out, e.toString());
 	}finally{
@@ -378,7 +410,7 @@ if(viewYN == 1){
 
 <script type="text/javascript">
 
-	$(function() {	
+	$(function() {
 		$("#srchSdate").datepicker({
 		showButtonPanel: true,
 		buttonImageOnly: true,
@@ -420,7 +452,7 @@ if(viewYN == 1){
 			var index	=	$(".openItem").index(this);
 			var item_no	=	$(".openItem").eq(index).data("value");
 			
-			var send_url	=	"/index.gne?menuCd=DOM_000000127003002000&item_no=" + item_no;
+			var send_url	=	"/index.gne?menuCd=DOM_000002101003001000&item_no=" + item_no;
 			var param		=	{item_no: item_no};
 			newWin(send_url, "식품이력 page", 1500, 1000);
 		});
@@ -429,9 +461,39 @@ if(viewYN == 1){
 			var sendForm	=	$("#foodSrch");
 			sendForm.attr("action", "/program/food/research/food_research_val_excel.jsp");
 			sendForm.submit();
-			sendForm.attr("action", "/index.gne?menuCd=DOM_000000127003000000");
+			sendForm.attr("action", "/index.gne?menuCd=DOM_000002101003000000");
 		});
+		
+		
+		$("#srchSdate").change(function(){rschSearch();});
+		$("#srchEdate").change(function(){rschSearch();});
+		
 	});
+	
+	function rschSearch(){
+		var srchSdate = $("#srchSdate").val();
+		var srchEdate = $("#srchEdate").val();
+		
+		if(srchSdate != "" && srchEdate != ""){
+			$.ajax({
+				type : "POST",
+				url : "/program/food/research/rschSearch.jsp",
+				data : {
+					"srchSdate"	: srchSdate,
+					"srchEdate"	: srchEdate   
+					},
+				async : false,
+				success : function(data){
+					$("#rsch_no").html(data.trim());
+				},
+				error : function(request, status, error){
+					alert("처리중 오류가 발생하였습니다.");
+				}
+			});
+		}
+	}
+	
+	
 
 	//search Submit Check
 	function submitChk(){
@@ -493,8 +555,19 @@ if(viewYN == 1){
             ~
             <label for="srchEdate" class="blind">종류날짜 선택</label>
             <input type="text" id="srchEdate" name="srchEdate" value="<%=srchEdate%>" class="datepicker calendar" style="ime-mode:disabled;"></td>
-            <th scope="row"><label for="zoneType">권역</label></th>
+            <th scope="row"><label for="rsch_no">조사/권역</label></th>
             <td>
+           	<select id="rsch_no" name="rsch_no">
+             	<option value="">조사 선택</option>
+             <%
+               if(rschList != null && rschList.size() > 0){
+               	for(int i=0; i<rschList.size(); i++){
+               		out.print(printOption(rschList.get(i).rsch_no, rschList.get(i).rsch_nm, rsch_no));
+               	}
+               }
+               %>
+             </select>
+             
               <select name="zoneType" id="zoneType" title="권역을 선택해주세요." class="wps_30">
                 <option value="">권역 전체</option>
                 <%
@@ -548,10 +621,13 @@ if(viewYN == 1){
 	</form>
 </section>
 
+<div class="btn_area l magB5" style="float:left;">
+	검색항목 수 : <%=cnt%>
+</div>
 <div class="btn_area r magB5">
 	<button type="button" id="rschDwExcel" class="btn small edge white fb"><i class="ico_xls"></i>엑셀다운로드</button>
 </div>
-<table class="table_skin01 td-pd1">
+<table class="tbl_rsrch td-pd1">
 	<caption>품목구분별 거래실례가격 정보 조회 : 권역, 조사명, 조사날짜, 식품코드, 식품명, 상세식품명, 식품설명, 단위, 적용단가, 비교그룹, 평균가, 중앙가, 세권역통합평균가, 조사자, 소속, 조사가1~3 등</caption>
 	<colgroup>
 		<col style="width:7%" />
@@ -565,6 +641,7 @@ if(viewYN == 1){
 		<col style="width:6.1%" />
 		<col style="width:6.1%" />
 		<col />
+		<col style="width:6.1%" />
 		<col style="width:6.1%" />
 		<col style="width:6.1%" />
 		<col style="width:6.1%" />
@@ -585,6 +662,7 @@ if(viewYN == 1){
 		<th scope="col">조사가1</th>
 		<th scope="col">조사가2</th>
 		<th scope="col">조사가3</th>
+		<th scope="col">비고</th>
 	</tr>
 	</thead>
 	<tbody>
@@ -592,13 +670,15 @@ if(viewYN == 1){
   	if(searchList != null && searchList.size()>0){
   		for(int i=0; i<searchList.size(); i++){
   			FoodVO vo	=	searchList.get(i);
+  			String classTxt		=	"";
+  			if(!"".equals(parseNull(vo.rsch_reason)))	classTxt	=	" class = \"rch_return\"";
   			%>
-  			<tr>
+  			<tr<%=classTxt%>>
 				<td><%=vo.cat_nm%>-<%=vo.food_cat_index%></td>
 				<td><%=vo.zone_nm%></td>
 				<td><%=vo.rsch_nm%></td>
 				<td>
-					<a href="#" class="openItem" data-value="<%=vo.item_no %>">
+					<a href="javascript:;" class="openItem" data-value="<%=vo.item_no %>">
 						<span class="blue fb"><%=vo.nm_food%></span>
 					</a>
 				</td>
@@ -608,7 +688,7 @@ if(viewYN == 1){
 				<%-- <td><%if ("N".equals(vo.low_flag)){%><span class="fb red" title="최저가 비율 초과"><%}%>
 					<%=moneyComma(parseNull(vo.low_val, " - ")) %>
 				</td> --%>
-				<td><%=vo.item_comp_no%></td>
+				<td><%=parseNull(vo.item_comp_no, " - ")%></td>
 				<td><%if ("N".equals(vo.avr_flag)){%><span class="fb red"><%}%>
 					<%=parseNull(vo.avr_val, " - ") %>
 				</td>
@@ -712,12 +792,13 @@ if(viewYN == 1){
 						<td><span> - </span></td>
 					<%}
 				%>
+				<td><%=parseNull(vo.rsch_reason ," - ")%></td>
 		    </tr>
   			<%
   		}/*END FOR*/
   	}/*END IF*/else{%>
   		<tr>
-  			<td colspan="14" style="text-align:center;">내역이 없습니다.</td>
+  			<td colspan="15" style="text-align:center;">내역이 없습니다.</td>
   		</tr>
   		<%
   	}%>

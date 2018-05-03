@@ -1,544 +1,455 @@
-<%@ page import = "java.util.*, egovframework.rfc3.board.vo.CommentVO,java.text.SimpleDateFormat" %>
 <%@ page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper"%>
-<%@ page import="egovframework.rfc3.board.vo.BoardDataVO"%>
-<%@ page import="egovframework.rfc3.board.vo.BoardCategoryVO"%>
-<%@ page import="egovframework.rfc3.common.util.EgovStringUtil"%>
-<%@page import="egovframework.rfc3.board.vo.BoardFileVO"%>
-<%
-	ArrayList<BoardDataVO> answerList = (ArrayList<BoardDataVO>)bm.getBoardReplyDataList(bm.getDataIdx());
-%>
-<%
-		BoardManager bms= new BoardManager(request);
-%>
-<%
-	List<BoardCategoryVO> categoryList1 = bm.getCategoryList1();
-	List<BoardCategoryVO> categoryList2 = bm.getCategoryList2();
-	List<BoardCategoryVO> categoryList3 = bm.getCategoryList3();
-%>
+<%@ page import="java.util.*, egovframework.rfc3.board.vo.BoardVO, egovframework.rfc3.board.vo.BoardCategoryVO"%>
+<%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
 <script type="text/javascript">
-function showCommentReply(id)
-{
-	var reply = document.getElementById(id);
-	if(reply.style.display == 'none')
-	{
-		reply.style.display = 'block';
-	}else{
-		reply.style.display = 'none';
+function changeCate(sn,objCode){
+	if(sn == '1'){
+		document.rfc_bbs_searchForm.categoryCode1.value=objCode;
+	}else if(sn == '2'){
+		document.rfc_bbs_searchForm.categoryCode2.value=objCode;
+	}else if(sn == '3'){
+		document.rfc_bbs_searchForm.categoryCode3.value=objCode;
+	}
+	document.rfc_bbs_searchForm.submit();
+}	
+
+</script>
+
+<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js" type="text/javascript"></script>
+<script>
+$(function() {
+  $( "#datepicker1,#datepicker2" ).datepicker({
+    dateFormat: 'yy-mm-dd',
+    prevText: '이전 달',
+    nextText: '다음 달',
+    monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+    monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
+    dayNames: ['일','월','화','수','목','금','토'],
+    dayNamesShort: ['일','월','화','수','목','금','토'],
+    dayNamesMin: ['일','월','화','수','목','금','토'],
+    showMonthAfterYear: true,
+    yearSuffix: '년'
+  });
+});
+</script>
+
+
+<%
+List<BoardCategoryVO> categoryList1 = bm.getCategoryList1();
+List<BoardCategoryVO> categoryList2 = bm.getCategoryList2();
+List<BoardCategoryVO> categoryList3 = bm.getCategoryList3();
+
+boolean cate1 = true;
+boolean cate2 = true;
+boolean cate3 = true;
+boolean cate1Type = true;
+boolean cate2Type = true;
+boolean cate3Type = true;
+if(categoryList1 != null && categoryList1.size() > 0){
+	BoardCategoryVO cate1Print = (BoardCategoryVO)categoryList1.get(categoryList1.size()-1);
+	if(cate1Print.getCategoryName().equals("noview")){
+		String[] code1 = cate1Print.getCategoryCode().split("_");
+		String checkString =cate1Print.getCategoryCode();
+		if(code1.length ==2){
+			checkString = code1[1];
+		}
+		
+		if(checkString.indexOf("L") > -1){
+			cate1=false;
+		}
+		if(checkString.indexOf("B") > -1){
+			cate1Type=false;
+		}
+		//categoryList1.remove(categoryList1.size()-1);
 	}
 }
-</script>
-<style>
-.rfc_bbs_point {background:#f9f9f9;}
-.comment_list {}
-.comment_list li {border-bottom:1px solid #ddd;padding:15px;}
-.comment_name {float:left;color:#f26522;padding-bottom:10px;}
-.rfc_bbs_point_data {float:left;padding:0 20px;padding-bottom:10px;}
-.rfc_bbs_point_txt_left_con {clear:both;}
-.rfc_bbs_pager {text-align:center;padding:10px 0;}
-</style>
 
-			<!-- board_read -->
-			<section class="board">
-			<table class="board_read02">
-				<caption><%=bm.getDataTitle()%>의 작성자, 등록일, 첨부파일, 내용 등 상세내용표입니다.</caption>
-				<thead>
-					<tr>
-					<th scope="col" colspan="4"  class="topline"><%=bm.getDataTitle()%></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-					<th scope="row" style="width: 20%;">작성자</th>
-					<td style="width: 30%;"><%=bm.getUserNick()%></td>
-					<th scope="row" class="lline" style="width: 20%;">등록일</th>
-					<td style="width: 20%;"><%=bm.getRegister_dt("20yy/MM/dd")%></td>
-					</tr>
-				<tr>
-				<th scope="row">첨부파일</th>
-				<td colspan="3">
-		<%
-					String userAgent = request.getHeader("user-agent");
-					if(bm.getFileCount() > 0){
-					for(int fcnt = 0;fcnt<bm.getFileCount();fcnt++)
-					{
-						boolean isMobile = false;
-						boolean isHtml5 = !(userAgent.toLowerCase().indexOf("msie 6.0")>-1||userAgent.toLowerCase().indexOf("msie 7.0")>-1||userAgent.toLowerCase().indexOf("msie 8.0")>-1);
-						if(userAgent.toLowerCase().indexOf("mobile") >=0)
-						{
-							isMobile = true;
-						}
-						if(fcnt > 0)
-						{
-							%>
-							<br/>
-							<%
-						}
-						if(bm.getBoardFileVO(fcnt) != null)
-						{
-							if("fileUpload".equals(bm.getBoardFileVO(fcnt).getFileId()) || "upload".equals(bm.getBoardFileVO(fcnt).getFileId())
-									|| "ksboard".equals(bm.getBoardFileVO(fcnt).getFileId()) || "data".equals(bm.getBoardFileVO(fcnt).getFileId())) {
-								out.print(bm.getFileList(bm.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)","").replace("/board/download.gne", "/program/board/download.jsp"));
-							} else {
-								out.print(bm.getFileList(bm.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
-							}
-							//out.print(bm.getFileList(bm.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
-							if(bm.getBoardFileVO(fcnt).getFileId()!=null && !bm.getBoardFileVO(fcnt).getFileId().equals("")){
-							out.print(bm.getHtmlViewerIcon(bm.getBoardFileVO(fcnt),"",isMobile).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
-							}else{
-							out.print(bm.getConvertIcon(bm.getBoardFileVO(fcnt),null).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
-							}
-
-
-						}
-					}
-					}
-					%>
-					</td>
-					</tr>
-			<%
-			int tdCnt = 0;
-			%>
-			<%if(bm.isViewItem("USER_EMAIL") && tdCnt == 0){ out.print("<tr>");}%>
-			<% if(bm.isViewItem("USER_EMAIL")) { tdCnt++; %>
-				<th scope="row" style="width: 20%;">이메일</th>
-					<td style="width: 30%;"><%=EgovStringUtil.isNullToString(bm.getUserEmail())%></td>
-			<% } %>
-			<%if(bm.isViewItem("USER_EMAIL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
-		<% if(bm.isViewItem("USER_HOMEPAGE")) { %>
-			<tr>
-			<th scope="row">홈페이지</th>
-			<td colspan="3"><%=EgovStringUtil.isNullToString(bm.getUserHomepage())%></td>
-			<tr>
-		<% } %>
-
-		<%if(bm.isViewItem("USER_TEL") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("USER_TEL")) { tdCnt++; %>
-			<th scope="row" style="width: 20%;">전화번호</th>
-				<td style="width: 30%;"><%=EgovStringUtil.isNullToString(bm.getUserTel())%></td>
-		<% } %>
-		<%if(bm.isViewItem("USER_TEL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("USER_CEL") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("USER_CEL")) {  tdCnt++;%>
-			<th scope="row" style="width: 20%;">휴대전화</th>
-				<td style="width: 30%;"><%=EgovStringUtil.isNullToString(bm.getUserCel())%></td>
-		<% } %>
-		<%if(bm.isViewItem("USER_CEL") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
-		<% if(bm.isViewItem("USER_ZIPCODE") || bm.isViewItem("USER_ADDRESS") || bm.isViewItem("USER_DETAILADDR")) { %>
-			<tr>
-			<th scope="row">주소</th>
-			<td colspan="3">
-				<% if(bm.isViewItem("USER_ZIPCODE")){ %>
-			(<%=EgovStringUtil.isNullToString(bm.getUserZipcode())%>)
-			<% } %>
-
-			<% if(bm.isViewItem("USER_ADDRESS")){ %>
-			<%=EgovStringUtil.isNullToString(bm.getUserAddress())%>
-			<% } %>
-
-			<% if(bm.isViewItem("USER_DETAILADDR")){ %>
-			&nbsp;&nbsp;<%=EgovStringUtil.isNullToString(bm.getUserDetailAddr())%>
-			<% } %>
-			</td>
-			</tr>
-		<% } %>
-
-
-		<%
-						if(bm.isViewItem("CATEGORY_CODE1") && categoryList1 != null && categoryList1.size() > 0){
-							if(bm.getMenuIsBoard1Cate()){
-								if(tdCnt == 0){ out.print("<tr>");}
-								tdCnt++;
-								for(BoardCategoryVO category : categoryList1){
-									if(bm.getCategoryCode1().equals(category.getCategoryCode())){
-						%>
-								<th scope="row" style="width: 20%;">카테고리1</th>
-									<td style="width: 30%;"><%=category.getCategoryName()%></td>
-						<%
-								if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
-									}
-								}
-							}
-						}
-						%>
-
-
-						<%
-						if(bm.isViewItem("CATEGORY_CODE2") && categoryList2 != null && categoryList2.size() > 0){
-							if(bm.getMenuIsBoard2Cate()){
-								if(tdCnt == 0){ out.print("<tr>");}
-								tdCnt++;
-							for(BoardCategoryVO category2 : categoryList2){
-								if(bm.getCategoryCode2().equals(category2.getCategoryCode())){
-						%>
-								<th scope="row" style="width: 20%;">카테고리2</th>
-									<td style="width: 30%;"><%=category2.getCategoryName()%></td>
-						<%
-						if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
-								}
-							}
-							}
-						}
-						%>
-
-						<%
-						if(bm.isViewItem("CATEGORY_CODE3") && categoryList3 != null && categoryList3.size() > 0){
-							if(bm.getMenuIsBoard3Cate()){
-								if(tdCnt == 0){ out.print("<tr>");}
-								tdCnt++;
-							for(BoardCategoryVO category3 : categoryList3){
-								if(bm.getCategoryCode3().equals(category3.getCategoryCode())){
-						%>
-								<th scope="row" style="width: 20%;">카테고리3</th>
-									<td style="width: 30%;"><%=category3.getCategoryName()%></td>
-						<%
-						if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
-								}
-							}
-							}
-						}
-						%>
-
-
-
-
-		<%if(bm.isViewItem("TMP_FIELD1") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD1")) { tdCnt++; %>
-			<th scope="row" style="width: 20%;">임시필드1</th>
-				<td style="width: 30%;"><%=EgovStringUtil.isNullToString(bm.getTmpField1())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD1") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD2") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD2")) { tdCnt++; %>
-			<th scope="row" style="width: 20%;">임시필드2</th>
-				<td style="width: 30%;"><%=EgovStringUtil.isNullToString(bm.getTmpField2())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD2") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD3") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD3")) { tdCnt++; %>
-			<th scope="row" style="width: 20%;">임시필드3</th>
-				<td style="width: 30%;"><%=EgovStringUtil.isNullToString(bm.getTmpField3())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD3") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD4") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD4")) { tdCnt++; %>
-			<th scope="row" style="width: 20%;">임시필드4</th>
-				<td style="width: 30%;"><%=EgovStringUtil.isNullToString(bm.getTmpField4())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD4") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%if(bm.isViewItem("TMP_FIELD5") && tdCnt == 0){ out.print("<tr>");}%>
-		<% if(bm.isViewItem("TMP_FIELD5")) { tdCnt++; %>
-			<th scope="row" style="width: 20%;">임시필드5</th>
-				<td style="width: 30%;"><%=EgovStringUtil.isNullToString(bm.getTmpField5())%></td>
-		<% } %>
-		<%if(bm.isViewItem("TMP_FIELD5") && tdCnt == 2){tdCnt=0; out.print("</tr>");}%>
-
-		<%
-			int extensionCount = bm.extensionCount();
-			for(int i=0;i<extensionCount;i++)
-			{
-				if(tdCnt == 0){ out.print("<tr>");}
-				tdCnt++;
-				bm.setExtensionVO(i);
-				%>
-				<th scope="row" style="width: 20%;"><%=bm.getExtensionDesc() %></th>
-					<td style="width: 30%;"><%=bm.getExtensionValue(bm.getExtensionKey())%></td>
-				<%
-				if(tdCnt == 2){tdCnt=0; out.print("</tr>");}
-			}
-			%>
-			<%if(tdCnt != 0){tdCnt=0; out.print("<td colspan=\"2\"></td>");}%>
-			<tr>
-			<th scope="row">내용</th>
-			<td colspan="3"><%if(!"".equals(bm.getDataContent())){%>
-				<%=bm.getDataContent().replace("\r\n","<br>")%><br>
-					
-				<%}%>
-				
-				<%-- // 첨부파일 이미지 출력 주석처리
-				if(bm.getFileCount() > 0) {
-					String fileName = null;
-					String ext = null;
-					String img = null;
-					String altName = null;
-					for(int i=0; i<bm.getFileCount(); i++) {
-						BoardFileVO fileVO = (BoardFileVO)bm.getBoardFileVO(i);
-						fileName = fileVO.getFileMask();
-						altName = fileVO.getFileName();
-						altName = altName.substring(0, altName.lastIndexOf("."));
-						ext = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-						if("jpg".equals(ext) || "bmp".equals(ext) || "png".equals(ext) || "gif".equals(ext) || "jpeg".equals(ext)) {
-							if("fileUpload".equals(fileVO.getFileId())) {
-								img = "/fileUpload/real/" + fileVO.getFileMask();
-							} else if("ksboard".equals(fileVO.getFileId())) {
-								img = "/ksboard/data/photo/" + fileVO.getFileMask();
-							} else {
-								img = "/upload_data/board_data/" + fileVO.getBoardId() + "/" + fileVO.getFileMask();
-							}
-				%>
-				<img src="<%=img %>"  onerror="this.src='/images/no_img.gif';"  alt="<%=altName %>" /><br>
-				<%
-
-						}
-					}
-				}
-				--%>
-
-			</td>
-			</tr>
-			<tr>
-				</tbody>
-				</table>
-				<p class="read_page" style="margin:20px 0px;">
-<!--RFC 공통 버튼 시작-->
-<div class="rfc_bbs_btn">
-	<%=bm.getViewIcons()%>
-</div>
-<!--RFC 공통 버튼 끝-->
-				</p>
-			</section>
-			<!-- board_read -->
-<%
-if(answerList.size() > 0)
-{
-	for(int j=0; j < answerList.size(); j++) {
-		bms.setBoardDataVO(answerList.get(j));
-%>
-			<table class="board_read02">
-				<caption><%=bm.getDataTitle()%>의 작성자, 등록일, 첨부파일, 내용등 답변상세내용표입니다.</caption>
-				<thead>
-					<tr>
-					<th scope="col" colspan="4"  class="topline"><%=bms.getDataTitle()%></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-					<th scope="row" style="width: 20%;">작성자</th>
-					<td style="width: 30%;"><%=bms.getUserNick()%></td>
-					<th scope="row" class="lline" style="width: 20%;">등록일</th>
-					<td style="width: 30%;"><%=bms.getRegister_dt("yyyy/MM/dd")%></td>
-					</tr>
-				<tr>
-				<th scope="row">첨부파일</th>
-				<td colspan="3">
-		<%
-					String userAgent2 = request.getHeader("user-agent");
-					if(bms.getFileCount() > 0){
-					for(int fcnt = 0;fcnt<bms.getFileCount();fcnt++)
-					{
-						boolean isMobile = false;
-						boolean isHtml5 = !(userAgent2.toLowerCase().indexOf("msie 6.0")>-1||userAgent2.toLowerCase().indexOf("msie 7.0")>-1||userAgent2.toLowerCase().indexOf("msie 8.0")>-1);
-						if(userAgent2.toLowerCase().indexOf("mobile") >=0)
-						{
-							isMobile = true;
-						}
-						if(fcnt > 0)
-						{
-							%>
-							<br/>
-							<%
-						}
-						if(bms.getBoardFileVO(fcnt) != null)
-						{
-							if("fileUpload".equals(bms.getBoardFileVO(fcnt).getFileId()) || "upload".equals(bms.getBoardFileVO(fcnt).getFileId())
-									|| "ksboard".equals(bms.getBoardFileVO(fcnt).getFileId()) || "data".equals(bms.getBoardFileVO(fcnt).getFileId())) {
-								out.print(bms.getFileList(bms.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)","").replace("/board/download.gne", "/program/board/download.jsp"));
-							} else {
-								out.print(bms.getFileList(bms.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
-							}
-							//out.print(bms.getFileList(bms.getBoardFileVO(fcnt),"<span style=\"vertical-align: bottom;\"><a href=\"{fileDown}\">{fileName} ({fileSize})</a></span> ").replace("<br/>","").replace("(null  kb)",""));
-							if(bms.getBoardFileVO(fcnt).getFileId()!=null && !bms.getBoardFileVO(fcnt).getFileId().equals("")){
-							out.print(bms.getHtmlViewerIcon(bms.getBoardFileVO(fcnt),"",isMobile).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
-							}else{
-							out.print(bms.getConvertIcon(bms.getBoardFileVO(fcnt),null).replaceAll("images/egovframework/rfc3/board/images/skin/common","images/sub"));
-							}
-
-
-						}
-					}
-					}
-					%>
-					</td>
-					</tr>
-			<tr>
-			<th scope="row">내용</th>
-			<td colspan="3"><%=bms.getDataContent().replace("\r\n","<br>")%><br>
-				<%-- // 첨부파일 이미지 출력 주석처리
-				if(bms.getFileCount() > 0) {
-					String fileName = null;
-					String ext = null;
-					String img = null;
-					for(int i=0; i<bms.getFileCount(); i++) {
-						BoardFileVO fileVO = (BoardFileVO)bms.getBoardFileVO(i);
-						fileName = fileVO.getFileMask();
-						ext = fileName.substring(fileName.lastIndexOf(".") + 1, fileName.length());
-						if("jpg".equals(ext) || "bmp".equals(ext) || "png".equals(ext) || "gif".equals(ext) || "jpeg".equals(ext)) {
-							if("fileUpload".equals(fileVO.getFileId())) {
-								img = "/fileUpload/real/" + fileVO.getFileMask();
-							} else if("ksboard".equals(fileVO.getFileId())) {
-								img = "/ksboard/data/photo/" + fileVO.getFileMask();
-							} else {
-								img = "/upload_data/board_data/" + fileVO.getBoardId() + "/" + fileVO.getFileMask();
-							}
-				%>
-				<img src="<%=img %>"  onerror="this.src='/images/no_img.gif';"  /><br>
-				<%
-
-						}
-					}
-				}
-				--%>
-
-			</td>
-			</tr>
-				</tbody>
-				</table>
-<div class="rfc_bbs_btn">
-	<%=bms.getViewIcons()%>
-</div>
-<%	}
+if(categoryList2 != null && categoryList2.size() > 0){
+	BoardCategoryVO cate2Print = (BoardCategoryVO)categoryList2.get(categoryList2.size()-1);
+	if(cate2Print.getCategoryName().equals("noview")){
+		String[] code2 = cate2Print.getCategoryCode().split("_");
+		String checkString =cate2Print.getCategoryCode();
+		if(code2.length ==2){
+			checkString = code2[1];
+		}
+		if(checkString.indexOf("L") > -1){
+			cate2=false;
+		}
+		if(checkString.indexOf("B") > -1){
+			cate2Type=false;
+		}
+		//categoryList2.remove(categoryList2.size()-1);
+	}
 }
+
+if(categoryList3 != null && categoryList3.size() > 0){
+	BoardCategoryVO cate3Print = (BoardCategoryVO)categoryList3.get(categoryList3.size()-1);
+	if(cate3Print.getCategoryName().equals("noview")){
+		String[] code3 = cate3Print.getCategoryCode().split("_");
+		String checkString =cate3Print.getCategoryCode();
+		if(code3.length ==2){
+			checkString = code3[1];
+		}
+		if(checkString.indexOf("L") > -1){
+			cate3=false;
+		}
+		if(checkString.indexOf("B") > -1){
+			cate3Type=false;
+		}
+		//categoryList3.remove(categoryList3.size()-1);
+	}
+}
+//목록 항목 갯수	
+int listCount = bm.listItemCount();
 %>
-
-
-<%if(bm.isCommentUse())
-{
-	List<CommentVO> commentVOList = bm.getCommentList();
-	%>
-	<!-- 코멘트 시작 -->
-	<div class="rfc_bbs_point">
-		<!--div class="rfc_bbs_point_last">
-			코멘트 목록
-		</div-->
-		<ul class="comment_list">
-			<%
-			for(CommentVO comment : commentVOList)
-			{
-				%>
-				<li>
-					<dl>
-						<dt class="comment_name"><%=comment.getDataDep() != 1 ? "<img src=\""+request.getContextPath()+"/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_re.gif\" alt=\"Re\" />" : ""%><%=comment.getUserNick()%></dt>
-						<dd class="rfc_bbs_point_star" style="display: none;"><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star0<%=comment.getStarPoint()%>.gif" alt="별<%=comment.getStarPoint()%>개" /></dd>
-						<dd class="rfc_bbs_point_data"><%=new SimpleDateFormat("yyyy/MM/dd").format(comment.getRegister_dt()).toString()%></dd>
-						<dd class="rfc_bbs_point_down" style="display: none;">
-						<%
-						if(comment.getFileName() != null && !"".equals(comment.getFileName()))
-						{
-							%>
-							<a href="<%=request.getContextPath() %>/board/downloadComment.<%=bm.getUrlExt()%>?dataSid=<%=bm.getDataSid()%>&amp;boardId=<%=bm.getBoardId() %>&amp;commentSid=<%=comment.getCommentSid() %>"><img src="<%=request.getContextPath() %>/images/egovframework/rfc3/board/images/skin/bbs_list_type1/rfc_bbs_file.gif" alt="파일이미지" class="rfc_bbs_point_down_img" /><%=comment.getFileName()%> (<%=comment.getFileSize()%>)</a>
-							<%
-						}%>
-						</dd>
-						<dd class="rfc_bbs_point_btn">
-							<!--a href="#"><img src="/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_btn_answer.gif" alt="답변" /></a>
-							<a href="#"><img src="/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_btn_modify.gif" alt="수정" /></a-->
-							<%=bm.getCommentDelete(request.getContextPath()+"/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_btn_delete.gif",comment.getCommentSid(),"") %>
-						</dd>
-						<dd class="rfc_bbs_point_txt_left_con"><%=comment.getCommentTitle()%></dd>
-					</dl>
-					<%
-					if(comment.getDataDep() == 1)
-					{
-						%>
-						<!--h4><a href="#" onclick="showCommentReply('comment<%=comment.getCommentSid()%>');return false;"><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_star_tit.gif" alt="별점평가하기" /></a></h4-->
-						<div class="rfc_bbs_star" id="comment<%=comment.getCommentSid()%>" style="display:none;">
-							<div class="rfc_bbs_star_last">
-								<form name="comment" action="<%=request.getContextPath()%>/board/writeComment.<%=bm.getUrlExt() %>" method="post" class="rfc_bbs_Form" enctype="multipart/form-data">
-									<fieldset>
-										<legend>코멘트 답변</legend>
-										<input type="hidden" name="commentSid" value="<%=comment.getCommentSid()%>" />
-										<input type="hidden" name="boardSid" value="<%=bm.getBoardSid()%>" />
-										<input type="hidden" name="orderBy" value="<%=bm.getOrderBy()%>" />
-										<input type="hidden" name="boardId" value="<%=bm.getBoardId()%>" />
-										<input type="hidden" name="dataSid" value="<%=bm.getDataSid()%>" />
-
-										<input type="hidden" name="searchType" value="<%=bm.getSearchType()%>" />
-										<input type="hidden" name="keyword" value="<%=bm.getKeyword()%>" />
-
-										<input type="hidden" name="searchStartDt" value="<%=bm.getSearchStartDt()%>" />
-										<input type="hidden" name="searchEndDt" value="<%=bm.getSearchEndDt()%>" />
-										<input type="hidden" name="startPage" value="<%=bm.getPageNum()%>" />
-
-										<input type="hidden" name="menuCd" value="${menuCd}" />
-										<input type="hidden" name="contentsSid" value="${contentsSid}" />
-
-										<div class="rfc_bbs_star_file_write">
-											<textarea name="commentTitle" id="textarea" cols="100%" rows="3" title="내용"></textarea>
-											<input type="image" src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_btn_star.gif" alt="평가하기" class="rfc_bbs_border_none"/>
-										</div>
-										<div class="rfc_bbs_star_file_find" style="display: none;">
-											<label class="label_block" for="file">* 첨부파일</label>
-											<input type="file" name="file" value="" title="첨부파일" class="rfc_bbs_star_file_input" />
-										</div>
-									</fieldset>
-								</form>
-							</div>
-						</div>
-						<%
-					}%>
-				</li>
-				<%
-			}%>
-		</ul>
-	</div>
-	<!-- 코멘트 목록 끝 -->
-
-
-	<!--RFC 공통 페이지 시작-->
-	<div class="rfc_bbs_pager">
-		<%=bm.printPaging()%>
-	</div>
-	<!--RFC 공통 페이지 끝-->
-
-	<!-- 코멘트 등록 시작 -->
-	<!--h4><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_star_tit.gif" alt="별점평가하기" /></h4-->
-	<div class="rfc_bbs_star">
-		<div class="rfc_bbs_star_last">
-			<form name="comment" action="<%=request.getContextPath()%>/board/writeComment.<%=bm.getUrlExt() %>" method="post" class="rfc_bbs_Form" enctype="multipart/form-data">
+			<section class="board">
+				<div class="search">
+<form action="<%=request.getContextPath() %>/board/list.<%=bm.getUrlExt()%>" name="rfc_bbs_searchForm" class="rfc_bbs_searchForm" method="get">
 				<fieldset>
-					<input type="hidden" name="boardSid" value="<%=bm.getBoardSid()%>" />
-					<input type="hidden" name="orderBy" value="<%=bm.getOrderBy()%>" />
-					<input type="hidden" name="boardId" value="<%=bm.getBoardId()%>" />
-					<input type="hidden" name="dataSid" value="<%=bm.getDataSid()%>" />
+					<legend>전체검색</legend>
 
-					<input type="hidden" name="searchType" value="<%=bm.getSearchType()%>" />
-					<input type="hidden" name="keyword" value="<%=bm.getKeyword()%>" />
+						<input type="hidden" name="orderBy" value="<%=bm.getOrderBy()%>" />
+						<input type="hidden" name="boardId" value="<%=bm.getBoardId()%>" />
+						<input type="hidden" name="categoryCode1" value="<%=bm.getSearchCategoryCode1() %>" />
 
-					<input type="hidden" name="searchStartDt" value="<%=bm.getSearchStartDt()%>" />
-					<input type="hidden" name="searchEndDt" value="<%=bm.getSearchEndDt()%>" />
-					<input type="hidden" name="startPage" value="<%=bm.getPageNum()%>" />
+						
+<%
+				if( (categoryList1 != null && categoryList1.size() > 0) || (categoryList2 != null && categoryList2.size() > 0) || (categoryList3 != null && categoryList3.size() > 0))
+					{ 
+							/*-------------------------------------- 카테고리 버튼 시작   --------------------------------------*/
+					if(categoryList1 != null && categoryList1.size() > 0){ 
+							if(bm.getMenuIsBoard1Cate() && cate1 && !cate1Type){
+						%>
+								<input type="hidden" name="categoryCode1" id="categoryCode1" value="<%=bm.getSearchCategoryCode1() %>"  title="카테고리1"/>
+								<section  class="buseo_list">
+									<ul>
+									<li><a href="#" <%if(bm.getSearchCategoryCode1().equals(""))out.print("class='on'");%>   onclick="changeCate('1','');">전체보기</a></li>
+						<% 
+								for(BoardCategoryVO category : categoryList1){
+									if(!category.getCategoryName().equals("noview")){
+						%>			
+									<li><a href="#" <%if(bm.getSearchCategoryCode1().equals(category.getCategoryCode()))out.print("class='on'");%> onclick="changeCate('1','<%=category.getCategoryCode()%>');"><%=category.getCategoryName()%></a></li>
+						<% 	
+									}
+								} 
+						%>
+								</ul>
+									<div class="clr"></div>
+								</section>
+						<%
+							}
+						}
+						%>
 
-					<input type="hidden" name="menuCd" value="${menuCd}" />
-					<input type="hidden" name="contentsSid" value="${contentsSid}" />
+									<% 
+						if(categoryList2 != null && categoryList2.size() > 0){ 
+							if(bm.getMenuIsBoard2Cate() && cate2 && !cate2Type){
+						%>
+								<input type="hidden" name="categoryCode2" id="categoryCode2" value="<%=bm.getSearchCategoryCode2() %>"  title="카테고리2"/>
+								<section  class="buseo_list">
+									<ul>
+									<li><a href="#" <%if(bm.getSearchCategoryCode2().equals(""))out.print("class='on'");%>   onclick="changeCate('2','');">전체보기</a></li>
+						<% 
+								for(BoardCategoryVO category2 : categoryList2){
+									if(!category2.getCategoryName().equals("noview")){
+						%>			
+									<li><a href="#" <%if(bm.getSearchCategoryCode2().equals(category2.getCategoryCode()))out.print("class='on'");%> onclick="changeCate('2','<%=category2.getCategoryCode()%>');"><%=category2.getCategoryName()%></a></li>
+						<% 
+									}
+								} 
+						%>
+								</ul>
+									<div class="clr"></div>
+								</section>
+						<%
+							}
+						}
+						%>
+						
+								<% 
+						if(categoryList3 != null && categoryList3.size() > 0){ 
+							if(bm.getMenuIsBoard3Cate() && cate3 && !cate3Type){
+						%>
+							<input type="hidden" name="categoryCode3" id="categoryCode3" value="<%=bm.getSearchCategoryCode3() %>"  title="카테고리3"/>
+							<section  class="buseo_list">
+									<ul>
+									<li><a href="#" <%if(bm.getSearchCategoryCode3().equals(""))out.print("class='on'");%>   onclick="changeCate('3','');">전체보기</a></li>
+						<% 
+								for(BoardCategoryVO category3 : categoryList3){
+									if(!category3.getCategoryName().equals("noview")){
+						%>			
+									<li><a href="#" <%if(bm.getSearchCategoryCode3().equals(category3.getCategoryCode()))out.print("class='on'");%> onclick="changeCate('3','<%=category3.getCategoryCode()%>');"><%=category3.getCategoryName()%></a></li>
+						<% 
+									}
+								} 
+						%>
+								</ul>
+									<div class="clr"></div>
+								</section>
+						<%
+								}
+							}
+								/*  -------------------------------------- 카테고리 버튼 끝    --------------------------------------*/
+						%>
+						
+						
+						<% /*  -------------------------------------- 카테고리 select 시작   --------------------------------------*/
+						if(categoryList1 != null && categoryList1.size() > 0){ 
+							if(bm.getMenuIsBoard1Cate()&& cate1 && cate1Type){
+						%>
+								<select name="categoryCode1" id="categoryCode1" class="layout_select" title="카테고리1" onchange="changeCate(this);">
+								<option value="">전 체</option>
+						<% 
+								for(BoardCategoryVO category : categoryList1){ 
+									if(!category.getCategoryName().equals("noview")){
+						%>
+									<option value="<%=category.getCategoryCode()%>" <%if(bm.getSearchCategoryCode1().equals(category.getCategoryCode()))out.print("selected");%>><%=category.getCategoryName()%></option>
+						<% 
+									}
+								} 
+						%>
+								</select>
+						<%
+							}else{
+						%>
+								<input type="hidden" name="categoryCodeData1" id="categoryCodeData1" value="<%=bm.getCategoryCode1()%>"  title="카테고리1"/>
+						<%
+							}
+						}
+						%>
 
-					<div class="rfc_bbs_star_star" style="display: none;">
-						<input type="radio" name="starPoint" id="star_radio01" value="1" title="1점" class="rfc_bbs_border_none rfc_bbs_radio_none"/><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star01.gif" alt="별1개" />
-						<input type="radio" name="starPoint" id="star_radio02" value="2" title="2점" class="rfc_bbs_border_none rfc_bbs_radio_none" /><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star02.gif" alt="별2개" />
-						<input type="radio" name="starPoint" id="star_radio03" value="3" title="3점" class="rfc_bbs_border_none rfc_bbs_radio_none" /><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star03.gif" alt="별3개" />
-						<input type="radio" name="starPoint" id="star_radio04" value="4" title="4점" class="rfc_bbs_border_none rfc_bbs_radio_none" /><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star04.gif" alt="별4개" />
-						<input type="radio" name="starPoint" id="star_radio05" value="5" title="5점" class="rfc_bbs_border_none rfc_bbs_radio_none" /><img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_point_star05.gif" alt="별5개" />
-					</div>
-					<div class="rfc_bbs_star_file_write">
-						<textarea name="commentTitle" id="textarea" cols="100%" rows="3" title="내용" style="float:left;width:658px;margin-right:10px;"></textarea>
-						<input type="image" src="<%=request.getContextPath()%>/images/btn_comment.jpg" alt="평가하기" class="rfc_bbs_border_none"/>
-					</div>
-					<div class="rfc_bbs_star_file_find" style="display: none;">
-						<label class="label_block" for="file">* 첨부파일</label>
-						<input type="file" name="file" id="file" value="" title="첨부파일" class="rfc_bbs_star_file_input" />
-					</div>
+									<% 
+						if(categoryList2 != null && categoryList2.size() > 0){ 
+							if(bm.getMenuIsBoard2Cate()&& cate2 && cate2Type){
+						%>
+							<select name="categoryCode2" id="categoryCode2" class="layout_select"  title="카테고리2">
+							<option value="">2차 카테고리</option>
+						<% 
+							for(BoardCategoryVO category2 : categoryList2){
+								if(!category2.getCategoryName().equals("noview")){
+						%>
+								<option value="<%=category2.getCategoryCode()%>" <%if(bm.getSearchCategoryCode2().equals(category2.getCategoryCode()))out.print("selected");%>><%=category2.getCategoryName()%></option>
+						<% 
+								}
+							} 
+						%>
+							</select>
+						<%
+							}else{
+						%>
+							<input type="hidden" name="categoryCodeData2" id="categoryCodeData2" value="<%=bm.getCategoryCode2()%>"  title="카테고리2"/>
+						<%
+							}
+						}
+						%>
+						
+								<% 
+						if(categoryList3 != null && categoryList3.size() > 0){ 
+							if(bm.getMenuIsBoard3Cate()&& cate3 && cate3Type){
+						%>
+							<select name="categoryCode3" id="categoryCode3" class="layout_select"  title="카테고리3">
+							<option value="">3차 카테고리</option>
+						<% 
+							for(BoardCategoryVO category3 : categoryList3){ 
+								if(!category3.getCategoryName().equals("noview")){
+						%>
+								<option value="<%=category3.getCategoryCode()%>" <%if(bm.getSearchCategoryCode3().equals(category3.getCategoryCode()))out.print("selected");%>><%=category3.getCategoryName()%></option>
+						<% 
+								}
+							} 
+						%>
+							</select>
+						<%
+							}else{
+						%>
+							<input type="hidden" name="categoryCodeData3" id="categoryCodeData3" value="<%=bm.getCategoryCode3()%>"  title="카테고리3"/>
+						<%
+							}
+						} /*  -------------------------------------- 카테고리 select 끝   --------------------------------------*/
+					}
+				%>
+
+
+
+				<input id="datepicker1" name="searchStartDt" type="text" class="calendar" title="기간검색 시작" value="<%=bm.getSearchStartDt() %>" size="10" onclick="this.value=''"> ~ 	
+				<input id="datepicker2" name="searchEndDt" type="text" class="calendar" title="기간검색 끝" value="<%=bm.getSearchEndDt() %>" size="10" onclick="this.value=''">
+						<input type="hidden" name="startPage" value="1" />
+						<input type="hidden" name="menuCd" value="${menuCd}" />
+						<input type="hidden" name="contentsSid" value="${contentsSid}" />
+						<select name="searchType" class="text" title="검색항목을 선택하세요" >
+							<!-- <option value="">선택</option> -->
+							<option value="DATA_TITLE" <%=bm.getSearchType().equals("DATA_TITLE") ? "selected" : "" %>>제목</option>
+							<option value="DATA_CONTENT" <%=bm.getSearchType().equals("DATA_CONTENT") ? "selected" : "" %>>내용</option>
+							<option value="USER_NICK" <%=bm.getSearchType().equals("USER_NICK") ? "selected" : "" %>>작성자</option>
+						</select>
+					<input type="text" name="keyword" title="검색어 입력" value="<%=bm.getKeyword()%>" style="ime-mode:active;"/>
+<!--					<input type="image" src="<%=request.getContextPath() %>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_btn_search.gif" alt="검색" class="button11"/>-->
+<button onclick="javascript:return searchingCheck();">검색하기</button>
+
 				</fieldset>
 			</form>
-		</div>
-	</div>
-	<!-- 코멘트 등록 끝 -->
-	<%
+
+
+</div>
+					<p><strong>총 <span><%=bm.getDataCount()%></span> 건</strong> [ Page <%=bm.getPageNum()%>/<%=bm.getPageCount()%> ]</p>
+				
+<%
+String boardTitle = (bm.getBoardVO()).getBoardTitle();
+%>
+<%
+String captionText = "";
+for(int i=0; i<bm.listItemCount(); i++){
+	if(bm.isManager()){													// 관리자일 경우 checkbox, 상태, 삭제 컬럼이 추가되기 때문에
+		if(i>=3){														// index 3부터 변수에 저장
+			if(i>3 && i<bm.listItemCount()){captionText += ", ";}		
+			captionText += bm.getItemName(i);
+		}
+	}else{
+		if(i>0 && i<bm.listItemCount()){captionText += ", ";}
+		captionText += bm.getItemName(i);
+	}
 }
 %>
+				<table class="tb_board">
+				<caption><%=boardTitle%>의 <%=captionText%> 목록표입니다.</caption>
+				<colgroup>
+	<%
+	//목록 항목별 넓이 비율
+	for(int i=0;i<listCount;i++)
+	{
+		%>
+		<col style="width:<%=bm.getItemWidth(i) != null && !"0".equals(bm.getItemWidth(i) ) ? bm.getItemWidth(i)+"%"  : ""%>"/>
+		<%
+	}
+	%>
+</colgroup>
+					<thead>
+						<tr>
+				<%
+				//각 항목별 사용자 지정명 출력
+				for(int i=0;i<listCount;i++)
+				{
+					%>
+					<th scope="col" <%= (i+1) == listCount ? "class=\"rfc_bbs_list_last\"" : ""%>><%=bm.getItemName(i)%></th>
+					<%
+				}
+				%>
+							
+						</tr>
+					</thead>
+					<tbody>
+			<%
+			//게시물이 없을경우 메시지
+			if(bm.getListCount() == 0) {
+				if(bm.getEmptyMessage() != null && !"".equals(bm.getEmptyMessage())) {
+				%>
+					<tr>
+						<td colspan="<%=listCount%>"><%=bm.getEmptyMessage()%></td>
+					</tr>
+				<%
+				}
+			}
+			%>
+			<%
+			//게시물 Index
+			int index = 0;
+			//게시판의 행 만큼 반복
+			for(int i=0; i<bm.getListCount() && i< bm.getBoardRow(); i++) {
+				//게시물의 열 만큼 반복
+				for(int j=0; j<bm.getListCount() && j< bm.getBoardCell(); j++) {
+					//게시물 객채 설정
+					BoardDataVO dataVO = bm.getBoardDataVOList(index++);
+					bm.setDataVO(dataVO);
+					%>
+					<tr>
+						<%
+						//목록 항목에 지정된 항목 값 호출 메서드 실행
+						for(int k=0;k<listCount;k++)
+						{
+							if(bm.getItemMethod(k).equals("getDataNum") && bm.isNotice())
+							{
+								%>
+								<td><img src="/images/common/s3_menu01_on.gif" alt="공지" /></td>
+								<%
+								continue;
+							}%>
+							<td <%if(bm.getItemMethod(k).equals("getViewTitle"))out.print("class=\"l\""); %>>
+								<%	if(bm.getItemMethod(k).equals("getViewTitle") && bm.isSecret()){	%>
+									<img src="/img/common/icon_lock.png" alt="비밀글"/>
+								<% } %>
+								<%	if(bm.getItemMethod(k).equals("getTmpField1")){	%>
+									<%=bm.getCategoryCode1()%> -
+								<% } %>
+								<%=egovframework.rfc3.common.util.EgovStringUtil.isNullToString(bm.getMethodValue(bm.getItemMethod(k),bm.getItemField(k),(Object)bm))%></td>
+							<%
+						}
+						%>
+					</tr>					
+					<%
+				}
+			}
+			%>
+
+
+
+
+					</tbody>
+				</table>
+
+					
+	<!--RFC 공통 버튼 시작-->
+	<div class="r">
+		<%=bm.getListIcons() %>
+	</div>
+	<!--RFC 공통 버튼 끝-->
+
+
+<script type="text/javascript">
+	function linkPage(pageNo){
+				document.rfc_bbs_searchForm.startPage.value=pageNo;
+		document.rfc_bbs_searchForm.keyword.value="<%=bm.getKeyword()%>";
+		document.rfc_bbs_searchForm.submit();	}	
+</script>
+
+				<!-- 페이징시작 -->
+				<div class="pageing">
+					<%//=bm.getPaging().replace("><",">&nbsp;<") %><br />
+
+					<%//=bm.getPaging() %><br />
+		 <ui:pagination paginationInfo = "${paginationInfo}" type="cus1" jsFunction="linkPage"/>
+
+
+					<%//=bm.getPaging(10) %><br />
+    	<%//=bm.getPaging("bt","bt", "", "on", "bt", "bt", 5)%><br />
+
+
+				</div>
+
+				<div class="pageing_mo">
+<%
+int nowpage = bm.getPageNum() ;
+int nowCpage = bm.getPageCount() ;
+int lastcnt = 0;
+int fastcnt  = 0;
+if(nowpage < nowCpage ){
+	lastcnt = nowpage +1 ;
+}else{
+	lastcnt = nowpage ;
+}
+if(nowpage > 1 ){
+	fastcnt = nowpage -1 ;
+}else{
+	fastcnt = 1;
+
+}
+%>
+					<a href="/board/list.gne?boardId=<%=bm.getBoardId()%>&amp;menuCd=${menuCd}&amp;categoryCode1=<%=bm.getSearchCategoryCode1() %>&amp;contentsSid=${contentsSid}&amp;startPage=<%=fastcnt%>&amp;searchType=<%=bm.getSearchType()%>&amp;keyword=<%=bm.getKeyword()%>" id="mobile_prev" class="bt_pre">&lt;</a>				
+					<span><strong><%=bm.getPageNum() %></strong> / <%=bm.getPageCount() %></span>			
+					<a href="/board/list.gne?boardId=<%=bm.getBoardId()%>&amp;menuCd=${menuCd}&amp;categoryCode1=<%=bm.getSearchCategoryCode1() %>&amp;contentsSid=${contentsSid}&amp;startPage=<%=lastcnt%>&amp;searchType=<%=bm.getSearchType()%>&amp;keyword=<%=bm.getKeyword()%>" id="mobile_next" class="bt_next">&gt;</a>
+				</div>
+
+				<!-- 페이징끝 -->
+			</section>
+			<!-- board_list -->

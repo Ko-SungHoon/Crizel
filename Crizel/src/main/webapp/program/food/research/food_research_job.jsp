@@ -542,6 +542,21 @@ try{
 			<%}%>
         }
     }
+	
+	$(function() {
+		$("#searchForm #search1").click(function () {
+			if($("#searchForm #search1").is(":checked")){
+				$("#searchForm #search2").prop("checked", false);
+			}
+			return;
+		});
+		$("#searchForm #search2").click(function () {
+			if($("#searchForm #search2").is(":checked")){
+				$("#searchForm #search1").prop("checked", false);
+			}
+			return;
+		});
+	});
     
     // 검색
     function searchSubmit(){
