@@ -284,11 +284,19 @@ if(viewYN == 1){
 		sql.append(" VAL.AVR_VAL,	 												\n");
 		sql.append(" VAL.CENTER_VAL, 												\n");
 		sql.append(" ( 	SELECT														\n");
-		sql.append(" 		AVG(AVR_VAL)											\n");
+		sql.append(" 		ROUND(AVG(AVR_VAL), 0)									\n");
 		sql.append(" 	FROM FOOD_RSCH_VAL											\n");
 		sql.append(" 	WHERE RSCH_NO = VAL.RSCH_NO									\n");
 		sql.append(" 		AND ITEM_NO = VAL.ITEM_NO								\n");
 		sql.append(" ) AS ZONE_AVR_VAL,												\n");
+
+		sql.append(" ( 	SELECT														\n");
+		sql.append(" 		COUNT(AVR_VAL)											\n");
+		sql.append(" 	FROM FOOD_RSCH_VAL											\n");
+		sql.append(" 	WHERE RSCH_NO = VAL.RSCH_NO									\n");
+		sql.append(" 		AND ITEM_NO = VAL.ITEM_NO								\n");
+		sql.append(" ) AS ZONE_AVR_CNT,												\n");
+
 		sql.append(" TB.RSCH_NM,	 												\n");
 		sql.append(" SCH.ZONE_NO,	 												\n");
 		sql.append(" ZONE.ZONE_NM,	 												\n");
@@ -387,8 +395,9 @@ if(viewYN == 1){
 		sql = new StringBuffer();
 		sql.append("SELECT * 					");
 		sql.append("FROM FOOD_RSCH_TB TB		");
+		sql.append("WHERE TB.SHOW_FLAG = 'Y'	");
 		if(!"".equals(srchSdate) && !"".equals(srchEdate)){
-			sql.append("WHERE ((TB.STR_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.STR_DATE <= TO_DATE(?, 'YY/MM/DD'))			");
+			sql.append("AND ((TB.STR_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.STR_DATE <= TO_DATE(?, 'YY/MM/DD'))			");
 			sql.append("		OR (TB.END_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.END_DATE <= TO_DATE(?, 'YY/MM/DD')))		");
 		}
 		sql.append("ORDER BY RSCH_NO DESC		");
@@ -693,7 +702,13 @@ if(viewYN == 1){
 					<%=parseNull(vo.avr_val, " - ") %>
 				</td>
 				<td><%=parseNull(vo.center_val, " - ") %></td>
-				<td><%=parseNull(vo.zone_avr_val, " - ") %></td>
+				<td><%
+					if ("3".equals(vo.zone_avr_cnt)) {
+						out.println(parseNull(vo.zone_avr_val, " - "));
+					} else {
+						out.println(" - ");
+					}
+				%></td>
 				<%/*조사가 정렬 출력*/
 					valMap	=	new HashMap<Integer, String>();
 					valMap.put(1, parseNull(vo.rsch_val1, "-"));

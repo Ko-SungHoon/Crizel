@@ -1,455 +1,344 @@
-<%@ page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper"%>
-<%@ page import="java.util.*, egovframework.rfc3.board.vo.BoardVO, egovframework.rfc3.board.vo.BoardCategoryVO"%>
-<%@ taglib prefix="ui" uri="http://egovframework.gov/ctl/ui"%>
-<script type="text/javascript">
-function changeCate(sn,objCode){
-	if(sn == '1'){
-		document.rfc_bbs_searchForm.categoryCode1.value=objCode;
-	}else if(sn == '2'){
-		document.rfc_bbs_searchForm.categoryCode2.value=objCode;
-	}else if(sn == '3'){
-		document.rfc_bbs_searchForm.categoryCode3.value=objCode;
-	}
-	document.rfc_bbs_searchForm.submit();
-}	
+<%
+/**
+*   PURPOSE :   <심화> 프로그램 정보 입력
+*   CREATE  :   20180222_thur   JI
+*   MODIFY  :   20180313 입력폼 클래스 수정
+**/
+%>
 
-</script>
+<%@ include file="/program/class/UtilClass.jsp"%>
+<%@ include file="/program/class/PagingClass.jsp"%>
 
-<link rel="stylesheet" href="http://code.jquery.com/ui/1.8.18/themes/base/jquery-ui.css" type="text/css" media="all" />
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
-<script src="http://code.jquery.com/ui/1.8.18/jquery-ui.min.js" type="text/javascript"></script>
+<%/*************************************** 프로그램 ****************************************/%>
+
+<%!
+
+    //심화프로그램 호출
+    private class DeepPro {
+        public int pro_no;
+        public int pro_cat_no;
+        public String pro_cat_nm;
+        public String pro_name;
+        public String pro_tch_name;
+        public String pro_tch_tel;
+        public String pro_memo;
+        public String appStr_date;
+        public String appEnd_date;
+        public String proStr_date;
+        public String proEnd_date;
+        public int curr_per;
+        public int max_per;
+        public String ob_employee;
+        public String ob_student;
+        public String ob_citizen;
+        public String pro_time;
+
+        public String pro_sts_flag;     //상태 표시(프로그램 종료 : PE, 프로그램 중 : PD, 모집종료 : AE, 모집중 : Y, 모집전 : N)
+
+        //modify
+        public int req_no;
+        public int req_per;
+        public String apply_flag;
+        public String req_group;
+        public String req_user_nm;
+        public String req_user_tel;
+        public String req_user_mail;
+        public String req_mot;
+        public String req_date;
+
+    }
+
+    private class DeepProList implements RowMapper<DeepPro> {
+        public DeepPro mapRow(ResultSet rs, int rowNum) throws SQLException {
+            DeepPro deepPro     =   new DeepPro();
+
+            deepPro.pro_no          =   rs.getInt("PRO_NO");
+            deepPro.pro_cat_no      =   rs.getInt("ARTCODE_NO");
+            deepPro.pro_cat_nm      =   rs.getString("PRO_CAT_NM");
+            deepPro.pro_name        =   rs.getString("PRO_NAME");
+            deepPro.pro_tch_name    =   rs.getString("PRO_TCH_NAME");
+            deepPro.pro_tch_tel     =   rs.getString("PRO_TCH_TEL");
+            deepPro.pro_tch_tel     =   rs.getString("PRO_MEMO");
+            deepPro.appStr_date     =   rs.getString("APPSTR_DATE");
+            deepPro.appEnd_date     =   rs.getString("APPEND_DATE");
+            deepPro.proStr_date     =   rs.getString("PROSTR_DATE");
+            deepPro.proEnd_date     =   rs.getString("PROEND_DATE");
+            deepPro.curr_per        =   rs.getInt("CURR_PER");
+            deepPro.max_per         =   rs.getInt("MAX_PER");
+            deepPro.ob_employee     =   rs.getString("OB_EMPLOYEE");
+            deepPro.ob_student      =   rs.getString("OB_STUDENT");
+            deepPro.ob_citizen      =   rs.getString("OB_CITIZEN");
+            deepPro.pro_time        =   rs.getString("PRO_TIME");
+
+            deepPro.pro_sts_flag    =   rs.getString("PRO_STS_FLAG");    //상태 표시(프로그램 종료 : PE, 모집종료 : AE, 모집중 : Y, 모집전 : N)
+
+            return deepPro;
+        }
+    }
+
+    private class ReqProList implements RowMapper<DeepPro> {
+        public DeepPro mapRow(ResultSet rs, int rowNum) throws SQLException {
+            DeepPro deepPro     =   new DeepPro();
+
+            deepPro.pro_no          =   rs.getInt("PRO_NO");
+            deepPro.pro_cat_no      =   rs.getInt("ARTCODE_NO");
+            deepPro.pro_cat_nm      =   rs.getString("PRO_CAT_NM");
+            deepPro.pro_name        =   rs.getString("PRO_NAME");
+            deepPro.pro_tch_name    =   rs.getString("PRO_TCH_NAME");
+            deepPro.pro_tch_tel     =   rs.getString("PRO_TCH_TEL");
+            deepPro.pro_tch_tel     =   rs.getString("PRO_MEMO");
+            deepPro.appStr_date     =   rs.getString("APPSTR_DATE");
+            deepPro.appEnd_date     =   rs.getString("APPEND_DATE");
+            deepPro.proStr_date     =   rs.getString("PROSTR_DATE");
+            deepPro.proEnd_date     =   rs.getString("PROEND_DATE");
+            deepPro.curr_per        =   rs.getInt("CURR_PER");
+            deepPro.max_per         =   rs.getInt("MAX_PER");
+            deepPro.ob_employee     =   rs.getString("OB_EMPLOYEE");
+            deepPro.ob_student      =   rs.getString("OB_STUDENT");
+            deepPro.ob_citizen      =   rs.getString("OB_CITIZEN");
+            deepPro.pro_time        =   rs.getString("PRO_TIME");
+
+            deepPro.pro_sts_flag    =   rs.getString("PRO_STS_FLAG");    //상태 표시(프로그램 종료 : PE, 모집종료 : AE, 모집중 : Y, 모집전 : N)
+
+            deepPro.req_no          =   rs.getInt("REQ_NO");
+            deepPro.req_per         =   rs.getInt("REQ_PER");
+            deepPro.apply_flag      =   rs.getString("APPLY_FLAG");
+            deepPro.req_group       =   rs.getString("REQ_GROUP");
+            deepPro.req_user_nm     =   rs.getString("REQ_USER_NM");
+            deepPro.req_user_tel    =   rs.getString("REQ_USER_TEL");
+            deepPro.req_user_mail   =   rs.getString("REQ_USER_MAIL");
+            deepPro.req_mot         =   rs.getString("REQ_MOT");
+            deepPro.req_date        =   rs.getString("REQ_DATE");
+
+            return deepPro;
+        }
+    }
+
+%>
+
+<%
+//session check
+SessionManager sessionManager	=	new SessionManager(request);
+
+if (sessionManager.getName().trim().equals("") || sessionManager.getId().trim().equals("") || sessionManager.getName().trim().length() < 1 || sessionManager.getId().trim().length() < 1) {
+	out.println("<script>");
+	out.println("alert(\"로그인 한 회원만 신청할 수 있습니다.\");");
+	out.println("history.back();");
+	out.println("</script>");
+	return;
+}
+
+String outHtml              =   "";
+
+StringBuffer sql            =   null;
+String sql_str              =   "";
+
+DeepPro deepProData         =   null;   //심화 프로그램 데이터
+Object[] insObj =   null;
+
+String dataType	=	"ins";	//ins, mod
+
+String pro_no	=   parseNull(request.getParameter("pro_no"), "");
+String req_no	=   parseNull(request.getParameter("req_no"), "");
+if (req_no != null && req_no.trim().length() > 0) {dataType = "mod";}
+
+    //수정
+    if ("mod".equals(dataType)) {
+
+        sql     =   new StringBuffer();
+        sql_str =   " SELECT ";
+        sql_str +=  " PRO.*, REQ.* ";
+        sql_str +=  " , REQ.REG_DATE AS REQ_DATE ";
+        sql_str +=  " , (SELECT ARTCODE_NO FROM ART_PRO_CODE WHERE CODE_TBL = 'ART_PRO_DEEP' AND CODE_COL = 'PRO_CAT_NM' AND CODE_VAL1 = PRO.PRO_CAT_NM) AS ARTCODE_NO ";
+        sql_str +=  " , (CASE ";
+        sql_str +=  "   WHEN SYSDATE > PRO.PROEND_DATE THEN 'PE' ";
+        sql_str +=  "   WHEN SYSDATE > PRO.APPEND_DATE OR ";
+        sql_str +=  "   PRO.MAX_PER <= (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM ART_REQ_DEEP WHERE APPLY_FLAG = 'Y' AND SHOW_FLAG = 'Y' AND DEL_FLAG != 'Y') WHERE PRO_NO = PRO.PRO_NO)  ";
+        sql_str +=  "   THEN 'AE' ";
+        sql_str +=  "   WHEN SYSDATE < PRO.APPSTR_DATE THEN 'N' ";
+        sql_str +=  "   ELSE 'Y' ";
+        sql_str +=  "   END) AS PRO_STS_FLAG ";
+        sql_str +=  " FROM ";
+        sql_str +=  " (SELECT * FROM ART_REQ_DEEP WHERE SHOW_FLAG = 'Y' AND DEL_FLAG != 'Y' AND REQ_NO = ? ) REQ ";
+        sql_str +=  " JOIN ART_PRO_DEEP PRO ON REQ.PRO_NO = PRO.PRO_NO ";
+        sql.append(sql_str);
+        deepProData    =   jdbcTemplate.queryForObject(sql.toString(), new Object[]{req_no}, new ReqProList());
+
+    //신규 신청
+    } else {
+
+        sql     =   new StringBuffer();
+        sql_str =   " SELECT ";
+        sql_str +=  " PRO.* ";
+        sql_str +=  " , (SELECT ARTCODE_NO FROM ART_PRO_CODE WHERE CODE_TBL = 'ART_PRO_DEEP' AND CODE_COL = 'PRO_CAT_NM' AND CODE_VAL1 = PRO.PRO_CAT_NM) AS ARTCODE_NO ";
+        sql_str +=  " , (CASE ";
+        sql_str +=  "   WHEN SYSDATE > PRO.PROEND_DATE THEN 'PE' ";
+        sql_str +=  "   WHEN SYSDATE > PRO.APPEND_DATE ";
+        sql_str +=  "       OR ";
+        sql_str +=  "       PRO.MAX_PER <= (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM ART_REQ_DEEP WHERE APPLY_FLAG = 'Y' AND SHOW_FLAG = 'Y' AND DEL_FLAG != 'Y') WHERE PRO_NO = PRO.PRO_NO) ";
+        sql_str +=  "   THEN 'AE' ";
+        sql_str +=  "   WHEN SYSDATE < PRO.APPSTR_DATE THEN 'N' ";
+        sql_str +=  "   ELSE 'Y' ";
+        sql_str +=  "   END ) AS PRO_STS_FLAG ";
+        sql_str +=  "    ";
+        sql_str +=  "    ";
+        sql_str +=  " FROM ";
+        sql_str +=  " (SELECT * FROM ART_PRO_DEEP WHERE SHOW_FLAG = 'Y' AND DEL_FLAG != 'Y' AND PRO_NO = ? ORDER BY PRO_NO DESC) PRO ";
+        sql.append(sql_str);
+        deepProData    =   jdbcTemplate.queryForObject(sql.toString(), new Object[]{pro_no}, new DeepProList());
+
+    }
+
+%>
+
 <script>
-$(function() {
-  $( "#datepicker1,#datepicker2" ).datepicker({
-    dateFormat: 'yy-mm-dd',
-    prevText: '이전 달',
-    nextText: '다음 달',
-    monthNames: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
-    monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
-    dayNames: ['일','월','화','수','목','금','토'],
-    dayNamesShort: ['일','월','화','수','목','금','토'],
-    dayNamesMin: ['일','월','화','수','목','금','토'],
-    showMonthAfterYear: true,
-    yearSuffix: '년'
-  });
+$(function(){
+	$("#req_mot").keyup(function(){
+		var length = $(this).val().length;
+		if(length>250){
+			alert("작성 가능한 글자 수를 초과하였습니다. 250자까지 입력 가능합니다");
+			$(this).val($(this).val().substring(0,250));
+			return false;
+		}
+	});
 });
 </script>
 
+<%/*************************************** 퍼블리싱 ****************************************/%>
 
-<%
-List<BoardCategoryVO> categoryList1 = bm.getCategoryList1();
-List<BoardCategoryVO> categoryList2 = bm.getCategoryList2();
-List<BoardCategoryVO> categoryList3 = bm.getCategoryList3();
+<form action="/program/art/client/programDeepReqAction.jsp" id="req_deep" name="req_deep" method="post">
+	<input type="hidden" id="pro_no" name="pro_no" value="<%=pro_no %>">
+	<input type="hidden" id="req_no" name="req_no" value="<%=req_no %>">
+	<input type="hidden" id="dataType" name="dataType" value="<%=dataType %>">
 
-boolean cate1 = true;
-boolean cate2 = true;
-boolean cate3 = true;
-boolean cate1Type = true;
-boolean cate2Type = true;
-boolean cate3Type = true;
-if(categoryList1 != null && categoryList1.size() > 0){
-	BoardCategoryVO cate1Print = (BoardCategoryVO)categoryList1.get(categoryList1.size()-1);
-	if(cate1Print.getCategoryName().equals("noview")){
-		String[] code1 = cate1Print.getCategoryCode().split("_");
-		String checkString =cate1Print.getCategoryCode();
-		if(code1.length ==2){
-			checkString = code1[1];
-		}
-		
-		if(checkString.indexOf("L") > -1){
-			cate1=false;
-		}
-		if(checkString.indexOf("B") > -1){
-			cate1Type=false;
-		}
-		//categoryList1.remove(categoryList1.size()-1);
-	}
-}
-
-if(categoryList2 != null && categoryList2.size() > 0){
-	BoardCategoryVO cate2Print = (BoardCategoryVO)categoryList2.get(categoryList2.size()-1);
-	if(cate2Print.getCategoryName().equals("noview")){
-		String[] code2 = cate2Print.getCategoryCode().split("_");
-		String checkString =cate2Print.getCategoryCode();
-		if(code2.length ==2){
-			checkString = code2[1];
-		}
-		if(checkString.indexOf("L") > -1){
-			cate2=false;
-		}
-		if(checkString.indexOf("B") > -1){
-			cate2Type=false;
-		}
-		//categoryList2.remove(categoryList2.size()-1);
-	}
-}
-
-if(categoryList3 != null && categoryList3.size() > 0){
-	BoardCategoryVO cate3Print = (BoardCategoryVO)categoryList3.get(categoryList3.size()-1);
-	if(cate3Print.getCategoryName().equals("noview")){
-		String[] code3 = cate3Print.getCategoryCode().split("_");
-		String checkString =cate3Print.getCategoryCode();
-		if(code3.length ==2){
-			checkString = code3[1];
-		}
-		if(checkString.indexOf("L") > -1){
-			cate3=false;
-		}
-		if(checkString.indexOf("B") > -1){
-			cate3Type=false;
-		}
-		//categoryList3.remove(categoryList3.size()-1);
-	}
-}
-//목록 항목 갯수	
-int listCount = bm.listItemCount();
-%>
-			<section class="board">
-				<div class="search">
-<form action="<%=request.getContextPath() %>/board/list.<%=bm.getUrlExt()%>" name="rfc_bbs_searchForm" class="rfc_bbs_searchForm" method="get">
-				<fieldset>
-					<legend>전체검색</legend>
-
-						<input type="hidden" name="orderBy" value="<%=bm.getOrderBy()%>" />
-						<input type="hidden" name="boardId" value="<%=bm.getBoardId()%>" />
-						<input type="hidden" name="categoryCode1" value="<%=bm.getSearchCategoryCode1() %>" />
-
-						
-<%
-				if( (categoryList1 != null && categoryList1.size() > 0) || (categoryList2 != null && categoryList2.size() > 0) || (categoryList3 != null && categoryList3.size() > 0))
-					{ 
-							/*-------------------------------------- 카테고리 버튼 시작   --------------------------------------*/
-					if(categoryList1 != null && categoryList1.size() > 0){ 
-							if(bm.getMenuIsBoard1Cate() && cate1 && !cate1Type){
-						%>
-								<input type="hidden" name="categoryCode1" id="categoryCode1" value="<%=bm.getSearchCategoryCode1() %>"  title="카테고리1"/>
-								<section  class="buseo_list">
-									<ul>
-									<li><a href="#" <%if(bm.getSearchCategoryCode1().equals(""))out.print("class='on'");%>   onclick="changeCate('1','');">전체보기</a></li>
-						<% 
-								for(BoardCategoryVO category : categoryList1){
-									if(!category.getCategoryName().equals("noview")){
-						%>			
-									<li><a href="#" <%if(bm.getSearchCategoryCode1().equals(category.getCategoryCode()))out.print("class='on'");%> onclick="changeCate('1','<%=category.getCategoryCode()%>');"><%=category.getCategoryName()%></a></li>
-						<% 	
-									}
-								} 
-						%>
-								</ul>
-									<div class="clr"></div>
-								</section>
-						<%
-							}
-						}
-						%>
-
-									<% 
-						if(categoryList2 != null && categoryList2.size() > 0){ 
-							if(bm.getMenuIsBoard2Cate() && cate2 && !cate2Type){
-						%>
-								<input type="hidden" name="categoryCode2" id="categoryCode2" value="<%=bm.getSearchCategoryCode2() %>"  title="카테고리2"/>
-								<section  class="buseo_list">
-									<ul>
-									<li><a href="#" <%if(bm.getSearchCategoryCode2().equals(""))out.print("class='on'");%>   onclick="changeCate('2','');">전체보기</a></li>
-						<% 
-								for(BoardCategoryVO category2 : categoryList2){
-									if(!category2.getCategoryName().equals("noview")){
-						%>			
-									<li><a href="#" <%if(bm.getSearchCategoryCode2().equals(category2.getCategoryCode()))out.print("class='on'");%> onclick="changeCate('2','<%=category2.getCategoryCode()%>');"><%=category2.getCategoryName()%></a></li>
-						<% 
-									}
-								} 
-						%>
-								</ul>
-									<div class="clr"></div>
-								</section>
-						<%
-							}
-						}
-						%>
-						
-								<% 
-						if(categoryList3 != null && categoryList3.size() > 0){ 
-							if(bm.getMenuIsBoard3Cate() && cate3 && !cate3Type){
-						%>
-							<input type="hidden" name="categoryCode3" id="categoryCode3" value="<%=bm.getSearchCategoryCode3() %>"  title="카테고리3"/>
-							<section  class="buseo_list">
-									<ul>
-									<li><a href="#" <%if(bm.getSearchCategoryCode3().equals(""))out.print("class='on'");%>   onclick="changeCate('3','');">전체보기</a></li>
-						<% 
-								for(BoardCategoryVO category3 : categoryList3){
-									if(!category3.getCategoryName().equals("noview")){
-						%>			
-									<li><a href="#" <%if(bm.getSearchCategoryCode3().equals(category3.getCategoryCode()))out.print("class='on'");%> onclick="changeCate('3','<%=category3.getCategoryCode()%>');"><%=category3.getCategoryName()%></a></li>
-						<% 
-									}
-								} 
-						%>
-								</ul>
-									<div class="clr"></div>
-								</section>
-						<%
-								}
-							}
-								/*  -------------------------------------- 카테고리 버튼 끝    --------------------------------------*/
-						%>
-						
-						
-						<% /*  -------------------------------------- 카테고리 select 시작   --------------------------------------*/
-						if(categoryList1 != null && categoryList1.size() > 0){ 
-							if(bm.getMenuIsBoard1Cate()&& cate1 && cate1Type){
-						%>
-								<select name="categoryCode1" id="categoryCode1" class="layout_select" title="카테고리1" onchange="changeCate(this);">
-								<option value="">전 체</option>
-						<% 
-								for(BoardCategoryVO category : categoryList1){ 
-									if(!category.getCategoryName().equals("noview")){
-						%>
-									<option value="<%=category.getCategoryCode()%>" <%if(bm.getSearchCategoryCode1().equals(category.getCategoryCode()))out.print("selected");%>><%=category.getCategoryName()%></option>
-						<% 
-									}
-								} 
-						%>
-								</select>
-						<%
-							}else{
-						%>
-								<input type="hidden" name="categoryCodeData1" id="categoryCodeData1" value="<%=bm.getCategoryCode1()%>"  title="카테고리1"/>
-						<%
-							}
-						}
-						%>
-
-									<% 
-						if(categoryList2 != null && categoryList2.size() > 0){ 
-							if(bm.getMenuIsBoard2Cate()&& cate2 && cate2Type){
-						%>
-							<select name="categoryCode2" id="categoryCode2" class="layout_select"  title="카테고리2">
-							<option value="">2차 카테고리</option>
-						<% 
-							for(BoardCategoryVO category2 : categoryList2){
-								if(!category2.getCategoryName().equals("noview")){
-						%>
-								<option value="<%=category2.getCategoryCode()%>" <%if(bm.getSearchCategoryCode2().equals(category2.getCategoryCode()))out.print("selected");%>><%=category2.getCategoryName()%></option>
-						<% 
-								}
-							} 
-						%>
-							</select>
-						<%
-							}else{
-						%>
-							<input type="hidden" name="categoryCodeData2" id="categoryCodeData2" value="<%=bm.getCategoryCode2()%>"  title="카테고리2"/>
-						<%
-							}
-						}
-						%>
-						
-								<% 
-						if(categoryList3 != null && categoryList3.size() > 0){ 
-							if(bm.getMenuIsBoard3Cate()&& cate3 && cate3Type){
-						%>
-							<select name="categoryCode3" id="categoryCode3" class="layout_select"  title="카테고리3">
-							<option value="">3차 카테고리</option>
-						<% 
-							for(BoardCategoryVO category3 : categoryList3){ 
-								if(!category3.getCategoryName().equals("noview")){
-						%>
-								<option value="<%=category3.getCategoryCode()%>" <%if(bm.getSearchCategoryCode3().equals(category3.getCategoryCode()))out.print("selected");%>><%=category3.getCategoryName()%></option>
-						<% 
-								}
-							} 
-						%>
-							</select>
-						<%
-							}else{
-						%>
-							<input type="hidden" name="categoryCodeData3" id="categoryCodeData3" value="<%=bm.getCategoryCode3()%>"  title="카테고리3"/>
-						<%
-							}
-						} /*  -------------------------------------- 카테고리 select 끝   --------------------------------------*/
-					}
-				%>
-
-
-
-				<input id="datepicker1" name="searchStartDt" type="text" class="calendar" title="기간검색 시작" value="<%=bm.getSearchStartDt() %>" size="10" onclick="this.value=''"> ~ 	
-				<input id="datepicker2" name="searchEndDt" type="text" class="calendar" title="기간검색 끝" value="<%=bm.getSearchEndDt() %>" size="10" onclick="this.value=''">
-						<input type="hidden" name="startPage" value="1" />
-						<input type="hidden" name="menuCd" value="${menuCd}" />
-						<input type="hidden" name="contentsSid" value="${contentsSid}" />
-						<select name="searchType" class="text" title="검색항목을 선택하세요" >
-							<!-- <option value="">선택</option> -->
-							<option value="DATA_TITLE" <%=bm.getSearchType().equals("DATA_TITLE") ? "selected" : "" %>>제목</option>
-							<option value="DATA_CONTENT" <%=bm.getSearchType().equals("DATA_CONTENT") ? "selected" : "" %>>내용</option>
-							<option value="USER_NICK" <%=bm.getSearchType().equals("USER_NICK") ? "selected" : "" %>>작성자</option>
-						</select>
-					<input type="text" name="keyword" title="검색어 입력" value="<%=bm.getKeyword()%>" style="ime-mode:active;"/>
-<!--					<input type="image" src="<%=request.getContextPath() %>/images/egovframework/rfc3/board/images/skin/common/rfc_bbs_btn_search.gif" alt="검색" class="button11"/>-->
-<button onclick="javascript:return searchingCheck();">검색하기</button>
-
-				</fieldset>
-			</form>
-
-
-</div>
-					<p><strong>총 <span><%=bm.getDataCount()%></span> 건</strong> [ Page <%=bm.getPageNum()%>/<%=bm.getPageCount()%> ]</p>
-				
-<%
-String boardTitle = (bm.getBoardVO()).getBoardTitle();
-%>
-<%
-String captionText = "";
-for(int i=0; i<bm.listItemCount(); i++){
-	if(bm.isManager()){													// 관리자일 경우 checkbox, 상태, 삭제 컬럼이 추가되기 때문에
-		if(i>=3){														// index 3부터 변수에 저장
-			if(i>3 && i<bm.listItemCount()){captionText += ", ";}		
-			captionText += bm.getItemName(i);
-		}
-	}else{
-		if(i>0 && i<bm.listItemCount()){captionText += ", ";}
-		captionText += bm.getItemName(i);
-	}
-}
-%>
-				<table class="tb_board">
-				<caption><%=boardTitle%>의 <%=captionText%> 목록표입니다.</caption>
+	<h3>프로그램 신청 정보 입력</h3>
+	<fieldset class="board">
+		<legend>신청 정보 입력</legend>
+			<table class="rwList tb_board nohover thgrey td-c">
+				<caption>심화프로그램별 신청 인원 입력표입니다.</caption>
 				<colgroup>
-	<%
-	//목록 항목별 넓이 비율
-	for(int i=0;i<listCount;i++)
-	{
-		%>
-		<col style="width:<%=bm.getItemWidth(i) != null && !"0".equals(bm.getItemWidth(i) ) ? bm.getItemWidth(i)+"%"  : ""%>"/>
-		<%
-	}
-	%>
-</colgroup>
-					<thead>
-						<tr>
-				<%
-				//각 항목별 사용자 지정명 출력
-				for(int i=0;i<listCount;i++)
-				{
-					%>
-					<th scope="col" <%= (i+1) == listCount ? "class=\"rfc_bbs_list_last\"" : ""%>><%=bm.getItemName(i)%></th>
-					<%
-				}
-				%>
-							
-						</tr>
-					</thead>
-					<tbody>
-			<%
-			//게시물이 없을경우 메시지
-			if(bm.getListCount() == 0) {
-				if(bm.getEmptyMessage() != null && !"".equals(bm.getEmptyMessage())) {
-				%>
+					<col style="width:8%">
+					<col style="width:20%">
+					<col />
+          <col style="width:20%">
+					<col style="width:15%">
+					<col style="width:10%">
+					<col style="width:65px">
+				</colgroup>
+				<thead>
 					<tr>
-						<td colspan="<%=listCount%>"><%=bm.getEmptyMessage()%></td>
+						<th scope="col">번호</th>
+						<th scope="col">구분</th>
+						<th scope="col">프로그램명</th>
+						<th scope="col">시간</th>
+						<th scope="col">강사명</th>
+						<th scope="col">현원/정원</th>
+						<th scope="col">신청인원</th>
 					</tr>
-				<%
-				}
-			}
-			%>
-			<%
-			//게시물 Index
-			int index = 0;
-			//게시판의 행 만큼 반복
-			for(int i=0; i<bm.getListCount() && i< bm.getBoardRow(); i++) {
-				//게시물의 열 만큼 반복
-				for(int j=0; j<bm.getListCount() && j< bm.getBoardCell(); j++) {
-					//게시물 객채 설정
-					BoardDataVO dataVO = bm.getBoardDataVOList(index++);
-					bm.setDataVO(dataVO);
-					%>
-					<tr>
-						<%
-						//목록 항목에 지정된 항목 값 호출 메서드 실행
-						for(int k=0;k<listCount;k++)
-						{
-							if(bm.getItemMethod(k).equals("getDataNum") && bm.isNotice())
-							{
-								%>
-								<td><img src="/images/common/s3_menu01_on.gif" alt="공지" /></td>
-								<%
-								continue;
-							}%>
-							<td <%if(bm.getItemMethod(k).equals("getViewTitle"))out.print("class=\"l\""); %>>
-								<%	if(bm.getItemMethod(k).equals("getViewTitle") && bm.isSecret()){	%>
-									<img src="/img/common/icon_lock.png" alt="비밀글"/>
-								<% } %>
-								<%	if(bm.getItemMethod(k).equals("getTmpField1")){	%>
-									<%=bm.getCategoryCode1()%> -
-								<% } %>
-								<%=egovframework.rfc3.common.util.EgovStringUtil.isNullToString(bm.getMethodValue(bm.getItemMethod(k),bm.getItemField(k),(Object)bm))%></td>
-							<%
-						}
-						%>
-					</tr>					
-					<%
-				}
-			}
-			%>
+				</thead>
+				<tbody>
+                    <tr>
+                        <td><span class="dis_mo">번호</span><span><%=deepProData.pro_no %></span></td>
+                        <td><span class="dis_mo">구분</span><span><%=deepProData.pro_cat_nm %></span></td>
+                        <td><span class="dis_mo">프로그램명</span><span><%=deepProData.pro_name %></span></td>
+                        <td><span class="dis_mo">시간</span><span><%=deepProData.pro_time %></span></td>
+                        <td><span class="dis_mo">강사명</span><span><%=deepProData.pro_tch_name %></span></td>
+                        <td><span class="dis_mo">현원/정원</span><span><%=deepProData.curr_per %></span>/<span><%=deepProData.max_per %></span></td>
+                        <td><span class="dis_mo">신청인원</span>
+                        <span>
+                          <label for="req_per">
+                            <input type="number" class="wps_70 c req_per" id="req_per" name="req_per" title="신청인원 입력"
+                            value="<% if("mod".equals(dataType)){out.print(deepProData.req_per);} %>" min="1" data-value="<%=deepProData.max_per-deepProData.curr_per %>" required/>
+                          </label>
+                        </span></td>
+                    </tr>
+                </tbody>
+			</table>
+	</fieldset>
 
+    <h3>신청 담당자 정보</h3>
+	<fieldset>
+		<legend>신청 담당자 정보 입력</legend>
+		<table class="table_skin01 fsize td-l f_nanum">
+			<caption>프로그램 신청 담당자 정보 입력폼입니다.</caption>
+			<colgroup>
+				<col style="width:20%" />
+				<col style="width:35%" />
+				<col style="width:14%" />
+				<col style="width:31%" />
+			</colgroup>
+			<tbody>
+				<tr>
+					<th scope="row"><span class="red fb">*</span> <label for="req_group">학교명/단체명/학부모</label></th>
+					<td colspan="3"><input type="text" value="<% if("mod".equals(dataType)){out.print(deepProData.req_group);} %>" class="w_200" id="req_group" name="req_group" placeholder="개인일 경우는 개인 이라고 입력하세요." required></td>
+				</tr>
+                <tr>
+					<th scope="row"><span class="red fb">*</span> <label for="req_user_nm">신청자명</label></th>
+					<td colspan="3"><input type="text" value="<% if("mod".equals(dataType)){out.print(deepProData.req_user_nm);} %>" class="w_200" id="req_user_nm" name="req_user_nm" placeholder="담당자명을 입력하세요." required></td>
+				</tr>
+				<tr>
+					<th scope="row"><span class="red fb">*</span> <label for="req_user_tel">연락처</label></th>
+					<td><input type="text" value="<% if("mod".equals(dataType)){out.print(deepProData.req_user_tel);} %>" class="w_200" id="req_user_tel" name="req_user_tel" placeholder="숫자만 입력하세요." required>
+						<br><span class="red fsize_90">&#8251; 반드시 연락 가능한 연락처를 입력해 주세요.</span>
+          </td>
+					<th scope="row"><span class="red fb">*</span> <label for="req_user_mail">이메일</label></th>
+					<td><input type="text" value="<% if("mod".equals(dataType)){out.print(deepProData.req_user_mail);} %>" class="w_200" id="req_user_mail" name="req_user_mail" placeholder="your@mail.com" required><br /></td>
+				</tr>
+				<tr>
+					<th scope="row">지원동기 & 하고 싶은 말</th>
+					<td colspan="3">
+            <span class="red fsize_90">&#8251; 단체일 경우 구체적인 참여 명단을 입력해주세요.</span><br>
+            <label for="req_mot" class="blind">지원동기 및 하고 싶은 말</label>
+            <textarea id="req_mot" name="req_mot" class="wps_100 h090"><% if("mod".equals(dataType)){out.print(parseNull(deepProData.req_mot, ""));} %></textarea>
+          </td>
+				</tr>
+			</tbody>
+		</table>
+	</fieldset>
 
+    <h3 class="title magT20">개인정보 수집 및 이용 동의</h3>
+	<fieldset>
+		<label>
+		<textarea name="" cols="" rows="" id="policy" class="wps_100 h100 fsize_90">1. 개인정보의 수집·이용 목적
+우리 기관은 개인정보를 다음의 목적을 위해 처리합니다. 처리한 개인정보는 다음의 목적 이외의 용도로는 사용되지 않으며, 이용목적이 변경될 시에는 별도 공지할 예정입니다.
+- 수집·이용목적: 해봄 프로그램 신청 및 확인
 
+2. 수집하는 개인정보의 항목
+우리 기관은 본 서비스에서 아래와 같은 개인정보를 수집하고 있습니다.
+- 수집항목: 신청자명, 연락처, 이메일
 
-					</tbody>
-				</table>
+3. 개인정보의 보유 및 이용기간
+이용자의 개인정보는 2년간 보유되며 기간이 만료되면 지체 없이 파기됩니다.
 
-					
-	<!--RFC 공통 버튼 시작-->
-	<div class="r">
-		<%=bm.getListIcons() %>
-	</div>
-	<!--RFC 공통 버튼 끝-->
+※ 개인정보 수집·이용에 대하여 동의를 원하지 않을 경우 동의를 거부할 수 있으며, 동의 거부시 본 서비스를 이용할 수 없습니다.</textarea>
+		</label>
+		<p class="magT10">
+			<input name="proChk" type="checkbox" value="Y" id="checkbox" title="개인정보수집 및 이용 동의 체크" required><label for="checkbox" class="fsize_90 darkgray">개인정보 수집 및 이용에 대한 안내를 이해하였으며 동의합니다.</label>
+		</p>
+	</fieldset>
 
+	<fieldset>
+		<legend>실행 버튼 영역</legend>
+		<div class="btn_area c">
+      <button type="submit" class="btn medium edge darkMblue w_100">확인</button>
+      <button onclick="history.back()" type="button" class="btn medium edge white">취소</button>
+		</div>
+	</fieldset>
+</form>
 
-<script type="text/javascript">
-	function linkPage(pageNo){
-				document.rfc_bbs_searchForm.startPage.value=pageNo;
-		document.rfc_bbs_searchForm.keyword.value="<%=bm.getKeyword()%>";
-		document.rfc_bbs_searchForm.submit();	}	
+<script>
+
+    var limit_per   =   "<%=(deepProData.max_per + deepProData.req_per) - deepProData.curr_per %>";
+
+    $("#req_per").focusout(function (){
+        if (Number($("#req_per").val()) < 1) {
+            alert("신청인원은 1명 이상 입력하세요.");
+            $("#req_per").val(1);
+        }
+        if (Number($("#req_per").val()) > Number(limit_per)) {
+            alert("인원초과 입니다.");
+            $("#req_per").val(limit_per);
+        }
+    });
+
 </script>
-
-				<!-- 페이징시작 -->
-				<div class="pageing">
-					<%//=bm.getPaging().replace("><",">&nbsp;<") %><br />
-
-					<%//=bm.getPaging() %><br />
-		 <ui:pagination paginationInfo = "${paginationInfo}" type="cus1" jsFunction="linkPage"/>
-
-
-					<%//=bm.getPaging(10) %><br />
-    	<%//=bm.getPaging("bt","bt", "", "on", "bt", "bt", 5)%><br />
-
-
-				</div>
-
-				<div class="pageing_mo">
-<%
-int nowpage = bm.getPageNum() ;
-int nowCpage = bm.getPageCount() ;
-int lastcnt = 0;
-int fastcnt  = 0;
-if(nowpage < nowCpage ){
-	lastcnt = nowpage +1 ;
-}else{
-	lastcnt = nowpage ;
-}
-if(nowpage > 1 ){
-	fastcnt = nowpage -1 ;
-}else{
-	fastcnt = 1;
-
-}
-%>
-					<a href="/board/list.gne?boardId=<%=bm.getBoardId()%>&amp;menuCd=${menuCd}&amp;categoryCode1=<%=bm.getSearchCategoryCode1() %>&amp;contentsSid=${contentsSid}&amp;startPage=<%=fastcnt%>&amp;searchType=<%=bm.getSearchType()%>&amp;keyword=<%=bm.getKeyword()%>" id="mobile_prev" class="bt_pre">&lt;</a>				
-					<span><strong><%=bm.getPageNum() %></strong> / <%=bm.getPageCount() %></span>			
-					<a href="/board/list.gne?boardId=<%=bm.getBoardId()%>&amp;menuCd=${menuCd}&amp;categoryCode1=<%=bm.getSearchCategoryCode1() %>&amp;contentsSid=${contentsSid}&amp;startPage=<%=lastcnt%>&amp;searchType=<%=bm.getSearchType()%>&amp;keyword=<%=bm.getKeyword()%>" id="mobile_next" class="bt_next">&gt;</a>
-				</div>
-
-				<!-- 페이징끝 -->
-			</section>
-			<!-- board_list -->

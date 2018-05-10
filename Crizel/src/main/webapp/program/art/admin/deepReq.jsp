@@ -18,6 +18,7 @@
 		<script type='text/javascript' src='/js/egovframework/rfc3/iam/common.js'></script>
 		<script type='text/javascript' src='/js/jquery.js'></script>
 		<link href="/css/egovframework/rfc3/iam/admin_common.css" rel="stylesheet" type="text/css" />
+		<script src="/program/art/modal.js"></script>
 <script>
 </script>
 </head>
@@ -309,7 +310,31 @@ function cancelSubmit(req_no){
     return;
 }
 
+function motModal(req_mot){
+	$("#modalDiv #req_mot").html(req_mot);
+	$("#modalDiv").popup("show");
+}
+function motModalClose(){
+	$("#modalDiv").popup("hide");
+}
 </script>
+<!-- MODAL START -->
+<div id="modalDiv" style="display: none; width: 30%;">
+	<div class="top_view">
+		<p class="location"><strong>신청동기</strong></p>
+	</div>
+	<table class="bbs_list">
+		<tr>
+			<td>
+				<span id="req_mot"></span>
+			</td>
+		</tr>
+	</table>
+	<p class="btn_area txt_c">
+		<button type="button" class="btn small edge mako" onclick="motModalClose()">닫기</button>
+	</p>
+</div>
+<!-- MODAL END -->
 <div id="right_view">
 		<div class="top_view">
 				<p class="location"><strong>프로그램 운영 > 승인대기 및 취소(심화)</strong></p>
@@ -382,7 +407,11 @@ function cancelSubmit(req_no){
 			<tbody>
 				<%
 				if(list!=null && list.size()>0){
-				for(ArtVO ob : list){ %>
+					String req_mot = "";
+				for(ArtVO ob : list){ 
+					if(ob.req_mot != null){req_mot = ob.req_mot.replace("\n", "<br>");}
+					else{req_mot = "";}
+				%>
 				<tr>
 					<td><%=num--%></td>
 					<td><%=ob.pro_cat_nm%></td>
@@ -390,7 +419,7 @@ function cancelSubmit(req_no){
 					<td><%=ob.max_per %></td>
 					<td><%=ob.curr_per %></td>
 					<td><%=ob.req_per %></td>
-					<td><%=ob.req_user_nm %></td>
+					<td><a href="javascript:motModal('<%=req_mot%>');"><%=ob.req_user_nm %></a></td>
 					<td><%=ob.req_user_tel %></td>
 					<td><%=ob.reg_date %></td>
 					<td><%=reqFlag(ob.apply_flag, ob.pro_sts_flag, (ob.max_per - (ob.curr_per + ob.req_per))) %></td>

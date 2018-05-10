@@ -1,744 +1,193 @@
-<%
-/**
-*	PURPOSE	:	조사가격조회 page
-*	CREATE	:	20180321_wed	JUNG
-*	MODIFY	:	20180416_mon	JI		관리자 session 접속 허용
-*	MODIFY	:	20180416_mon	JI		이력 팝업 open
-*	MODIFY	:	20180419_thur	JI		최저가 최고가 비율 bool flag 설정
-*	MODIFY	:	20180425_wed	KO		최저가 삭제 및 비교그룹 출력, 학교급식 관리자 권한 추가
-**/
-%>
-<%@ page import="egovframework.rfc3.user.web.SessionManager" %>
-<%@ page import="java.text.*" %>
-<%@ include file="/program/class/UtilClass.jsp" %>
-<%@ include file="/program/class/PagingClass.jsp" %>
-<%@ include file="/program/food/food_util.jsp" %>
-<%@ include file="/program/food/foodVO.jsp" %>
-
-<%!
-	private String moneyComma (String money) {
-		DecimalFormat df	=	new DecimalFormat("###,###");
-		String rtnMoney	=	null;
-		if (!"-".equals(money.trim()) || money != null) {
-			return money;
-		} else {
-			rtnMoney	=	df.format(Integer.parseInt(money));
-			return rtnMoney;
-		}
-	}
-%>	
-
-<%
-String foodRole		= 	"ROLE_000094";		//운영서버:ROLE_000094 , 테스트서버:ROLE_000012
-
-request.setCharacterEncoding("UTF-8");
-response.setContentType("text/html; charset=UTF-8");
-SessionManager sManager =	new SessionManager(request);
-
-int viewYN			=	0;		//1일경우 페이지 정상 작동
-String moveUrl		=	"/index.gne?contentsSid=2299";					//액션페이지	운영서버:2299, 테스트서버:648
-String moveUrlMain	=	"/index.gne?menuCd=DOM_000002101000000000";		//메인페이지	운영서버:DOM_000002101000000000, 테스트서버:DOM_000000127000000000
-
-//2차 로그인 여부
-if("Y".equals(session.getAttribute("foodLoginChk")) || sManager.isRoleAdmin() || sManager.isRole(foodRole)){
-	viewYN	=	1;
-}else{
-	out.print("<script> 							\n");
-	out.print("alert('2차 로그인 후 이용하실 수 있습니다.');		\n");
-	out.print("location.href='" + moveUrlMain + "';	\n");
-	out.print("</script> 							\n");
-	return;
-}
-
-if(viewYN == 1){
-
-	StringBuffer sql 	= 	null;
-	String sqlWhere		=	"";
-	int resultCnt 		=	0;
-	int cnt				= 	0;
-	
-	List<FoodVO> zoneList	=	null;
-	List<FoodVO> cateList	=	null;
-	List<FoodVO> searchList	=	null;
-	List<String> setWhere	=	new ArrayList<String>();
-	HashMap<Integer, String> valMap	=	null;
-	int valMapCnt	=	0;
-	int minVal		=	0;
-	int useMinVal   =   0;
-	int minNo		=	0;
-	int maxVal		=	0;
-	int useMaxVal   =   0;
-	int maxNo		=	0;
-	Boolean lbRatioBool =   true;
-	
-	Object[] setObject 		= 	null;
-
-	//parameter
-	FoodVO foodVO		=	new FoodVO();
-	Paging pagingVO		=	new Paging();
-		
-	String srchSdate	=	parseNull(request.getParameter("srchSdate"));
-	String srchEdate	=	parseNull(request.getParameter("srchEdate"));
-	String zoneType		=	parseNull(request.getParameter("zoneType"));
-	String foodItem		=	parseNull(request.getParameter("foodItem"));
-	String foodName		=	parseNull(request.getParameter("foodName"));
-	String keywordCate 	=	parseNull(request.getParameter("keywordCate"));
-	String keywordInp	=	parseNull(request.getParameter("keywordInp"));
-	int pageNo			=	Integer.parseInt(parseNull(request.getParameter("pageNo"), "1"));
-	
-	String[] keyCateOp	=	{"title", "detail"};
-	String[] keyCateTxt =	{"조사명", "식품설명"};
-	
-	//검색어 where
-	if(!"".equals(keywordInp)){
-		
-		//제목 where
-		if("title".equals(keywordCate))	{
-			sqlWhere	+=	" AND TB.RSCH_NM LIKE '%' ||?|| '%' 	\n";
-			setWhere.add(keywordInp);
-		}
-		
-		//식품 상세설명 where
-		else if("detail".equals(keywordCate)){
-			sqlWhere	+=	" AND (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', EX_NM)			\n";
-			sqlWhere	+=	" ORDER BY EX_NM).EXTRACT('//text()').GETSTRINGVAL(), 2)		\n";
-			sqlWhere	+=	" EX_NM															\n";
-			sqlWhere	+=	" FROM FOOD_ST_EXPL												\n";
-			sqlWhere	+=	" WHERE EX_NO IN(												\n";
-			sqlWhere	+=	" FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,		\n";
-			sqlWhere	+=	" FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, 		\n";
-			sqlWhere	+=	" FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15,	\n";
-			sqlWhere	+=	" FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20,	\n";
-			sqlWhere	+=	" FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25))	\n";
-			sqlWhere	+=	" LIKE '%' ||?|| '%'											\n";
-			setWhere.add(keywordInp);
-		}
-		pagingVO.setParams("keywordCate", keywordCate);
-		pagingVO.setParams("keywordInp", keywordInp);
-	}
-	
-	//날짜검색
-	
-	if(!"".equals(srchSdate) && !"".equals(srchEdate)){
-		sqlWhere	+=	" AND ((TB.STR_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.STR_DATE <= TO_DATE(?, 'YY/MM/DD')) 	\n";
-		sqlWhere	+=	" OR (TB.END_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.END_DATE <= TO_DATE(?, 'YY/MM/DD'))) 	\n";
-		
-		setWhere.add(srchSdate);
-		setWhere.add(srchEdate);
-		setWhere.add(srchSdate);
-		setWhere.add(srchEdate);
-		
-		pagingVO.setParams("srchSdate", srchSdate);
-		pagingVO.setParams("srchEdate", srchEdate);
-	}
-		
-	try{
-		//권역 목록
-		sql		=	new StringBuffer();
-		sql.append(" SELECT  				\n");
-		sql.append(" ZONE_NO,  				\n");
-		sql.append(" ZONE_NM				\n");
-		sql.append(" FROM FOOD_ZONE  		\n");
-		sql.append(" WHERE SHOW_FLAG = 'Y'  \n");		
-		
-		zoneList	=	jdbcTemplate.query(sql.toString(), new FoodList());
-		
-		//권역선택 where
-		if(zoneList != null && zoneList.size() > 0 && !"".equals(zoneType)){
-			for(int i=0; i<zoneList.size(); i++){
-				if(zoneList.get(i).zone_no.equals(zoneType)){
-					sqlWhere	+=	" AND SCH.ZONE_NO = ? 			\n";
-					setWhere.add(zoneType);
-					pagingVO.setParams("zoneType", zoneType);
-				}
-			}
-		}
-
-		//카테고리 목록
-		sql		=	new StringBuffer();
-		sql.append(" SELECT  				\n");
-		sql.append(" CAT_NO,  				\n");
-		sql.append(" CAT_NM  				\n");
-		sql.append(" FROM FOOD_ST_CAT  		\n");
-		sql.append(" WHERE SHOW_FLAG = 'Y'  \n");		
-		
-		cateList	=	jdbcTemplate.query(sql.toString(), new FoodList());
-		
-		//품목구분 where
-		if(cateList != null && cateList.size() > 0){
-			if(!"".equals(foodItem)){
-				for(int i=0; i<cateList.size(); i++){
-					if(cateList.get(i).cat_no.equals(foodItem)){
-						sqlWhere	+=	" AND ITEM.CAT_NO = ? 				\n";
-						setWhere.add(foodItem);
-						pagingVO.setParams("foodItem", foodItem);
-					}
-				}
-			}
-		}
-				
-		//품목 검색 where
-		sqlWhere	+=	" AND (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', NM_FOOD)	\n";
-		sqlWhere	+=	" ORDER BY NM_FOOD).EXTRACT('//text()').GETSTRINGVAL(),2)	\n";
-		sqlWhere	+=	" NM_FOOD													\n";
-		sqlWhere	+=	" FROM FOOD_ST_NM											\n";
-		sqlWhere	+=	" WHERE NM_NO IN (											\n";
-		sqlWhere	+=	" FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5))	\n";
-		sqlWhere	+=	" LIKE '%' ||?|| '%'										\n";
-		
-		setWhere.add(foodName);
-		pagingVO.setParams("foodName", foodName);
-		
-		//검색카운트
-		sql		=	new StringBuffer();
-		sql.append(" SELECT COUNT(PRE.ITEM_NO) AS CNT 								\n");
-		sql.append(" FROM FOOD_ITEM_PRE PRE		  									\n");
-		sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO	\n");
-		sql.append(" LEFT JOIN FOOD_RSCH_VAL VAL ON VAL.ITEM_NO = ITEM.ITEM_NO		\n");
-		sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
-		sql.append(" LEFT JOIN FOOD_SCH_TB SCH ON VAL.SCH_NO = SCH.SCH_NO			\n");
-		sql.append(" LEFT JOIN FOOD_SCH_NU NU ON VAL.NU_NO = NU.NU_NO				\n");
-		sql.append(" WHERE TB.SHOW_FLAG = 'Y'										\n");
-/* 		sql.append(" AND VAL.STS_FLAG = 'Y'											\n");
- */		sql.append(sqlWhere);
-				
-		if(setWhere != null && setWhere.size() > 0){
-			setObject	=	new Object[setWhere.size()];
-			for(int i=0; i<setWhere.size(); i++){
-				setObject[i]	=	setWhere.get(i);
-			}
-		}
-		
-		cnt		=	jdbcTemplate.queryForInt(sql.toString(), setObject);
-		
-		//페이징 set
-		pagingVO.setTotalCount(cnt);
-		pagingVO.setPageNo(pageNo);
-		pagingVO.setPageSize(20);
-		pagingVO.makePaging();
-		
-		//검색목록
-		sql		=	new StringBuffer();
-		sql.append(" SELECT * FROM (												\n");
-		sql.append(" SELECT ROWNUM AS RNUM, A.* FROM (								\n");
-		sql.append(" SELECT 														\n");
-		sql.append(" PRE.ITEM_NO,													\n");
-		sql.append(" (SELECT CAT_NM	FROM FOOD_ST_CAT								\n");
-		sql.append(" WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM,							\n");
-		
-		sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', NM_FOOD)			\n");
-		sql.append(" ORDER BY NM_FOOD).EXTRACT('//text()').GETSTRINGVAL(),2)		\n");
-		sql.append(" NM_FOOD														\n");
-		sql.append(" FROM FOOD_ST_NM												\n");
-		sql.append(" WHERE NM_NO IN (												\n");
-		sql.append(" FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5))		\n");
-		sql.append(" AS NM_FOOD,													\n");
-		
-		sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', DT_NM)				\n");
-		sql.append(" ORDER BY DT_NM).EXTRACT('//text()').GETSTRINGVAL(), 2)			\n");
-		sql.append(" DT_NM															\n");
-		sql.append(" FROM FOOD_ST_DT_NM												\n");
-		sql.append(" WHERE DT_NO IN(												\n");
-		sql.append(" FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5,			\n");
-		sql.append(" FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10))		\n");
-		sql.append(" AS DT_NM, 														\n");
-		
-		sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', EX_NM)				\n");
-		sql.append(" ORDER BY EX_NM).EXTRACT('//text()').GETSTRINGVAL(), 2)			\n");
-		sql.append(" EX_NM															\n");
-		sql.append(" FROM FOOD_ST_EXPL												\n");
-		sql.append(" WHERE EX_NO IN(												\n");
-		sql.append(" FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,			\n");
-		sql.append(" FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, 		\n");
-		sql.append(" FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15,	\n");
-		sql.append(" FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20,	\n");
-		sql.append(" FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25))	\n");
-		sql.append(" AS EX_NM, 														\n");
-		
-		sql.append(" (SELECT UNIT_NM FROM FOOD_ST_UNIT 								\n");
-		sql.append(" WHERE UNIT_NO = ITEM.FOOD_UNIT) AS UNIT_NM, 					\n");
-		sql.append(" PRE.REG_DATE,													\n");
-		sql.append(" PRE.MOD_DATE,													\n");
-		sql.append(" PRE.SHOW_FLAG,													\n");
-		sql.append(" (SELECT REG_IP FROM FOOD_UP_FILE							 	\n");
-		sql.append(" WHERE FILE_NO = PRE.FILE_NO) REG_IP,							\n");
-		sql.append(" (SELECT REG_ID FROM FOOD_UP_FILE								\n");
-		sql.append(" WHERE FILE_NO = PRE.FILE_NO) REG_ID,							\n");
-		sql.append(" PRE.ITEM_GRP_NO,												\n");
-		sql.append(" PRE.ITEM_GRP_ORDER,											\n");
-		sql.append(" PRE.ITEM_COMP_NO, 												\n");
-		sql.append(" PRE.ITEM_COMP_VAL,												\n");
-		sql.append(" PRE.LOW_RATIO, 												\n");
-		sql.append(" PRE.AVR_RATIO, 												\n");
-		sql.append(" PRE.LB_RATIO,	 												\n");
-		sql.append(" VAL.LOW_VAL,	 												\n");
-		sql.append(" VAL.AVR_VAL,	 												\n");
-		sql.append(" VAL.CENTER_VAL, 												\n");
-		sql.append(" ( 	SELECT														\n");
-		sql.append(" 		AVG(AVR_VAL)											\n");
-		sql.append(" 	FROM FOOD_RSCH_VAL											\n");
-		sql.append(" 	WHERE RSCH_NO = VAL.RSCH_NO									\n");
-		sql.append(" 		AND ITEM_NO = VAL.ITEM_NO								\n");
-		sql.append(" ) AS ZONE_AVR_VAL,												\n");
-		sql.append(" TB.RSCH_NM,	 												\n");
-		sql.append(" SCH.ZONE_NO,	 												\n");
-		sql.append(" ZONE.ZONE_NM,	 												\n");
-		sql.append(" ITEM.FOOD_CAT_INDEX,											\n");
-		sql.append(" VAL.RSCH_VAL1,													\n");
-		sql.append(" VAL.RSCH_VAL2,													\n");
-		sql.append(" VAL.RSCH_VAL3,													\n");
-		sql.append(" VAL.RSCH_VAL4,													\n");
-		sql.append(" VAL.RSCH_VAL5,													\n");
-		sql.append(" VAL.RSCH_REASON												\n");
-		sql.append("    , (                        									\n");
-		sql.append("        CASE                                                    \n");
-		sql.append("        WHEN (                                                  \n");
-		sql.append("            VAL.LOW_VAL / ((SELECT Z.LOW_VAL                    \n");
-		sql.append("            FROM (SELECT * FROM FOOD_RSCH_VAL                   \n");
-		sql.append("                ORDER BY RSCH_VAL_NO DESC) Z                    \n");
-		sql.append("            WHERE Z.RSCH_VAL_NO < VAL.RSCH_VAL_NO               \n");
-		sql.append("                AND Z.RSCH_NO < VAL.RSCH_NO                     \n");
-		sql.append("                AND Z.ITEM_NO = VAL.ITEM_NO                     \n");
-		sql.append("                AND Z.ZONE_NO = VAL.ZONE_NO                     \n");
-		sql.append("                AND ROWNUM = 1) + VAL.LOW_VAL) * 100            \n");
-		sql.append("        ) IS NULL                                               \n");
-		sql.append("        THEN 'Y'                                                \n");
-		sql.append("        WHEN (                                                  \n");
-		sql.append("            VAL.LOW_VAL / ((SELECT Z.LOW_VAL                    \n");
-		sql.append("            FROM (SELECT * FROM FOOD_RSCH_VAL                   \n");
-		sql.append("                ORDER BY RSCH_VAL_NO DESC) Z                    \n");
-		sql.append("            WHERE Z.RSCH_VAL_NO < VAL.RSCH_VAL_NO               \n");
-		sql.append("                AND Z.RSCH_NO < VAL.RSCH_NO                     \n");
-		sql.append("                AND Z.ITEM_NO = VAL.ITEM_NO                     \n");
-		sql.append("                AND Z.ZONE_NO = VAL.ZONE_NO                     \n");
-		sql.append("                AND ROWNUM = 1) + VAL.LOW_VAL) * 100            \n");
-		sql.append("        ) < PRE.LOW_RATIO                                       \n");
-		sql.append("        THEN 'N'                                                \n");
-		sql.append("        ELSE 'Y'                                                \n");
-		sql.append("        END                                                     \n");
-		sql.append("    ) AS LOW_FLAG            									\n");
-		sql.append("    , (															\n");
-		sql.append("		CASE			 										\n");
-		sql.append("        WHEN (			 										\n");
-		sql.append("			VAL.AVR_VAL / ((SELECT Z.LOW_VAL			 		\n");
-		sql.append("            FROM (SELECT * FROM FOOD_RSCH_VAL					\n");
-		sql.append("            	ORDER BY RSCH_VAL_NO DESC) Z					\n");
-		sql.append("            WHERE Z.RSCH_VAL_NO < VAL.RSCH_VAL_NO				\n");
-		sql.append("            	AND Z.RSCH_NO < VAL.RSCH_NO						\n");
-		sql.append("            	AND Z.ITEM_NO = VAL.ITEM_NO						\n");
-		sql.append("            	AND Z.ZONE_NO = VAL.ZONE_NO						\n");
-		sql.append("            	AND ROWNUM = 1) + VAL.LOW_VAL) * 100			\n");
-		sql.append("            ) IS NULL											\n");
-		sql.append("		THEN 'Y'												\n");
-		sql.append("        WHEN (													\n");
-		sql.append("        	VAL.LOW_VAL / ((SELECT Z.LOW_VAL					\n");
-		sql.append("            FROM (SELECT * FROM FOOD_RSCH_VAL					\n");
-		sql.append("            	ORDER BY RSCH_VAL_NO DESC) Z					\n");
-		sql.append("            WHERE Z.RSCH_VAL_NO < VAL.RSCH_VAL_NO				\n");
-		sql.append("            	AND Z.RSCH_NO < VAL.RSCH_NO						\n");
-		sql.append("            	AND Z.ITEM_NO = VAL.ITEM_NO						\n");
-		sql.append("            	AND ROWNUM = 1) + VAL.LOW_VAL) * 100			\n");
-		sql.append("		) < PRE.LOW_RATIO										\n");
-		sql.append("        THEN 'N'												\n");
-		sql.append("        ELSE 'Y'												\n");
-		sql.append("        END														\n");
-		sql.append("		) AS AVR_FLAG											\n");
-
-		sql.append(" FROM FOOD_ITEM_PRE PRE 										\n");
-		sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO	\n");
-		sql.append(" LEFT JOIN FOOD_RSCH_VAL VAL ON VAL.ITEM_NO = ITEM.ITEM_NO		\n");
-		sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
-		sql.append(" LEFT JOIN FOOD_SCH_TB SCH ON VAL.SCH_NO = SCH.SCH_NO			\n");
-		sql.append(" LEFT JOIN FOOD_SCH_NU NU ON VAL.NU_NO = NU.NU_NO				\n");
-		sql.append(" LEFT JOIN FOOD_ZONE ZONE ON VAL.ZONE_NO = ZONE.ZONE_NO			\n");
-		
-		sql.append(" WHERE TB.SHOW_FLAG = 'Y'										\n");
- 		sql.append(" AND TB.STS_FLAG = 'Y'											\n");		
-		sql.append(sqlWhere);
-		sql.append(" ORDER BY TB.RSCH_NO DESC, PRE.ITEM_NO							\n");
-		sql.append(" )A WHERE ROWNUM <= ?											\n");
-		sql.append(" ) WHERE RNUM > ?												\n");
-		
-		setWhere.add(Integer.toString(pagingVO.getEndRowNo()));		//ROWNUM
-		setWhere.add(Integer.toString(pagingVO.getStartRowNo()));	//RNUM
-		
-		if(setWhere != null && setWhere.size() > 0){
-			setObject	=	new Object[setWhere.size()];
-			for(int i=0; i<setWhere.size(); i++){
-				setObject[i]	=	setWhere.get(i);
-			}
-		}
-		
-		searchList		=	jdbcTemplate.query(sql.toString(), new FoodList(), setObject);			
-	}catch(Exception e){
-		alert(out, e.toString());
-	}finally{
-
-	}
-%>
-
-<script type="text/javascript">
-
-	$(function() {
-		$("#srchSdate").datepicker({
-		showButtonPanel: true,
-		buttonImageOnly: true,
-		currentText: '오늘 날짜',
-		closeText: '닫기',
-		dateFormat: "y/mm/dd",
-		monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
-		dayNamesMin: ['일','월','화','수','목','금','토'],
-		changeMonth: true, //월변경가능
-		changeYear: true, //년변경가능
-		showMonthAfterYear: true, //년 뒤에 월 표시
-		showOn: "both",
-		buttonImage: '/jquery/icon_calendar.gif',
-		buttonImageOnly: true
-		});
-
-		$("#srchEdate").datepicker({
-		showButtonPanel: true,
-		buttonImageOnly: true,
-		currentText: '오늘 날짜',
-		closeText: '닫기',
-		dateFormat: "y/mm/dd",
-		monthNamesShort: ['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],
-		dayNamesMin: ['일','월','화','수','목','금','토'],
-		changeMonth: true, //월변경가능
-		changeYear: true, //년변경가능
-		showMonthAfterYear: true, //년 뒤에 월 표시
-		showOn: "both",
-		buttonImage: '/jquery/icon_calendar.gif',
-		buttonImageOnly: true
-		});
-
-		$('img.ui-datepicker-trigger').css({'cursor':'pointer', 'margin-left':'-22px', 'margin-top':'1px'});
-		
-		//기간검색 시작날짜가 종료날짜보다 클경우
-		
-		//open popup item history
-		$(".openItem").click(function () {
-			var index	=	$(".openItem").index(this);
-			var item_no	=	$(".openItem").eq(index).data("value");
-			
-			var send_url	=	"/index.gne?menuCd=DOM_000002101003001000&item_no=" + item_no;
-			var param		=	{item_no: item_no};
-			newWin(send_url, "식품이력 page", 1500, 1000);
-		});
-
-		$("#rschDwExcel").click(function (){
-			var sendForm	=	$("#foodSrch");
-			sendForm.attr("action", "/program/food/research/food_research_val_excel.jsp");
-			sendForm.submit();
-			sendForm.attr("action", "/index.gne?menuCd=DOM_000002101003000000");
-		});
-	});
-
-	//search Submit Check
-	function submitChk(){
-		//기간검색 유효성검사
-		if($("#srchSdate").val() != "" && $("#srchEdate").val() != ""){
-			if($("#srchSdate").val() > $("#srchEdate").val()){
-				alert("조사시작일이 종료일보다 클 수 없습니다.");
-				$("#srchSdate").focus();
-				return false;
-			}
-		}
-		//기간검색 시 시작일,종료일 둘중 하나라도 빈값이 아닐 경우
-		else if(($("#srchSdate").val() != "" && $("#srchEdate").val() == "") || 
-				($("#srchEdate").val() != "" && $("#srchSdate").val() == "")){
-			alert("기간검색시 반드시 시작일과 종료일을 둘다 입력하셔야 합니다.");
-			$("#srchEdate").focus();
-			return false;
-		}
-		else{
-			return true;
-		}
-	}
-
-	function newWin(url, title, w, h){
-        var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
-        var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
-
-        var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
-        var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
-
-        var left = ((width / 2) - (w / 2)) + dualScreenLeft;
-        var top = ((height / 2) - (h / 2)) + dualScreenTop;
-        var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+<!doctype html>
+<html lang="en" class="no-js not-logged-in client-root">
+ <head>
+  <meta charset="utf-8"> 
+  <meta http-equiv="X-UA-Compatible" content="IE=edge"> 
+  <title>
+신아영 (@ayoungshinn) • Instagram photos and videos
+</title> 
+  <meta name="robots" content="noimageindex, noarchive"> 
+  <meta name="mobile-web-app-capable" content="yes"> 
+  <meta name="theme-color" content="#000000"> 
+  <meta id="viewport" name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=5, viewport-fit=cover"> 
+  <link rel="manifest" href="/data/manifest.json"> 
+  <link href="https://graph.instagram.com" rel="preconnect" crossorigin> 
+  <link rel="preload" href="/static/bundles/base/ProfilePageContainer.js/451ff73e3d61.js" as="script" type="text/javascript" crossorigin="anonymous"> 
+  <script type="text/javascript">
+        (function() {
+            var docElement = document.documentElement;
+            var classRE = new RegExp('(^|\\s)no-js(\\s|$)');
+            var className = docElement.className;
+            docElement.className = className.replace(classRE, '$1js$2');
+        })();
+        </script> 
+  <script type="text/javascript">
+(function() {
+  if ('PerformanceObserver' in window && 'PerformancePaintTiming' in window) {
+    window.__bufferedPerformance = [];
+    var ob = new PerformanceObserver(function(e) {
+      window.__bufferedPerformance.push.apply(window.__bufferedPerformance,e.getEntries());
+    });
+    ob.observe({entryTypes:['paint']});
+  }
+  window.__bufferedErrors = [];
+  window.onerror = function(message, url, line, column, error) {
+    window.__bufferedErrors.push({
+      message: message,
+      url: url,
+      line: line,
+      column: column,
+      error: error
+    });
+    return false;
+  };
+  window.__initialData = {
+    pending: true,
+    waiting: []
+  };
+  function notifyLoaded(item, data) {
+    item.pending = false;
+    item.data = data;
+    for (var i = 0;i < item.waiting.length; ++i) {
+      item.waiting[i].resolve(item.data);
     }
-
-</script>
-<!-- 배너링크 include -->
-{CNT:2305}			<!-- 운영서버:2305, 테스트서버:669 -->
-<!-- // 배너 include -->
-
-<section>
-	<h3 class="blind">거래실례가격 검색조건</h3>
-	<form id="foodSrch" name="foodSrch" method="post" onsubmit="return submitChk();">
-    <fieldset class="search_wrap">
-      <legend>조사가격 조회 검색조건</legend>
-      <table class="bbs_list1 td-l mag0">
-        <caption>조사가격 조회 검색조건 : 기간검색, 권역, 품목구분/식품명, 검색어 입력란</caption>
-        <colgroup>
-          <col style="width:15%" />
-          <col style="width:33%"/>
-          <col style="width:15%" />
-          <col />
-        </colgroup>
-        <tbody>
-          <tr>
-            <th scope="row">기간검색</th>
-            <td><label for="srchSdate" class="blind">시작날짜 선택</label>
-            <input type="text" id="srchSdate" name="srchSdate" value="<%=srchSdate%>" class="datepicker calendar" style="ime-mode:disabled;">
-            ~
-            <label for="srchEdate" class="blind">종류날짜 선택</label>
-            <input type="text" id="srchEdate" name="srchEdate" value="<%=srchEdate%>" class="datepicker calendar" style="ime-mode:disabled;"></td>
-            <th scope="row"><label for="zoneType">권역</label></th>
-            <td>
-              <select name="zoneType" id="zoneType" title="권역을 선택해주세요." class="wps_30">
-                <option value="">권역 전체</option>
-                <%
-                if(zoneList != null && zoneList.size() > 0){
-                	for(int i=0; i<zoneList.size(); i++){
-                		out.print(printOption(zoneList.get(i).zone_no, zoneList.get(i).zone_nm, zoneType));
-                	}
-                }
-                %>
-              </select>
-            </td>
-          </tr>
-          <tr>
-            <th scope="row">품목구분/식품명</th>
-            <td>
-              <label for="foodItem" class="blind">품목구분</label>
-              <select name="foodItem" id="foodItem" title="품목을 선택해주세요." class="wps_30">
-                <option value="">품목 전체</option>
-                <%
-                if(cateList != null && cateList.size() > 0){
-                	for(int i=0; i<cateList.size(); i++){
-                		out.print(printOption(cateList.get(i).cat_no, cateList.get(i).cat_nm, foodItem));
-                	}
-                }
-                %>
-              </select>
-              <label for="foodName" class="blind">품목구분</label>
-              <input type="text" id="foodName" name="foodName" value="<%=foodName%>" class="wps_60" />
-            </td>
-            <th scope="row">검색어</th>
-            <td>
-              <label for="keywordCate" class="blind">검색어</label>
-              <select name="keywordCate" id="keywordCate" title="검색어분류를 선택해주세요." class="wps_30">
-                <option value="">분류 선택</option>
-                <%
-                	for(int i=0; i<keyCateOp.length; i++){
-                		out.print(printOption(keyCateOp[i], keyCateTxt[i], keywordCate));
-                	}
-                %>
-              </select>
-              <label for="keywordInp" class="blind">키워드 입력</label>
-              <input type="text" id="keywordInp" name="keywordInp" value="<%=keywordInp%>" class="wps_60" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </fieldset>
-    <div class="btn_area c magT10">
-      <button type="submit" class="btn medium darkMblue fb w_150">검 색</button>
-    </div>
-	</form>
-</section>
-
-<div class="btn_area l magB5" style="float:left;">
-	검색항목 수 : <%=cnt%>
-</div>
-<div class="btn_area r magB5">
-	<button type="button" id="rschDwExcel" class="btn small edge white fb"><i class="ico_xls"></i>엑셀다운로드</button>
-</div>
-<table class="tbl_rsrch td-pd1">
-	<caption>품목구분별 거래실례가격 정보 조회 : 권역, 조사명, 조사날짜, 식품코드, 식품명, 상세식품명, 식품설명, 단위, 적용단가, 비교그룹, 평균가, 중앙가, 세권역통합평균가, 조사자, 소속, 조사가1~3 등</caption>
-	<colgroup>
-		<col style="width:7%" />
-		<col style="width:4%" />
-		<col style="width:8%" />
-		<col style="width:8%" />
-		<col style="width:10%" />
-		<col style="width:18%" />
-		<col style="width:2%" />
-		<col style="width:6.1%" />
-		<col style="width:6.1%" />
-		<col style="width:6.1%" />
-		<col />
-		<col style="width:6.1%" />
-		<col style="width:6.1%" />
-		<col style="width:6.1%" />
-		<col style="width:6.1%" />
-	</colgroup>
-	<thead>
-	<tr>
-		<th scope="col">품목구분</th>
-		<th scope="col">권역</th>
-		<th scope="col">조사명</th>
-		<th scope="col">식품명</th>
-		<th scope="col">상세 식품명</th>
-		<th scope="col">식품설명</th>
-		<th scope="col">단위</th>
-		<th scope="col">비교그룹</th>
-		<th scope="col">평균가</th>
-		<th scope="col">중앙가</th>
-		<th scope="col">세권역<br />통합평균가</th>
-		<th scope="col">조사가1</th>
-		<th scope="col">조사가2</th>
-		<th scope="col">조사가3</th>
-		<th scope="col">비고</th>
-	</tr>
-	</thead>
-	<tbody>
-  	<%
-  	if(searchList != null && searchList.size()>0){
-  		for(int i=0; i<searchList.size(); i++){
-  			FoodVO vo	=	searchList.get(i);
-  			String classTxt		=	"";
-  			if(!"".equals(parseNull(vo.rsch_reason)))	classTxt	=	" class = \"rch_return\"";
-  			%>
-  			<tr<%=classTxt%>>
-				<td><%=vo.cat_nm%>-<%=vo.food_cat_index%></td>
-				<td><%=vo.zone_nm%></td>
-				<td><%=vo.rsch_nm%></td>
-				<td>
-					<a href="javascript:;" class="openItem" data-value="<%=vo.item_no %>">
-						<span class="blue fb"><%=vo.nm_food%></span>
-					</a>
-				</td>
-				<td><%=vo.dt_nm%></td>
-				<td><%=vo.ex_nm%></td>
-				<td><%=vo.unit_nm%></td>
-				<%-- <td><%if ("N".equals(vo.low_flag)){%><span class="fb red" title="최저가 비율 초과"><%}%>
-					<%=moneyComma(parseNull(vo.low_val, " - ")) %>
-				</td> --%>
-				<td><%=parseNull(vo.item_comp_no, " - ")%></td>
-				<td><%if ("N".equals(vo.avr_flag)){%><span class="fb red"><%}%>
-					<%=parseNull(vo.avr_val, " - ") %>
-				</td>
-				<td><%=parseNull(vo.center_val, " - ") %></td>
-				<td><%=parseNull(vo.zone_avr_val, " - ") %></td>
-				<%/*조사가 정렬 출력*/
-					valMap	=	new HashMap<Integer, String>();
-					valMap.put(1, parseNull(vo.rsch_val1, "-"));
-					valMap.put(2, parseNull(vo.rsch_val2, "-"));
-					valMap.put(3, parseNull(vo.rsch_val3, "-"));
-					valMap.put(4, parseNull(vo.rsch_val4, "-"));
-					valMap.put(5, parseNull(vo.rsch_val5, "-"));
-					valMapCnt	=	0;	//초기화
-					for (int j = 1; j <= valMap.size(); j++) {
-						if (!"-".equals(valMap.get(j))) {
-							valMapCnt++;
-						}
-					}
-					//가격 유무 여부 확인
-					if (valMapCnt > 0) {
-						if (valMapCnt == 5) {
-							//5개의 값이 모두 같을 경우 산정하기....
-							int duplCnt	=	0;
-							for (int j = 1; j <= valMap.size(); j++) {
-								if (valMap.get(1).equals(valMap.get(j))) {
-									duplCnt++;
-								}
-							}
-
-							//최고값 최저값
-							int strNo	=	0;
-							for (int j = 1; j <= valMap.size(); j++) {
-								if (!"-".equals(valMap.get(j)) && strNo == 0) {
-									strNo	=	j;
-									minVal	=	Integer.parseInt(valMap.get(j));
-									maxVal	=	Integer.parseInt(valMap.get(j));
-								}
-								if (!"-".equals(valMap.get(j)) && minVal < Integer.parseInt(valMap.get(j))) {
-									minVal	=	minVal;
-								} else if (!"-".equals(valMap.get(j)) && minVal >= Integer.parseInt(valMap.get(j))) {
-									minVal	=	Integer.parseInt(valMap.get(j));
-									if (duplCnt == valMap.size()) {minNo	=	j - 1;} 
-									else {minNo	=	j;}
-								}
-								//최고값 index
-								if (!"-".equals(valMap.get(j)) && maxVal > Integer.parseInt(valMap.get(j))) {
-									maxVal	=	maxVal;
-								} else if (!"-".equals(valMap.get(j)) && maxVal <= Integer.parseInt(valMap.get(j))) {
-									maxVal	=	Integer.parseInt(valMap.get(j));
-									maxNo	=	j;
-								}
-							}
-							for (int j = 1; j <= valMap.size(); j++) {
-								if (j != minNo && j != maxNo) {%>
-									<td><span><%=valMap.get(j) %></span></td>
-							<%	
-									useMaxVal   =   Integer.parseInt(valMap.get(j));
-                                    useMinVal   =   Integer.parseInt(valMap.get(j));
-                                    if (useMaxVal < Integer.parseInt(valMap.get(j))) {
-                                        useMaxVal   =   Integer.parseInt(valMap.get(j));
-                                    }
-                                    if (useMinVal > Integer.parseInt(valMap.get(j))) {
-                                        useMinVal   =   Integer.parseInt(valMap.get(j));
-                                    }
-                                    lbRatioBool =   lbRatioBool(useMinVal, useMaxVal, vo.lb_ratio);
-								}
-							}
-
-						//가격이 3개 일 경우
-						} else if (valMapCnt == 3) {
-							for (int j = 1; j <= valMap.size(); j++) {
-								if (!"-".equals(valMap.get(j))) {%>
-									<td><span><%=valMap.get(j) %></span></td>
-							<%
-									useMaxVal   =   Integer.parseInt(valMap.get(j));
-									useMinVal   =   Integer.parseInt(valMap.get(j));
-									if (useMaxVal < Integer.parseInt(valMap.get(j))) {
-										useMaxVal   =   Integer.parseInt(valMap.get(j));
-									}
-									if (useMinVal > Integer.parseInt(valMap.get(j))) {
-										useMinVal   =   Integer.parseInt(valMap.get(j));
-									}
-									lbRatioBool =   lbRatioBool(useMinVal, useMaxVal, vo.lb_ratio);
-								}
-							}%>
-
-						<%//가격이 1개일 경우... 혹시 모르니...
-						} else if (valMapCnt == 1) {%>
-							<td><span>
-							<%for (int j = 1; j <= valMap.size(); j++) {
-								if (!"-".equals(valMap.get(j))) {
-									out.println(valMap.get(j));
-							}}%>
-							</span></td>
-							<td><span> - </span></td>
-							<td><span> - </span></td>
-						<%}
-					} else {%>
-						<td><span> - </span></td>
-						<td><span> - </span></td>
-						<td><span> - </span></td>
-					<%}
-				%>
-				<td><%=parseNull(vo.rsch_reason ," - ")%></td>
-		    </tr>
-  			<%
-  		}/*END FOR*/
-  	}/*END IF*/else{%>
-  		<tr>
-  			<td colspan="15" style="text-align:center;">내역이 없습니다.</td>
-  		</tr>
-  		<%
-  	}%>
-    
-  </tbody>
-</table>
-
-<!-- paging -->
-<div class="pageing">
-	<%if(pagingVO.getTotalCount() > 0) {
-		out.print(pagingVO.getHtml());	
-	}%>
-</div>
-
-<%}%>
+    item.waiting = [];
+  }
+  function notifyError(item, msg) {
+    item.pending = false;
+    item.error = new Error(msg);
+    for (var i = 0;i < item.waiting.length; ++i) {
+      item.waiting[i].reject(item.error);
+    }
+    item.waiting = [];
+  }
+  window.__initialDataLoaded = function(initialData) {
+    notifyLoaded(window.__initialData, initialData);
+  };
+  window.__initialDataError = function(msg) {
+    notifyError(window.__initialData, msg);
+  };
+  window.__additionalData = {};
+  window.__pendingAdditionalData = function(paths) {
+    for (var i = 0;i < paths.length; ++i) {
+      window.__additionalData[paths[i]] = {
+        pending: true,
+        waiting: []
+      };
+    }
+  };
+  window.__additionalDataLoaded = function(path, data) {
+    notifyLoaded(window.__additionalData[path], data);
+  };
+  window.__additionalDataError = function(path, msg) {
+    notifyError(window.__additionalData[path], msg);
+  };
+})();
+</script> 
+  <link rel="apple-touch-icon-precomposed" sizes="76x76" href="/static/images/ico/apple-touch-icon-76x76-precomposed.png/932e4d9af891.png"> 
+  <link rel="apple-touch-icon-precomposed" sizes="120x120" href="/static/images/ico/apple-touch-icon-120x120-precomposed.png/004705c9353f.png"> 
+  <link rel="apple-touch-icon-precomposed" sizes="152x152" href="/static/images/ico/apple-touch-icon-152x152-precomposed.png/82467bc9bcce.png"> 
+  <link rel="apple-touch-icon-precomposed" sizes="167x167" href="/static/images/ico/apple-touch-icon-167x167-precomposed.png/515cb4eeeeee.png"> 
+  <link rel="apple-touch-icon-precomposed" sizes="180x180" href="/static/images/ico/apple-touch-icon-180x180-precomposed.png/94fd767f257b.png"> 
+  <link rel="icon" sizes="192x192" href="/static/images/ico/favicon-192.png/b407fa101800.png"> 
+  <link rel="mask-icon" href="/static/images/ico/favicon.svg/9d8680ab8a3c.svg" color="#262626"> 
+  <link rel="shortcut icon" type="image/x-icon" href="/static/images/ico/favicon.ico/dfa85bb1fd63.ico"> 
+  <link rel="alternate" href="android-app://com.instagram.android/https/instagram.com/_u/ayoungshinn/"> 
+  <meta property="al:ios:app_name" content="Instagram"> 
+  <meta property="al:ios:app_store_id" content="389801252"> 
+  <meta property="al:ios:url" content="instagram://user?username=ayoungshinn"> 
+  <meta property="al:android:app_name" content="Instagram"> 
+  <meta property="al:android:package" content="com.instagram.android"> 
+  <meta property="al:android:url" content="https://www.instagram.com/_u/ayoungshinn/"> 
+  <link rel="canonical" href="https://www.instagram.com/ayoungshinn/">
+  <meta content="78.5k Followers, 284 Following, 306 Posts - See Instagram photos and videos from 신아영 (@ayoungshinn)" name="description"> 
+  <meta property="og:type" content="profile"> 
+  <meta property="og:image" content="https://scontent-icn1-1.cdninstagram.com/vp/f65df7863599ac7d5057d8cb6c2f165f/5B8A397B/t51.2885-19/11189143_1633925206819258_1128029974_a.jpg"> 
+  <meta property="og:title" content="신아영 (@ayoungshinn) • Instagram photos and videos"> 
+  <meta property="og:description" content="78.5k Followers, 284 Following, 306 Posts - See Instagram photos and videos from 신아영 (@ayoungshinn)"> 
+  <meta property="og:url" content="https://www.instagram.com/ayoungshinn/"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/" hreflang="x-default"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=en" hreflang="en"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=fr" hreflang="fr"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=it" hreflang="it"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=de" hreflang="de"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es" hreflang="es"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=zh-cn" hreflang="zh-cn"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=zh-tw" hreflang="zh-tw"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=ja" hreflang="ja"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=ko" hreflang="ko"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=pt" hreflang="pt"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=pt-br" hreflang="pt-br"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=af" hreflang="af"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=cs" hreflang="cs"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=da" hreflang="da"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=el" hreflang="el"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=fi" hreflang="fi"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=hr" hreflang="hr"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=hu" hreflang="hu"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=id" hreflang="id"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=ms" hreflang="ms"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=nb" hreflang="nb"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=nl" hreflang="nl"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=pl" hreflang="pl"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=ru" hreflang="ru"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=sk" hreflang="sk"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=sv" hreflang="sv"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=th" hreflang="th"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=tl" hreflang="tl"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=tr" hreflang="tr"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=hi" hreflang="hi"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=bn" hreflang="bn"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=gu" hreflang="gu"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=kn" hreflang="kn"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=ml" hreflang="ml"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=mr" hreflang="mr"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=pa" hreflang="pa"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=ta" hreflang="ta"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=te" hreflang="te"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=ne" hreflang="ne"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=si" hreflang="si"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=ur" hreflang="ur"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=vi" hreflang="vi"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=bg" hreflang="bg"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=fr-ca" hreflang="fr-ca"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=ro" hreflang="ro"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=sr" hreflang="sr"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=uk" hreflang="uk"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=zh-hk" hreflang="zh-hk"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-co"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-pa"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-pr"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-bo"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-cr"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-ve"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-gt"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-py"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-pe"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-ar"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-mx"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-cu"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-ni"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-cl"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-uy"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-ec"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-do"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-hn"> 
+  <link rel="alternate" href="https://www.instagram.com/ayoungshinn/?hl=es-la" hreflang="es-sv"> 
+ </head> 
+ <body class=""> 
+  <span id="react-root"></span> 
+  <script type="text/javascript">window._sharedData = {"activity_counts":null,"config":{"csrf_token":"FBvmCRFWfDIZxT3cyb7Ukjh4W2FgWLYX","viewer":null},"supports_es6":false,"country_code":"KR","language_code":"en","locale":"en_US","entry_data":{"ProfilePage":[{"logging_page_id":"profilePage_1086014903","show_suggested_profiles":false,"graphql":{"user":{"biography":"Ayoung Shin","blocked_by_viewer":false,"country_block":false,"external_url":null,"external_url_linkshimmed":null,"edge_followed_by":{"count":78561},"followed_by_viewer":false,"edge_follow":{"count":284},"follows_viewer":false,"full_name":"\uc2e0\uc544\uc601","has_blocked_viewer":false,"has_highlight_reel":false,"has_requested_viewer":false,"id":"1086014903","is_private":false,"is_verified":false,"mutual_followers":null,"profile_pic_url":"https://scontent-icn1-1.cdninstagram.com/vp/f65df7863599ac7d5057d8cb6c2f165f/5B8A397B/t51.2885-19/11189143_1633925206819258_1128029974_a.jpg","profile_pic_url_hd":"https://scontent-icn1-1.cdninstagram.com/vp/f65df7863599ac7d5057d8cb6c2f165f/5B8A397B/t51.2885-19/11189143_1633925206819258_1128029974_a.jpg","requested_by_viewer":false,"username":"ayoungshinn","connected_fb_page":null,"edge_owner_to_timeline_media":{"count":306,"page_info":{"has_next_page":true,"end_cursor":"AQBtjW3mH4qkB-_AAzvOgHvQN3CVPCKMgmOeGD38wxB96A4VfaQUT21fqvN6xKsAZT6eMjWK_iiOaGa92BMluejSEBHfC1YkR99jUDRTW4mUog"},"edges":[{"node":{"__typename":"GraphImage","id":"1772247169337517588","edge_media_to_caption":{"edges":[{"node":{"text":"Managerrard! \uc774\ub984\ubd80\ud130 \uba85\uac10\ub3c5 \ud3ec\uc2a4 \ubfdc\ubfdc. \uc544 \uc624\ube60 \uc9c4\uc9dc \uba4b\uc838\uc694 \uc5c9\uc5c9 \ud55c\uad6d \ud55c \ubc88\ub9cc \uc640\uc8fc\uc138\uc694 \uc9c4\uc9dc...! #\ub2e4\uc74c\uc5ec\ud589\uc740\uc2a4\ucf54\ud2c0\ub79c\ub4dc\ub2e4 #\uac00\uc988\uc544"}}]},"shortcode":"BiYSWkmjeYU","edge_media_to_comment":{"count":56},"comments_disabled":false,"taken_at_timestamp":1525488347,"dimensions":{"height":480,"width":480},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/972eb42a6b6e8cde835d70f4019bf17f/5B889361/t51.2885-15/e35/30944502_360648737758687_3484285544500822016_n.jpg","edge_liked_by":{"count":3196},"edge_media_preview_like":{"count":3196},"gating_info":null,"media_preview":"ACoqkIz1qJolPt9Km3A9COOtKSOPQ1x2aOq6ZQS2aUHG0YJAy3Jx7e/amrGB1zmr1o4kkIToTgZAxweT69/r6VUMoZiSecn+daSi7XS23ITV9x6qBxin8UzcPvZG31/Sk8xfUVFn2f3FXXdFeEq3LMFx2IPPscVI06xxernoD0Ayev8AT8KqSH5j/ntUplbyiAAVHc9efx/LivR+NKXzOJe5Jr5F+3dbfaOMiHceOSx5yfYZGPWqrbJrdmVcSREZx3BOCT6+p9DSNKQ4de6qB/tEAfoP5/rHPO+CuAGzyV7g9QfWoSbTf69tzS6T/rqRhk2Zyd/TGOPzz1x7U0n61EjAmpiRmhz5UrEqHM2TFBnkc1ebTGwdkqEN9f8A69ZqMeuTnAqO4kbb1P5msIScXZG04pl+3s2nd4wyho8Ak9zzgLjt3zjqRTbyxnhBlfBUYyVPTkY4OD1/KsOtC3mkaKRSzEbTwScflWyk0rf1qZW6kmBnPFNJoWkrkOk//9k=","owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/972eb42a6b6e8cde835d70f4019bf17f/5B889361/t51.2885-15/e35/30944502_360648737758687_3484285544500822016_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/49e1db61dbc0490d769c9d207ca7161f/5B7B7C04/t51.2885-15/s150x150/e35/30944502_360648737758687_3484285544500822016_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/2fb26397ca268a2a78f3366e6f371194/5B9BBA3B/t51.2885-15/s240x240/e35/30944502_360648737758687_3484285544500822016_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/938e0a1778b5714c8266228e721e5dd3/5B9BF743/t51.2885-15/s320x320/e35/30944502_360648737758687_3484285544500822016_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/972eb42a6b6e8cde835d70f4019bf17f/5B889361/t51.2885-15/e35/30944502_360648737758687_3484285544500822016_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/972eb42a6b6e8cde835d70f4019bf17f/5B889361/t51.2885-15/e35/30944502_360648737758687_3484285544500822016_n.jpg","config_width":640,"config_height":640}],"is_video":false}},{"node":{"__typename":"GraphImage","id":"1767267998500793835","edge_media_to_caption":{"edges":[{"node":{"text":"\ub355\ud6c4\ub825\uc774+1 \uc0c1\uc2b9\ud558\uc168\uc2b5\ub2c8\ub2e4. #\uc625\uc2a4\ud3ec\ub4dc\ube14\ub7ed#cgv #\ubfcc\ub4ef\ud558\uad70#\uc9d1\uc21c\uc774\ucde8\ubbf8"}}]},"shortcode":"BiGmOGZji3r","edge_media_to_comment":{"count":40},"comments_disabled":false,"taken_at_timestamp":1524894784,"dimensions":{"height":1080,"width":1080},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/daa66cb8a9f6c468051e93fd8d668e88/5B87E2C0/t51.2885-15/e35/31163044_601890570182891_1992300625555095552_n.jpg","edge_liked_by":{"count":2920},"edge_media_preview_like":{"count":2920},"gating_info":null,"media_preview":"ACoq18r/AHv5f0pwVe5zXLNKAcHHT0A/qKByMgr6Y7/Xg9Knmfb8SuVdzqPJRuwP4A/0qvPDEgB2IMnBJXgD3x+Q96xFikPCMp47OcfnmkZ5oyAS3zDjDt26/gPWi/l+QJW6mjiBjjy+T0wSOc/Kp9CeSfT3qx9gj/yT/jWH9tlBxufr/ezTjfy/32/Mf4VOnVfgi35afNseI/MbduIJxxtyOnrT3t1HO1W+v9KFl8sBAysx/ID6560x43mGGkQc5oinrf5bfp+om+i2Kzw7jtVNrYJwMknp69PrUq2jgbtjYI4/r+FTJA6PvEkZOMc5/wAamN+i5iYbnxjcDxn29uav1I66FRbN3+YFeeQD6D14qB5E3H5QOTx6VdSaNcEnlRjvjIzge/WpFi3gMIwc85+XvT0WxWr3K0Vlt5fB49Og/wAT+lS+QoyCv3fb1/8ArVYz+pprE4PuaRAeQmcYHXHQdxxVU2cjNu3KM54xjkHOPx65/nU7MeeTUZdueT69e9AFb7HIecAZ5/z7+1aKyToAvycDH5VUZ29T+dThjjqaVh3uf//Z","owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/7a22058ac152ccbde5c1ec80ecc4b6ec/5B8F0CA1/t51.2885-15/s640x640/sh0.08/e35/31163044_601890570182891_1992300625555095552_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/06f2138d900e87bbe04ca8127920b517/5B9001A5/t51.2885-15/s150x150/e35/31163044_601890570182891_1992300625555095552_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/c8aeefe1abd634e40ac975ce3cd31c29/5B9C349A/t51.2885-15/s240x240/e35/31163044_601890570182891_1992300625555095552_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/5b41d4da477b877e7b070630ffa2bdc9/5B94F8E2/t51.2885-15/s320x320/e35/31163044_601890570182891_1992300625555095552_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/fc887d5a7d4143fef623d65689e0c05d/5B9AA964/t51.2885-15/s480x480/e35/31163044_601890570182891_1992300625555095552_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/7a22058ac152ccbde5c1ec80ecc4b6ec/5B8F0CA1/t51.2885-15/s640x640/sh0.08/e35/31163044_601890570182891_1992300625555095552_n.jpg","config_width":640,"config_height":640}],"is_video":false}},{"node":{"__typename":"GraphImage","id":"1762397004837439076","edge_media_to_caption":{"edges":[{"node":{"text":"\uc624\ub79c\ub9cc\uc778\uac70\uac19\uc740\ub290\ub08c\uc801\uc778\ub290\ub08c. \uc548\ub155! \ud83d\ude4b\u200d\u2640\ufe0f"}}]},"shortcode":"Bh1Sr0CjEZk","edge_media_to_comment":{"count":66},"comments_disabled":false,"taken_at_timestamp":1524314116,"dimensions":{"height":1080,"width":1080},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/b4a459d796667f4cf598d30fc5438032/5B8ACD6B/t51.2885-15/e35/30590304_450019468788618_6944408234354540544_n.jpg","edge_liked_by":{"count":3767},"edge_media_preview_like":{"count":3767},"gating_info":null,"media_preview":"ACoq3w1O3CmZrO1K48tRGOr9foP8TQBYNx5h4+7Tg1UbeMuN54z0HtVwJQA/fSeZTSlVTuBoA165e9k864PpkKPoKuzXz7C3r0H9fesZG+cE+oJ/OgDp9pC/L2pImLDJG3PUen/66eknGB2qTaccfePSgBdtVDOueASPXHWoDd7yyAg4IUnOAc8HA+vvVwDAxQBy7yFgB6DH65qOiigDTGoGONQoy+MZP+Heqz387ggtgHqAAP8A69VaKAJXXaqj1yf8KTJ9T+dMp9AH/9k=","owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/68e541277ccf9cdadaa1f7eecff9a7e7/5B9D290A/t51.2885-15/s640x640/sh0.08/e35/30590304_450019468788618_6944408234354540544_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/0d2965ce0e9e3c76ba17b7c254195de4/5B91AA0E/t51.2885-15/s150x150/e35/30590304_450019468788618_6944408234354540544_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/b7b92918fc2cf185648bab7df400ecd8/5B893C31/t51.2885-15/s240x240/e35/30590304_450019468788618_6944408234354540544_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/83bd28cc74d0066eab5f7cdc52cda157/5B863549/t51.2885-15/s320x320/e35/30590304_450019468788618_6944408234354540544_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/06987ab231e48a20b3a582758eca7721/5B9AC1CF/t51.2885-15/s480x480/e35/30590304_450019468788618_6944408234354540544_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/68e541277ccf9cdadaa1f7eecff9a7e7/5B9D290A/t51.2885-15/s640x640/sh0.08/e35/30590304_450019468788618_6944408234354540544_n.jpg","config_width":640,"config_height":640}],"is_video":false}},{"node":{"__typename":"GraphImage","id":"1761632568690363229","edge_media_to_caption":{"edges":[{"node":{"text":"\uc634\ub9c8\uc57c....\ube14\ub85d\uacfc\uc601\ud654\uad00. \ub0b4\uac00 \uc81c\uc77c \uc88b\uc544\ud558\ub294 \uac83 \ub458\uc758 \ucf5c\ub77c\ubcf4\ub808\uc774\uc158.\uc548 \uc0b4 \uc218\uac00 \uc5c6\uc796\uc544... \u3160\u3160\uc601\ud654\ud45c 2\uc7a5\uc774\ub098 \uc900\ub2e4\ub2c8\uae50 \ub3c8 \ubc88 \uac83 \ub9de...\uc9c0? \uc774\ub7f0\uac70 \ub9cc\ub4e4\uc5b4 \uc900\n#\ub2e4\uc74c#\uce74\uce74\uc624#\uace0\ub9c8\uc6cc\uc694\n#\uc6d0\ud22c\ud380\uce58\ub3c4\ub9cc\ub4e4\uc5b4\uc918\uc11c\uace0\ub9c8\uc6cc\uc694\n#\ube60\ub978\ubc30\uc1a1\ubd80\ud0c1\ud574\uc694\n#cgv#\ube14\ub85d#\uc625\uc2a4\ud3ec\ub4dc"}}]},"shortcode":"Bhyk3zZjEtd","edge_media_to_comment":{"count":26},"comments_disabled":false,"taken_at_timestamp":1524222988,"dimensions":{"height":1080,"width":1080},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/a29401484f3d84961618dfdd2dc49290/5B79B4AA/t51.2885-15/e35/30830996_1658564707514364_6796705129383854080_n.jpg","edge_liked_by":{"count":1556},"edge_media_preview_like":{"count":1556},"gating_info":null,"media_preview":"ACoq6SkYZGAce4rJuZ2hXco3EnGM47Hn9Ko/2jL/AHB/30f8KV7lONt3+BrSTLE4jLOTwScAgZ4GePX8utXFQhiSxIPbsP8APSub/tGTdnyxn/eP+HPWnrqMr42xg7jgfMev5Uarfb1BJPZ7HSUViQ3ErSeXIgT5dww2e4H9auc0ubsPkv1K1yQFyegOeOexqsksJ+YbmH+6f61Zut2z5VLHI4Azx+HT606BnMZym3ZwMqct7/8A16W2thyve19CqZ4s4CSH/gP/ANeqnlvnMavwd2HAwSevQ/4VptNK6HCMGB6Y2j8x1HuKY9zOHCbGC7R8wUnn8O3609X0/r7yVps99Pl9xXtjKZ8zKE+Q4wMZ+Ye5rZXoKyoWneYNMCAEODggcsOOe/HStVegpJW02L6fMSEgN6cVa3r6j86o96TtRew3Hm1LmT/eH6f404OO5Bql60npTuLk8yzOwK8HPNVs/Wj1pwpblJWVj//Z","owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/4c4a1996a7d40e0cb697affe4b96e3cf/5B7ED080/t51.2885-15/s640x640/sh0.08/e35/30830996_1658564707514364_6796705129383854080_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/753284f306f1c8c7aaf7a80184c67f3a/5B78DDFD/t51.2885-15/s150x150/e35/30830996_1658564707514364_6796705129383854080_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/61cd8a651bffcd898f1396c19b79b086/5B8CD169/t51.2885-15/s240x240/e35/30830996_1658564707514364_6796705129383854080_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/c0c397fe68e7d4d3d080f2b104db7dbc/5B9055CD/t51.2885-15/s320x320/e35/30830996_1658564707514364_6796705129383854080_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/9b5f2c3c54a029fcae84b00bbdbc68c8/5B77E495/t51.2885-15/s480x480/e35/30830996_1658564707514364_6796705129383854080_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/4c4a1996a7d40e0cb697affe4b96e3cf/5B7ED080/t51.2885-15/s640x640/sh0.08/e35/30830996_1658564707514364_6796705129383854080_n.jpg","config_width":640,"config_height":640}],"is_video":false}},{"node":{"__typename":"GraphVideo","id":"1759938585597622421","edge_media_to_caption":{"edges":[{"node":{"text":"\ucd2c\uc601\uc740 \ud56d\uc0c1 \uc7ac\ubc0c\ub2e4. \ub611\ub611\ud558\uac8c \ub2e4\uc774\uc5b4\ud2b8\ud558\uace0 \uc57c\ubb34\uc9c0\uac8c \uac74\uac15\ud574\uc9c8 \uc218 \uc788\ub294 \ud83d\udc4d\ud83d\udc4d\ud83d\ude18\ud83d\ude18#\ub9c8\uc77423\ud5ec\uc2a4\ucf00\uc5b4 #\ub9c8\uc774\ub274\uc2a4 #my23"}}]},"shortcode":"BhsjtGtDLiV","edge_media_to_comment":{"count":50},"comments_disabled":false,"taken_at_timestamp":1524021122,"dimensions":{"height":420,"width":750},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/f7f22eb0346bd438e4fe676a4e171a34/5AF5F725/t51.2885-15/e35/30085394_193802788092997_627039962218364928_n.jpg","edge_liked_by":{"count":2816},"edge_media_preview_like":{"count":2816},"gating_info":null,"media_preview":"ACoXbNhpXz/eNIkQdgoAyfUkCo5mxM/+9U1sGMg2nqMc0Rso3srl2b2BI4yM7Rz61IUiA+6v5VXVuCc5O45/OmNJwa64xTV7IxlcggdQNrZwxOcden1H61AQCetNDYH6fnSZrhsbFu7JEhY8B+c/pUSzsvTn/P4UUUlqirtPQT7QBkYxmmtKMcUUVrGTirIh67lmzt0mHzdj+B/z+FaZ0+2z0Yf8CNFFYN6lpH//2Q==","owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/d86881715d557a56282373aed7fdfb8c/5AF64460/t51.2885-15/e35/c158.0.404.404/30085394_193802788092997_627039962218364928_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/cffacf1feda8aebad081b659f8d5a8ad/5AF5ADE4/t51.2885-15/s150x150/e35/c158.0.404.404/30085394_193802788092997_627039962218364928_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/1a0f6ae8579c889f31d625bef28593dc/5AF5C46F/t51.2885-15/s240x240/e35/c158.0.404.404/30085394_193802788092997_627039962218364928_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/ef2ba02a9a899563b7b86d46a11e8b7c/5AF608FB/t51.2885-15/s320x320/e35/c158.0.404.404/30085394_193802788092997_627039962218364928_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/d86881715d557a56282373aed7fdfb8c/5AF64460/t51.2885-15/e35/c158.0.404.404/30085394_193802788092997_627039962218364928_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/d86881715d557a56282373aed7fdfb8c/5AF64460/t51.2885-15/e35/c158.0.404.404/30085394_193802788092997_627039962218364928_n.jpg","config_width":640,"config_height":640}],"is_video":true,"video_view_count":22527}},{"node":{"__typename":"GraphSidecar","id":"1757864500113735599","edge_media_to_caption":{"edges":[{"node":{"text":"#battletrip #yanggon#myanmar #nowbacktoreality"}}]},"shortcode":"BhlMHMEjH-v","edge_media_to_comment":{"count":45},"comments_disabled":false,"taken_at_timestamp":1523773799,"dimensions":{"height":1080,"width":1080},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/fa83078af9ab5aae39399624e9f10004/5B853FCA/t51.2885-15/e35/30593295_1563037223794123_7435314363403075584_n.jpg","edge_liked_by":{"count":2842},"edge_media_preview_like":{"count":2842},"gating_info":null,"media_preview":null,"owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/0c6fbf1740996c927b05ee88703802db/5B9AB2E0/t51.2885-15/s640x640/sh0.08/e35/30593295_1563037223794123_7435314363403075584_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/8e3648676a9e2192fd975706296c8728/5B8D849D/t51.2885-15/s150x150/e35/30593295_1563037223794123_7435314363403075584_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/493df054ceba49dd6500944b72aa7542/5B91AE09/t51.2885-15/s240x240/e35/30593295_1563037223794123_7435314363403075584_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/3df4d2071d47f7909ec8c37ba9e61859/5B8FADAD/t51.2885-15/s320x320/e35/30593295_1563037223794123_7435314363403075584_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/65dc0da0a67dacbb74e7073db880459e/5B83ADF5/t51.2885-15/s480x480/e35/30593295_1563037223794123_7435314363403075584_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/0c6fbf1740996c927b05ee88703802db/5B9AB2E0/t51.2885-15/s640x640/sh0.08/e35/30593295_1563037223794123_7435314363403075584_n.jpg","config_width":640,"config_height":640}],"is_video":false}},{"node":{"__typename":"GraphSidecar","id":"1755672670458813614","edge_media_to_caption":{"edges":[{"node":{"text":"i felt like I was in a Indiana Jones movie #myanmar #bagan #tbt"}}]},"shortcode":"BhdZv3ojxyu","edge_media_to_comment":{"count":38},"comments_disabled":false,"taken_at_timestamp":1523512513,"dimensions":{"height":1080,"width":1080},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/adf7db8b8e1e9a067fa9f6aebf77bedb/5B7E27D8/t51.2885-15/e35/30085952_1995223744132354_6649094087037157376_n.jpg","edge_liked_by":{"count":2068},"edge_media_preview_like":{"count":2068},"gating_info":null,"media_preview":null,"owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/c85b6fcc9d4c651f5e7c581a2c753835/5B7D8DF2/t51.2885-15/s640x640/sh0.08/e35/30085952_1995223744132354_6649094087037157376_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/420f23fb1aedf930231d5cb49b2199eb/5B78C38F/t51.2885-15/s150x150/e35/30085952_1995223744132354_6649094087037157376_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/01ceef34b41db51bf7453f07bd6f5e7c/5B8D6A1B/t51.2885-15/s240x240/e35/30085952_1995223744132354_6649094087037157376_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/bc18e274948a17159b13656f78f2cb9a/5B86BDBF/t51.2885-15/s320x320/e35/30085952_1995223744132354_6649094087037157376_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/6c67fdf1c210651a6497e3bd17c08e86/5B926AE7/t51.2885-15/s480x480/e35/30085952_1995223744132354_6649094087037157376_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/c85b6fcc9d4c651f5e7c581a2c753835/5B7D8DF2/t51.2885-15/s640x640/sh0.08/e35/30085952_1995223744132354_6649094087037157376_n.jpg","config_width":640,"config_height":640}],"is_video":false}},{"node":{"__typename":"GraphSidecar","id":"1748457560275221410","edge_media_to_caption":{"edges":[{"node":{"text":"\uc2e0\uc7a5\uad70\uc744 \ub530\ub974\ub77c!\n.\n.\n#\uc6d0\ud22c\ud380\uce58\n#\uc2b9\ubd80\uc608\uce21\uc740\n#\uc2b9\ubd80\uc608\uce21\uc77c\ubfd0\n#\uc7ac\ubbf8\ub85c\ubd10\uc8fc\uc138\uc694\n#\uadf8\ub798\ub3c4\uc7a5\uad70\uc88b\uad70\n#\ucc0d\uc5c8\ub3c4\ub2e4\ubcf4\uc558\ub178\ub77c\ub9de\ud614\ub3c4\ub2e4"}}]},"shortcode":"BhDxOMpDPui","edge_media_to_comment":{"count":154},"comments_disabled":false,"taken_at_timestamp":1522652405,"dimensions":{"height":750,"width":750},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/3a8f43ee4905e2b9e0caae6ad222e919/5B8B551F/t51.2885-15/e35/29400544_2123226821296937_4617064309619425280_n.jpg","edge_liked_by":{"count":4983},"edge_media_preview_like":{"count":4983},"gating_info":null,"media_preview":null,"owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/8db04b4fefb8c35967c4745addaf197d/5B94EA35/t51.2885-15/s640x640/sh0.08/e35/29400544_2123226821296937_4617064309619425280_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/f10acde45e6c2ef5361fd49c268db4f1/5B804648/t51.2885-15/s150x150/e35/29400544_2123226821296937_4617064309619425280_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/b4ed9f61141f5dcae83be5a6101a63ee/5B7A8DDC/t51.2885-15/s240x240/e35/29400544_2123226821296937_4617064309619425280_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/c98221192ee960e34a87d819c0e602e2/5B770278/t51.2885-15/s320x320/e35/29400544_2123226821296937_4617064309619425280_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/20c9050cc4ea5a9859bdb266712d2086/5B874220/t51.2885-15/s480x480/e35/29400544_2123226821296937_4617064309619425280_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/8db04b4fefb8c35967c4745addaf197d/5B94EA35/t51.2885-15/s640x640/sh0.08/e35/29400544_2123226821296937_4617064309619425280_n.jpg","config_width":640,"config_height":640}],"is_video":false}},{"node":{"__typename":"GraphImage","id":"1745033084258980505","edge_media_to_caption":{"edges":[{"node":{"text":"\uc9c8\ubb38\uc788\ub294 \ud2b9\uac15\uc1fc#\ube45\ubc45 \uc624\ub298 \uccab \ubc29\uc1a1\uc785\ub2c8\ub2e4! \uccab \ubc88\uc9f8 \uac15\uc5f0\uc790\ub294 \ubc14\ub85c\ubc14\ub85c~ \ub450\uad6c\ub450\uad6c~ \ud83e\udd17\ud83e\udd17\ud83e\udd17\ud83e\udd17\ud3c9\ucc3d\ub3d9\uacc4\uc62c\ub9bc\ud53d \uac1c\ub9c9\uc2dd\uc744 \uc5f0\ucd9c\ud558\uc2e0 #\uc591\uc815\uc6c5 \uac10\ub3c5\ub2d8!!\uc5ec\ub7ec\ubd84\uc774 \ub4e3\uace0 \uc2f6\uc740, \uc9c4\uc9dc \uad81\uae08\ud55c \uc774\uc57c\uae30\ub4e4\uc744 \ub4e4\uc73c\uc2e4 \uc218 \uc788\uc2b5\ub2c8\ub2e4~\uc5ec\ub7ec\ubd84\uc758 \uc9c8\ubb38\uc744 \ubc14\ud0d5\uc73c\ub85c \uac15\uc5f0\uc774 \uc804\uac1c\ub418\uac70\ub4e0\uc694\ud83d\ude04\ud83d\ude09 \uc7a0\uc2dc \ud6c4. \uc624\ub298\ubc24 11\uc2dc55\ubd84 EBS \ub85c \uc624\uc138\uc694!!\ud83d\ude18\ud83d\ude0d#\uc5b4\ucc28\ud53c\ub2a6\uac8c\uc798\uac70\ub77c\uba74 #\uac19\uc774\ub180\uc544\uc694\n.\n.\n.\nhey all! the guy next to me is the #genius behind the #2018pyeongchang #olympics opening ceremony. (For those of you interested, tune into #EBS tonight at 11:55 Korea Standard Time and you can hear all about his story on our new show #bigbang !)"}}]},"shortcode":"Bg3mlg0j5KZ","edge_media_to_comment":{"count":38},"comments_disabled":false,"taken_at_timestamp":1522244175,"dimensions":{"height":1350,"width":1080},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/ccff4f4fdeb897072f66bcb6e44d17f8/5B93E864/t51.2885-15/e35/29090200_141604160005827_2264006849474854912_n.jpg","edge_liked_by":{"count":3747},"edge_media_preview_like":{"count":3747},"gating_info":null,"media_preview":"ACEqr3F/K0m2I4UHAwBz9frWjaXTSt5Uq7JAMj0IqjbQMjsQuSrEY9OeO47VomNnlRgMbDnP1ByKVyraXI7yJZHCvyAMqPfPJ/lUAhj/AIRgrjp/nmrV8gBVjz2/rVdcqpKLlgMjPtyT7/1qepS2NriisX7ddf7H5GirILLDa7leehYd+R1HqP8ACprQq7Eg7scVREpVw/ZQF+oPOPw/wqwqIQzQnaSN2c4A/PoOKRV+hgTO/niSQ8lievYNjHsMdvSp5tQBYhFwn15P19vb86ZeEEofXJ/UfnVCmSXvt3+z+v8A9aiqVFAjai+fg9ufwqbyi8EoII4AUd/lGR9c96fGPk/CrMH8f+838hQUcktKKRaWgkWikooA/9k=","owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/c935ac3f957162a82d783612d931e851/5B89E4B6/t51.2885-15/s640x640/sh0.08/e35/c0.135.1080.1080/29090200_141604160005827_2264006849474854912_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/bbe036cf590538270e003493858fd025/5B8E3C58/t51.2885-15/s150x150/e35/c0.135.1080.1080/29090200_141604160005827_2264006849474854912_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/8358be01cfbb466e752086a7b2965092/5B87B533/t51.2885-15/s240x240/e35/c0.135.1080.1080/29090200_141604160005827_2264006849474854912_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/2a6a9d075b0a4b11321f98f9ea7ffa4c/5B7639FB/t51.2885-15/s320x320/e35/c0.135.1080.1080/29090200_141604160005827_2264006849474854912_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/2abd546d327c05af350f9ac2d7572a66/5B928B11/t51.2885-15/s480x480/e35/c0.135.1080.1080/29090200_141604160005827_2264006849474854912_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/c935ac3f957162a82d783612d931e851/5B89E4B6/t51.2885-15/s640x640/sh0.08/e35/c0.135.1080.1080/29090200_141604160005827_2264006849474854912_n.jpg","config_width":640,"config_height":640}],"is_video":false}},{"node":{"__typename":"GraphImage","id":"1740516848292516598","edge_media_to_caption":{"edges":[{"node":{"text":"#spring \ud83c\udf3b"}}]},"shortcode":"BgnjtoUDtL2","edge_media_to_comment":{"count":26},"comments_disabled":false,"taken_at_timestamp":1521705798,"dimensions":{"height":1080,"width":1080},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/54731a4bf1067969aba6f1eceffcfd7d/5B894636/t51.2885-15/e35/29090891_2032300147008306_6486030645712650240_n.jpg","edge_liked_by":{"count":1733},"edge_media_preview_like":{"count":1733},"gating_info":null,"media_preview":"ACoq2FPB9jVaXrU6HOfrVSYneRSGQMoJ59aUDA56U1gRk+lKOVoEOJwM+nemU7HaosmmBrIetVZ+H49KtR9TVS5OHoGQHcRTeaduz1H86aT7UgFzUZJzTsioyeaYGxEc8+tVbjO/8BU8XT8acQNxPcCgChzjp+lM3Zq7k4/Cq7d6QFcnmm08/d/GoTTA/9k=","owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/45d6fc4f3d3e41f3d1b1309e4f725837/5B7B591C/t51.2885-15/s640x640/sh0.08/e35/29090891_2032300147008306_6486030645712650240_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/eab058a05d1c0a27898aad2546397ff1/5B8DC261/t51.2885-15/s150x150/e35/29090891_2032300147008306_6486030645712650240_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/90e2c23b5f458acbd383628436530596/5B939CF5/t51.2885-15/s240x240/e35/29090891_2032300147008306_6486030645712650240_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/3673a5bd3d12bde22d0473648e777654/5B856151/t51.2885-15/s320x320/e35/29090891_2032300147008306_6486030645712650240_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/a5ab9892fa3b5697a9259f6c993caa5a/5B962E09/t51.2885-15/s480x480/e35/29090891_2032300147008306_6486030645712650240_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/45d6fc4f3d3e41f3d1b1309e4f725837/5B7B591C/t51.2885-15/s640x640/sh0.08/e35/29090891_2032300147008306_6486030645712650240_n.jpg","config_width":640,"config_height":640}],"is_video":false}},{"node":{"__typename":"GraphImage","id":"1736740318940524946","edge_media_to_caption":{"edges":[{"node":{"text":"suddenly we're free to fly to the other side. #thegreatestshowman"}}]},"shortcode":"BgaJB5RjHGS","edge_media_to_comment":{"count":20},"comments_disabled":false,"taken_at_timestamp":1521255601,"dimensions":{"height":1080,"width":1080},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/5e1f808628e407fcf45e0523c4c19845/5B938D7D/t51.2885-15/e35/28751721_317947048729613_219035218902777856_n.jpg","edge_liked_by":{"count":1618},"edge_media_preview_like":{"count":1618},"gating_info":null,"media_preview":"ACoq58wMMZxzzSeS3tVp+QPpSDLLu/DrQMreS3tS+Q3tVpVPU/d9alkib+EcDnjPT1PpQBQ8hvatOO0QopKjJA/lVPJrWiB2L9B29qBFKGLzcLnBC8cdT7+1PKrt3gHaSMr0wc4OPoen61WjlZCpHGP19vxrRd9w/wBVnPJ68n8DTBme4MTYHI6j0I9/5H3q1azorDqB3Xg5/MdjzVebkjICcHj8arMAOlAF25dZX3A89DikW4dQAO3HSqing54FG5f7xoEVxIw5B6dKeZ5D1Y8+9Q0UhjzIzckk0m4+tNooAduPrRuNNooA/9k=","owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/f73483a6e1b63360ffcc22d03260b04c/5B8222E8/t51.2885-15/s640x640/sh0.08/e35/28751721_317947048729613_219035218902777856_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/d5fe028f2e200669dd22d6c246f79955/5B87B0C9/t51.2885-15/s150x150/e35/28751721_317947048729613_219035218902777856_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/19a64c15bae4b9d9cf7ecd5ac7690407/5B93367C/t51.2885-15/s240x240/e35/28751721_317947048729613_219035218902777856_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/4fc8d72aa2bcce6266b48ff927d3014b/5B89BB34/t51.2885-15/s320x320/e35/28751721_317947048729613_219035218902777856_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/8ea728174900340f3b37d853e11d71e7/5B99D680/t51.2885-15/s480x480/e35/28751721_317947048729613_219035218902777856_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/f73483a6e1b63360ffcc22d03260b04c/5B8222E8/t51.2885-15/s640x640/sh0.08/e35/28751721_317947048729613_219035218902777856_n.jpg","config_width":640,"config_height":640}],"is_video":false}},{"node":{"__typename":"GraphImage","id":"1733234715052139216","edge_media_to_caption":{"edges":[{"node":{"text":"it's a nice day today."}}]},"shortcode":"BgNr8pPDuLQ","edge_media_to_comment":{"count":112},"comments_disabled":false,"taken_at_timestamp":1520837700,"dimensions":{"height":1350,"width":1080},"display_url":"https://scontent-icn1-1.cdninstagram.com/vp/6e1f1a0cfe401f153accaca75d5b4a64/5B9B0998/t51.2885-15/e35/29089885_1975930589393513_7732364102709805056_n.jpg","edge_liked_by":{"count":6381},"edge_media_preview_like":{"count":6381},"gating_info":null,"media_preview":"ACEq6XvWLdf63J6Z/wDrVsk45rFnKyyYPbp+eaTGglYbapRSYbHvViaMtnaelZRbDEe9JDkdn5i+o/OiuU30UyDqJnCISfSuWMw35PA9av3EzSKFzwf5DoBWS+CcDpQMmkuuyc+/QflVRDzk1IxA6VHmgbdyzmioaKRJJLLu4HGBj61AG7UrVHTGLmlFJUqUCF2mip6KQj//2Q==","owner":{"id":"1086014903"},"thumbnail_src":"https://scontent-icn1-1.cdninstagram.com/vp/c927733b11b56f998b6fce8ca6f48cff/5B939D9B/t51.2885-15/s640x640/sh0.08/e35/c0.135.1080.1080/29089885_1975930589393513_7732364102709805056_n.jpg","thumbnail_resources":[{"src":"https://scontent-icn1-1.cdninstagram.com/vp/727fa87427078ecc45a3892579dc6531/5B77D93F/t51.2885-15/s150x150/e35/c0.135.1080.1080/29089885_1975930589393513_7732364102709805056_n.jpg","config_width":150,"config_height":150},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/3a5b88844c74d46f621b131bef8aa84c/5B9418CF/t51.2885-15/s240x240/e35/c0.135.1080.1080/29089885_1975930589393513_7732364102709805056_n.jpg","config_width":240,"config_height":240},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/5de03c738335aa081e7eadf937174dcc/5B7639CE/t51.2885-15/s320x320/e35/c0.135.1080.1080/29089885_1975930589393513_7732364102709805056_n.jpg","config_width":320,"config_height":320},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/e030ba2b2c143b546321e45fc8037ef1/5B81FBE3/t51.2885-15/s480x480/e35/c0.135.1080.1080/29089885_1975930589393513_7732364102709805056_n.jpg","config_width":480,"config_height":480},{"src":"https://scontent-icn1-1.cdninstagram.com/vp/c927733b11b56f998b6fce8ca6f48cff/5B939D9B/t51.2885-15/s640x640/sh0.08/e35/c0.135.1080.1080/29089885_1975930589393513_7732364102709805056_n.jpg","config_width":640,"config_height":640}],"is_video":false}}]},"edge_saved_media":{"count":0,"page_info":{"has_next_page":false,"end_cursor":null},"edges":[]},"edge_media_collections":{"count":0,"page_info":{"has_next_page":false,"end_cursor":null},"edges":[]}}}}]},"gatekeepers":{"ld":true,"seo":true,"seoht":true,"lh":true,"saa":true},"knobs":{"acct:ntb":0,"cb":1},"qe":{"dash_for_vod":{"g":"","p":{}},"aysf":{"g":"","p":{}},"bc3l":{"g":"","p":{}},"comment_reporting":{"g":"","p":{}},"direct_conversation_reporting":{"g":"","p":{}},"direct_reporting":{"g":"","p":{}},"reporting":{"g":"","p":{}},"media_reporting":{"g":"","p":{}},"acc_recovery_link":{"g":"","p":{}},"notif":{"g":"","p":{}},"drct_nav":{"g":"","p":{}},"pl_pivot_li":{"g":"","p":{}},"pl_pivot_lo":{"g":"","p":{}},"404_as_react":{"g":"","p":{}},"acc_recovery":{"g":"","p":{}},"client_gql":{"g":"","p":{}},"collections":{"g":"","p":{}},"comment_ta":{"g":"","p":{}},"connections":{"g":"","p":{}},"disc_ppl":{"g":"","p":{}},"embeds":{"g":"","p":{}},"ebdsim_li":{"g":"","p":{}},"ebdsim_lo":{"g":"","p":{}},"es6":{"g":"","p":{}},"exit_story_creation":{"g":"","p":{}},"gdpr_logged_out":{"g":"","p":{}},"appsell":{"g":"","p":{}},"imgopt":{"g":"","p":{}},"follow_button":{"g":"","p":{}},"loggedout":{"g":"launch","p":{"new_cta":"true","remove_upsell_banner":"true","update_nav":"true"}},"loggedout_upsell":{"g":"test_with_new_loggedout_upsell_content_03_15_18","p":{"has_new_loggedout_upsell_content":"true"}},"us_li":{"g":"","p":{}},"msisdn":{"g":"","p":{}},"bg_sync":{"g":"","p":{}},"onetaplogin":{"g":"","p":{}},"onetaplogin_userbased":{"g":"","p":{}},"login_poe":{"g":"","p":{}},"prvcy_tggl":{"g":"","p":{}},"private_lo":{"g":"","p":{}},"profile_photo_nux_fbc_v2":{"g":"","p":{}},"push_notifications":{"g":"","p":{}},"reg":{"g":"control_03_29","p":{"show_continue_in_login_form":"false"}},"reg_vp":{"g":"control_group_2","p":{"hide_value_prop":"false"}},"feed_vp":{"g":"","p":{}},"report_haf":{"g":"","p":{}},"report_media":{"g":"","p":{}},"report_profile":{"g":"","p":{}},"save":{"g":"","p":{}},"sidecar":{"g":"","p":{}},"su_universe":{"g":"","p":{}},"stale":{"g":"","p":{}},"stories_lo":{"g":"","p":{}},"stories":{"g":"","p":{}},"tp_pblshr":{"g":"","p":{}},"video":{"g":"","p":{}},"gdpr_settings":{"g":"","p":{}},"gdpr_eu_tos":{"g":"","p":{}},"gdpr_row_tos":{"g":"","p":{}},"fd_gr":{"g":"","p":{}}},"hostname":"www.instagram.com","platform":"web","rhx_gis":"2b726aaea6bd4f58566b8dabae5d8d4f","nonce":"aUFpY9t9KJV8dknUw+Y8sg==","is_bot":false,"zero_data":{},"rollout_hash":"4001223731fc","bundle_variant":"base","probably_has_app":false,"show_app_install":true};</script>
+  <script type="text/javascript">
+        window.__useAsyncEntrypoints = true;
+        window.__initialDataLoaded(window._sharedData);
+        </script> 
+  <script type="text/javascript" src="/static/bundles/base/Polyfills.js/d5d44088527a.js" crossorigin="anonymous"></script> 
+  <script type="text/javascript" src="/static/bundles/base/Vendor.js/0b34a2e2f7c2.js" crossorigin="anonymous"></script> 
+  <script type="text/javascript">!function(e){var a=window.webpackJsonp;window.webpackJsonp=function(n,r,i){for(var c,f,d,s=0,g=[];s<n.length;s++)f=n[s],o[f]&&g.push(o[f][0]),o[f]=0;for(c in r)Object.prototype.hasOwnProperty.call(r,c)&&(e[c]=r[c]);for(a&&a(n,r,i);g.length;)g.shift()();if(i)for(s=0;s<i.length;s++)d=t(t.s=i[s]);return d};var n={},o={66:0};function t(a){if(n[a])return n[a].exports;var o=n[a]={i:a,l:!1,exports:{}};return e[a].call(o.exports,o,o.exports,t),o.l=!0,o.exports}t.e=function(e){var a=o[e];if(0===a)return new Promise(function(e){e()});if(a)return a[2];var n=new Promise(function(n,t){a=o[e]=[n,t]});a[2]=n;var r=document.getElementsByTagName("head")[0],i=document.createElement("script");i.type="text/javascript",i.charset="utf-8",i.async=!0,i.timeout=12e4,i.crossOrigin="anonymous",t.nc&&i.setAttribute("nonce",t.nc),i.src=t.p+""+({0:"SettingsModules",1:"MobileStoriesPage",2:"DesktopStoriesPage",3:"ProfilePageContainer",4:"LikedByListContainer",5:"FollowListContainer",6:"CreationModules",7:"LocationPageContainer",8:"DiscoverMediaPageContainer",9:"DiscoverEmbedsPageContainer",10:"TagPageContainer",11:"UserCollectionMediaPageContainer",12:"DebugInfoNub",13:"FeedPageContainer",14:"PostPageContainer",15:"LandingPage",16:"LoginAndSignupPage",17:"ResetPasswordPageContainer",18:"MobileStoriesLoginPage",19:"DesktopStoriesLoginPage",20:"FBSignupPage",21:"TermsUnblockPage",22:"DirectInboxPageContainer",23:"NewUserInterstitial",24:"DiscoverPeoplePageContainer",25:"IGTVVideoUploadPageContainer",26:"UserCollectionsPageContainer",27:"DataDownloadRequestPage",28:"MultiStepSignupPage",29:"ContactHistoryPage",30:"AccessToolViewAllPage",31:"AccessToolPage",32:"DataDownloadRequestConfirmPage",33:"DataControlsSupportPage",34:"EmailConfirmationPage",35:"LocationsDirectoryLandingPage",36:"LocationsDirectoryCountryPage",37:"LocationsDirectoryCityPage",38:"OneTapUpsell",39:"NewTermsConfirmPage",40:"SuggestedDirectoryLandingPage",41:"ProfilesDirectoryLandingPage",42:"HashtagsDirectoryLandingPage",43:"OAuthPermissionsPage",44:"DirectoryPage",45:"HttpErrorPage",46:"ActivityFeedPage",47:"StoryCreationPage",48:"ParentalConsentPage",49:"ParentalConsentNotParentPage",50:"CheckpointUnderageAppealPage",51:"AccountPrivacyBugPage",52:"ContactInvitesOptOutPage",53:"ContactInvitesOptOutStatusPage",54:"Report",55:"Copyright",56:"SupportInfo",57:"Community",58:"Verification",59:"Challenge",60:"Consumer",61:"EmailSnoozePage",62:"EmailUnsubscribePage",63:"NotificationLandingPage"}[e]||e)+".js/"+{0:"32f30663a7bc",1:"2c71bd1486a7",2:"c4f463f0b041",3:"451ff73e3d61",4:"7d6f1775ef5e",5:"a43a34427123",6:"d85ceef86e96",7:"b06f55b231d3",8:"730628c7be47",9:"d428d11297c9",10:"ea0c954b4ec9",11:"dbfc6d656815",12:"f63d7c5e7177",13:"561b54aac3ea",14:"8cf5a4b9fa66",15:"8f79357d3cf7",16:"79913f1ef7c0",17:"209e0a2c77f4",18:"37a4c83d87cb",19:"4e75b4d294e7",20:"f74738fa38bb",21:"c3865ba3856f",22:"e97468b99fcd",23:"bddbef80ffac",24:"ddf5fd37fe54",25:"5ae79baad627",26:"da7d3eace95c",27:"648d629abd4c",28:"da7972f5e1f6",29:"b2a51a36fb74",30:"8f3995b5fc38",31:"f1d9ebfba46d",32:"07e7db2695bf",33:"f8abe8c4fe90",34:"3c1aced60712",35:"14428b4fd71a",36:"705c896eaedb",37:"b721d3980363",38:"a634834b4349",39:"8d667a4f9e94",40:"8cfd10cc8d78",41:"c0a36a3d6f7e",42:"91867665c294",43:"f60da1c59a25",44:"e5ab5fa906cf",45:"a9ee405d2f3b",46:"2d73ecb91ccd",47:"d545c703f340",48:"a0f2782189c3",49:"df48ffc9a3a2",50:"651024f2cb39",51:"edb100d67ae4",52:"044dd7843057",53:"59faa072e297",54:"e1c650f06287",55:"d06feddc2f03",56:"dffe74c3abe9",57:"2cfe3b5ad29c",58:"7a7cd1a5ed86",59:"8595c48d68e9",60:"8a9e981e8cf5",61:"d8844f6b6f51",62:"3ed30d7f57e0",63:"36801b9a89a7"}[e]+".js";var c=setTimeout(f,12e4);function f(){i.onerror=i.onload=null,clearTimeout(c);var a=o[e];0!==a&&(a&&a[1](new Error("Loading chunk "+e+" failed.")),o[e]=void 0)}return i.onerror=i.onload=f,r.appendChild(i),n},t.m=e,t.c=n,t.d=function(e,a,n){t.o(e,a)||Object.defineProperty(e,a,{configurable:!1,enumerable:!0,get:n})},t.n=function(e){var a=e&&e.__esModule?function(){return e.default}:function(){return e};return t.d(a,"a",a),a},t.o=function(e,a){return Object.prototype.hasOwnProperty.call(e,a)},t.p="/static/bundles/base/",t.oe=function(e){throw console.error(e),e}}([]);</script> 
+  <script type="text/javascript" src="/static/bundles/base/ProfilePageContainer.js/451ff73e3d61.js" crossorigin="anonymous" charset="utf-8" async></script> 
+  <script type="text/javascript" src="/static/bundles/base/en_US.js/ed2abd44af91.js" crossorigin="anonymous"></script> 
+  <script type="text/javascript" src="/static/bundles/base/ConsumerCommons.js/aae953d1b0b9.js" crossorigin="anonymous"></script> 
+  <script type="text/javascript" src="/static/bundles/base/Consumer.js/8a9e981e8cf5.js" crossorigin="anonymous"></script>  
+ </body>
+</html>

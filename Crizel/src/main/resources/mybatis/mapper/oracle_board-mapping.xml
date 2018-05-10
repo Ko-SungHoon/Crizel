@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="board">
+	<select id="board" parameterType="HashMap" resultType="com.crizel.board.BoardVO">
+		select *
+		from (
+			select rownum as rnum, A.*
+			from (
+					select b_id, b_group, b_level, title, user_nick, content, view_count, notice, secret, password, 
+							to_char(register_date, 'yyyy-mm-dd') register_date, to_char(modify_date, 'yyyy-mm-dd') modify_date,
+							delete_status, tmp_field1, tmp_field2, tmp_field3, tmp_field4, tmp_field5, tmp_field6, tmp_field7, tmp_field8, 
+							tmp_field9, tmp_field10 
+					from board
+					where delete_status = 'N'	
+			<choose>
+				<when test="search1 == 'titleContent' and keyword != null">
+					and ( title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%' )
+				</when>
+				<when test="search1 == 'title' and keyword != null">
+					and title like '%'||#{keyword}||'%'
+				</when>
+				<when test="search1 == 'user_nick' and keyword != null">
+					and user_nick like '%'||#{keyword}||'%'
+				</when>
+				<when test="search1 == 'content' and keyword != null">
+					and content like '%'||#{keyword}||'%'
+				</when>
+			</choose>				
+					order by b_group, b_id desc
+				) A
+				where rownum <![CDATA[ <= ]]> #{endRow}
+			) X
+		where rnum <![CDATA[ >= ]]> #{startRow}
+		order by rnum desc
+	</select>
+
+	<select id="totalCount" parameterType="HashMap" resultType="int">
+		select count(*) from board where delete_status = 'N'
+	<choose>
+		<when test="search1 == 'titleContent' and keyword != null">
+			and ( title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%' )
+		</when>
+		<when test="search1 == 'title' and keyword != null">
+			and title like '%'||#{keyword}||'%'
+		</when>
+		<when test="search1 == 'user_nick' and keyword != null">
+			and user_nick like '%'||#{keyword}||'%'
+		</when>
+		<when test="search1 == 'content' and keyword != null">
+			and content like '%'||#{keyword}||'%'
+		</when>
+	</choose>
+	</select>
+
+	<insert id="boardInsert" parameterType="com.crizel.board.BoardVO">
+		insert into board(
+			b_id, 
+			b_group, 
+			b_level, 
+			title, 
+			user_nick, 
+			content, 
+			view_count, 
+			notice, 
+			secret, 
+			password, 
+			register_date, 
+			modify_date, 
+			delete_status, 
+			tmp_field1, 
+			tmp_field2, 
+			tmp_field3, 
+			tmp_field4, 
+			tmp_field5,
+			tmp_field6, 
+			tmp_field7, 
+			tmp_field8, 
+			tmp_field9, 
+			tmp_field10)
+		values(
+			(select nvl(max(b_id)+1,1) from board), 
+			<choose>
+				<when test="b_group > 0">
+					#{b_group},
+				</when>
+				<otherwise>
+					(select nvl(max(b_group)+1,1) from board),
+				</otherwise>
+			</choose>
+			#{b_level}, 
+			#{title}, 
+			#{user_nick}, 
+			#{content}, 
+			#{view_count}, 
+			#{notice},
+			#{secret}, 
+			#{password}, 
+			sysdate, 
+			sysdate, 
+			'N', 
+			#{tmp_field1}, 
+			#{tmp_field2}, 
+			#{tmp_field3}, 
+			#{tmp_field4},
+			#{tmp_field5}, 
+			#{tmp_field6}, 
+			#{tmp_field7}, 
+			#{tmp_field8}, 
+			#{tmp_field9}, 
+			#{tmp_field10}
+		)
+	</insert>
+
+	<select id="boardContent" resultType="com.crizel.board.BoardVO" parameterType="com.crizel.board.BoardVO">
+			select * 
+			from board 
+			where b_id=#{b_id}
+	</select>
+
+	<select id="realName" resultType="String" parameterType="String">
+		select real_name 
+		from board_file 
+		where save_name=#{fileName}
+	</select>
+
+	<select id="searchBId" resultType="int" parameterType="String">
+		select max(b_id) b_id 
+		from board
+	</select>
+
+	<insert id="fileInsert" parameterType="com.crizel.board.BoardVO">
+		insert into board_file
+		values(
+			(select nvl(max(f_id)+1,1) from board_file), 
+			#{b_id}, 
+			#{directory}, 
+			#{real_name}, 
+			#{save_name}
+		)
+	</insert>
+	
+	<select id="fileAllDel" parameterType="com.crizel.board.BoardVO">
+		delete 
+		from board_file 
+		where b_id=#{b_id}
+	</select>
+	
+	<select id="boardContentFile" resultType="com.crizel.board.BoardVO" parameterType="com.crizel.board.BoardVO">		
+		select * 
+		from board_file 
+		where b_id=#{b_id}
+	</select>
+
+	<update id="boardDelete" parameterType="int">
+		update board 
+		set delete_status = 'D'
+		where b_id=#{b_id}
+	</update>
+	
+	<update id="boardUpdate" parameterType="com.crizel.board.BoardVO">
+		 update board 
+		 set 
+		 	user_nick=#{user_nick}, 
+		 	title=#{title}, 
+		 	content=#{content}, 
+		 	register_date=to_char(sysdate,'yyyy-mm-dd')
+		 where b_id=#{b_id}
+	</update>
+	
+	<delete id="boardFileDel" parameterType="com.crizel.board.BoardVO">
+		delete 
+		from board_file 
+		where save_name=#{save_name}
+	</delete>
+</mapper>
