@@ -360,6 +360,7 @@ public class CrizelController {
 	public ModelAndView onejav(	@RequestParam(value="addr", defaultValue="") String addr
 							,	@RequestParam(value="type", defaultValue="list") String type) throws Exception{
 		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -1);		
 		String year 	= Integer.toString(cal.get(Calendar.YEAR));
 		String month 	= cal.get(Calendar.MONTH)+1<10 	?"0" + Integer.toString(cal.get(Calendar.MONTH)+1) : Integer.toString(cal.get(Calendar.MONTH)+1);
 		String day		= cal.get(Calendar.DATE)<10		?"0" + Integer.toString(cal.get(Calendar.DATE)) : Integer.toString(cal.get(Calendar.DATE));
@@ -373,6 +374,9 @@ public class CrizelController {
 		OneJav oj = new OneJav();
 		mav.addObject("list", oj.getList(addr));
 		mav.addObject("addr", addr);
+		mav.addObject("year", year);
+		mav.addObject("month", month);
+		mav.addObject("day", day);
 		
 		mav.setViewName("onejav");
 		return mav;
