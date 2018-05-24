@@ -1,19 +1,12 @@
 package com.crizel.girls;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,8 +14,8 @@ import org.springframework.stereotype.Service;
 
 @Service("girlsService")
 public class GirlsService {
-	@Autowired
-	GirlsDao dao;
+	@Resource(name="girlsDao")
+    private GirlsDao dao;
 	
 	public String parseNull(String value){
 		if(value == null){

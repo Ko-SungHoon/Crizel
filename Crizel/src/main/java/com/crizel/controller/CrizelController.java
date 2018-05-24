@@ -285,22 +285,6 @@ public class CrizelController {
 		response.getWriter().print(arr);
 	}
 	
-	@RequestMapping("pubg.do")
-	public ModelAndView pubg(@RequestParam(value="nickname", required=false, defaultValue="cribel") String nickname,
-							 @RequestParam(value="region", required=false, defaultValue="krjp") String region,
-							 @RequestParam(value="mode", required=false, defaultValue="solo") String mode		) throws Exception {
-		ModelAndView mav = new ModelAndView();	
-		Map<String,Object> map = service.pubg(nickname, region, mode);
-		if(!"".equals(nickname)){
-			mav.addObject("data", map);
-		}
-		mav.addObject("nickname", nickname);
-		mav.addObject("region", region);
-		mav.addObject("mode", mode);
-		mav.setViewName("/pubg");
-		return mav;
-	}
-	
 	@RequestMapping("nico.do")
 	public ModelAndView nico(@RequestParam(value="keyword", required=false, defaultValue="佐倉としたい大西") String keyword,
 							 @RequestParam(value="type", required=false, defaultValue="A") String type,

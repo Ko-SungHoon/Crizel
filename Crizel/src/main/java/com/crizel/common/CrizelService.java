@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
-import com.crizel.util.BattleGround;
 import com.crizel.util.Nico;
 
 
@@ -484,11 +483,6 @@ public class CrizelService {
         }catch(Exception e){
         	System.out.println("에러 : " + e.toString());
         }
-	}
-
-	public Map<String, Object> pubg(String nickname, String region, String mode) throws Exception {
-		BattleGround bg = new BattleGround();
-		return bg.pubg(nickname, region, mode);
 	}
 
 	public Object nico(String keyword, String type, String url) {

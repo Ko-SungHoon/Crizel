@@ -343,7 +343,7 @@ public Map<String,Object> getCatStr(Map<String,Object> ob, String[] cat_nm, Stri
 		sql.append("INSERT INTO FOOD_RSCH_SCH(CAT_NM, SCH_NM, ITEM_NO, SCH_NO, TEAM_NO)											");
 		sql.append("VALUES(   ?, ?																								");
 		sql.append("		, (SELECT B.ITEM_NO 																				");
-		sql.append("		   FROM FOOD_ITEM_PRE A LEFT JOIN FOOD_ST_ITEM B ON A.S_ITEM_NO = B.ITEM_NO 						");
+		sql.append("		   FROM FOOD_ITEM_PRE A LEFT JOIN FOOD_ST_ITEM B ON A.ITEM_NO = B.ITEM_NO 						");
 		sql.append("		   WHERE B.CAT_NO = (SELECT CAT_NO FROM FOOD_ST_CAT WHERE CAT_NM = ? AND SHOW_FLAG = 'Y')			");
 		sql.append("		     AND B.FOOD_CAT_INDEX = ?) 																		");
 		sql.append("		, (SELECT MIN(SCH_NO) FROM FOOD_SCH_TB WHERE SCH_NM = ? AND SHOW_FLAG = 'Y' AND AREA_NO = (SELECT AREA_NO FROM FOOD_AREA WHERE AREA_NM = ?) )		");

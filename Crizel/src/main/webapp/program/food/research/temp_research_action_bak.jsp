@@ -224,39 +224,87 @@ try{
 			sql.append("WHERE SCH_NO = ?			");
 			jdbcTemplate.update(sql.toString(), sch_no);
 			
-			int updateNuNo = 0;
-			
+			sql = new StringBuffer();
+			sql.append("SELECT NVL(MAX(NU_NO)+1,1) FROM FOOD_SCH_NU					");
+			max_nu_no = jdbcTemplate.queryForObject(sql.toString(), Integer.class); 
+
+			sql = new StringBuffer();
+			sql.append("MERGE INTO FOOD_SCH_NU USING DUAL									");
+			sql.append("	ON(NU_NO = ?)													");
+			sql.append("	WHEN MATCHED THEN												");
+			sql.append("		UPDATE SET													");
+			sql.append("			NU_NM		= ?											");
+			sql.append("			, NU_TEL	= ?											");
+			sql.append("			, NU_MAIL	= ?											");
+			sql.append("			, SHOW_FLAG	= ?											");
+			sql.append("	WHEN NOT MATCHED THEN											");
+			sql.append("		INSERT(														");
+			sql.append("				NU_NO, SCH_NO, NU_NM, NU_TEL, NU_MAIL, SHOW_FLAG	");
+			sql.append("				)													");
+			sql.append("		VALUES(														");
+			sql.append("				?, ?, ?, ?, ?, ?									");
+			sql.append("				)													");
+			pstmt = conn.prepareStatement(sql.toString());
 			for(int i=0; i<nu_nm.length; i++){
-				
-				if(nu_no!=null && i<nu_no.length){
-					updateNuNo = Integer.parseInt(nu_no[i]);
+				// i가 nu_no 배열의 갯수보다 적을때는 nu_no에 배열값을 넣고
+				// 그렇지 않을 경우(추가 insert) nu_no에 -1값을 주어 매칭되는 데이터가 없게 처리
+				if(i<nu_no.length){
+					key = 0;
+					pstmt.setString(++key,  nu_no[i]);
+					pstmt.setString(++key,  nu_nm[i]);
+					pstmt.setString(++key,  nu_tel[i]);
+					pstmt.setString(++key,  nu_mail[i]);
+					pstmt.setString(++key,  show_flag);
+					pstmt.setInt(++key,  max_nu_no);
+					pstmt.setString(++key,  sch_no);
+					pstmt.setString(++key,  nu_nm[i]);
+					pstmt.setString(++key,  nu_tel[i]);
+					pstmt.setString(++key,  nu_mail[i]);
+					pstmt.setString(++key,  show_flag);
 				}else{
-					updateNuNo = -1;
+					key = 0;
+					pstmt.setInt(++key,  -1);
+					pstmt.setString(++key,  nu_nm[i]);
+					pstmt.setString(++key,  nu_tel[i]);
+					pstmt.setString(++key,  nu_mail[i]);
+					pstmt.setString(++key,  show_flag);
+					pstmt.setInt(++key,  max_nu_no);
+					pstmt.setString(++key,  sch_no);
+					pstmt.setString(++key,  nu_nm[i]);
+					pstmt.setString(++key,  nu_tel[i]);
+					pstmt.setString(++key,  nu_mail[i]);
+					pstmt.setString(++key,  show_flag);
 				}
-				
-				sql = new StringBuffer();
-				sql.append("SELECT COUNT(*) AS CNT	");
-				sql.append("FROM FOOD_SCH_NU		");
-				sql.append("WHERE NU_NO = ?			");
-				result = jdbcTemplate.queryForObject(sql.toString(), Integer.class, updateNuNo);
-				
-				if(result == 0){
-					sql = new StringBuffer();
-					sql.append("INSERT INTO FOOD_SCH_NU(NU_NO, SCH_NO, NU_NM, NU_TEL, NU_MAIL, SHOW_FLAG)	");
-					sql.append("VALUES((SELECT NVL(MAX(NU_NO)+1, 1) FROM FOOD_SCH_NU), ?, ?, ?, ?, ?)		");
-					result = jdbcTemplate.update(sql.toString(), sch_no, nu_nm[i], nu_tel[i], nu_mail[i], show_flag);
-				}else{
-					sql = new StringBuffer();
-					sql.append("UPDATE FOOD_SCH_NU SET 				");
-					sql.append("			NU_NM		= ?			");
-					sql.append("			, NU_TEL	= ?			");
-					sql.append("			, NU_MAIL	= ?			");
-					sql.append("			, SHOW_FLAG	= ?			");
-					sql.append("WHERE NU_NO = ?						");
-					result = jdbcTemplate.update(sql.toString(), nu_nm[i], nu_tel[i], nu_mail[i], show_flag, nu_no[i]);
-				}
+				pstmt.addBatch();
 			}
+			result = pstmt.executeBatch().length;
+			if(pstmt!=null){pstmt.close();}
+
+			/* batch = new ArrayList<Object[]>();
+			for(int i=0; i<nu_nm.length; i++){
+				// i가 nu_no 배열의 갯수보다 적을때는 nu_no에 배열값을 넣고
+				// 그렇지 않을 경우(추가 insert) nu_no에 -1값을 주어 매칭되는 데이터가 없게 처리
+				if(i<nu_no.length){
+					value = new Object[]{
+							nu_no[i] , nu_nm[i] , nu_tel[i] , nu_mail[i] , show_flag
+							, max_nu_no , sch_no , nu_nm[i] , nu_tel[i] , nu_mail[i] , show_flag
+					};
+				}else{
+					value = new Object[]{
+							-1 , nu_nm[i] , nu_tel[i] , nu_mail[i] , show_flag
+							, max_nu_no , sch_no , nu_nm[i] , nu_tel[i] , nu_mail[i] , show_flag
+					};
+				}
+				batch.add(value);
+			}
+			result = jdbcTemplate.batchUpdate(sql.toString(), batch).length; */
 		}
+		
+		/* // show_flag 값이 N인 데이터를 삭제
+		sql = new StringBuffer();
+		sql.append("DELETE FROM FOOD_SCH_NU WHERE SCH_NO = ? AND SHOW_FLAG = 'N'	");
+		jdbcTemplate.update(sql.toString(), sch_no); */
+		
 		
 		if(result > 0){
 			out.println("<script>");

@@ -139,8 +139,8 @@ try {
 	sql.append("                    , FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15 					");
 	sql.append("                    , FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20 					");
 	sql.append("                    , FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25)) AS EX_NM 		");
-	sql.append("    , (SELECT ITEM_COMP_NO FROM FOOD_ITEM_PRE WHERE S_ITEM_NO = B.ITEM_NO) AS ITEM_COMP_NO 			");
-	sql.append("    , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE S_ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL 		");
+	sql.append("    , (SELECT ITEM_COMP_NO FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_NO 			");
+	sql.append("    , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL 		");
 	sql.append("    , (SELECT SCH_NM FROM FOOD_SCH_TB WHERE SCH_NO = A.SCH_NO) AS SCH_NM 							");
 	sql.append("FROM FOOD_RSCH_ITEM A LEFT JOIN FOOD_ST_ITEM B ON A.ITEM_NO = B.ITEM_NO 							");
 	sql.append("WHERE 1=1																							");

@@ -27,7 +27,7 @@ jQuery(document).ready(function(){
 		},
 		fail : function(){
 			npPfsCtrl.hideLoading();
-			//alert("보안프로그램의 설치가 필요합니다.");
+			//alert("보안프로그램의 설치가 필요합니다.");	
 		}
 	});
 	//npPfsStartup("", true, true, false, false, "npkencrypt", "on");

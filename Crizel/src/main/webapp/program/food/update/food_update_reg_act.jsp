@@ -16,7 +16,53 @@
 response.setCharacterEncoding("UTF-8");
 request.setCharacterEncoding("UTF-8");
 
+/************************** 접근 허용 체크 - 시작 **************************/
 SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn = null;
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+/*
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+*/
+/************************** 접근 허용 체크 - 종료 **************************/
 
 String mode			=   parseNull(request.getParameter("mode"));
 
@@ -78,7 +124,7 @@ try{
     sql.append(" ?,             ");  //NU_NO
     sql.append(" ?,             ");  //S_ITEM_NO
     if ("mod".equals(mode) || "del".equals(mode)) {
-        sql.append(" (SELECT B.CAT_NO FROM FOOD_ITEM_PRE A JOIN FOOD_ST_ITEM B ON A.ITEM_NO = B.ITEM_NO WHERE S_ITEM_NO = ?),");  //N_CAT_NO
+        sql.append(" (SELECT B.CAT_NO FROM FOOD_ST_ITEM A JOIN FOOD_ST_ITEM B ON A.ITEM_NO = B.ITEM_NO WHERE B.ITEM_NO = ?),");  //N_CAT_NO
     } else if ("add".equals(mode)) {
         sql.append(" ?,         ");  //N_CAT_NO
     }

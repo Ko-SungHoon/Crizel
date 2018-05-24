@@ -140,7 +140,7 @@ try{
 		sql = new StringBuffer();
 		sql.append("SELECT *								");
 		sql.append("FROM FOOD_SCH_NU						");
-		sql.append("WHERE SHOW_FLAG = 'Y' AND SCH_NO = ?	");
+		sql.append("WHERE /*SHOW_FLAG = 'Y' AND */SCH_NO = ?	");
 		sql.append("ORDER BY NU_NO							");
 		nuList = jdbcTemplate.query(sql.toString(), new FoodList(), sch_no);
 	}

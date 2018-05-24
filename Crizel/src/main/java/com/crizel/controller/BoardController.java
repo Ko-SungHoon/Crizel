@@ -58,8 +58,8 @@ public class BoardController {
 			endPage = totalPage;
 		}
 		
-		int endRow = totalCount + countList - (countList * page);
-		int startRow = totalCount + countList - (countList * page) - countPage+1;
+		int startRow = (page - 1) * countPage + 1;
+		int endRow = page * countPage; 
 		if(startRow <= 0){
 			startRow = 1;
 		}

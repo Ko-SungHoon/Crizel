@@ -251,6 +251,8 @@ try{
     sql.append("	, (SELECT UNIT_NM FROM FOOD_ST_UNIT WHERE UNIT_NO = ITEM.FOOD_UNIT) AS UNIT_NM				");
     sql.append("	, TO_CHAR(PRE.REG_DATE, 'YYYY-MM-DD') AS REG_DATE											");
     sql.append("	, TO_CHAR(PRE.MOD_DATE, 'YYYY-MM-DD') AS MOD_DATE											");
+	sql.append(" 	, PRE.ITEM_COMP_NO																			");
+	sql.append(" 	, PRE.ITEM_COMP_VAL																			");
     sql.append("	, PRE.SHOW_FLAG																				");
     sql.append("	, (SELECT REG_IP FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_IP						");
     sql.append("	, (SELECT REG_ID FROM FOOD_UP_FILE WHERE FILE_NO = PRE.FILE_NO) REG_ID						");
@@ -436,7 +438,8 @@ try{
 			<col style="width: 6.7%">
 			<%--<col style="width: 6.7%">--%>
 			<col>
-			<col style="width: 6.7%">
+			<col style="width: 5%">
+			<col style="width: 5%">
 			<col style="width: 6.7%">
 			<col style="width: 6.7%">
 			<%--<col style="width: 6.7%">--%>
@@ -455,6 +458,7 @@ try{
 				<%--<th scope="col">규격</th>--%>
 				<th scope="col">식품설명</th>
 				<th scope="col">단위</th>
+				<th scope="col">비교그룹</th>
 				<th scope="col">등록일</th>
 				<th scope="col">수정일</th>
 				<%--<th scope="col">등록ID</th>--%>
@@ -478,6 +482,7 @@ try{
 				<%--<td></td>--%>
 				<td><%=ob.ex_nm %></td>
 				<td><%=ob.unit_nm %></td>
+				<td><%=ob.item_comp_no%>-<%=ob.item_comp_val %></td>
 				<td><%=ob.reg_date %></td>
 				<td><%=ob.mod_date %></td>
 				<%--<td><%=ob.reg_id %></td>--%>

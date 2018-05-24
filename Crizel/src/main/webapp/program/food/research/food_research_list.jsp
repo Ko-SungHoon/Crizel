@@ -529,8 +529,8 @@ try{
     }
 	//복원 fucntion
 	function reflecSubmit (sch_no) {
-		alert("죄송합니다. 준비 중 입니다.");
-		return;
+		/*alert("죄송합니다. 준비 중 입니다.");
+		return;*/
 		<%if(rsch_no > 0) {%>
 			alert("조사개시 중에는 조사자 복원이 불가합니다.");
 			return false;

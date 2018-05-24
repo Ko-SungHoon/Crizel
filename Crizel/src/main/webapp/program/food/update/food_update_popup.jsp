@@ -170,7 +170,7 @@ try{
 
 	sql.append(" FROM (SELECT * FROM FOOD_UPDATE WHERE SHOW_FLAG = 'Y') A LEFT JOIN 		");
 	sql.append(" (SELECT * FROM FOOD_ITEM_PRE WHERE SHOW_FLAG = 'Y') B						");
-	sql.append(" ON A.S_ITEM_NO = B.S_ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
+	sql.append(" ON A.ITEM_NO = B.ITEM_NO LEFT JOIN FOOD_ST_ITEM C							");
 	sql.append(" ON B.ITEM_NO = C.ITEM_NO LEFT JOIN FOOD_SCH_TB D							");
 	sql.append(" ON A.SCH_NO = D.SCH_NO														");
 	sql.append(" WHERE 1=1																	");
@@ -187,7 +187,7 @@ try{
 		sql.append(" SELECT 									");
 		sql.append(" B.ITEM_COMP_NO 							");
 		sql.append(" FROM FOOD_UPDATE A JOIN FOOD_ITEM_PRE B	");
-		sql.append(" ON A.S_ITEM_NO = B.S_ITEM_NO				");
+		sql.append(" ON A.ITEM_NO = B.ITEM_NO					");
 		sql.append(" WHERE A.UPD_NO = ?							");
 		try{
 			item_comp_no	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{upd_no});

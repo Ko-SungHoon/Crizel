@@ -275,6 +275,8 @@ try{
 	sql.append("  , B.STS_FLAG																													");
 	sql.append("  , B.SP_CHK																													");
 	sql.append("  , B.RJ_DATE																													");
+	sql.append("  , (SELECT ITEM_COMP_NO FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_NO	");
+	sql.append("  , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL	");
 	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
 	sql.append("                    LEFT JOIN FOOD_ST_ITEM C ON B.ITEM_NO = C.ITEM_NO															");
 	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.RSCH_NO = ?																						");
@@ -441,6 +443,8 @@ try{
 	sql.append("  , B.STS_FLAG																													");
 	sql.append("  , B.SP_CHK																													");
 	sql.append("  , B.RJ_DATE																													");
+	sql.append("  , (SELECT ITEM_COMP_NO FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_NO		");
+	sql.append("  , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL	");
 	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
 	sql.append("                    LEFT JOIN FOOD_ST_ITEM C ON B.ITEM_NO = C.ITEM_NO															");
 	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.RSCH_NO = ?																						");
@@ -542,7 +546,7 @@ try{
 			<%}%>
         }
     }
-	
+	//미조사, 이상조사 중복 불가 function
 	$(function() {
 		$("#searchForm #search1").click(function () {
 			if($("#searchForm #search1").is(":checked")){
@@ -795,7 +799,7 @@ try{
 					<label for="search1">미조사 식품 보기</label>
 				<input type="checkbox" id="search2" name="search2" value="Y" <%if("Y".equals(search2)){out.println("checked"); }%>>
 					<label for="search2">이상 조사 보기</label>
-				<select id="search3" name="search3" >
+				<select id="search3" name="search3">
 					<option value="">권역 선택</option>
 				<%
 				if(zoneList!=null && zoneList.size()>0){
@@ -877,6 +881,7 @@ try{
 			<col style="width: 3.8%">
 			<col style="width: 3.8%">
 			<col style="width: 3.8%">
+			<col style="width: 3.8%">
 		</colgroup>
 		<thead>
 			<tr>
@@ -887,6 +892,7 @@ try{
 				<th scope="col">상세 식품명</th>
 				<th scope="col">식품설명</th>
 				<th scope="col">단위</th>
+				<th scope="col">비교그룹</th>
 				<th scope="col">권역/팀</th>
 				<th scope="col">학교</th>
 				<th scope="col">조사가1</th>
@@ -921,6 +927,7 @@ try{
 				<td><%=ob.dt_nm %></td>
 				<td><%=ob.ex_nm %></td>
 				<td><%=ob.unit_nm %></td>
+				<td><%=ob.item_comp_no %>-<%=ob.item_comp_val %></td>
 				<td><%=ob.zone_nm %> / <%=ob.team_nm %></td>
 				<td><%=ob.sch_nm %></td>
 				<td><%=ob.rsch_val1 %></td>
@@ -970,11 +977,11 @@ try{
 				</td>
 			</tr>
 		<%
-			}	
+			}
 		}else{
 		%>
 		<tr>
-			<td colspan="26">데이터가 없습니다.</td>
+			<td colspan="27">데이터가 없습니다.</td>
 		</tr>
 		<%} %>
 		
@@ -1162,6 +1169,7 @@ try{
 			<col style="width: 3.9%">
 			<col style="width: 3.9%">
 			<col style="width: 3.9%">
+			<col style="width: 3.9%">
 		</colgroup>
 		<thead>
 			<tr>
@@ -1172,6 +1180,7 @@ try{
 				<th scope="col">상세 식품명</th>
 				<th scope="col">식품설명</th>
 				<th scope="col">단위</th>
+				<th scope="col">비교그룹</th>
 				<th scope="col">권역/팀</th>
 				<th scope="col">학교</th>
 				<th scope="col">조사가1</th>
@@ -1205,6 +1214,7 @@ try{
 				<td><%=ob.dt_nm %></td>
 				<td><%=ob.ex_nm %></td>
 				<td><%=ob.unit_nm %></td>
+				<td><%=ob.item_comp_no %>-<%=ob.item_comp_val %></td>
 				<td><%=ob.zone_nm %> / <%=ob.team_nm %></td>
 				<td><%=ob.sch_nm %></td>
 				<td><%=ob.rsch_val1 %></td>

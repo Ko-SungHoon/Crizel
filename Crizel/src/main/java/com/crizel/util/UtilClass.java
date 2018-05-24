@@ -21,4 +21,11 @@ public class UtilClass {
 		}
 		return SHA;
 	}
+	
+	public String parseNull(String value){
+		if(value == null){
+			value = "";
+		}		
+		return value;
+	}
 }

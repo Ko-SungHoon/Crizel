@@ -6,6 +6,8 @@
 *   MODIFY  :   20180418_wed    JI  권역 평균 column(ZONE_AVR_VAL) 추가
 *   MODIFY  :   20180419_thur   JI  최저가, 평균가 flag column(LOW_FLAG, AVR_FLAG) 추가
 *   MODIFY  :   20180419_thur   JI  식품 LOG COUNT column(LOG_CNT) 추가
+*   MODIFY  :   20180503_thur   JI  평균가 숫자 ZONE_AVR_CNT 추가
+*   MODIFY  :   20180503_thur   JI  LOG_FOOD_CODE, LOG_UNIT_NM, LOG_FOOD_NM, LOG_DT_NM, LOG_EX_NM 추가
 **/
 %>
 
@@ -98,6 +100,7 @@ public class FoodVO{
 	public String nm_no = "";
 	//public String cat_no;
 	public String nm_food = "";
+	public String log_nm_food = "";
 	//public String show_flag;
 	//public String reg_date;
 	//public String mod_date;
@@ -105,6 +108,7 @@ public class FoodVO{
 	public String dt_no = "";
 	//public String cat_no;
 	public String dt_nm = "";
+	public String log_dt_nm = "";
 	//public String show_flag;
 	//public String reg_date;
 	//public String mod_date;
@@ -112,12 +116,14 @@ public class FoodVO{
 	public String ex_no = "";
 	//public String cat_no;
 	public String ex_nm = "";
+	public String log_ex_nm = "";
 	//public String show_flag;
 	//public String reg_date;
 	//public String mod_date;
 	
 	//public String unit_no;
 	public String unit_nm = "";
+	public String log_unit_nm = "";
 	public String unit_type = "";
 	//public String show_flag;
 	//public String reg_date;
@@ -195,6 +201,7 @@ public class FoodVO{
 	public String food_ep_24 = "";
 	public String food_ep_25 = "";
 	public String food_code = "";
+	public String log_food_code = "";
 	//public String reg_date = "";
 	//public String mod_date = "";
 	//public String show_flag = "";
@@ -294,6 +301,7 @@ public class FoodVO{
 	public String low_flag		=	"";
 	public String avr_flag		=	"";
 	public String zone_avr_val	=	"";
+	public String zone_avr_cnt	=	"";
 	public String null_rsch_flag	=	"";
 	
 	public String jo_no		=	"";
@@ -378,11 +386,15 @@ public class FoodList implements RowMapper<FoodVO> {
 			else if("UNIT_VAL".equals(column)){			vo.unit_val			=	parseNull(rs.getString("UNIT_VAL"));		}
 			else if("NM_NO".equals(column)){			vo.nm_no			=	parseNull(rs.getString("NM_NO"));			}
 			else if("NM_FOOD".equals(column)){			vo.nm_food			=	parseNull(rs.getString("NM_FOOD"));			}
+			else if("LOG_NM_FOOD".equals(column)){		vo.log_nm_food		=	parseNull(rs.getString("LOG_NM_FOOD"));		}
 			else if("DT_NO".equals(column)){			vo.dt_no			=	parseNull(rs.getString("DT_NO"));			}
 			else if("DT_NM".equals(column)){			vo.dt_nm			=	parseNull(rs.getString("DT_NM"));			}
+			else if("LOG_DT_NM".equals(column)){		vo.log_dt_nm		=	parseNull(rs.getString("LOG_DT_NM"));		}
 			else if("EX_NO".equals(column)){			vo.ex_no			=	parseNull(rs.getString("EX_NO"));			}
 			else if("EX_NM".equals(column)){			vo.ex_nm			=	parseNull(rs.getString("EX_NM"));			}
+			else if("LOG_EX_NM".equals(column)){		vo.log_ex_nm		=	parseNull(rs.getString("LOG_EX_NM"));		}
 			else if("UNIT_NM".equals(column)){			vo.unit_nm			=	parseNull(rs.getString("UNIT_NM"));			}
+			else if("LOG_UNIT_NM".equals(column)){		vo.log_unit_nm		=	parseNull(rs.getString("LOG_UNIT_NM"));		}
 			else if("UNIT_TYPE".equals(column)){		vo.unit_type		=	parseNull(rs.getString("UNIT_TYPE"));		}
 			else if("UPD_NO".equals(column)){			vo.upd_no			=	parseNull(rs.getString("UPD_NO"));			}
 			else if("S_ITEM_NO".equals(column)){		vo.s_item_no		=	parseNull(rs.getString("S_ITEM_NO"));		}
@@ -440,6 +452,7 @@ public class FoodList implements RowMapper<FoodVO> {
     		else if("FOOD_EP_24".equals(column)){		vo.food_ep_24		=	parseNull(rs.getString("FOOD_EP_24"));		}
     		else if("FOOD_EP_25".equals(column)){		vo.food_ep_25		=	parseNull(rs.getString("FOOD_EP_25"));		}
     		else if("FOOD_CODE".equals(column)){		vo.food_code		=	parseNull(rs.getString("FOOD_CODE"));		}
+    		else if("LOG_FOOD_CODE".equals(column)){	vo.log_food_code	=	parseNull(rs.getString("LOG_FOOD_CODE"));	}
     		else if("UNIQ_ID".equals(column)){			vo.uniq_id			=	parseNull(rs.getString("UNIQ_ID"));			}
     		else if("FILE_NO".equals(column)){			vo.file_no			=	parseNull(rs.getString("FILE_NO"));			}
     		else if("FILE_NM".equals(column)){			vo.file_nm			=	parseNull(rs.getString("FILE_NM"));			}
@@ -499,6 +512,7 @@ public class FoodList implements RowMapper<FoodVO> {
     		else if("LOW_FLAG".equals(column)){			vo.low_flag			=   parseNull(rs.getString("LOW_FLAG"));	    }
     		else if("AVR_FLAG".equals(column)){			vo.avr_flag			=   parseNull(rs.getString("AVR_FLAG"));	    }
     		else if("ZONE_AVR_VAL".equals(column)){		vo.zone_avr_val		=   parseNull(rs.getString("ZONE_AVR_VAL"));	}
+    		else if("ZONE_AVR_CNT".equals(column)){		vo.zone_avr_cnt		=   parseNull(rs.getString("ZONE_AVR_CNT"));	}
     		else if("NULL_RSCH_FLAG".equals(column)){	vo.null_rsch_flag	=   parseNull(rs.getString("NULL_RSCH_FLAG"));	}
     		else if("JO_NO".equals(column)){			vo.jo_no			=   parseNull(rs.getString("JO_NO"));	    	}
     		else if("JO_NM".equals(column)){			vo.jo_nm			=   parseNull(rs.getString("JO_NM"));	    	}

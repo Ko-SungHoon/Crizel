@@ -1,20 +1,9 @@
 package com.crizel.girls;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.ibatis.session.SqlSessionFactory;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
 import org.mybatis.spring.SqlSessionTemplate;
@@ -27,7 +16,7 @@ import com.crizel.util.Twitter;
 @Repository("girlsDao")
 public class GirlsDao {
 	@Autowired
-	private SqlSessionTemplate sqlSession;;
+	private SqlSessionTemplate sqlSession;
 
 	public String girlsGetName() {
 		return sqlSession.selectOne("girls.girlsGetName");

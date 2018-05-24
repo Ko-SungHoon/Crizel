@@ -3,6 +3,7 @@
 *   PURPOSE :   업데이트 요청관리
 *   CREATE  :   20180323_fri    Ko
 *   MODIFY  :   20180410_tue    JI
+*	MODIFY	:	20180504_fri	JI  변경, 삭제 반영된 업데이트 요청은 FOOD_ST_ITEM_LOG
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -143,7 +144,7 @@ try{
 
 	sql.append(" FROM FOOD_UPDATE A LEFT JOIN 												");
 	sql.append(" (SELECT * FROM FOOD_ITEM_PRE WHERE SHOW_FLAG = 'Y') B						");
-	sql.append(" ON A.S_ITEM_NO = B.S_ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
+	sql.append(" ON A.ITEM_NO = B.ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
 	sql.append(" ON B.ITEM_NO = C.ITEM_NO													");
 	sql.append(" WHERE 1=1																	");
 
@@ -230,29 +231,61 @@ try{
 	sql.append(" 		XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()'	");
 	sql.append(" 	).GETSTRINGVAL(),2) NM_FOOD												");
 	sql.append(" 	FROM FOOD_ST_NM															");
-	sql.append(" 	WHERE NM_NO IN (FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5))	");
-	sql.append(" 	AS NM_FOOD,																");
+	sql.append(" 	WHERE NM_NO IN (C.FOOD_NM_1, C.FOOD_NM_2, C.FOOD_NM_3, 					");
+	sql.append(" 	C.FOOD_NM_4, C.FOOD_NM_5)) AS NM_FOOD,							 		");
 	sql.append(" 	(SELECT SUBSTR( XMLAGG(													");
 	sql.append(" 	XMLELEMENT(COL ,',', DT_NM) ORDER BY DT_NM).EXTRACT('//text()'			");
 	sql.append(" 	).GETSTRINGVAL(),2) DT_NM												");
 	sql.append(" 	FROM FOOD_ST_DT_NM														");
-	sql.append(" 	WHERE DT_NO IN (FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5,	");
-	sql.append(" 	FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10)) AS DT_NM,		");
+	sql.append(" 	WHERE DT_NO IN (C.FOOD_DT_1, C.FOOD_DT_2, C.FOOD_DT_3					");
+	sql.append(" 	, C.FOOD_DT_4, C.FOOD_DT_5, C.FOOD_DT_6, C.FOOD_DT_7					");
+	sql.append(" 	, C.FOOD_DT_8, C.FOOD_DT_9, C.FOOD_DT_10)) AS DT_NM,					");
 	sql.append(" 	(SELECT SUBSTR( XMLAGG(													");
 	sql.append(" 		XMLELEMENT(COL,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()'		");
 	sql.append(" 		).GETSTRINGVAL(),2) EX_NM											");
 	sql.append(" 	FROM FOOD_ST_EXPL														");
-	sql.append(" 	WHERE EX_NO IN (FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,	");
-	sql.append(" 	FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, FOOD_EP_11,		");
-	sql.append(" 	FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15, FOOD_EP_16, FOOD_EP_17,	");
-	sql.append(" 	FOOD_EP_18, FOOD_EP_19, FOOD_EP_20, FOOD_EP_21, FOOD_EP_22, FOOD_EP_23,	");
-	sql.append(" 	FOOD_EP_24, FOOD_EP_25)) AS EX_NM										");
+	sql.append(" 	WHERE EX_NO IN (C.FOOD_EP_1, C.FOOD_EP_2, C.FOOD_EP_3					");
+	sql.append(" 	, C.FOOD_EP_4, C.FOOD_EP_5, C.FOOD_EP_6, C.FOOD_EP_7					");
+	sql.append(" 	, C.FOOD_EP_8, C.FOOD_EP_9, C.FOOD_EP_10, C.FOOD_EP_11					");
+	sql.append(" 	, C.FOOD_EP_12, C.FOOD_EP_13, C.FOOD_EP_14, C.FOOD_EP_15				");
+	sql.append(" 	, C.FOOD_EP_16, C.FOOD_EP_17, C.FOOD_EP_18, C.FOOD_EP_19				");
+	sql.append(" 	, C.FOOD_EP_20, C.FOOD_EP_21, C.FOOD_EP_22, C.FOOD_EP_23				");
+	sql.append(" 	, C.FOOD_EP_24, C.FOOD_EP_25)) AS EX_NM									");
+
+	sql.append(" 	, E.FOOD_CODE AS LOG_FOOD_CODE                                          ");
+    sql.append("    , (SELECT UNIT_NM FROM FOOD_ST_UNIT         	                        ");
+	sql.append("    WHERE UNIT_NO = E.FOOD_UNIT) AS LOG_UNIT_NM                             ");
+	sql.append(" 	, (SELECT SUBSTR(XMLAGG(												");
+	sql.append(" 		XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()'	");
+	sql.append(" 	).GETSTRINGVAL(),2) NM_FOOD												");
+	sql.append(" 	FROM FOOD_ST_NM															");
+	sql.append(" 	WHERE NM_NO IN (E.FOOD_NM_1, E.FOOD_NM_2, E.FOOD_NM_3, 					");
+	sql.append(" 	E.FOOD_NM_4, E.FOOD_NM_5)) AS LOG_NM_FOOD						 		");
+	sql.append(" 	, (SELECT SUBSTR( XMLAGG(												");
+	sql.append(" 	XMLELEMENT(COL ,',', DT_NM) ORDER BY DT_NM).EXTRACT('//text()'			");
+	sql.append(" 	).GETSTRINGVAL(),2) DT_NM												");
+	sql.append(" 	FROM FOOD_ST_DT_NM														");
+	sql.append(" 	WHERE DT_NO IN (E.FOOD_DT_1, E.FOOD_DT_2, E.FOOD_DT_3					");
+	sql.append(" 	, E.FOOD_DT_4, E.FOOD_DT_5, E.FOOD_DT_6, E.FOOD_DT_7					");
+	sql.append(" 	, E.FOOD_DT_8, E.FOOD_DT_9, E.FOOD_DT_10)) AS LOG_DT_NM					");
+	sql.append(" 	, (SELECT SUBSTR( XMLAGG(												");
+	sql.append(" 		XMLELEMENT(COL,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()'		");
+	sql.append(" 		).GETSTRINGVAL(),2) EX_NM											");
+	sql.append(" 	FROM FOOD_ST_EXPL														");
+	sql.append(" 	WHERE EX_NO IN (E.FOOD_EP_1, E.FOOD_EP_2, E.FOOD_EP_3					");
+	sql.append(" 	, E.FOOD_EP_4, E.FOOD_EP_5, E.FOOD_EP_6, E.FOOD_EP_7					");
+	sql.append(" 	, E.FOOD_EP_8, E.FOOD_EP_9, E.FOOD_EP_10, E.FOOD_EP_11					");
+	sql.append(" 	, E.FOOD_EP_12, E.FOOD_EP_13, E.FOOD_EP_14, E.FOOD_EP_15				");
+	sql.append(" 	, E.FOOD_EP_16, E.FOOD_EP_17, E.FOOD_EP_18, E.FOOD_EP_19				");
+	sql.append(" 	, E.FOOD_EP_20, E.FOOD_EP_21, E.FOOD_EP_22, E.FOOD_EP_23				");
+	sql.append(" 	, E.FOOD_EP_24, E.FOOD_EP_25)) AS LOG_EX_NM								");
 
 	sql.append(" FROM (SELECT * FROM FOOD_UPDATE WHERE SHOW_FLAG = 'Y') A LEFT JOIN 		");
 	sql.append(" (SELECT * FROM FOOD_ITEM_PRE WHERE SHOW_FLAG = 'Y') B						");
-	sql.append(" ON A.S_ITEM_NO = B.S_ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
+	sql.append(" ON A.ITEM_NO = B.ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
 	sql.append(" ON B.ITEM_NO = C.ITEM_NO LEFT JOIN FOOD_SCH_TB D							");
-	sql.append(" ON A.SCH_NO = D.SCH_NO														");
+	sql.append(" ON A.SCH_NO = D.SCH_NO LEFT JOIN FOOD_ST_ITEM_LOG E						");
+	sql.append(" ON A.UPD_NO = E.UPD_NO														");
 	sql.append(" WHERE 1=1																	");
 
 	if(!"".equals(search1) && !"".equals(keyword) ){
@@ -325,13 +358,16 @@ try{
 </script>
 
 <div id="right_view">
-		<div class="top_view">
-				<p class="location"><strong><%=pageTitle %></strong></p>
-				<p class="loc_admin">
-                    <a href="/iam/main/index.sko?lang=en_US" target="_top" class="white">ENGLISH</a> <span class="yellow">[<%=sessionManager.getSgroupNm() %>]<%=sessionManager.getName() %></span>님 안녕하세요.
-                    <a href="/j_spring_security_logout?returnUrl=/iam/login/login_init.sko"><img src="/images/egovframework/rfc3/iam/images/logout.gif" alt="logout"  class="log_img"/></a>
-                </p>
-		</div>
+	<div class="top_view">
+		<p class="location"><strong><%=pageTitle %></strong></p>
+		<p class="loc_admin">
+			<a href="/iam/main/index.sko?lang=en_US" target="_top" class="white">ENGLISH</a>
+			<span class="yellow">[<%=sessionManager.getSgroupNm() %>]<%=sessionManager.getName() %></span>님 안녕하세요.
+			<a href="/j_spring_security_logout?returnUrl=/iam/login/login_init.sko">
+				<img src="/images/egovframework/rfc3/iam/images/logout.gif" alt="logout"  class="log_img"/>
+			</a>
+		</p>
+	</div>
 </div>
 <!-- S : #content -->
 <div id="content">
@@ -353,7 +389,7 @@ try{
 		</form>
 	</div>
 
-	<p class="clearfix"> </p>
+	<p class="clearfix"></p>
 
 	<p class="f_l magT10">
 		<strong>총 <span><%=totalCount%></span> 건
@@ -413,11 +449,19 @@ try{
 			<tr>
 				<td rowspan="2"><%=vo.cat_nm %>-<%=vo.food_cat_index %></td>
             <td>기존</td>
+			<%if (("D".equals(vo.upd_flag) && "A".equals(vo.sts_flag)) || ("M".equals(vo.upd_flag) && "A".equals(vo.sts_flag))) {%>
+            <td><%=parseNull(vo.log_food_code, "-") %></td>
+            <td><%=parseNull(vo.log_nm_food, "-") %></td>
+            <td><span class="wid_ndetail"><%=parseNull(vo.log_dt_nm, "-") %></span></td>
+            <td><span class="wid_expl"><%=parseNull(vo.log_ex_nm, "-") %></span></td>
+            <td><%=parseNull(vo.log_unit_nm, "-") %></td>
+            <%} else {%>
             <td><%=parseNull(vo.food_code, "-") %></td>
             <td><%=parseNull(vo.nm_food, "-") %></td>
             <td><span class="wid_ndetail"><%=parseNull(vo.dt_nm, "-") %></span></td>
             <td><span class="wid_expl"><%=parseNull(vo.ex_nm, "-") %></span></td>
             <td><%=parseNull(vo.unit_nm, "-") %></td>
+            <%}%>
             <td rowspan="2"><%=vo.nu_nm %></td>
             <td rowspan="2"><%=vo.zone_nm %></td>
             <td rowspan="2"><span class="wid_school"><%=vo.sch_nm %></span></td>

@@ -4,6 +4,7 @@
 *   PURPOSE :   조사가격조회 엑셀 다운로드 jsp
 *   CREATE  :   20180419_thur   JI
 *   MODIFY  :   20180425_wed	KO	최저가 삭제 및 비교그룹 추가
+*   MODIFY  :   20180510_fri	JI  선택 조사 조사식품만 조회 엑셀 다운
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -182,6 +183,7 @@ String foodItem		=	parseNull(request.getParameter("foodItem"));
 String foodName		=	parseNull(request.getParameter("foodName"));
 String keywordCate 	=	parseNull(request.getParameter("keywordCate"));
 String keywordInp	=	parseNull(request.getParameter("keywordInp"));
+String rsch_no		= 	parseNull(request.getParameter("rsch_no"));
 
 String[] keyCateOp	=	{"title", "detail"};
 String[] keyCateTxt =	{"조사명", "식품설명"};
@@ -213,7 +215,6 @@ if(!"".equals(keywordInp)){
 }
 
 //날짜검색
-
 if(!"".equals(srchSdate) && !"".equals(srchEdate)){
     sqlWhere	+=	" AND ((TB.STR_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.STR_DATE <= TO_DATE(?, 'YY/MM/DD')) 	\n";
     sqlWhere	+=	" OR (TB.END_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.END_DATE <= TO_DATE(?, 'YY/MM/DD'))) 	\n";
@@ -242,6 +243,12 @@ try{
                 setWhere.add(zoneType);
             }
         }
+    }
+
+    //월별조사 where
+    if(!"".equals(rsch_no)){
+        sqlWhere += "AND TB.RSCH_NO = ?			";
+        setWhere.add(rsch_no);
     }
 
     //카테고리 목록
@@ -274,6 +281,13 @@ try{
     sqlWhere	+=	" FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5))	\n";
     sqlWhere	+=	" LIKE '%' ||?|| '%'										\n";
     setWhere.add(foodName);
+
+    //입력 parameter 가 없을 경우
+    if ("".equals(srchSdate) && "".equals(srchEdate) && "".equals(zoneType) && "".equals(foodItem)
+    && "".equals(foodName) && "".equals(keywordCate) && "".equals(keywordInp) && "".equals(rsch_no)) {
+        sqlWhere    +=  " AND TB.RSCH_NO = (SELECT MAX(RSCH_NO) FROM                \n";
+        sqlWhere    +=  "   FOOD_RSCH_TB WHERE SHOW_FLAG = 'Y' AND STS_FLAG = 'Y')  \n";
+    }
 
     //검색목록
     sql		=	new StringBuffer();
@@ -421,7 +435,7 @@ try{
     sql.append(" VAL.RSCH_DATE													\n");
 
     sql.append(" FROM FOOD_ITEM_PRE PRE 										\n");
-    sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO	\n");
+    sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO		\n");
     sql.append(" LEFT JOIN FOOD_RSCH_VAL VAL ON VAL.ITEM_NO = ITEM.ITEM_NO		\n");
     sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
     sql.append(" LEFT JOIN FOOD_SCH_TB SCH ON VAL.SCH_NO = SCH.SCH_NO			\n");

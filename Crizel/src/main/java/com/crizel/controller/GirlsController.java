@@ -1,17 +1,8 @@
 package com.crizel.controller;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.List;
 
+import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,18 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.crizel.admin.AdminService;
 import com.crizel.girls.GirlsService;
 import com.crizel.girls.GirlsVO;
 
 @Controller
 public class GirlsController {
-	GirlsService service;
-
-	@Autowired
-	public GirlsController(GirlsService service) {
-		super();
-		this.service = service;
-	}
+	@Resource(name="girlsService")
+    private GirlsService service;
 
 	@RequestMapping("girls.do")
 	public ModelAndView girls(

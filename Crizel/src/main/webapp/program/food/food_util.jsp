@@ -48,7 +48,7 @@
 <%
 WebApplicationContext endContext = WebApplicationContextUtils.getWebApplicationContext(request.getSession().getServletContext());
 //ApplicationContext endContext = new FileSystemXmlApplicationContext(getServletContext().getRealPath("/WEB-INF")+"/servlet-context.xml");
-DataSource endDataSource = (DataSource) endContext.getBean("dataSource");		// 운영서버:IamDataSource, 테스트서버:dataSource
+DataSource endDataSource = (DataSource) endContext.getBean("IamDataSource");		// 운영서버:IamDataSource, 테스트서버:dataSource
 JdbcTemplate endJdbcTemplate = new JdbcTemplate(endDataSource);
 
 String endCheckSql 	= null;
