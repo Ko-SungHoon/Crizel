@@ -144,7 +144,7 @@ try{
 
 	sql.append(" FROM FOOD_UPDATE A LEFT JOIN 												");
 	sql.append(" (SELECT * FROM FOOD_ITEM_PRE WHERE SHOW_FLAG = 'Y') B						");
-	sql.append(" ON A.ITEM_NO = B.ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
+	sql.append(" ON A.S_ITEM_NO = B.ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
 	sql.append(" ON B.ITEM_NO = C.ITEM_NO													");
 	sql.append(" WHERE 1=1																	");
 
@@ -282,7 +282,7 @@ try{
 
 	sql.append(" FROM (SELECT * FROM FOOD_UPDATE WHERE SHOW_FLAG = 'Y') A LEFT JOIN 		");
 	sql.append(" (SELECT * FROM FOOD_ITEM_PRE WHERE SHOW_FLAG = 'Y') B						");
-	sql.append(" ON A.ITEM_NO = B.ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
+	sql.append(" ON A.S_ITEM_NO = B.ITEM_NO LEFT JOIN FOOD_ST_ITEM C						");
 	sql.append(" ON B.ITEM_NO = C.ITEM_NO LEFT JOIN FOOD_SCH_TB D							");
 	sql.append(" ON A.SCH_NO = D.SCH_NO LEFT JOIN FOOD_ST_ITEM_LOG E						");
 	sql.append(" ON A.UPD_NO = E.UPD_NO														");

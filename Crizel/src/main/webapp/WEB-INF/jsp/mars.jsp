@@ -2,6 +2,7 @@
 	pageEncoding="UTF-8"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<fmt:setLocale value="UTF-8"/>
 <!DOCTYPE html>
 <html>
 <head>
@@ -12,10 +13,13 @@
 <style type="text/css">
 </style>
 <script>
-function getView(addr){
-	addr = encodeURIComponent(addr);
-	location.href="/mars.do?addr="+addr+"&type=view";
-}
+$(function(){
+	$(".getView").click(function(){
+		var addr = $(this).data("value");
+		addr = encodeURIComponent(addr);
+		location.href="/mars.do?addr="+addr+"&type=view";
+	});
+});
 
 function getDown(addr){
 	location.href="";
@@ -30,6 +34,13 @@ function clipboardCopy(index){
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
+<%
+Cookie cookie = new Cookie("adult", "true");
+//cookie.setMaxAge(60*60*24*365);            			// 쿠키 유지 기간 - 1년
+cookie.setMaxAge(5);
+cookie.setPath("/");                       			// 모든 경로에서 접근 가능하도록 
+response.addCookie(cookie);                			// 쿠키저장
+%>	
 	<div class="search center">
 		<form id="postForm" action="/mars.do" method="get" onchange="document.getElementById('postForm').submit();">
 			<select id="addr" name="addr">
@@ -51,10 +62,10 @@ function clipboardCopy(index){
 		<c:forEach items="${list}" var="ob">
 			<tr>
 				<td>
-					<a href="javascript:getView('${ob.addr}')"><img src="${ob.img}"></a>
+					<a href="/mars.do?addr=${ob.addr}&type=view" ><img src="${ob.img}"></a>
 				</td>
 				<td>
-					<a href="${ob.addr}" target="_blank">링크</a>
+					<a href="${ob.addrLink}" target="_blank">링크</a>
 				</td>
 			</tr>
 		</c:forEach>

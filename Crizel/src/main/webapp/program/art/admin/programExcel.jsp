@@ -300,37 +300,25 @@ cell = row.createCell(0);
 cell.setCellValue("순서");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(1);
-cell.setCellValue("분류");
+cell.setCellValue("구분");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(2);
-cell.setCellValue("프로그램명");
+cell.setCellValue("분류");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(3);
-cell.setCellValue("정원");
+cell.setCellValue("프로그램명");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(4);
-cell.setCellValue("신청일");
+cell.setCellValue("체험일");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(5);
-cell.setCellValue("신청시간");
+cell.setCellValue("정원");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(6);
-cell.setCellValue("신청ID");
-cell.setCellStyle(headCellStyle);
-cell = row.createCell(7);
-cell.setCellValue("이름(학교)");
-cell.setCellStyle(headCellStyle);
-cell = row.createCell(8);
-cell.setCellValue("신청자명/그룹명");
-cell.setCellStyle(headCellStyle);
-cell = row.createCell(9);
 cell.setCellValue("신청인원");
 cell.setCellStyle(headCellStyle);
-cell = row.createCell(10);
-cell.setCellValue("최종상태");
-cell.setCellStyle(headCellStyle);
 
-cell = row.createCell(12);
+/* cell = row.createCell(12);
 cell.setCellValue("분류");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(13);
@@ -350,7 +338,7 @@ cell.setCellValue("관리자취소");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(18);
 cell.setCellValue("승인");
-cell.setCellStyle(headCellStyle);
+cell.setCellStyle(headCellStyle); */
 /** Cell Title Setting **/
 
 int rowCnt = 1;
@@ -502,46 +490,40 @@ try {
         }else{
             size = deepTotal.size();
         }
-        
+        String pro_gubun = "";
         for (int i = 0; i < size; i++) {
             row = sheet.createRow(rowCnt++);
+            if("alway".equals(search2)){
+        		pro_gubun = "상시프로그램";
+        	}else{
+        		pro_gubun = "심화프로그램";
+        	}
             if (i < deepList.size()) {
                 data    =   deepList.get(i);
                 cell    =   row.createCell(0);
                 cell.setCellValue(++num);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(1);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(pro_gubun);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(2);
-                cell.setCellValue(data.pro_name);
+                cell.setCellValue(data.pro_cat_nm);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(3);
-                cell.setCellValue(data.max_per);
+                cell.setCellValue(data.pro_name);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(4);
                 cell.setCellValue(data.reg_date.substring(0, 10));
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(5);
-                cell.setCellValue(data.pro_time);
+                cell.setCellValue(data.max_per);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(6);
-                cell.setCellValue(data.req_user_id);
-                cell.setCellStyle(cellStyle);
-                cell    =   row.createCell(7);
-                cell.setCellValue(data.req_user_nm);
-                cell.setCellStyle(cellStyle);
-                cell    =   row.createCell(8);
-                cell.setCellValue(data.req_group);
-                cell.setCellStyle(cellStyle);
-                cell    =   row.createCell(9);
                 cell.setCellValue(data.req_per);
                 cell.setCellStyle(cellStyle);
-                cell    =   row.createCell(10);
-                cell.setCellValue(data.apply_flag);
-                cell.setCellStyle(cellStyle);
+                
             }//END IF
-            if (i < deepTotal.size()) {
+            /* if (i < deepTotal.size()) {
                 total   =   deepTotal.get(i);
                 cell    =   row.createCell(12);
                 cell.setCellValue(total.pro_cat_nm);
@@ -564,8 +546,13 @@ try {
                 cell    =   row.createCell(18);
                 cell.setCellValue(total.req_apply_cnt);
                 cell.setCellStyle(cellStyle);
-            }//END IF
+            } */
+            //END IF
         }//END FOR
+        for (short j=0; j<7; j++){
+    	    sheet.autoSizeColumn(j);
+    	    sheet.setColumnWidth(j, (sheet.getColumnWidth(j))+(short)1024);	// 1024 = 열너비 3.14
+    	}
         
     } else {
         //상시 프로그램 통계
@@ -651,8 +638,13 @@ try {
         } else {
             size = alwayTotal.size();
         }
-        
+        String pro_gubun = "";
         for (int i = 0; i < size; i++) {
+        	if("alway".equals(search2)){
+        		pro_gubun = "상시프로그램";
+        	}else{
+        		pro_gubun = "심화프로그램";
+        	}
             row = sheet.createRow(rowCnt++);
             if (i < alwayList.size()) {
                 data    =   alwayList.get(i);
@@ -660,37 +652,26 @@ try {
                 cell.setCellValue(++num);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(1);
-                cell.setCellValue(data.pro_cat_nm);
+                cell.setCellValue(pro_gubun);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(2);
-                cell.setCellValue(data.pro_name);
+                cell.setCellValue(data.pro_cat_nm);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(3);
-                cell.setCellValue(data.max_per);
+                cell.setCellValue(data.pro_name);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(4);
-                cell.setCellValue(data.req_date);
+                cell.setCellValue(data.req_date.substring(0, 10));
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(5);
-                cell.setCellValue(data.req_sch_id);
+                cell.setCellValue(data.max_per);
                 cell.setCellStyle(cellStyle);
                 cell    =   row.createCell(6);
-                cell.setCellValue(data.req_sch_nm);
-                cell.setCellStyle(cellStyle);
-                cell    =   row.createCell(7);
-                cell.setCellValue(data.sch_mng_nm);
-                cell.setCellStyle(cellStyle);
-                cell    =   row.createCell(8);
                 cell.setCellValue(data.req_per);
                 cell.setCellStyle(cellStyle);
-                cell    =   row.createCell(9);
-                cell.setCellValue(data.req_aft_flag);
-                cell.setCellStyle(cellStyle);
-                cell    =   row.createCell(10);
-                cell.setCellValue(data.apply_flag);
-                cell.setCellStyle(cellStyle);
+                
             }//END IF
-            if (i < alwayTotal.size()) {
+            /* if (i < alwayTotal.size()) {
                 total   =   alwayTotal.get(i);
                 cell    =   row.createCell(12);
                 cell.setCellValue(total.pro_cat_nm);
@@ -713,8 +694,14 @@ try {
                 cell    =   row.createCell(18);
                 cell.setCellValue(total.req_apply_cnt);
                 cell.setCellStyle(cellStyle);
-            }//END IF
+            } */
+            //END IF
         }   //END FOR
+        
+        for (short j=0; j<7; j++){
+    	    sheet.autoSizeColumn(j);
+    	    sheet.setColumnWidth(j, (sheet.getColumnWidth(j))+(short)1024);	// 1024 = 열너비 3.14
+    	}
     }
     
 

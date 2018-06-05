@@ -14,6 +14,18 @@
 <%@ page import="java.io.*" %>
 <%@ include file="/program/food/food_util.jsp" %>
 <%@ include file="/program/food/foodVO.jsp" %>
+<%!
+	private String moneyComma (String money) {
+		DecimalFormat df	=	new DecimalFormat("#,###");
+		String rtnMoney	=	null;
+		if (money != null && !"-".equals(money.trim())) {
+			rtnMoney	=	df.format(Integer.parseInt(money));
+			return rtnMoney;
+		} else {
+			return money;
+		}
+	}
+%>
 <%
     
 request.setCharacterEncoding("UTF-8");
@@ -285,8 +297,8 @@ try{
     //입력 parameter 가 없을 경우
     if ("".equals(srchSdate) && "".equals(srchEdate) && "".equals(zoneType) && "".equals(foodItem)
     && "".equals(foodName) && "".equals(keywordCate) && "".equals(keywordInp) && "".equals(rsch_no)) {
-        sqlWhere    +=  " AND TB.RSCH_NO = (SELECT MAX(RSCH_NO) FROM                \n";
-        sqlWhere    +=  "   FOOD_RSCH_TB WHERE SHOW_FLAG = 'Y' AND STS_FLAG = 'Y')  \n";
+        //sqlWhere    +=  " AND TB.RSCH_NO = (SELECT MAX(RSCH_NO) FROM                \n";
+        //sqlWhere    +=  "   FOOD_RSCH_TB WHERE SHOW_FLAG = 'Y'/* AND STS_FLAG = 'Y'*/)  \n";
     }
 
     //검색목록
@@ -346,11 +358,18 @@ try{
     sql.append(" VAL.AVR_VAL,	 												\n");
     sql.append(" VAL.CENTER_VAL, 												\n");
     sql.append(" ( 	SELECT														\n");
-    sql.append(" 		AVG(AVR_VAL)											\n");
+    sql.append(" 		ROUND(AVG(AVR_VAL), 0)									\n");
     sql.append(" 	FROM FOOD_RSCH_VAL											\n");
     sql.append(" 	WHERE RSCH_NO = VAL.RSCH_NO									\n");
     sql.append(" 		AND ITEM_NO = VAL.ITEM_NO								\n");
     sql.append(" ) AS ZONE_AVR_VAL,												\n");
+    sql.append(" ( 	SELECT														\n");
+    sql.append(" 		COUNT(AVR_VAL)											\n");
+    sql.append(" 	FROM FOOD_RSCH_VAL											\n");
+    sql.append(" 	WHERE RSCH_NO = VAL.RSCH_NO									\n");
+    sql.append(" 		AND ITEM_NO = VAL.ITEM_NO								\n");
+    sql.append(" ) AS ZONE_AVR_CNT,												\n");
+
     sql.append(" (SELECT TEAM_NM                                                \n");
     sql.append("   FROM FOOD_TEAM                                               \n");
     sql.append("   WHERE TEAM_NO = VAL.TEAM_NO                                  \n");
@@ -435,7 +454,7 @@ try{
     sql.append(" VAL.RSCH_DATE													\n");
 
     sql.append(" FROM FOOD_ITEM_PRE PRE 										\n");
-    sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO		\n");
+    sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO	\n");
     sql.append(" LEFT JOIN FOOD_RSCH_VAL VAL ON VAL.ITEM_NO = ITEM.ITEM_NO		\n");
     sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
     sql.append(" LEFT JOIN FOOD_SCH_TB SCH ON VAL.SCH_NO = SCH.SCH_NO			\n");
@@ -443,7 +462,7 @@ try{
     sql.append(" LEFT JOIN FOOD_ZONE ZONE ON VAL.ZONE_NO = ZONE.ZONE_NO			\n");
 
     sql.append(" WHERE TB.SHOW_FLAG = 'Y'										\n");
-    sql.append(" /*AND VAL.STS_FLAG = 'Y'*/										\n");		
+    sql.append(" AND VAL.STS_FLAG = 'Y' 										\n");		
     sql.append(sqlWhere);
     sql.append(" ORDER BY PRE.ITEM_NO											\n");
 
@@ -475,9 +494,13 @@ try{
             cell    =   row.createCell(10); cell.setCellValue(vo.non_distri); cell.setCellStyle(cellStyle);
             //cell    =   row.createCell(11); cell.setCellValue(vo.low_val); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(11); cell.setCellValue(vo.item_comp_no); cell.setCellStyle(cellStyle);
-            cell    =   row.createCell(12); cell.setCellValue(vo.avr_val); cell.setCellStyle(cellStyle);
-            cell    =   row.createCell(13); cell.setCellValue(vo.center_val); cell.setCellStyle(cellStyle);
-            cell    =   row.createCell(14); cell.setCellValue(vo.zone_avr_val); cell.setCellStyle(cellStyle);
+            cell    =   row.createCell(12); cell.setCellValue(moneyComma(parseNull(vo.avr_val, " - "))); cell.setCellStyle(cellStyle);
+            cell    =   row.createCell(13); cell.setCellValue(moneyComma(parseNull(vo.center_val, " - "))); cell.setCellStyle(cellStyle);
+            if ("3".equals(vo.zone_avr_cnt)) {
+                cell    =   row.createCell(14); cell.setCellValue(moneyComma(parseNull(vo.zone_avr_val, " - "))); cell.setCellStyle(cellStyle);
+            } else {
+                cell    =   row.createCell(14); cell.setCellValue("-"); cell.setCellStyle(cellStyle);
+            }
             cell    =   row.createCell(15); cell.setCellValue(vo.sch_nm +" / "+ vo.nu_nm); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(16); cell.setCellValue(vo.zone_nm +" / "+ vo.team_nm); cell.setCellStyle(cellStyle);
             /*조사가 정렬 출력*/
@@ -543,9 +566,9 @@ try{
                     }
                     for (int j = 1; j <= valMap.size(); j++) {
                         if (j != minNo && j != maxNo) {
-                            cell    =   row.createCell(17); cell.setCellValue(valMap.get(j)); cell.setCellStyle(cellStyle);
-                            cell    =   row.createCell(18); cell.setCellValue(valMap.get(j+1)); cell.setCellStyle(cellStyle);
-                            cell    =   row.createCell(19); cell.setCellValue(valMap.get(j+2)); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(17); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(18); cell.setCellValue(moneyComma(valMap.get(j+1))); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(19); cell.setCellValue(moneyComma(valMap.get(j+2))); cell.setCellStyle(cellStyle);
                             break;
                         }
                     }
@@ -553,9 +576,9 @@ try{
                 } else if (valMapCnt == 3) {
                     for (int j = 1; j <= valMap.size(); j++) {
                         if (!"-".equals(valMap.get(j))) {
-                            cell    =   row.createCell(17); cell.setCellValue(valMap.get(j)); cell.setCellStyle(cellStyle);
-                            cell    =   row.createCell(18); cell.setCellValue(valMap.get(j+1)); cell.setCellStyle(cellStyle);
-                            cell    =   row.createCell(19); cell.setCellValue(valMap.get(j+2)); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(17); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(18); cell.setCellValue(moneyComma(valMap.get(j+1))); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(19); cell.setCellValue(moneyComma(valMap.get(j+2))); cell.setCellStyle(cellStyle);
                             break;
                         }
                     }
@@ -563,7 +586,7 @@ try{
                 } else if (valMapCnt == 1) {
                     for (int j = 1; j <= valMap.size(); j++) {
                         if (!"-".equals(valMap.get(j))) {
-                            cell    =   row.createCell(17); cell.setCellValue(valMap.get(j)); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(17); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
                         }
                     }
                     cell    =   row.createCell(18); cell.setCellValue(" - "); cell.setCellStyle(cellStyle);

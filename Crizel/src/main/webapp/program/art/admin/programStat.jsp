@@ -284,53 +284,7 @@
 %>
 
 <%
-/************************** 접근 허용 체크 - 시작 **************************/
 SessionManager sessionManager = new SessionManager(request);
-String sessionId = sessionManager.getId();
-if(sessionId == null || "".equals(sessionId)) {
-	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
-	if(true) return;
-}
-
-String roleId= null;
-String[] allowIp = null;
-Connection conn = null;
-try {
-	sqlMapClient.startTransaction();
-	conn = sqlMapClient.getCurrentConnection();
-	
-	// 접속한 관리자 회원의 권한 롤
-	roleId= getRoleId(sqlMapClient, conn, sessionId);
-	
-	// 관리자 접근 허용된 IP 배열
-	allowIp = getAllowIpArrays(sqlMapClient, conn);
-} catch (Exception e) {
-	sqlMapClient.endTransaction();
-	alertBack(out, "트랜잭션 오류가 발생했습니다.");
-} finally {
-	sqlMapClient.endTransaction();
-}
-
-// 권한정보 체크
-boolean isAdmin = sessionManager.isRole(roleId);
-
-// 접근허용 IP 체크
-String thisIp = request.getRemoteAddr();
-boolean isAllowIp = isAllowIp(thisIp, allowIp);
-
-/** Method 및 Referer 정보 **/
-String getMethod = parseNull(request.getMethod());
-String getReferer = parseNull(request.getHeader("referer"));
-
-if(!isAdmin) {
-	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
-	if(true) return;
-}
-if(!isAllowIp) {
-	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
-	if(true) return;
-}
-/************************** 접근 허용 체크 - 종료 **************************/    
 
 StringBuffer sql    =   null;
 String sql_str      =   null;
@@ -384,12 +338,12 @@ if ("deep".equals(search2)) {
     //program list
     if (Integer.parseInt(search3) > 0) {
         sql     =   new StringBuffer();
-        sql_str =   " SELECT B.ARTCODE_NO AS PRO_CAT_NO, A.* ";
-        sql_str +=  " FROM ART_PRO_DEEP A JOIN ART_PRO_CODE B ";
-        sql_str +=  " ON A.PRO_CAT = B.CODE_TBL AND A.PRO_CAT_NM = B.CODE_VAL1 ";
-        sql_str +=  " WHERE A.REG_DATE BETWEEN ? AND ? ";
-        sql_str +=  " AND B.ARTCODE_NO = ? ";
-        sql_str +=  " ORDER BY A.REG_DATE DESC ";
+        sql_str =   " SELECT B.ARTCODE_NO AS PRO_CAT_NO, A.* 					";
+        sql_str +=  " FROM ART_PRO_DEEP A JOIN ART_PRO_CODE B 					";
+        sql_str +=  " ON A.PRO_CAT = B.CODE_TBL AND A.PRO_CAT_NM = B.CODE_VAL1 	";
+        sql_str +=  " WHERE A.REG_DATE BETWEEN ? AND ? 							";
+        sql_str +=  " AND B.ARTCODE_NO = ? 										";
+        sql_str +=  " ORDER BY A.REG_DATE DESC 									";
         sql.append(sql_str);
         deepPro =   jdbcTemplate.query(sql.toString(), new Object[]{start_date, end_date, search3}, new ProCatDeepList());
     }
@@ -397,21 +351,21 @@ if ("deep".equals(search2)) {
 } else {
     //program category
     sql     =   new StringBuffer();
-    sql_str =   " SELECT * FROM ART_PRO_CODE ";
-    sql_str +=  " WHERE CODE_TBL = 'ART_PRO_ALWAY' AND CODE_COL = 'PRO_CAT_NM' ";
-    sql_str +=  " ORDER BY ORDER1 ";
+    sql_str =   " SELECT * FROM ART_PRO_CODE 									";
+    sql_str +=  " WHERE CODE_TBL = 'ART_PRO_ALWAY' AND CODE_COL = 'PRO_CAT_NM' 	";
+    sql_str +=  " ORDER BY ORDER1 												";
     sql.append(sql_str);
     proCate =   jdbcTemplate.query(sql.toString(), new ProCatList());
     
     //program list
     if (Integer.parseInt(search3) > 0) {
         sql     =   new StringBuffer();
-        sql_str =   " SELECT B.ARTCODE_NO AS PRO_CAT_NO, A.* ";
-        sql_str +=  " FROM ART_PRO_ALWAY A JOIN ART_PRO_CODE B ";
-        sql_str +=  "   ON B.CODE_TBL = A.PRO_CAT AND B.CODE_VAL1 = A.PRO_CAT_NM ";
-        sql_str +=  " WHERE A.PRO_YEAR BETWEEN ? AND ? ";
-        sql_str +=  " AND B.ARTCODE_NO = ? ";
-        sql_str +=  " ORDER BY A.REG_DATE DESC ";
+        sql_str =   " SELECT B.ARTCODE_NO AS PRO_CAT_NO, A.*						";
+        sql_str +=  " FROM ART_PRO_ALWAY A JOIN ART_PRO_CODE B 						";
+        sql_str +=  "   ON B.CODE_TBL = A.PRO_CAT AND B.CODE_VAL1 = A.PRO_CAT_NM 	";
+        sql_str +=  " WHERE A.PRO_YEAR BETWEEN ? AND ? 								";
+        sql_str +=  " AND B.ARTCODE_NO = ? 											";
+        sql_str +=  " ORDER BY A.REG_DATE DESC 										";
         sql.append(sql_str);
         alwayPro    =   jdbcTemplate.query(sql.toString(), new Object[]{str_year, end_year, search3}, new ProCatAlwayList());
     }
@@ -676,7 +630,9 @@ if ("deep".equals(search2)) {
 	<div id="content">
 		<div class="btn_area">
 				<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/alwaysReq.jsp'">승인대기 및 취소 - 상시</button>
+				<%if(sessionManager.isRoleAdmin()){%>
 				<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/alwaysMng.jsp'">프로그램 관리 - 상시</button>
+				<%} %>
 				<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/deepReq.jsp'">승인대기 및 취소 - 심화</button>
 				<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/deepMng.jsp'">프로그램 관리 - 심화</button>
 				<button type="button" class="btn medium mako" onclick="location.href='/program/art/admin/programStat.jsp'">통계관리</button>
@@ -713,7 +669,7 @@ if ("deep".equals(search2)) {
 					<!-- <label for="search1">검색분류</label> -->
 					<select id="search1" name="search1">
 						<option value="">선택</option>
-						<option value="req_id" <%if("req_id".equals(search1)){out.println("selected");}%>>아이디</option>
+						<option value="req_id" <%if("req_id".equals(search1)){out.println("selected");}%>>신청학교</option>
 						<option value="req_mng_nm" <%if("req_mng_nm".equals(search1)){out.println("selected");}%>>신청자명</option>
 					</select>
 					<!-- <label for="keyword">검색어</label> -->
@@ -739,15 +695,12 @@ if ("deep".equals(search2)) {
 			<thead>
 				<tr>
 					<th scope="col">순서</th>
+					<th scope="col">구분</th>
 					<th scope="col">분류</th>
 					<th scope="col">프로그램명</th>
-					<th scope="col">정원</th>
 					<th scope="col">신청일</th>
-					<th scope="col">신청시간</th>
-					<th scope="col">신청ID<br>/<br>이름(학교)</th>
-					<th scope="col">신청자명</th>
+					<th scope="col">정원</th>
 					<th scope="col">신청인원</th>
-					<th scope="col">최종상태</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -756,21 +709,25 @@ if ("deep".equals(search2)) {
                 //심화 일때
                 if ("deep".equals(search2)) {
                     if (deepList != null && deepList.size() > 0) {
-                    for (ProDeepData pro : deepList) {%>
+                    	String pro_gubun = "";
+                    for (ProDeepData pro : deepList) {
+                    	if("alway".equals(search2)){
+                    		pro_gubun = "상시프로그램";
+                    	}else{
+                    		pro_gubun = "심화프로그램";
+                    	}
+                    %>
                         <tr>
                             <td><%=pro.rnum %></td>
+                            <td><%=pro_gubun %></td>
                             <td><%=pro.pro_cat_nm %></td>
                             <td><%=pro.pro_name %></td>
-                            <td><%=pro.max_per %></td>
                             <td><%=pro.reg_date.substring(0, 10) %></td>
-                            <td><%=pro.pro_time %></td>
-                            <td><%=pro.req_user_id %><br>/<br><%=pro.req_group %></td>
-                            <td><%=pro.req_user_nm %></td>
+                            <td><%=pro.max_per %></td>
                             <td><%=pro.req_per %></td>
-                            <td><%=applyText(pro.apply_flag) %></td>
                         </tr>
                     <%}/*END FOR*/%>
-                    <tr>
+                    <%-- <tr>
                         <td class="bg_grey fb">계</td>
                         <td colspan="9" class="bg_grey">
                             <table class="bbs_list2 magB5">
@@ -806,29 +763,32 @@ if ("deep".equals(search2)) {
                             </tbody>
                             </table>
                         </td>
-                    </tr>
+                    </tr> --%>
                 <%} else {/*END IF*/%>
                     <tr><td colspan="10">등록된 게시물이 없습니다.</td></tr>
                 <%}/*END ELSE*/
                 //상시 일때
                 } else {
                     if (alwayList != null && alwayList.size() > 0) {
+                    	String pro_gubun = "";
                     for(ProAlwayData pro : alwayList) {
+                    	if("alway".equals(search2)){
+                    		pro_gubun = "상시프로그램";
+                    	}else{
+                    		pro_gubun = "심화프로그램";
+                    	}
                     %>
                     <tr>
-                        <td><%=pro.rnum %></td>
+                   		<td><%=pro.rnum %></td>
+                        <td><%=pro_gubun %></td>
                         <td><%=pro.pro_cat_nm %></td>
                         <td><%=pro.pro_name %></td>
+                        <td><%=pro.req_date.substring(0, 10) %></td>
                         <td><%=pro.max_per %></td>
-                        <td><%=pro.req_date %></td>
-                        <td><%=aftText(pro.req_aft_flag) %></td>
-                        <td><%=pro.req_sch_id %><br>/<br><%=pro.req_sch_nm %></td>
-                        <td><%=pro.sch_mng_nm %></td>
-                        <td><%=pro.req_per %></td>
-                        <td><%=applyText(pro.apply_flag) %></td>
+                        <td><%=pro.req_per %></td> 
                     </tr>
                     <%}%>
-                    <tr>
+                    <%-- <tr>
                         <td class="bg_grey fb">계</td>
                         <td colspan="9" class="bg_grey">
                             <table class="bbs_list2 magB5">
@@ -864,7 +824,7 @@ if ("deep".equals(search2)) {
                             </tbody>
                             </table>
                         </td>
-                    </tr>
+                    </tr> --%>
                     <%}/*END IF*/ else {%>
                     <tr><td colspan="10">등록된 게시물이 없습니다.</td></tr>
                     <%}/*END ELSE*/%>
@@ -887,9 +847,9 @@ if ("deep".equals(search2)) {
             currentText: '오늘', // 오늘 텍스트 변경
             monthNames: ['1 월','2 월','3 월','4 월','5 월','6 월','7 월','8 월','9 월','10 월','11 월','12 월'], // 개월 텍스트 설정
             monthNamesShort: ['1 월','2 월','3 월','4 월','5 월','6 월','7 월','8 월','9 월','10 월','11 월','12 월'], // 개월 텍스트 설정
-            dayNames: ['월요일','화요일','수요일','목요일','금요일','토요일','일요일'], // 요일 텍스트 설정
-            dayNamesShort: ['월','화','수','목','금','토','일'], // 요일 텍스트 축약 설정
-            dayNamesMin: ['월','화','수','목','금','토','일'] // 요일 최소 축약 텍스트 설정
+            dayNames: ['일요일', '월요일','화요일','수요일','목요일','금요일','토요일'], // 요일 텍스트 설정
+            dayNamesShort: ['일','월','화','수','목','금','토'], // 요일 텍스트 축약 설정
+            dayNamesMin: ['일','월','화','수','목','금','토'] // 요일 최소 축약 텍스트 설정
         };
     $.datepicker.setDefaults($.datepicker.regional['kr']);
 

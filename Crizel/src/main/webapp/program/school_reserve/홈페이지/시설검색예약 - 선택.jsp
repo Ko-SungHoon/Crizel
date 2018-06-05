@@ -438,7 +438,7 @@ try {
 	sql.append("SELECT * 									");	// 특정일개방 날짜 및 개방시간
 	sql.append("FROM RESERVE_DATE 							");											
 	sql.append("WHERE RESERVE_TYPE = 'B' AND ROOM_ID = ? 	");		
-	sql.append("	AND TO_CHAR(SYSDATE, 'YYYY-MM-DD') >= DATE_START AND TO_CHAR(SYSDATE, 'YYYY-MM-DD') <= DATE_END	");
+	sql.append("	AND TO_CHAR(SYSDATE, 'YYYY-MM-DD') <= DATE_END	");
 	sql.append("ORDER BY DATE_ID							");
 	pstmt = conn.prepareStatement(sql.toString());
 	pstmt.setString(1, room_id);
@@ -446,6 +446,7 @@ try {
 	dataList = getResultMapRows(rs);
 	if(rs!=null)rs.close();
 	if(pstmt!=null)pstmt.close();
+	out.println(room_id);
 	
 	for(int k=1; k<=lastNum; k++){							//항시개방 날짜, 시간 저장
 		typeAmap = new HashMap<String, Object>();
@@ -466,7 +467,6 @@ try {
 		typeA.add(typeAmap);
 		
 	}
-	
 	
 	for(int i=0; i<dataList.size(); i++){							//특정일 개방 날짜, 시간 저장
 		Map<String,Object> map = dataList.get(i);

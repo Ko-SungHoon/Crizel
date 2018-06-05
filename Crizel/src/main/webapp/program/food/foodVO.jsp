@@ -324,6 +324,9 @@ public class FoodVO{
     //조사팀장이 가져올 조사자목록
     public String t_nu_no	=	"";
 	public String t_nu_nm	=	"";
+
+	// 조사조회 시 같은품목에서 권역별 평균가가 30% 차이나면 표시해주기 위한 변수
+	public String rch_back	= 	"";
 }
 
 public class FoodList implements RowMapper<FoodVO> {
@@ -526,6 +529,9 @@ public class FoodList implements RowMapper<FoodVO> {
             else if("ITEM_NM".equals(column)){          vo.item_nm          =   parseNull(rs.getString("ITEM_NM"));     	}
 
             else if("LOG_CNT".equals(column)){          vo.log_cnt          =   parseNull(rs.getString("LOG_CNT"));     	}
+    		
+            else if("RCH_BACK".equals(column)){      	vo.rch_back     	=   parseNull(rs.getString("RCH_BACK"));     	}
+    		
 		}
         return vo;
     }

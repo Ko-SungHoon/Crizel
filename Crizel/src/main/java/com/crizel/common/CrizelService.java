@@ -509,4 +509,8 @@ public class CrizelService {
 	public List<Map<String, Object>> comicViewList(String addr) {
 		return dao.comicViewList(addr);
 	}
+
+	public void test() {
+		dao.test();
+	}
 }

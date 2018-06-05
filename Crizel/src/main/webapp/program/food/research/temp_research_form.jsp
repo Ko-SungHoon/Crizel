@@ -140,8 +140,8 @@ try{
 		sql = new StringBuffer();
 		sql.append("SELECT *								");
 		sql.append("FROM FOOD_SCH_NU						");
-		sql.append("WHERE /*SHOW_FLAG = 'Y' AND */SCH_NO = ?	");
-		sql.append("ORDER BY NU_NO							");
+		sql.append("WHERE /*SHOW_FLAG = 'Y' AND*/ SCH_NO = ?	");
+		sql.append("ORDER BY NU_NO 							");
 		nuList = jdbcTemplate.query(sql.toString(), new FoodList(), sch_no);
 	}
 	
@@ -326,36 +326,42 @@ function rstPass(sch_no) {
 }
 </script>
 <script>
-function nuAdd(){
-	var index = $(".nuInsert").length+1;
-	var html = "";
-	html += "<tr class='nuInsert' id='nuInsert_1_"+index+"'>";
-	html += "	<th scope='row'><span class='red'>*</span><label for='nu_nm_"+index+"'>영양사 성명</label></th>";
-	html += "	<td><input type='text' id='nu_nm_"+index+"' name='nu_nm' value='' required></td>";
-	html += "	<th scope='row'><span class='red'>*</span><label for='nu_tel_"+index+"'>영양사 연락처</label></th>";
-	html += "	<td><input type='text' id='nu_tel_"+index+"' name='nu_tel' value='' required>";
-	html += "	<div class='f_r'>";
-	html += "		<button type='button' class='btn small edge darkMblue' onclick=\"nuRemove('"+index+"')\">-</button>";
-	html += "	</div>";
-	html += "	</td>";
-	html += "</tr>";
-	html += "<tr id='nuInsert_2_"+index+"'>";
-	html += "	<th scope='row'><span class='red'>*</span><label for='nu_mail_"+index+"'>영양사 이메일</label></th>";
-	html += "	<td><input type='text' id='nu_mail_"+index+"' name='nu_mail' value='' required></td>";
-	html += "	<th scope='row'></th><td></td>";
-	html += "</tr>";
-	
-	$(".bbs_list2").append(html);
-}
-function nuRemove(index){
-	$("#nuInsert_1_"+index).remove();
-	$("#nuInsert_2_"+index).remove();
-}
-function insertTypeChange(){
-	$("#searchForm").attr("action", "");
-	$("#searchForm").attr("method", "get");
-	$("#searchForm").submit();
-}
+	function nuAdd(){
+		var index = $(".nuInsert").length+1;
+		var html = "";
+		html += "<tr class='nuInsert' id='nuInsert_1_"+index+"'>";
+		html += "	<th scope='row'><span class='red'>*</span><label for='nu_nm_"+index+"'>영양사 성명</label></th>";
+		html += "	<td><input type='text' id='nu_nm_"+index+"' name='nu_nm' value='' required></td>";
+		html += "	<th scope='row'><span class='red'>*</span><label for='nu_tel_"+index+"'>영양사 연락처</label></th>";
+		html += "	<td><input type='text' id='nu_tel_"+index+"' name='nu_tel' value='' required>";
+		html += "	<div class='f_r'>";
+		html += "		<button type='button' class='btn small edge darkMblue' onclick=\"nuRemove('"+index+"')\">-</button>";
+		html += "	</div>";
+		html += "	</td>";
+		html += "</tr>";
+		html += "<tr id='nuInsert_2_"+index+"'>";
+		html += "	<th scope='row'><span class='red'>*</span><label for='nu_mail_"+index+"'>영양사 이메일</label></th>";
+		html += "	<td><input type='text' id='nu_mail_"+index+"' name='nu_mail' value='' required></td>";
+		html += "	<th scope='row'></th><td></td>";
+		html += "</tr>";
+		
+		$(".bbs_list2").append(html);
+	}
+	function nuRemove(index){
+		$("#nuInsert_1_"+index).remove();
+		$("#nuInsert_2_"+index).remove();
+	}
+	function insertTypeChange(){
+		$("#searchForm").attr("action", "");
+		$("#searchForm").attr("method", "get");
+		$("#searchForm").submit();
+	}
+
+	function rsrNu (nu_no) {
+		alert("죄송합니다. 준비 중 입니다.");
+		return;
+	}
+
 </script>
 <div id="right_view">
 	<div class="top_view">
@@ -638,12 +644,17 @@ function insertTypeChange(){
 						<tr id="nuInsert_2_<%=i+1%>">
 							<th scope="row"><span class="red">*</span><label for="nu_mail_<%=i+1%>">영양사 이메일</label></th>
                             <td><input type="text" id="nu_mail_<%=i+1%>" name="nu_mail" value="<%=nuVO.nu_mail%>" required></td>
-							<th scope="row"></th><td></td>
+							<%if ("N".equals(nuVO.show_flag)) {%>
+							<th scope="row">복원</th>
+							<td><button type="button" class="btn small edge darkMblue" onclick="rsrNu('<%=nuVO.nu_no %>');">삭제 영양사 복원하기</button></td>
+							<%} else {%>
+							<th></th><td></td>
+							<%}%>
 						</tr>
 					<%
-							}
-						}
-					}
+							}//END FOR
+						}//END IF
+					}//END ELSE IF
 					
 					}
 					%>

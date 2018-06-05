@@ -87,9 +87,10 @@ String search1  =   parseNull(request.getParameter("search1"));
 
 String cat_no   =   parseNull(request.getParameter("cat_no"));
 
-StringBuffer sql 			= null;
-List<FoodVO> catList		= null;
-List<FoodVO> itemList		= null;
+StringBuffer sql 			=	null;
+List<FoodVO> catList		=	null;
+List<FoodVO> itemList		=	null;
+int itemListCnt				=	0;
 
 Paging paging = new Paging();
 String pageNo = parseNull(request.getParameter("pageNo"), "1");
@@ -274,9 +275,52 @@ try{
 	sql.append(") WHERE RNUM > " + paging.getStartRowNo() + " 													");
     itemList = jdbcTemplate.query(sql.toString(), new FoodList(), setObj);
     
+	//노출 되는 item cnt
+
+	sql	=	new StringBuffer();
+	sql.append("SELECT COUNT(*) FROM (																			");
+	sql.append("	SELECT 																						");
+	sql.append("		PRE.ITEM_NO																				");
+	sql.append("		, ITEM.CAT_NO																			");
+	sql.append("		, PRE.SHOW_FLAG																			");
+	sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("							XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()' 	");
+    sql.append("	).GETSTRINGVAL(),2) NM_FOOD 																");
+    sql.append("	FROM FOOD_ST_NM 																			");
+    sql.append("	WHERE NM_NO IN (FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5)) AS NM_FOOD      	");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("	    					XMLELEMENT(COL,',',DT_NM) ORDER BY DT_NM).EXTRACT('//text()' 		");
+    sql.append("	).GETSTRINGVAL(),2) DT_NM 																	");
+    sql.append("	FROM FOOD_ST_DT_NM 																			");
+    sql.append("	WHERE DT_NO IN (FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5						");
+    sql.append("	, FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10)) AS DT_NM							");
+    sql.append("	, ( SELECT SUBSTR( XMLAGG(  																");
+    sql.append("	    					XMLELEMENT(COL ,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()' 		");
+    sql.append("	).GETSTRINGVAL(),2) EX_NM 																	");
+    sql.append("	FROM FOOD_ST_EXPL																			");
+    sql.append("	WHERE EX_NO IN (FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5						");
+    sql.append("	, FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10									");
+    sql.append("	, FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15								");
+    sql.append("	, FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20								");
+    sql.append("	, FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25)) AS EX_NM						");
+	sql.append("	FROM FOOD_ITEM_PRE PRE LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO			");
+	sql.append(") A																								");
+	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.CAT_NO = ?														");
+	if(!"".equals(search1)){
+    	if("nm_food".equals(search1)){
+    		sql.append("AND A.NM_FOOD LIKE '%'||?||'%'															");
+    	}else if("dt_nm".equals(search1)){
+    		sql.append("AND A.DT_NM LIKE '%'||?||'%'															");
+    	}else if("ex_nm".equals(search1)){
+    		sql.append("AND A.EX_NM LIKE '%'||?||'%'															");
+    	}
+    }
+	itemListCnt	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, setObj);
+
 }catch(Exception e){
 	out.println(e.toString());
 }
+
 %>
 <script>
     
@@ -427,6 +471,10 @@ try{
 		<!-- <button type="button" class="btn small edge darkMblue" onclick="">추가</button> -->
 	</div>
 	<p class="clearfix"> </p>
+	<p class="f_l magT10">
+		<strong>총 <span><%=itemListCnt%></span> 식품
+		</strong> [ Page <%=pageNo %>/<%=paging.getFinalPageNo() %>]
+	</p>
 	<table class="bbs_list">
 		<caption><%=pageTitle%> 테이블</caption>
 		<colgroup>

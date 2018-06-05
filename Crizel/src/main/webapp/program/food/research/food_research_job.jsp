@@ -4,6 +4,8 @@
 *   CREATE  :   20180320_tue    JI
 *   MODIFY  :   조사내용 수정 script function 작성 20180320_tue    JI
 *   MODIFY  :   승인/반려 버튼 생성 	20180412_thur    KO
+*   MODIFY  :   관리자 일괄 승인 처리 btn and fucntion 	20180517_thur    JI
+*	MODIFY	:	20180529	KO	조사 끝난 뒤 승인처리 기능 추가	
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -139,6 +141,8 @@ List<String> setList	= new ArrayList<String>();
 
 //조사 개시 flag
 int rsch_no		=	0;
+//마감된 조사 수
+int otherCnt	=	0;
 
 try{
 	// 권역 리스트
@@ -166,58 +170,67 @@ try{
 	
 	// 현재 진행중인 조사 정보
 	sql = new StringBuffer();
-	sql.append("SELECT  																								");
-	sql.append("      RSCH_NO																							");
-	sql.append("	, RSCH_YEAR																							");
-	sql.append("	, RSCH_MONTH																						");
-	sql.append("	, TO_CHAR(STR_DATE, 'YYYY-MM-DD') AS STR_DATE														");
-	sql.append("	, TO_CHAR(MID_DATE, 'YYYY-MM-DD') AS MID_DATE														");
-	sql.append("	, TO_CHAR(END_DATE, 'YYYY-MM-DD') AS END_DATE														");
-	sql.append("	, ABS(TO_DATE(END_DATE)-TO_DATE(SYSDATE)) AS RNUM													");
-	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO) AS CNT								");	// 조사항목 수
-	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND STS_FLAG != 'Y') AS CNT2		");	// 미조사 항목 수
-	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND STS_FLAG = 'Y') AS CNT3			");	// 조사완료 항목 수
-	sql.append("FROM FOOD_RSCH_TB A																						");
-	sql.append("WHERE STS_FLAG = 'N'																					");
+	sql.append("SELECT  																							");
+	sql.append("      RSCH_NO																						");
+	sql.append("	, RSCH_YEAR																						");
+	sql.append("	, RSCH_MONTH																					");
+	sql.append("	, TO_CHAR(STR_DATE, 'YYYY-MM-DD') AS STR_DATE													");
+	sql.append("	, TO_CHAR(MID_DATE, 'YYYY-MM-DD') AS MID_DATE													");
+	sql.append("	, TO_CHAR(END_DATE, 'YYYY-MM-DD') AS END_DATE													");
+	sql.append("	, ABS(TO_DATE(END_DATE)-TO_DATE(SYSDATE)) AS RNUM												");
+	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO) AS CNT							");	// 조사항목 수
+	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND STS_FLAG != 'Y') AS CNT2	");	// 미조사 항목 수
+	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND STS_FLAG = 'Y') AS CNT3		");	// 조사완료 항목 수
+	sql.append("FROM FOOD_RSCH_TB A																					");
+	sql.append("WHERE STS_FLAG = 'N'																				");
 	try{
 		rschVO = jdbcTemplate.queryForObject(sql.toString(), new FoodList());
 		rsch_no	=	Integer.parseInt(rschVO.rsch_no);
 	}catch(Exception e){
 		rschVO = new FoodVO();
 	}
-		
+
+	//마감 조사 cnt val
+	if (rsch_no > 0) {
+		sql	=	new StringBuffer();
+		sql.append("SELECT COUNT(RSCH_VAL_NO) FROM FOOD_RSCH_VAL	");
+		sql.append("WHERE RSCH_NO = ?								");
+		sql.append("	AND STS_FLAG = 'SS'							");
+		otherCnt	=	jdbcTemplate.queryForObject(sql.toString(), Integer.class, new Object[]{rsch_no});
+	}
+
 	setList	= new ArrayList<String>();
 	sql = new StringBuffer();
-	sql.append("SELECT	COUNT(*) AS CNT																											");
-	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
-	sql.append("                    LEFT JOIN FOOD_ST_ITEM C ON B.ITEM_NO = C.ITEM_NO															");
-	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.RSCH_NO = ?																						");
+	sql.append("SELECT	COUNT(*) AS CNT																				");
+	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO								");
+	sql.append("                    LEFT JOIN FOOD_ST_ITEM C ON B.ITEM_NO = C.ITEM_NO								");
+	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.RSCH_NO = ?															");
 	
 	setList.add(rschVO.rsch_no);
 	if(!"".equals(search1)){
-		sql.append("AND B.STS_FLAG = 'N'																										");
+		sql.append("AND B.STS_FLAG = 'N'																				");
 		paging.setParams("search1", search1);
 	}else{
-		sql.append("AND B.STS_FLAG != 'N'																										");
+		sql.append("AND B.STS_FLAG != 'N'																				");
 	}
 	if(!"".equals(search2)){
-		sql.append("AND (B.NON_SEASON = 'Y' OR B.NON_DISTRI = 'Y')																				");
+		sql.append("AND (B.NON_SEASON = 'Y' OR B.NON_DISTRI = 'Y')														");
 		paging.setParams("search2", search2);
 	}else{
-		sql.append("AND B.NON_SEASON = 'N' AND B.NON_DISTRI = 'N'																				");
+		sql.append("AND B.NON_SEASON = 'N' AND B.NON_DISTRI = 'N'														");
 	}
 	if(!"".equals(search3)){
-		sql.append("AND (SELECT ZONE_NO FROM FOOD_SCH_TB WHERE SCH_NO = B.SCH_NO) = ?															");
+		sql.append("AND (SELECT ZONE_NO FROM FOOD_SCH_TB WHERE SCH_NO = B.SCH_NO) = ?									");
 		paging.setParams("search3", search3);
 		setList.add(search3);
 	}
 	if(!"".equals(search4)){
-		sql.append("AND (SELECT TEAM_NO FROM FOOD_SCH_TB WHERE SCH_NO = B.SCH_NO) = ?															");
+		sql.append("AND (SELECT TEAM_NO FROM FOOD_SCH_TB WHERE SCH_NO = B.SCH_NO) = ?									");
 		paging.setParams("search4", search4);
 		setList.add(search4);
 	}
 	if(!"".equals(search5)){
-		sql.append("AND B.CAT_NO = ?																											");
+		sql.append("AND B.CAT_NO = ?																					");
 		paging.setParams("search5", search5);
 		setList.add(search5);
 	}
@@ -229,7 +242,7 @@ try{
     
 	totalCount = jdbcTemplate.queryForObject(sql.toString(), Integer.class, setObj);
 
-	paging.setPageSize(5);
+	paging.setPageSize(30);
     paging.setPageNo(Integer.parseInt(pageNo));
 	paging.setTotalCount(totalCount);
 	paging.makePaging();
@@ -299,7 +312,7 @@ try{
 	if(!"".equals(search5)){
 		sql.append("AND B.CAT_NO = ?																											");
 	}
-	sql.append("ORDER BY B.RSCH_VAL_NO																											");
+	sql.append("ORDER BY DECODE(B.STS_FLAG, 'SS', 1), B.RSCH_VAL_NO																				");
 	sql.append("	) A WHERE ROWNUM <= " + paging.getEndRowNo() + "																			");
 	sql.append(") WHERE RNUM > " + paging.getStartRowNo() + " 																					");
 	rschList = jdbcTemplate.query(sql.toString(), new FoodList(), setObj);
@@ -397,7 +410,7 @@ try{
     
 	totalCount = jdbcTemplate.queryForObject(sql.toString(), Integer.class, setObj);
 
-	paging3.setPageSize(5);
+	paging3.setPageSize(30);
     paging3.setPageNo(Integer.parseInt(pageNo3));
 	paging3.setTotalCount(totalCount);
 	paging3.makePaging();
@@ -520,13 +533,13 @@ try{
     
     // 조사 엑셀 업로드
     function researchExcel(){
-		<%if (rsch_no > 0) {%>
+		<%/*if (rsch_no > 0) {%>
 			alert("조사 개시 중에는 엑셀 업로드가 안됩니다.\n개시 중인 조사를 취소하거나 완료하세요.");
 			return false;
-		<%} else {%>
+		<%} else {*/%>
 			var url = "/program/food/research/research_excel_popup.jsp";
 			newWin(url, "PRINTVIEW", "1000", "740");
-		<%}%>
+		<%/*}*/%>
     }
 
     //조사 내용 수정 function
@@ -560,7 +573,61 @@ try{
 			}
 			return;
 		});
+
+		//전체 체크박스 event
+        $(".all_chk").click(function () {
+
+            if ($(".all_chk").is(":checked")) {
+                $(".val_chk").not(":disabled").prop('checked', true);
+                return;
+            }
+            $(".val_chk").prop('checked', false);
+            return;
+        });
 	});
+	//마감 모두 승인 function
+	function otherAcept () {
+		//alert("준비 마쳤습니다.. 적용을 원하시면 연락주세요.");
+		//return;
+		 otherCnt	=	"<%=otherCnt %>";
+		if (otherCnt < 1) {
+			alert("마감된 조사 식품이 없습니다.");
+		} else {
+			if (confirm("마감된 조사 식품을 모두 승인처리 하시겠습니까?") == true) {
+				location.href	=	"./food_research_act.jsp?mode=otherApproval&sts_flag=Y";
+			}
+		}
+	}
+
+	//일괄승인 function
+    function wholeAcept () {
+		//alert("준비 마쳤습니다.. 적용을 원하시면 연락주세요.");
+		//return;
+		//1st check cnt
+        var chk_class   =   $(".val_chk");
+        if (chk_class.length < 1) {
+            alert("승인대상이 없습니다.");
+            return;
+        }
+        var chk_val     =   "";
+		//2nd check checked val
+        for (var i = 0; i < chk_class.length; i++) {
+            if (chk_class.eq(i).is(":checked") && chk_val.length > 0) {
+                chk_val +=  "," + chk_class.eq(i).val();
+            } else if (chk_class.eq(i).is(":checked")) {
+                chk_val =   chk_class.eq(i).val();
+            }
+        }
+        //3rd check value chk
+        if (chk_val.length < 1) {
+            alert("승인대상을 선택하세요.");
+            return;
+        }
+		//4th submit
+		if (confirm("선택한 대상을 승인 하시겠습니까?") == true) {
+			location.href	=	"./food_research_act.jsp?mode=researchApproval&rsch_val_group=" + chk_val + "&sts_flag=Y";
+		}
+	}
     
     // 검색
     function searchSubmit(){
@@ -782,15 +849,15 @@ try{
 	<h2 class="rschTit">
 		<%=rschVO.rsch_year%>년 <%=rschVO.rsch_month%>월 조사기간입니다.
 	</h2>
-<div class="box_01">
-	<ul class="type01 fsize_120">
-		<li>시작일 : <%=rschVO.str_date %> </li>
-		<li>제출종료일 : <%=rschVO.mid_date %></li>
-		<li>마감종료일 : <%=rschVO.end_date%></li>
-		<li>D-<%=rschVO.rnum%></li>
-		<li>조사품목 <%=rschVO.cnt3 %>/<%=rschVO.cnt%> 완료</li>
-	</ul>
-</div>
+	<div class="box_01">
+		<ul class="type01 fsize_120">
+			<li>시작일 : <%=rschVO.str_date %> </li>
+			<li>제출종료일 : <%=rschVO.mid_date %></li>
+			<li>마감종료일 : <%=rschVO.end_date%></li>
+			<li>D-<%=rschVO.rnum%></li>
+			<li>조사품목 <%=rschVO.cnt3 %>/<%=rschVO.cnt%> 완료</li>
+		</ul>
+	</div>
 	<div class="searchBox magB20">
 		<form id="searchForm" method="get" class="topbox2">
 			<fieldset>
@@ -844,8 +911,10 @@ try{
 				<button type="button" class="btn small edge mako" onclick="searchSubmit();">조회</button>
 				
 				<div class="f_r">
+					<button type="button" class="btn small edge darkMblue" onclick="otherAcept();"><span><%=otherCnt%> 개</span> 마감 모두 승인처리</button>
+					<button type="button" class="btn small edge white" onclick="wholeAcept();">일괄 승인처리</button>
 					<button type="button" class="btn small edge green" onclick="researchMod('mod');">조사내용수정</button>
-					<button type="button" class="btn small edge darkMblue" onclick="researchCom('<%=rschVO.rsch_no%>')" >조사완료</button>
+					<%-- <button type="button" class="btn small edge darkMblue" onclick="researchCom('<%=rschVO.rsch_no%>')" >조사완료</button> --%>
 					<button type="button" class="btn small edge mako" onclick="researchCan('<%=rschVO.rsch_no%>')" >조사취소</button>
 				</div>
 			</fieldset>
@@ -855,36 +924,38 @@ try{
 	<table class="bbs_list">
 		<caption><%=pageTitle%> 테이블</caption>
 		<colgroup>
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
+			<col style="width: 2%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
 			<col >
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
-			<col style="width: 3.8%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
 		</colgroup>
 		<thead>
 			<tr>
+				<th scope="col"><input type="checkbox" value="all" class="all_chk"></th>
 				<th scope="col">식품 조사번호</th>
 				<th scope="col">구분</th>	
 				<th scope="col">식품코드</th>
@@ -920,6 +991,14 @@ try{
 			for(FoodVO ob : rschList){
 		%>
 			<tr>
+				<%//일괄승인 체크 박스 추가	20180517_thur	JI
+				%>
+				<td>
+					<input type="checkbox" class="val_chk" value="<%=ob.rsch_val_no %>" 
+					<%if (!"SS".equals(ob.sts_flag)) {%>
+						disabled onclick="alert('마감되지 않은 조사식품은 승인되지 않습니다.');"
+					<%}%> >
+				</td>
 				<td><%=ob.rsch_val_no %></td>
 				<td><%=ob.cat_nm%></td>
 				<td><%=ob.food_code %></td>
@@ -930,11 +1009,11 @@ try{
 				<td><%=ob.item_comp_no %>-<%=ob.item_comp_val %></td>
 				<td><%=ob.zone_nm %> / <%=ob.team_nm %></td>
 				<td><%=ob.sch_nm %></td>
-				<td><%=ob.rsch_val1 %></td>
-				<td><%=ob.rsch_val2 %></td>
-				<td><%=ob.rsch_val3 %></td>
-				<td><%=ob.rsch_val4 %></td>
-				<td><%=ob.rsch_val5 %></td>
+				<td><%=numberComma(ob.rsch_val1) %></td>
+				<td><%=numberComma(ob.rsch_val2) %></td>
+				<td><%=numberComma(ob.rsch_val3) %></td>
+				<td><%=numberComma(ob.rsch_val4) %></td>
+				<td><%=numberComma(ob.rsch_val5) %></td>
 				<td><%=ob.rsch_loc1 %></td>
 				<td><%=ob.rsch_loc2 %></td>
 				<td><%=ob.rsch_loc3 %></td>
@@ -981,7 +1060,7 @@ try{
 		}else{
 		%>
 		<tr>
-			<td colspan="27">데이터가 없습니다.</td>
+			<td colspan="28">데이터가 없습니다.</td>
 		</tr>
 		<%} %>
 		
@@ -1144,32 +1223,33 @@ try{
 	<table class="bbs_list">
 		<caption><%=pageTitle%> 테이블</caption>
 		<colgroup>
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col>
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
-			<col style="width: 3.9%">
+			<col style="width: 2%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col >
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
+			<col style="width: 3.3%">
 		</colgroup>
 		<thead>
 			<tr>
@@ -1199,6 +1279,7 @@ try{
 				<th scope="col">브랜드4</th>
 				<th scope="col">브랜드5</th>
 				<th scope="col">사유</th>
+				<th scope="col">승인/반려</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -1217,11 +1298,11 @@ try{
 				<td><%=ob.item_comp_no %>-<%=ob.item_comp_val %></td>
 				<td><%=ob.zone_nm %> / <%=ob.team_nm %></td>
 				<td><%=ob.sch_nm %></td>
-				<td><%=ob.rsch_val1 %></td>
-				<td><%=ob.rsch_val2 %></td>
-				<td><%=ob.rsch_val3 %></td>
-				<td><%=ob.rsch_val4 %></td>
-				<td><%=ob.rsch_val5 %></td>
+				<td><%=numberComma(ob.rsch_val1) %></td>
+				<td><%=numberComma(ob.rsch_val2) %></td>
+				<td><%=numberComma(ob.rsch_val3) %></td>
+				<td><%=numberComma(ob.rsch_val4) %></td>
+				<td><%=numberComma(ob.rsch_val5) %></td>
 				<td><%=ob.rsch_loc1 %></td>
 				<td><%=ob.rsch_loc2 %></td>
 				<td><%=ob.rsch_loc3 %></td>
@@ -1233,13 +1314,41 @@ try{
 				<td><%=ob.rsch_com4 %></td>
 				<td><%=ob.rsch_com5 %></td>
 				<td><%=ob.rsch_reason %></td>
+				<td>
+				<%
+				if("N".equals(ob.sts_flag)){
+					out.println("미조사");
+				}else if("RS".equals(ob.sts_flag)){
+					out.println("검증");
+				}else if("SR".equals(ob.sts_flag)){
+					out.println("조사자 제출");
+				}else if("RC".equals(ob.sts_flag)){
+					out.println("검토");
+				}else if("RT".equals(ob.sts_flag)){
+				%>
+					<a href="javascript:reasonModal('<%=ob.t_rj_reason.replace("\n", "<br>")%>')">팀장 반려</a>
+				<%
+				}else if("SS".equals(ob.sts_flag)){
+				%>
+					<button type="button" class="btn small edge green" onclick="researchApproval('<%=ob.rsch_val_no%>')">승인</button>
+					<button type="button" class="btn small edge mako" onclick="rejectionModal('<%=ob.rsch_val_no%>')">반려</button>
+				<%
+				}else if("RR".equals(ob.sts_flag)){
+				%>
+					<a href="javascript:reasonModal('<%=ob.rj_reason.replace("\n", "<br>")%>')">관리자 반려</a>
+				<%
+				}else if("Y".equals(ob.sts_flag)){
+					out.println("승인");
+				}
+				%>
+				</td>
 			</tr>
 		<%
 			}
 		}else{
 		%>
 		<tr>
-			<td colspan="25">데이터가 없습니다.</td>
+			<td colspan="26">데이터가 없습니다.</td>
 		</tr>
 		<%} %>
 		

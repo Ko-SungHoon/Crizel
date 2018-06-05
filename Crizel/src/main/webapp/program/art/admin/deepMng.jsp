@@ -101,55 +101,7 @@ private class ArtVOMapper2 implements RowMapper<ArtVO> {
 }
 %>
 <%
-/************************** 접근 허용 체크 - 시작 **************************/
 SessionManager sessionManager = new SessionManager(request);
-String sessionId = sessionManager.getId();
-if(sessionId == null || "".equals(sessionId)) {
-	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
-	if(true) return;
-}
-
-String roleId= null;
-String[] allowIp = null;
-Connection conn = null;
-try {
-	sqlMapClient.startTransaction();
-	conn = sqlMapClient.getCurrentConnection();
-	
-	// 접속한 관리자 회원의 권한 롤
-	roleId= getRoleId(sqlMapClient, conn, sessionId);
-	
-	// 관리자 접근 허용된 IP 배열
-	allowIp = getAllowIpArrays(sqlMapClient, conn);
-} catch (Exception e) {
-	sqlMapClient.endTransaction();
-	alertBack(out, "트랜잭션 오류가 발생했습니다.");
-} finally {
-	sqlMapClient.endTransaction();
-}
-
-// 권한정보 체크
-boolean isAdmin = sessionManager.isRole(roleId);
-
-// 접근허용 IP 체크
-String thisIp = request.getRemoteAddr();
-boolean isAllowIp = isAllowIp(thisIp, allowIp);
-
-/** Method 및 Referer 정보 **/
-String getMethod = parseNull(request.getMethod());
-String getReferer = parseNull(request.getHeader("referer"));
-
-if(!isAdmin) {
-	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
-	if(true) return;
-}
-if(!isAllowIp) {
-	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
-	if(true) return;
-}
-/************************** 접근 허용 체크 - 종료 **************************/
-
-//SessionManager sessionManager = new SessionManager(request);
 Calendar cal = Calendar.getInstance();
 String year 		= parseNull(request.getParameter("year"));
 String code_val1 	= parseNull(request.getParameter("code_val1"));
@@ -315,7 +267,9 @@ function deleteSubmit(pro_no){
 	<div id="content">
 		<div class="btn_area">
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/alwaysReq.jsp'">승인대기 및 취소 - 상시</button>
+			<%if(sessionManager.isRoleAdmin()){%>
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/alwaysMng.jsp'">프로그램 관리 - 상시</button>
+			<%} %>
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/deepReq.jsp'">승인대기 및 취소 - 심화</button>
 			<button type="button" class="btn medium mako" onclick="location.href='/program/art/admin/deepMng.jsp'">프로그램 관리 - 심화</button>
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/programStat.jsp'">통계관리</button>

@@ -27,21 +27,20 @@ if(sessionId == null || "".equals(sessionId)) {
 
 String roleId= null;
 String[] allowIp = null;
-Connection conn2 = null;
+Connection conn = null;
 try {
 	sqlMapClient.startTransaction();
-	conn2 = sqlMapClient.getCurrentConnection();
+	conn = sqlMapClient.getCurrentConnection();
 	
 	// 접속한 관리자 회원의 권한 롤
-	roleId= getRoleId(sqlMapClient, conn2, sessionId);
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
 	
 	// 관리자 접근 허용된 IP 배열
-	allowIp = getAllowIpArrays(sqlMapClient, conn2);
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
 } catch (Exception e) {
 	sqlMapClient.endTransaction();
 	alertBack(out, "트랜잭션 오류가 발생했습니다.");
 } finally {
-	sqlMapClient.endTransaction();
 }
 
 // 권한정보 체크
@@ -89,7 +88,31 @@ FoodVO rschVO				=	new FoodVO();
 
 String pageTitle    =   "월별조사 엑셀 업로드";
 
+int rsch_no	=	0;
+
 try {
+
+	// 현재 진행중인 조사 정보
+	sql = new StringBuffer();
+	sql.append("SELECT  																							");
+	sql.append("      RSCH_NO																						");
+	sql.append("	, RSCH_YEAR																						");
+	sql.append("	, RSCH_MONTH																					");
+	sql.append("	, TO_CHAR(STR_DATE, 'YYYY-MM-DD') AS STR_DATE													");
+	sql.append("	, TO_CHAR(MID_DATE, 'YYYY-MM-DD') AS MID_DATE													");
+	sql.append("	, TO_CHAR(END_DATE, 'YYYY-MM-DD') AS END_DATE													");
+	sql.append("	, ABS(TO_DATE(END_DATE)-TO_DATE(SYSDATE)) AS RNUM												");
+	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO) AS CNT							");	// 조사항목 수
+	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND STS_FLAG != 'Y') AS CNT2	");	// 미조사 항목 수
+	sql.append("  	, (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND STS_FLAG = 'Y') AS CNT3		");	// 조사완료 항목 수
+	sql.append("FROM FOOD_RSCH_TB A																					");
+	sql.append("WHERE STS_FLAG = 'N'																				");
+	try{
+		rsch_no	=	Integer.parseInt(rschVO.rsch_no);
+	}catch(Exception e){
+		rsch_no =	0;
+	}
+
 	// 권역 리스트
 	sql = new StringBuffer();
 	sql.append("SELECT * FROM FOOD_ZONE WHERE SHOW_FLAG = 'Y' ORDER BY ZONE_NM				");
@@ -139,8 +162,8 @@ try {
 	sql.append("                    , FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15 					");
 	sql.append("                    , FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20 					");
 	sql.append("                    , FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25)) AS EX_NM 		");
-	sql.append("    , (SELECT ITEM_COMP_NO FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_NO 			");
-	sql.append("    , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL 		");
+	sql.append("    , (SELECT ITEM_COMP_NO FROM FOOD_ITEM_PRE WHERE S_ITEM_NO = B.ITEM_NO) AS ITEM_COMP_NO 			");
+	sql.append("    , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE S_ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL 		");
 	sql.append("    , (SELECT SCH_NM FROM FOOD_SCH_TB WHERE SCH_NO = A.SCH_NO) AS SCH_NM 							");
 	sql.append("FROM FOOD_RSCH_ITEM A LEFT JOIN FOOD_ST_ITEM B ON A.ITEM_NO = B.ITEM_NO 							");
 	sql.append("WHERE 1=1																							");
@@ -262,9 +285,14 @@ function joSelect(team_no){
 }
 
 function upExcel() {
-    if (confirm("월별조사 엑셀을 업로드 하시겠습니까?")) {
-        $("#researcher_file").click();
-    }
+	<%if (rsch_no > 0) {%>
+		alert("조사 개시 중에는 엑셀 업로드가 안됩니다.\n개시 중인 조사를 취소하거나 완료하세요.");
+		return false;
+	<%} else {%>
+		if (confirm("월별조사 엑셀을 업로드 하시겠습니까?")) {
+			$("#researcher_file").click();
+		}
+	<%}%>
     return;
 }
 function setFile () {

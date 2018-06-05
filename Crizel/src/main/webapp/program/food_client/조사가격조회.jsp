@@ -17,13 +17,13 @@
 
 <%!
 	private String moneyComma (String money) {
-		DecimalFormat df	=	new DecimalFormat("###,###");
+		DecimalFormat df	=	new DecimalFormat("#,###");
 		String rtnMoney	=	null;
-		if (!"-".equals(money.trim()) || money != null) {
-			return money;
-		} else {
+		if (money != null && !"-".equals(money.trim())) {
 			rtnMoney	=	df.format(Integer.parseInt(money));
 			return rtnMoney;
+		} else {
+			return money;
 		}
 	}
 %>	
@@ -155,7 +155,7 @@ if(viewYN == 1){
 				}
 			}
 		}
-		
+
 		//월별조사 where
 		if(!"".equals(rsch_no)){
 			sqlWhere += "AND TB.RSCH_NO = ?			";
@@ -202,14 +202,16 @@ if(viewYN == 1){
 		sql		=	new StringBuffer();
 		sql.append(" SELECT COUNT(PRE.ITEM_NO) AS CNT 								\n");
 		sql.append(" FROM FOOD_ITEM_PRE PRE		  									\n");
-		sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO	\n");
+		sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO		\n");
 		sql.append(" LEFT JOIN FOOD_RSCH_VAL VAL ON VAL.ITEM_NO = ITEM.ITEM_NO		\n");
 		sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
 		sql.append(" LEFT JOIN FOOD_SCH_TB SCH ON VAL.SCH_NO = SCH.SCH_NO			\n");
 		sql.append(" LEFT JOIN FOOD_SCH_NU NU ON VAL.NU_NO = NU.NU_NO				\n");
 		sql.append(" WHERE TB.SHOW_FLAG = 'Y'										\n");
-/* 		sql.append(" AND VAL.STS_FLAG = 'Y'											\n");
- */		sql.append(sqlWhere);
+ 		/*sql.append(" AND TB.STS_FLAG = 'Y'											\n");*/
+ 		sql.append(" AND VAL.STS_FLAG = 'Y'											\n");
+
+		sql.append(sqlWhere);
 				
 		if(setWhere != null && setWhere.size() > 0){
 			setObject	=	new Object[setWhere.size()];
@@ -229,7 +231,16 @@ if(viewYN == 1){
 		//검색목록
 		sql		=	new StringBuffer();
 		sql.append(" SELECT * FROM (												\n");
-		sql.append(" SELECT ROWNUM AS RNUM, A.* FROM (								\n");
+		sql.append(" SELECT ROWNUM AS RNUM, A.* 									\n");
+		sql.append(", DECODE(AVR_VAL, NULL											\n");
+		sql.append("    , 'N'														\n");
+		sql.append("    , CASE														\n");
+		sql.append("        WHEN (SELECT MAX(AVR_VAL) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND ITEM_NO = A.ITEM_NO) - (SELECT MIN(AVR_VAL) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND ITEM_NO = A.ITEM_NO)		\n");
+		sql.append("              <= (SELECT MAX(AVR_VAL) FROM FOOD_RSCH_VAL WHERE RSCH_NO = A.RSCH_NO AND ITEM_NO = A.ITEM_NO) * 0.3 THEN 'N'		\n");
+		sql.append("        ELSE 'Y'												\n");
+		sql.append("      END														\n");
+		sql.append("    ) AS RCH_BACK												\n");  
+		sql.append("FROM(															\n");
 		sql.append(" SELECT 														\n");
 		sql.append(" PRE.ITEM_NO,													\n");
 		sql.append(" (SELECT CAT_NM	FROM FOOD_ST_CAT								\n");
@@ -301,6 +312,9 @@ if(viewYN == 1){
 		sql.append(" SCH.ZONE_NO,	 												\n");
 		sql.append(" ZONE.ZONE_NM,	 												\n");
 		sql.append(" ITEM.FOOD_CAT_INDEX,											\n");
+		sql.append(" VAL.RSCH_NO,													\n");
+		sql.append(" VAL.NON_SEASON,												\n");
+		sql.append(" VAL.NON_DISTRI,												\n");
 		sql.append(" VAL.RSCH_VAL1,													\n");
 		sql.append(" VAL.RSCH_VAL2,													\n");
 		sql.append(" VAL.RSCH_VAL3,													\n");
@@ -362,7 +376,7 @@ if(viewYN == 1){
 		sql.append("		) AS AVR_FLAG											\n");
 
 		sql.append(" FROM FOOD_ITEM_PRE PRE 										\n");
-		sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO	\n");
+		sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO		\n");
 		sql.append(" LEFT JOIN FOOD_RSCH_VAL VAL ON VAL.ITEM_NO = ITEM.ITEM_NO		\n");
 		sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
 		sql.append(" LEFT JOIN FOOD_SCH_TB SCH ON VAL.SCH_NO = SCH.SCH_NO			\n");
@@ -370,7 +384,8 @@ if(viewYN == 1){
 		sql.append(" LEFT JOIN FOOD_ZONE ZONE ON VAL.ZONE_NO = ZONE.ZONE_NO			\n");
 		
 		sql.append(" WHERE TB.SHOW_FLAG = 'Y'										\n");
- 		sql.append(" AND TB.STS_FLAG = 'Y'											\n");		
+ 		/*sql.append(" AND TB.STS_FLAG = 'Y'											\n");*/
+ 		sql.append(" AND VAL.STS_FLAG = 'Y'											\n");
 		sql.append(sqlWhere);
 		sql.append(" ORDER BY TB.RSCH_NO DESC, PRE.ITEM_NO							\n");
 		sql.append(" )A WHERE ROWNUM <= ?											\n");
@@ -396,6 +411,7 @@ if(viewYN == 1){
 		sql.append("SELECT * 					");
 		sql.append("FROM FOOD_RSCH_TB TB		");
 		sql.append("WHERE TB.SHOW_FLAG = 'Y'	");
+		sql.append("	AND TB.STS_FLAG = 'Y'	");
 		if(!"".equals(srchSdate) && !"".equals(srchEdate)){
 			sql.append("AND ((TB.STR_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.STR_DATE <= TO_DATE(?, 'YY/MM/DD'))			");
 			sql.append("		OR (TB.END_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.END_DATE <= TO_DATE(?, 'YY/MM/DD')))		");
@@ -637,7 +653,7 @@ if(viewYN == 1){
 	<button type="button" id="rschDwExcel" class="btn small edge white fb"><i class="ico_xls"></i>엑셀다운로드</button>
 </div>
 <table class="tbl_rsrch td-pd1">
-	<caption>품목구분별 거래실례가격 정보 조회 : 권역, 조사명, 조사날짜, 식품코드, 식품명, 상세식품명, 식품설명, 단위, 적용단가, 비교그룹, 평균가, 중앙가, 세권역통합평균가, 조사자, 소속, 조사가1~3 등</caption>
+	<caption>품목구분별 거래실례가격 정보 조회 : 권역, 조사명, 조사날짜, 식품코드, 식품명, 상세식품명, 식품설명, 단위, 적용단가, 비교그룹, 평균가, 중앙가, 권역통합평균가, 조사자, 소속, 조사가1~3 등</caption>
 	<colgroup>
 		<col style="width:7%" />
 		<col style="width:4%" />
@@ -667,7 +683,7 @@ if(viewYN == 1){
 		<th scope="col">비교그룹</th>
 		<th scope="col">평균가</th>
 		<th scope="col">중앙가</th>
-		<th scope="col">세권역<br />통합평균가</th>
+		<th scope="col">권역<br />통합평균가</th>
 		<th scope="col">조사가1</th>
 		<th scope="col">조사가2</th>
 		<th scope="col">조사가3</th>
@@ -680,9 +696,11 @@ if(viewYN == 1){
   		for(int i=0; i<searchList.size(); i++){
   			FoodVO vo	=	searchList.get(i);
   			String classTxt		=	"";
-  			if(!"".equals(parseNull(vo.rsch_reason)))	classTxt	=	" class = \"rch_return\"";
+  			//if(!"".equals(parseNull(vo.rsch_reason)) && !"Y".equals(vo.non_season) && !"Y".equals(vo.non_distri))
+  			if("Y".equals(parseNull(vo.rch_back)))
+				classTxt	=	" class = \"rch_back\"";
   			%>
-  			<tr<%=classTxt%>>
+  			<tr<%=classTxt %>>
 				<td><%=vo.cat_nm%>-<%=vo.food_cat_index%></td>
 				<td><%=vo.zone_nm%></td>
 				<td><%=vo.rsch_nm%></td>
@@ -697,14 +715,14 @@ if(viewYN == 1){
 				<%-- <td><%if ("N".equals(vo.low_flag)){%><span class="fb red" title="최저가 비율 초과"><%}%>
 					<%=moneyComma(parseNull(vo.low_val, " - ")) %>
 				</td> --%>
-				<td><%=parseNull(vo.item_comp_no, " - ")%></td>
+				<td><%=vo.item_comp_no %>-<%=vo.item_comp_val %></td>
 				<td><%if ("N".equals(vo.avr_flag)){%><span class="fb red"><%}%>
-					<%=parseNull(vo.avr_val, " - ") %>
+					<%=moneyComma(parseNull(vo.avr_val, " - "))%>
 				</td>
-				<td><%=parseNull(vo.center_val, " - ") %></td>
+				<td><%=moneyComma(parseNull(vo.center_val, " - "))%></td>
 				<td><%
 					if ("3".equals(vo.zone_avr_cnt)) {
-						out.println(parseNull(vo.zone_avr_val, " - "));
+						out.println(moneyComma(parseNull(vo.zone_avr_val, " - ")));
 					} else {
 						out.println(" - ");
 					}
@@ -776,7 +794,7 @@ if(viewYN == 1){
 						} else if (valMapCnt == 3) {
 							for (int j = 1; j <= valMap.size(); j++) {
 								if (!"-".equals(valMap.get(j))) {%>
-									<td><span><%=valMap.get(j) %></span></td>
+									<td><span><%=moneyComma(valMap.get(j)) %></span></td>
 							<%
 									useMaxVal   =   Integer.parseInt(valMap.get(j));
 									useMinVal   =   Integer.parseInt(valMap.get(j));
@@ -795,7 +813,7 @@ if(viewYN == 1){
 							<td><span>
 							<%for (int j = 1; j <= valMap.size(); j++) {
 								if (!"-".equals(valMap.get(j))) {
-									out.println(valMap.get(j));
+									out.println(moneyComma(valMap.get(j)));
 							}}%>
 							</span></td>
 							<td><span> - </span></td>

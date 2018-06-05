@@ -321,4 +321,18 @@ public static String encryptPass (String strPass) {
 
 }
 
+public String numberComma(String number){
+	String val = "";
+	if(number != null && !"".equals(number)){
+		val = String.format("%,d", Integer.parseInt(number));
+	}
+	return val;
+}
+
+public String numberComma(int number){
+	String val = "";
+	val = String.format("%,d", number);
+	return val;
+}
+
 %>

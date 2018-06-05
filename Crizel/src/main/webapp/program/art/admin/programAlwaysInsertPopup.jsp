@@ -230,7 +230,6 @@ $(function(){
 				<input type="hidden" id="reg_id" name="reg_id" value="<%=sm.getId()%>">
 				<input type="hidden" id="reg_ip" name="reg_ip" value="<%=request.getRemoteAddr()%>">
 				<input type="hidden" id="pro_no" name="pro_no" value="<%=vo.pro_no%>">
-        <input type="hidden" id="aft_flag" name="aft_flag" value="A">
 					<legend>분류관리</legend>
 					<table class="bbs_list2 td-l">
 						<colgroup>
@@ -278,6 +277,17 @@ $(function(){
 							</th>
 							<td>
 								<input type="text" id="pro_name" name="pro_name" class="wps_70" value="<%=parseNull(vo.pro_name)%>" required>
+							</td>
+						</tr>
+						<tr>
+							<th scope="row">
+								오전/오후
+							</th>
+							<td>
+								<select id="aft_flag" name="aft_flag" required>
+									<option value="M" <%if("M".equals(vo.aft_flag)){out.println("selected");}%>>오전</option>
+									<option value="F" <%if("F".equals(vo.aft_flag)){out.println("selected");}%>>오후</option>
+								</select>
 							</td>
 						</tr>
 						<tr>

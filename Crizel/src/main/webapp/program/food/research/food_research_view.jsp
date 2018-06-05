@@ -159,11 +159,11 @@ try{
 	sql.append("		WHERE JO_NO = A.JO_NO	) AS JO_NM			");
 	sql.append("FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B			");
 	sql.append("ON A.SCH_NO = B.SCH_NO								");
-	sql.append("WHERE A.SCH_NO = ? /*AND (B.SHOW_FLAG = 'Y'		");
+	sql.append("WHERE A.SCH_NO = ? AND (B.SHOW_FLAG = 'Y'		");
 	sql.append(" 	OR A.SCH_NO IN (SELECT A.SCH_NO														");
 	sql.append("        			FROM FOOD_SCH_TB A LEFT JOIN FOOD_SCH_NU B ON A.SCH_NO = B.SCH_NO	");
 	sql.append("         		 	GROUP BY A.SCH_NO, B.NU_NO											");
-	sql.append("         		 	HAVING NVL(B.NU_NO,0) = 0))*/										");
+	sql.append("         		 	HAVING NVL(B.NU_NO,0) = 0))											");
 	try{
 		foodVO	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{sch_no}).get(0);
 		nuList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{sch_no});

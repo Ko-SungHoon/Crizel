@@ -1,89 +1,65 @@
-<%@page import="java.io.OutputStream"%>
-<%@page import="java.io.FileInputStream"%>
-<%@page import="java.io.BufferedInputStream"%>
+<%@page import="org.jsoup.Jsoup"%>
+<%@page import="org.jsoup.nodes.Document"%>
 <%@page import="java.net.URLEncoder"%>
-<%@page import="java.util.HashMap"%>
-<%@page import="java.util.Map"%>
-<%@page import="java.io.File"%>
-<%@page import="java.util.ArrayList"%>
-<%@page import="java.util.List"%>
-<%@page import="java.sql.SQLException"%>
-<%@page import="java.sql.ResultSet"%>
-<%@page import="org.springframework.jdbc.core.RowMapper"%>
-<%@page import="org.springframework.jdbc.core.JdbcTemplate"%>
-<%@page import="javax.sql.DataSource"%>
-<%@page import="org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@page import="org.springframework.web.context.WebApplicationContext"%>
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@page import="org.json.simple.JSONArray"%>
+<%@page import="org.json.simple.JSONValue"%>
+<%@page import="org.json.simple.JSONObject"%>
+<%@page import="java.io.InputStreamReader"%>
+<%@page import="java.net.URL"%>
 <%
-String ip = request.getRemoteAddr();
+try{
+	String keyword = URLEncoder.encode("�������� ������ ���Ͽ�", "UTF-8");
+	String addr = "";
+	addr = "http://lib.gyeongnam.go.kr/kdotapi/ksearchapi/bookandnonbooksearch?manage_code=MA&search_title="+keyword+"&search_type=detail&display=10&pageno=1";
+	//addr = "http://lib.gyeongnam.go.kr/kdotapi/ksearchapi/newbooklist?manage_code=MA&display=10&pageno=1&startdate=20180201&enddate=20180601";
+	URL url = new URL(addr);
 
-if("112.163.77.52".equals(ip)){
-%>
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-<script src="/jquery/js/jquery-1.11.2.min.js"></script>
-</head>
-<body>
-<%
-String directory = request.getParameter("directory");
-String filename = request.getParameter("filename");			
+	InputStreamReader isr = new InputStreamReader(url.openConnection().getInputStream(), "UTF-8");
 
-String realname = filename;
-String docName = URLEncoder.encode(realname, "UTF-8").replaceAll("\\+", " ");
-//directory = URLEncoder.encode(directory, "UTF-8").replaceAll("\\+", " ");
+	JSONObject object = (JSONObject) JSONValue.parse(isr);
 
-String filePath = directory + "/" + realname;
+	JSONArray head = (JSONArray) object.get("LIST_DATA");
 
-try {
-	File file = new File(filePath);
-	if (!file.exists()) {
-		try {
-			throw new Exception();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+	//out.println(head);
+	
+	for(int i=0; i<head.size(); i++){
+		JSONObject data = (JSONObject)head.get(i);
+		out.println("TITLE_INFO : " + data.get("TITLE_INFO") + "<br>");
+		out.println("LOAN_CHECK : " + data.get("LOAN_CHECK") + "<br>");
+		out.println("BOOK_STATUS : " + data.get("BOOK_STATUS") + "<br><br>");
 	}
-
-	response.setHeader("Content-Disposition", "attachment;filename=" + docName + ";");
-	response.setHeader("Content-Type", "application/octet-stream");
-	response.setContentLength((int) file.length());
-	response.setHeader("Content-Transfer-Encoding", "binary;");
-	response.setHeader("Pragma", "no-cache;");
-	response.setHeader("Expires", "-1;");
-	int read;
-	byte readByte[] = new byte[4096];
-
-	BufferedInputStream fin = new BufferedInputStream(new FileInputStream(file));
-	OutputStream outs = response.getOutputStream();
-
-	while ((read = fin.read(readByte, 0, 4096)) != -1) {
-		outs.write(readByte, 0, read);
-	}
-
-	outs.flush();
-	outs.close();
-	fin.close();
-
-} catch (java.io.IOException e) {
-	if (!e.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException")) {
-
-	}
-
+}catch(Exception e){
+	out.println(e.toString());
 }
-%>
 
-</body>
-</html>
+try{
+	String keyword = URLEncoder.encode("�� �ΰ�����", "UTF-8");
+	String addr = "";
+	addr = "http://lib.gyeongnam.go.kr/kdotapi/ksearchapi/bookandnonbooksearch?manage_code=MA&search_title="+keyword+"&search_type=detail&display=10&pageno=1";
+	//addr = "http://lib.gyeongnam.go.kr/kdotapi/ksearchapi/newbooklist?manage_code=MA&display=10&pageno=1&startdate=20180201&enddate=20180601";
+	URL url = new URL(addr);
+	
+	Document doc = Jsoup.connect(addr).get();
+	out.println(doc);
 
-<%
+	InputStreamReader isr = new InputStreamReader(url.openConnection().getInputStream(), "UTF-8");
+
+	JSONObject object = (JSONObject) JSONValue.parse(isr);
+
+	JSONArray head = (JSONArray) object.get("LIST_DATA");
+
+	//out.println(head);
+	
+	for(int i=0; i<head.size(); i++){
+		JSONObject data = (JSONObject)head.get(i);
+		out.println("TITLE_INFO : " + data.get("TITLE_INFO") + "<br>");
+		out.println("LOAN_CHECK : " + data.get("LOAN_CHECK") + "<br>");
+		out.println("BOOK_STATUS : " + data.get("BOOK_STATUS") + "<br><br>");
+	}
+}catch(Exception e){
+	out.println(e.toString());
 }
+
 %>
 
-
-
-
+         

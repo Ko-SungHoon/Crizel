@@ -355,7 +355,7 @@ $(function(){
 							</th>
                 <td>
                     <select id="pro_time" name="pro_time">
-                        <option value="지정 토요일 (10:00~13:00)" <%if("지정 토요일 (10:00~13:00)".equals(vo.pro_time)){%> selected="selected" <%}%> >지정 토요일 (10:00~13:00)</option>
+                        <option value="지정 토요일 (10:00~12:00)" <%if("지정 토요일 (10:00~12:00)".equals(vo.pro_time)){%> selected="selected" <%}%> >지정 토요일 (10:00~12:00)</option>
                         <option value="오전 (10:00~13:00)" <%if("오전 (10:00~13:00)".equals(vo.pro_time)){%> selected="selected" <%}%> >오전 (10:00~13:00)</option>
                         <option value="오후 (14:00~17:00)" <%if("오후 (14:00~17:00)".equals(vo.pro_time)){%> selected="selected" <%}%> >오후 (14:00~17:00)</option>
                     </select>

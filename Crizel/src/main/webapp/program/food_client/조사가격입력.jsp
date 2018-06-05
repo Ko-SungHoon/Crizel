@@ -4,6 +4,9 @@
 *	CREATE	:	조사가격입력 html 코딩 / 20180328 LJH
 *	MODIFY	:	html 코딩 완료 / 20180403 LJH
 *	MODIFY	:	20180425_wed	KO		최저가 삭제 및 비교그룹 출력, 학교급식 관리자 권한 추가
+*	MODIFY	:	20180511_fri	JI		조사자 가격 입력 시, 조사자가 1명 일 시 selected 하기
+																, 조사자 select change 조사팀장일 경우 학교 급식소 내용 변경(미적용)
+																, input 입력 시 "," 추가하기
 */
 %>
 <%@page import="egovframework.rfc3.user.web.SessionManager"%>
@@ -11,6 +14,19 @@
 <%@ include file="/program/class/PagingClass.jsp"%>
 <%@ include file="/program/food/food_util.jsp" %>
 <%@ include file="/program/food/foodVO.jsp" %>
+
+<%!
+	private String moneyComma (String money) {
+		DecimalFormat df	=	new DecimalFormat("#,###");
+		String rtnMoney	=	null;
+		if (money != null && !"-".equals(money.trim()) && !"".equals(money.trim())) {
+			rtnMoney	=	df.format(Integer.parseInt(money));
+			return rtnMoney;
+		} else {
+			return money;
+		}
+	}
+%>	
 
 <%
 String foodRole		= 	"ROLE_000094";		//운영서버:ROLE_000094 , 테스트서버:ROLE_000012	
@@ -21,8 +37,8 @@ SessionManager sManager =	new SessionManager(request);
 
 int viewYN			=	0;		//1일경우 페이지 정상 작동
 String moveUrl		=	"/index.gne?contentsSid=2303";					//액션페이지		// 운영서버:2303, 테스트서버:661
-String moveUrlLog	=	"/index.gne?menuCd=DOM_000002101003001000";		//이력페이지(새창)	// 운영서버:DOM_000002101003001000, 테스트서버:DOM_000000127003002000
-String moveUrlMain	=	"/index.gne?menuCd=DOM_000002101000000000";		//메인페이지
+String moveUrlLog	=	"/index.gne?menuCd=DOM_000002101003001000";	//이력페이지(새창)	// 운영서버:DOM_000002101003001000, 테스트서버:DOM_000000127003002000
+String moveUrlMain	=	"/index.gne?menuCd=DOM_000002101000000000";	//메인페이지
 
 //2차 로그인 여부
 if("Y".equals(session.getAttribute("foodLoginChk")) || sManager.isRoleAdmin() || sManager.isRole(foodRole)){
@@ -120,7 +136,6 @@ if(viewYN == 1){
 					titleTxt	=	"미제출 품목";
 				}
 				
-				
 			}
 		
 			//조사개시 존재여부
@@ -134,15 +149,17 @@ if(viewYN == 1){
 			
 			if(cnt == 1){
 				sql		=	new StringBuffer();
-				sql.append(" SELECT 						\n");
-				sql.append(" RSCH_NO, 						\n");
-				sql.append(" RSCH_NM, 						\n");
-				sql.append(" RSCH_YEAR,						\n");
-				sql.append(" RSCH_MONTH,					\n");
+				sql.append(" SELECT 												\n");
+				sql.append(" RSCH_NO, 											\n");
+				sql.append(" RSCH_NM, 											\n");
+				sql.append(" RSCH_YEAR,											\n");
+				sql.append(" RSCH_MONTH,										\n");
 				sql.append(" TO_CHAR(END_DATE, 'YY/MM/DD')	\n");
-				sql.append(" AS END_DATE					\n");
-				sql.append(" FROM FOOD_RSCH_TB 				\n");
-				sql.append(" WHERE STS_FLAG = 'N' 			\n");
+				sql.append(" AS END_DATE,										\n");
+				sql.append(" TO_CHAR(MID_DATE, 'YY/MM/DD')	\n");
+				sql.append(" AS MID_DATE										\n");
+				sql.append(" FROM FOOD_RSCH_TB 							\n");
+				sql.append(" WHERE STS_FLAG = 'N' 					\n");
 				
 				tbVO	=	jdbcTemplate.queryForObject(sql.toString(), new FoodList());
 				
@@ -167,7 +184,7 @@ if(viewYN == 1){
 					
 					sql.append("(SELECT COUNT(RSCH_VAL_NO) FROM FOOD_RSCH_VAL 	 				\n");
 					sql.append(" WHERE RSCH_NO = ? AND SCH_NO = ?								\n");
-					sql.append(" ) AS CNT 														\n");	
+					sql.append(" ) AS CNT 														\n");
 					sql.append(" FROM DUAL					  									\n");
 					
 					try{
@@ -249,6 +266,7 @@ if(viewYN == 1){
 					sql.append(" TB.RSCH_NM,	 												\n");
 					sql.append(" TB.RSCH_YEAR,	 												\n");
 					sql.append(" TB.RSCH_MONTH,	 												\n");
+					sql.append(" TO_CHAR(TB.MID_DATE,'YY/MM/DD') AS MID_DATE,					\n");
 					sql.append(" TO_CHAR(TB.END_DATE,'YY/MM/DD') AS END_DATE,					\n");
 					sql.append(" ITEM.FOOD_CAT_INDEX,											\n");
 					sql.append(" ITEM.FOOD_CODE,												\n");
@@ -279,20 +297,22 @@ if(viewYN == 1){
 					sql.append(" VAL.RSCH_COM5													\n");
 					sql.append(" FROM FOOD_ITEM_PRE PRE 										\n");
 					
-					sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO	\n");
+					sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO		\n");
 					sql.append(" LEFT JOIN FOOD_RSCH_VAL VAL ON VAL.ITEM_NO = ITEM.ITEM_NO		\n");
 					sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
 					sql.append(" LEFT JOIN FOOD_SCH_TB SCH ON VAL.SCH_NO = SCH.SCH_NO			\n");
-					sql.append(" LEFT JOIN FOOD_SCH_NU NU ON VAL.NU_NO = NU.NU_NO				\n");				
+					sql.append(" LEFT JOIN FOOD_SCH_NU NU ON VAL.NU_NO = NU.NU_NO				\n");
 					sql.append(" WHERE TB.SHOW_FLAG = 'Y'										\n");
+					sql.append(" AND TB.STS_FLAG = 'N'											\n");
+					sql.append(" AND TB.RSCH_NO = ?												\n");
 					sql.append(" AND SCH.SCH_NO = ? 											\n");
 					sql.append(sqlWhere);
-					sql.append(" ORDER BY PRE.ITEM_NO											\n");
+					sql.append(" ORDER BY ITEM.FOOD_CAT_INDEX							\n");
 					sql.append(" )A WHERE ROWNUM <= ?											\n");
 					sql.append(" ) WHERE RNUM > ?												\n");
 					
 					rschList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{
-							foodVO.sch_no, pagingVO.getEndRowNo(), pagingVO.getStartRowNo()
+							tbVO.rsch_no, foodVO.sch_no, pagingVO.getEndRowNo(), pagingVO.getStartRowNo()
 					});
 				}//조사자일 때 end
 				
@@ -305,29 +325,36 @@ if(viewYN == 1){
 					sql.append(" SELECT 														\n");
 					sql.append("(SELECT COUNT(RSCH_VAL_NO) FROM FOOD_RSCH_VAL 	 				\n");
 					sql.append(" WHERE RSCH_NO = ? AND TEAM_NO = ?								\n");
-					sql.append(" AND (STS_FLAG = 'SR' OR STS_FLAG = 'RC')) AS CNT2,				\n");
+					sql.append(" AND (STS_FLAG = 'SR' OR STS_FLAG = 'RC') 						\n");
+					sql.append(" AND SCH_NO IN (SELECT SCH_NO FROM FOOD_SCH_TB WHERE JO_NO = (  \n");
+					sql.append(" SELECT JO_NO FROM FOOD_SCH_TB WHERE SCH_NO = ?))) AS CNT2,		\n");
+
 					
 					//CNT3 : 마감, 완료
 					sql.append("(SELECT COUNT(RSCH_VAL_NO) FROM FOOD_RSCH_VAL 	 				\n");
 					sql.append(" WHERE RSCH_NO = ? AND TEAM_NO = ?								\n");
-					sql.append(" AND (STS_FLAG = 'Y' OR STS_FLAG = 'SS')) AS CNT3,				\n");
+					sql.append(" AND (STS_FLAG = 'Y' OR STS_FLAG = 'SS') 						\n");
+					sql.append(" AND SCH_NO IN (SELECT SCH_NO FROM FOOD_SCH_TB WHERE JO_NO = (  \n");
+					sql.append(" SELECT JO_NO FROM FOOD_SCH_TB WHERE SCH_NO = ?))) AS CNT3,		\n");
 					
 					//CNT4 : 조사팀장 미제출 
 					sql.append("(SELECT COUNT(RSCH_VAL_NO) FROM FOOD_RSCH_VAL 	 				\n");
 					sql.append(" WHERE RSCH_NO = ? AND TEAM_NO = ?								\n");
 					sql.append(" AND (STS_FLAG = 'N' OR STS_FLAG = 'RR' OR STS_FLAG = 'RT' 		\n");
-					sql.append(" OR STS_FLAG = 'RS')) AS CNT4,									\n");
+					sql.append(" OR STS_FLAG = 'RS') 						\n");
+					sql.append(" AND SCH_NO IN (SELECT SCH_NO FROM FOOD_SCH_TB WHERE JO_NO = (  \n");
+					sql.append(" SELECT JO_NO FROM FOOD_SCH_TB WHERE SCH_NO = ?))) AS CNT4,		\n");
 					
 					//CNT : all
 					sql.append("(SELECT COUNT(RSCH_VAL_NO) FROM FOOD_RSCH_VAL 	 				\n");
 					sql.append(" WHERE RSCH_NO = ? AND TEAM_NO = ?								\n");
-					sql.append(" ) AS CNT 														\n");	
-					sql.append(" FROM DUAL					  									\n");
-					
+					sql.append(" AND SCH_NO IN (SELECT SCH_NO FROM FOOD_SCH_TB WHERE JO_NO = (  \n");
+					sql.append(" SELECT JO_NO FROM FOOD_SCH_TB WHERE SCH_NO = ?))) AS CNT		\n");
+					sql.append(" FROM DUAL														\n");
 					try{
 						cntVO	=	jdbcTemplate.queryForObject(sql.toString(), new FoodList(), new Object[]{
-								tbVO.rsch_no, foodVO.team_no, tbVO.rsch_no, foodVO.team_no,
-								tbVO.rsch_no, foodVO.team_no, tbVO.rsch_no, foodVO.team_no
+								tbVO.rsch_no, foodVO.team_no, foodVO.sch_no, tbVO.rsch_no, foodVO.team_no, foodVO.sch_no,
+								tbVO.rsch_no, foodVO.team_no, foodVO.sch_no, tbVO.rsch_no, foodVO.team_no, foodVO.sch_no
 						});
 					}catch(Exception e){
 						cntVO	=	new FoodVO();
@@ -350,121 +377,131 @@ if(viewYN == 1){
 					
 					//조사팀장 검토대상, 마감완료, 미제출 목록
 					sql		=	new StringBuffer();
-					sql.append(" SELECT * FROM (												\n");
-					sql.append(" SELECT ROWNUM AS RNUM, A.* FROM (								\n");
-					sql.append(" SELECT 														\n");
-					sql.append(" PRE.ITEM_NO,													\n");
-					sql.append(" (SELECT CAT_NM	FROM FOOD_ST_CAT								\n");
-					sql.append(" WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM,							\n");
+					sql.append(" SELECT * FROM (																								\n");
+					sql.append(" SELECT ROWNUM AS RNUM, A.* FROM (															\n");
+					sql.append(" SELECT 																												\n");
+					sql.append(" PRE.ITEM_NO,																										\n");
+					sql.append(" (SELECT CAT_NM	FROM FOOD_ST_CAT																\n");
+					sql.append(" WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM,													\n");
 					
-					sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', NM_FOOD)			\n");
-					sql.append(" ORDER BY NM_FOOD).EXTRACT('//text()').GETSTRINGVAL(),2)		\n");
-					sql.append(" NM_FOOD														\n");
-					sql.append(" FROM FOOD_ST_NM												\n");
-					sql.append(" WHERE NM_NO IN (												\n");
-					sql.append(" FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5))		\n");
-					sql.append(" AS NM_FOOD,													\n");
+					sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', NM_FOOD)						\n");
+					sql.append(" ORDER BY NM_FOOD).EXTRACT('//text()').GETSTRINGVAL(),2)				\n");
+					sql.append(" NM_FOOD																												\n");
+					sql.append(" FROM FOOD_ST_NM																								\n");
+					sql.append(" WHERE NM_NO IN (																								\n");
+					sql.append(" FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5))				\n");
+					sql.append(" AS NM_FOOD,																										\n");
 					
-					sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', DT_NM)				\n");
-					sql.append(" ORDER BY DT_NM).EXTRACT('//text()').GETSTRINGVAL(), 2)			\n");
-					sql.append(" DT_NM															\n");
-					sql.append(" FROM FOOD_ST_DT_NM												\n");
-					sql.append(" WHERE DT_NO IN(												\n");
-					sql.append(" FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5,			\n");
-					sql.append(" FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10))		\n");
-					sql.append(" AS DT_NM, 														\n");
+					sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', DT_NM)							\n");
+					sql.append(" ORDER BY DT_NM).EXTRACT('//text()').GETSTRINGVAL(), 2)					\n");
+					sql.append(" DT_NM																													\n");
+					sql.append(" FROM FOOD_ST_DT_NM																							\n");
+					sql.append(" WHERE DT_NO IN(																								\n");
+					sql.append(" FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5,					\n");
+					sql.append(" FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10))				\n");
+					sql.append(" AS DT_NM, 																											\n");
 					
-					sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', EX_NM)				\n");
-					sql.append(" ORDER BY EX_NM).EXTRACT('//text()').GETSTRINGVAL(), 2)			\n");
-					sql.append(" EX_NM															\n");
-					sql.append(" FROM FOOD_ST_EXPL												\n");
-					sql.append(" WHERE EX_NO IN(												\n");
-					sql.append(" FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,			\n");
-					sql.append(" FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, 		\n");
-					sql.append(" FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15,	\n");
-					sql.append(" FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20,	\n");
-					sql.append(" FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25))	\n");
-					sql.append(" AS EX_NM, 														\n");
+					sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', EX_NM)							\n");
+					sql.append(" ORDER BY EX_NM).EXTRACT('//text()').GETSTRINGVAL(), 2)					\n");
+					sql.append(" EX_NM																													\n");
+					sql.append(" FROM FOOD_ST_EXPL																							\n");
+					sql.append(" WHERE EX_NO IN(																								\n");
+					sql.append(" FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,					\n");
+					sql.append(" FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, 				\n");
+					sql.append(" FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15,		\n");
+					sql.append(" FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20,		\n");
+					sql.append(" FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25))		\n");
+					sql.append(" AS EX_NM, 																											\n");
 							
-					sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', NU_NO)				\n");
-					sql.append(" ).EXTRACT('//text()').GETSTRINGVAL(),2) T_NU_NO				\n");
-					sql.append(" FROM (SELECT NU_NO, SCH_NO AS T_SCH_NO							\n");
-					sql.append(" FROM FOOD_SCH_NU												\n");
-					sql.append(" WHERE SHOW_FLAG = 'Y')											\n");
-					sql.append(" WHERE T_SCH_NO = VAL.SCH_NO)									\n");
-					sql.append(" AS T_NU_NO,													\n");
+					sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', NU_NO)							\n");
+					sql.append(" ).EXTRACT('//text()').GETSTRINGVAL(),2) T_NU_NO								\n");
+					sql.append(" FROM (SELECT NU_NO, SCH_NO AS T_SCH_NO													\n");
+					sql.append(" FROM FOOD_SCH_NU																								\n");
+					sql.append(" WHERE SHOW_FLAG = 'Y')																					\n");
+					sql.append(" WHERE T_SCH_NO = VAL.SCH_NO)																		\n");
+					sql.append(" AS T_NU_NO,																										\n");
 					
-					sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', NU_NM)				\n");
-					sql.append(" ).EXTRACT('//text()').GETSTRINGVAL(),2) T_NU_NM				\n");
-					sql.append(" FROM (SELECT NU_NM, SCH_NO AS T_SCH_NO							\n");
-					sql.append(" FROM FOOD_SCH_NU												\n");
-					sql.append(" WHERE SHOW_FLAG = 'Y')											\n");
-					sql.append(" WHERE T_SCH_NO = VAL.SCH_NO)									\n");
-					sql.append(" AS T_NU_NM,													\n");
+					sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', NU_NM)							\n");
+					sql.append(" ).EXTRACT('//text()').GETSTRINGVAL(),2) T_NU_NM								\n");
+					sql.append(" FROM (SELECT NU_NM, SCH_NO AS T_SCH_NO													\n");
+					sql.append(" FROM FOOD_SCH_NU																								\n");
+					sql.append(" WHERE SHOW_FLAG = 'Y')																					\n");
+					sql.append(" WHERE T_SCH_NO = VAL.SCH_NO)																		\n");
+					sql.append(" AS T_NU_NM,																										\n");
 					
-					sql.append(" (SELECT UNIT_NM FROM FOOD_ST_UNIT 								\n");
-					sql.append(" WHERE UNIT_NO = ITEM.FOOD_UNIT) AS UNIT_NM, 					\n");
-					sql.append(" PRE.REG_DATE,													\n");
-					sql.append(" PRE.MOD_DATE,													\n");
-					sql.append(" PRE.SHOW_FLAG,													\n");
-					sql.append(" (SELECT REG_IP FROM FOOD_UP_FILE							 	\n");
-					sql.append(" WHERE FILE_NO = PRE.FILE_NO) REG_IP,							\n");
-					sql.append(" (SELECT REG_ID FROM FOOD_UP_FILE								\n");
-					sql.append(" WHERE FILE_NO = PRE.FILE_NO) REG_ID,							\n");
-					sql.append(" PRE.ITEM_GRP_NO,												\n");
-					sql.append(" PRE.ITEM_GRP_ORDER,											\n");
-					sql.append(" PRE.ITEM_COMP_NO, 												\n");
-					sql.append(" PRE.ITEM_COMP_VAL,												\n");
-					sql.append(" PRE.LOW_RATIO, 												\n");
-					sql.append(" PRE.AVR_RATIO, 												\n");
-					sql.append(" PRE.LB_RATIO,	 												\n");
-					sql.append(" TB.RSCH_NM,	 												\n");
-					sql.append(" TB.RSCH_YEAR,	 												\n");
-					sql.append(" TB.RSCH_MONTH,	 												\n");
-					sql.append(" TO_CHAR(TB.END_DATE,'YY/MM/DD') AS END_DATE,					\n");
-					sql.append(" ITEM.FOOD_CAT_INDEX,											\n");
-					sql.append(" ITEM.FOOD_CODE,												\n");
-					sql.append(" VAL.STS_FLAG,													\n");
-					sql.append(" VAL.RSCH_VAL_NO,												\n");
-					sql.append(" VAL.RSCH_REASON,												\n");
-					sql.append(" VAL.T_RJ_REASON,												\n");
-					sql.append(" VAL.RJ_REASON,													\n");
-					sql.append(" VAL.NON_SEASON,												\n");
-					sql.append(" VAL.NON_DISTRI,												\n");
-					sql.append(" (SELECT NU_NM FROM FOOD_SCH_NU WHERE NU_NO = VAL.NU_NO)		\n");
-					sql.append(" AS NU_NM,														\n");
-					sql.append(" VAL.NU_NO,														\n");
-					sql.append(" VAL.RSCH_VAL1,													\n");
-					sql.append(" VAL.RSCH_VAL2,													\n");
-					sql.append(" VAL.RSCH_VAL3,													\n");
-					sql.append(" VAL.RSCH_VAL4,													\n");
-					sql.append(" VAL.RSCH_VAL5,													\n");
-					sql.append(" VAL.RSCH_LOC1,													\n");
-					sql.append(" VAL.RSCH_LOC2,													\n");
-					sql.append(" VAL.RSCH_LOC3,													\n");
-					sql.append(" VAL.RSCH_LOC4,													\n");
-					sql.append(" VAL.RSCH_LOC5,													\n");
-					sql.append(" VAL.RSCH_COM1,													\n");
-					sql.append(" VAL.RSCH_COM2,													\n");
-					sql.append(" VAL.RSCH_COM3,													\n");
-					sql.append(" VAL.RSCH_COM4,													\n");
-					sql.append(" VAL.RSCH_COM5													\n");
-					sql.append(" FROM FOOD_ITEM_PRE PRE 										\n");
+					sql.append(" (SELECT UNIT_NM FROM FOOD_ST_UNIT 															\n");
+					sql.append(" WHERE UNIT_NO = ITEM.FOOD_UNIT) AS UNIT_NM, 										\n");
+					sql.append(" PRE.REG_DATE,																									\n");
+					sql.append(" PRE.MOD_DATE,																									\n");
+					sql.append(" PRE.SHOW_FLAG,																									\n");
+					sql.append(" (SELECT REG_IP FROM FOOD_UP_FILE							 									\n");
+					sql.append(" WHERE FILE_NO = PRE.FILE_NO) REG_IP,														\n");
+					sql.append(" (SELECT REG_ID FROM FOOD_UP_FILE																\n");
+					sql.append(" WHERE FILE_NO = PRE.FILE_NO) REG_ID,														\n");
+					sql.append(" PRE.ITEM_GRP_NO,																								\n");
+					sql.append(" PRE.ITEM_GRP_ORDER,																						\n");
+					sql.append(" PRE.ITEM_COMP_NO, 																							\n");
+					sql.append(" PRE.ITEM_COMP_VAL,																							\n");
+					sql.append(" PRE.LOW_RATIO, 																								\n");
+					sql.append(" PRE.AVR_RATIO, 																								\n");
+					sql.append(" PRE.LB_RATIO,	 																								\n");
+					sql.append(" TB.RSCH_NM,	 																									\n");
+					sql.append(" TB.RSCH_YEAR,	 																								\n");
+					sql.append(" TB.RSCH_MONTH,	 																								\n");
+					sql.append(" TO_CHAR(TB.MID_DATE,'YY/MM/DD') AS MID_DATE,										\n");
+					sql.append(" TO_CHAR(TB.END_DATE,'YY/MM/DD') AS END_DATE,										\n");
+					sql.append(" ITEM.FOOD_CAT_INDEX,																						\n");
+					sql.append(" ITEM.FOOD_CODE,																								\n");
+					sql.append(" VAL.STS_FLAG,																									\n");
+					sql.append(" VAL.RSCH_VAL_NO,																								\n");
+					sql.append(" VAL.RSCH_REASON,																								\n");
+					sql.append(" VAL.T_RJ_REASON,																								\n");
+					sql.append(" VAL.RJ_REASON,																									\n");
+					sql.append(" VAL.NON_SEASON,																								\n");
+					sql.append(" VAL.NON_DISTRI,																								\n");
+					sql.append(" (SELECT NU_NM FROM FOOD_SCH_NU WHERE NU_NO = VAL.NU_NO)				\n");
+					sql.append(" AS NU_NM,																											\n");
+					sql.append(" VAL.NU_NO,																											\n");
+					sql.append(" (SELECT SCH_NM	FROM FOOD_SCH_TB																\n");
+					sql.append(" WHERE SCH_NO = VAL.SCH_NO)																			\n");
+					sql.append(" AS SCH_NM,																											\n");
+					sql.append(" (SELECT SCH_TEL FROM FOOD_SCH_TB																\n");
+					sql.append(" WHERE SCH_NO = VAL.SCH_NO)																			\n");
+					sql.append(" AS SCH_TEL,																										\n");
+					sql.append(" VAL.RSCH_VAL1,																									\n");
+					sql.append(" VAL.RSCH_VAL2,																									\n");
+					sql.append(" VAL.RSCH_VAL3,																									\n");
+					sql.append(" VAL.RSCH_VAL4,																									\n");
+					sql.append(" VAL.RSCH_VAL5,																									\n");
+					sql.append(" VAL.RSCH_LOC1,																									\n");
+					sql.append(" VAL.RSCH_LOC2,																									\n");
+					sql.append(" VAL.RSCH_LOC3,																									\n");
+					sql.append(" VAL.RSCH_LOC4,																									\n");
+					sql.append(" VAL.RSCH_LOC5,																									\n");
+					sql.append(" VAL.RSCH_COM1,																									\n");
+					sql.append(" VAL.RSCH_COM2,																									\n");
+					sql.append(" VAL.RSCH_COM3,																									\n");
+					sql.append(" VAL.RSCH_COM4,																									\n");
+					sql.append(" VAL.RSCH_COM5																									\n");
+					sql.append(" FROM FOOD_ITEM_PRE PRE 																				\n");
 					
-					sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO	\n");
-					sql.append(" LEFT JOIN FOOD_RSCH_VAL VAL ON VAL.ITEM_NO = ITEM.ITEM_NO		\n");
-					sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
-					sql.append(" LEFT JOIN FOOD_SCH_TB SCH ON VAL.SCH_NO = SCH.SCH_NO			\n");
-					sql.append(" LEFT JOIN FOOD_SCH_NU NU ON VAL.NU_NO = NU.NU_NO				\n");				
-					sql.append(" WHERE TB.SHOW_FLAG = 'Y'										\n");
-					sql.append(" AND SCH.TEAM_NO = ? 											\n");
+					sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.ITEM_NO = ITEM.ITEM_NO		\n");
+					sql.append(" LEFT JOIN FOOD_RSCH_VAL VAL ON VAL.ITEM_NO = ITEM.ITEM_NO			\n");
+					sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO					\n");
+					sql.append(" LEFT JOIN FOOD_SCH_TB SCH ON VAL.SCH_NO = SCH.SCH_NO						\n");
+					sql.append(" LEFT JOIN FOOD_SCH_NU NU ON VAL.NU_NO = NU.NU_NO								\n");
+					sql.append(" WHERE TB.SHOW_FLAG = 'Y'																				\n");
+					sql.append(" AND TB.STS_FLAG = 'N'																				\n");
+					sql.append(" AND TB.RSCH_NO = ?																				\n");
+					sql.append(" AND SCH.TEAM_NO = ? 																						\n");
+					sql.append(" AND SCH.SCH_NO IN (SELECT SCH_NO FROM FOOD_SCH_TB WHERE JO_NO = (SELECT JO_NO FROM FOOD_SCH_TB WHERE SCH_NO = ?)) \n");
 					sql.append(sqlWhere);
-					sql.append(" ORDER BY PRE.ITEM_NO											\n");
-					sql.append(" )A WHERE ROWNUM <= ?											\n");
-					sql.append(" ) WHERE RNUM > ?												\n");
+					sql.append(" ORDER BY ITEM.FOOD_CAT_INDEX																		\n");
+					sql.append(" )A WHERE ROWNUM <= ?																						\n");
+					sql.append(" ) WHERE RNUM > ?																								\n");
 					
 					rschList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{
-							foodVO.team_no, pagingVO.getEndRowNo(), pagingVO.getStartRowNo()
+							tbVO.rsch_no, foodVO.team_no, foodVO.sch_no, pagingVO.getEndRowNo(), pagingVO.getStartRowNo()
 					});
 					
 				
@@ -485,8 +522,26 @@ if(viewYN == 1){
 		
 	}
 %>
+<style>
+	.btn_mingroup > .btn-mid {
+		height: 46px;
+	}
+</style>
 
 <script>
+
+$(function() {
+	//open popup item history
+	$(".openItem").click(function () {
+		var index	=	$(".openItem").index(this);
+		var item_no	=	$(".openItem").eq(index).data("value");
+		
+		var send_url	=	"/index.gne?menuCd=DOM_000002101003001000&item_no=" + item_no;
+		var param		=	{item_no: item_no};
+		newWin(send_url, "식품이력 page", 1500, 1000);
+	});
+
+});
 
 // type = 0 : 제출(마감), 1 : 검증(검토), 2 : 재검증(마감재검증), 3 : 사유입력(반려)
 function submissionRsch(number, type){
@@ -510,6 +565,7 @@ function submissionRsch(number, type){
 	var schNo		=	"<%=foodVO.sch_no%>";		//학교
 	var zoneNo		=	"<%=foodVO.zone_no%>";		//권역
 	var teamNo		=	"<%=foodVO.team_no%>";		//팀
+	var rschNo		=	"<%=tbVO.rsch_no%>";		//조사번호
 	var userType	=	"";									//이용자타입 (조사자, 조사팀장)
 	
 	<%if(actType == 2){%>		//조사팀장 미제출목록일 때 userType을 조사자로 적용
@@ -547,9 +603,14 @@ function submissionRsch(number, type){
 	}
 	
 	for(var i=0; i<5; i++){
-		rschValArr[i]	=	$("#rschVal" + (i+1) + "_" + number).val();
+		rschValArr[i]	=	$("#rschVal" + (i+1) + "_" + number).val().replace(",", "");
 		rschLocArr[i]	=	$("#rschLoc" + (i+1) + "_" + number).val();
 		rschComArr[i]	=	$("#rschCom" + (i+1) + "_" + number).val();
+		
+		if(parseInt(rschValArr[i]) <= 0){
+			alert("0 이상의 숫자를 입력하여주시기 바랍니다.");
+			return;
+		}
 	}
 	if(inputCheck(number) == false) return false;
 	
@@ -569,13 +630,19 @@ function submissionRsch(number, type){
 			"offSeason" : nonSeason,	"offDist" : nonDist,
 			"reason" : reason,			"zoneNo" : zoneNo,
 			"teamNo" : teamNo,			"userType" : userType,
-			"rCondition" : rCondition, 	"returnWrite" : returnWrite
+			"rCondition" : rCondition, 	"returnWrite" : returnWrite,
+			"rschNo" : rschNo			
 		},
 		dataType : "json",
 		async : false,
 		success : function(data){
 			if(data.resultMsg != null && data.resultMsg != ""){
-				alert(data.resultMsg);
+				//조사팀장 검토일 시, 바로 연속으로 마감하기
+				if (data.resultMsg == "검토 완료되었습니다. 마감버튼을 클릭해주세요." && type == 1 && userType == 'T') {
+					submissionRsch(number, 0);
+				} else {
+					alert(data.resultMsg);
+				}
 			}else{
 				//재검증 시 returnType이 true일 경우 재검증 정상, false일 경우 이전 검증때의 값과 불일치
 				if(type == 2){
@@ -614,13 +681,13 @@ function inputCheck(number){
 	var rschLoc		=	"";		//조사처
 	var rschCom		=	"";		//브랜드
 		
-	for(var i=0; i<5; i++){		
-		rschVal		=	$("#rschVal" + (i+1) + "_" + number).val();	
+	for(var i=0; i<5; i++){
+		rschVal		=	$("#rschVal" + (i+1) + "_" + number).val().replace(",", "");	
 		rschLoc		=	$("#rschLoc" + (i+1) + "_" + number).val();	
 		rschCom		=	$("#rschCom" + (i+1) + "_" + number).val();	
 		
 		//조사가, 조사처, 브랜드 1set가 온전히 입력되었을 때 && 조사가 숫자체크
-		if(rschVal != "" && rschLoc != "" && rschCom != ""){
+		if(rschVal != "" && rschLoc != "" /*  && rschCom != "" */){
 			if(numberChk(rschVal) == false)		return false;
 			checkSetCnt	+=	1;
 		}
@@ -637,12 +704,12 @@ function inputCheck(number){
 				alertMsg	+=	"조사처" + (i+1) + ", ";
 				checkCnt	+=	1;
 			}
-			if(rschCom == ""){
+			/*if(rschCom == ""){
 				if(numberChk(rschVal) == false)		return false;
 				alertMsg	+=	"브랜드" + (i+1) + ", ";
 				checkCnt	+=	1;
-			}
-		}		
+			}*/
+		}
 	}
 	
 	if($("input:checkbox[id='offDist_" + number + "']").is(":checked") == true || 
@@ -668,6 +735,7 @@ function inputCheck(number){
 
 //숫자체크
 function numberChk(checkData){
+	checkData	=	checkData.replace(",", "");
 	if(isNaN(checkData) == true){
 		alert("조사가에는 숫자만 입력할 수 있습니다.");
 		return false;
@@ -794,6 +862,22 @@ function noInputComp(){
 		location.href= moveUrl + "&actType=" + actType
 	}
 }
+
+//input 숫자 입력 시 "," 추가
+function inputNumberFormat (obj) {
+	obj.value	=	comma(uncomma(obj.value));
+}
+
+function comma (str) {
+	str	=	String(str);
+	return str.replace(/(\d)(?=(?:\d{3})+(?!\d))/g, '$1,');
+}
+
+function uncomma (str) {
+	str	=	String(str);
+	return str.replace(/[^\d]+/g, '');
+}
+
 </script>
 <!-- 배너링크 include -->
 {CNT:2305}			<!-- 운영서버:2305, 테스트서버:669 -->
@@ -802,8 +886,13 @@ function noInputComp(){
 <div class="rsrch_info">
   <ul class="clearfix mag0">
     <li><strong>권역</strong>: <%=foodVO.zone_nm%></li>
+		<%if("R".equals(foodVO.sch_grade)){%>
+		<li><strong>조사명</strong>: <%=tbVO.rsch_nm%></li>
+    <li class="end_date"><strong>제출마감날짜</strong>: <%=tbVO.mid_date%></li>
+		<%}else{%>
     <li><strong>조사명</strong>: <%=tbVO.rsch_nm%></li>
     <li class="end_date"><strong>조사마감날짜</strong>: <%=tbVO.end_date%></li>
+		<%}%>
   </ul>
 </div>
 
@@ -821,7 +910,14 @@ if("R".equals(foodVO.sch_grade)){
 </div>
 <!-- //탭메뉴 -->
 
+<div class="clearfix">
+	<h3 class="clearfix mag0 red">
+		※ 식품등록은 반드시 한 개씩만 입력해주세요. 등록에서 제외된 데이터는 초기화 됩니다.
+	</h3>
+</div>
+
 <div class="tab_container">
+
   <section class="tab_content" style="display:block;">
     <h3 class="stit"><%=titleTxt%> <span class="dec fsize_80">(완료 <span class="fb blue"><%=completeCnt%></span>건 / 전체 <%=allCnt%>건)</span></h3>
     <%if(actType == 0){%>
@@ -860,7 +956,7 @@ if("R".equals(foodVO.sch_grade)){
         <tbody>
         <%
         if(rschList != null && rschList.size() > 0){
-        	for(int i=0; i<rschList.size(); i++){	
+        	for(int i=0; i<rschList.size(); i++){
         	FoodVO vo			=	rschList.get(i);
         	String classTxt		=	"";
         	
@@ -873,7 +969,7 @@ if("R".equals(foodVO.sch_grade)){
             <td>
             <span class="wid_cate"><%=vo.cat_nm%>-<%=vo.food_cat_index%></span></td>
             <td><%=vo.food_code%></td>
-            <td><a href="#" class="dp_block"><span class="blue fb"><%=vo.nm_food%></span></a></td>
+            <td><a href="javascript:;" class="dp_block openItem" data-value="<%=vo.item_no %>"><span class="blue fb"><%=vo.nm_food%></span></a></td>
             <td><span class="wid_ndetail"><%=vo.dt_nm%></span></td>
             <td><span class="wid_expl"><%=vo.ex_nm%></span></td>
             <td><%=vo.unit_nm%></td>
@@ -885,17 +981,20 @@ if("R".equals(foodVO.sch_grade)){
             	<label for="offDist_<%=vo.rsch_val_no%>" class="blind">비유통 체크</label>
             	<input type="checkbox" id="offDist_<%=vo.rsch_val_no%>" name="offDist" class="chbig" title="비유통 체크" value="Y" onclick="offChk('<%=vo.rsch_val_no%>', '2');"
             	<%if("Y".equals(vo.non_distri)){%>checked<%}%>/></td>
-            <td>
-            	<%=vo.item_comp_no %>
-            </td>
+            <td><%=vo.item_comp_no %>-<%=vo.item_comp_val %></td>
             <td>
               <label for="rschSel_<%=vo.rsch_val_no%>" class="blind">조사자 선택</label>
               <select id="rschSel_<%=vo.rsch_val_no%>" name="rschSel">
                 <option value="">선택</option>
                 <%
-                if(userList != null && userList.size() > 0){
+								if(userList != null && userList.size() > 0){
                 	for(int j=0; j<userList.size(); j++){
-                		out.print(printOption(userList.get(j).nu_no, userList.get(j).nu_nm, vo.nu_no));
+										/* 조사자가 1명 일 경우 selected 시키기 */
+										if (userList.size() == 1) {
+											out.print(printOption(userList.get(j).nu_no, userList.get(j).nu_nm, userList.get(j).nu_no));
+										} else {
+                			out.print(printOption(userList.get(j).nu_no, userList.get(j).nu_nm, vo.nu_no));
+										}
                 	}
                 }
                 %>
@@ -921,11 +1020,11 @@ if("R".equals(foodVO.sch_grade)){
                 <tbody>
                   <tr>
                     <th scope="row" class="bg_green">조사가</th>
-                    <td><label><input type="text" name="rschVal1" id="rschVal1_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val1%>" title="조사가1 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal2" id="rschVal2_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val2%>" title="조사가2 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal3" id="rschVal3_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val3%>" title="조사가3 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal4" id="rschVal4_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val4%>" title="조사가4 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal5" id="rschVal5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val5%>" title="조사가5 가격" /></label></td>
+                    <td><label><input type="text" name="rschVal1" onkeyup="inputNumberFormat(this);" id="rschVal1_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val1)%>" title="조사가1 가격" /></label></td>
+                    <td><label><input type="text" name="rschVal2" onkeyup="inputNumberFormat(this);" id="rschVal2_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val2)%>" title="조사가2 가격" /></label></td>
+                    <td><label><input type="text" name="rschVal3" onkeyup="inputNumberFormat(this);" id="rschVal3_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val3)%>" title="조사가3 가격" /></label></td>
+                    <td><label><input type="text" name="rschVal4" onkeyup="inputNumberFormat(this);" id="rschVal4_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val4)%>" title="조사가4 가격" /></label></td>
+                    <td><label><input type="text" name="rschVal5" onkeyup="inputNumberFormat(this);" id="rschVal5_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val5)%>" title="조사가5 가격" /></label></td>
                   </tr>
                   <tr>
                     <th scope="row" class="bg_green">조사처</th>
@@ -1011,13 +1110,19 @@ if("R".equals(foodVO.sch_grade)){
          		<tr>
 	             <td><span class="wid_cate"><%=vo.cat_nm%>-<%=vo.food_cat_index%></span></td>
 	             <td><%=vo.food_code%></td>
-	             <td><a href="#" class="dp_block"><span class="blue fb"><%=vo.nm_food%></span></a></td>
+	             <td><a href="javascript:;" class="dp_block openItem" data-value="<%=vo.item_no %>"><span class="blue fb"><%=vo.nm_food%></span></a></td>
 	             <td><span class="wid_ndetail"><%=vo.dt_nm%></span></td>
 	             <td><span class="wid_expl"><%=vo.ex_nm%></span></td>
 	             <td><%=vo.unit_nm%></td>
-	             <td><%=vo.non_season%></td>
-	             <td><%=vo.non_distri%></td>
-	             <td><%=vo.item_comp_no%></td>
+	             <td><%
+							 	if("Y".equals(vo.non_season)) {out.println("<span class=\"red\">" + vo.non_season + "</span>");}
+								else {out.println(vo.non_season);}
+							 %></td>
+	             <td><%
+							 	if("Y".equals(vo.non_distri)) {out.println("<span class=\"red\">" + vo.non_distri + "</span>");}
+								else {out.println(vo.non_distri);}
+							 %></td>
+	             <td><%=vo.item_comp_no %>-<%=vo.item_comp_val %></td>
 	             <td><%=vo.nu_nm%></td>
 	             <td class="padR5 padL5">
 	               <table class="table_skin02 mag0 th-pd1 td-pd1 rsch_price">
@@ -1036,31 +1141,31 @@ if("R".equals(foodVO.sch_grade)){
 	                     <th scope="col">조사가5</th>
 	                   </tr>
 	                 </thead>
-	                 <tbody>
-	                   <tr>
+	                  <tbody>
+	                    <tr>
 	                     <th scope="row" class="bg_green">조사가</th>
-	                     <td><%=vo.rsch_val1%></td>
-	                     <td><%=vo.rsch_val2%></td>
-	                     <td><%=vo.rsch_val3%></td>
-	                     <td><%=vo.rsch_val4%></td>
-	                     <td><%=vo.rsch_val5%></td>
-	                   </tr>
-	                   <tr>
+	                     <td><%=moneyComma(vo.rsch_val1)%></td>
+	                     <td><%=moneyComma(vo.rsch_val2)%></td>
+	                     <td><%=moneyComma(vo.rsch_val3)%></td>
+	                     <td><%=moneyComma(vo.rsch_val4)%></td>
+	                     <td><%=moneyComma(vo.rsch_val5)%></td>
+	                    </tr>
+	                    <tr>
 	                     <th scope="row" class="bg_green">조사처</th>
 	                     <td><%=vo.rsch_loc1%></td>
 	                     <td><%=vo.rsch_loc2%></td>
 	                     <td><%=vo.rsch_loc3%></td>
 	                     <td><%=vo.rsch_loc4%></td>
 	                     <td><%=vo.rsch_loc5%></td>
-	                   </tr>
-	                   <tr>
+	                    </tr>
+	                    <tr>
 	                     <th scope="row" class="bg_green">브랜드</th>
 	                     <td><%=vo.rsch_com1%></td>
 	                     <td><%=vo.rsch_com2%></td>
 	                     <td><%=vo.rsch_com3%></td>
 	                     <td><%=vo.rsch_com4%></td>
 	                     <td><%=vo.rsch_com5%></td>
-	                   </tr>
+	                    </tr>
 	                 </tbody>
 	               </table>
 	             </td>
@@ -1089,7 +1194,7 @@ if("R".equals(foodVO.sch_grade)){
 
 <%}	//조사자일 때 end
 
-//조사팀장일 때
+//조사팀장일 때/////////////////////////////////////////////////////////////
 else if("T".equals(foodVO.sch_grade)){%>
 <!-- 탭메뉴 -->
 	<div class="tab_wrap clearfix">
@@ -1105,7 +1210,7 @@ else if("T".equals(foodVO.sch_grade)){%>
     <h3 class="stit"><%=titleTxt%> <span class="dec fsize_80">(완료 <span class="fb blue"><%=completeCnt%></span>건 / 전체 <%=allCnt%>건)</span></h3>
     
     <%
-    //검토 목록
+    //검토대상 품목
     if(actType == 0){%>
     <!-- 자동마감시 미입력된 데이터만 보기 : 이 옵션은 자동마감시 데이터를 입력안하고 마감되었을 경우에 해당 데이터만 볼 수 있는 기능임. -->
         <div class="op_nodata">
@@ -1125,7 +1230,7 @@ else if("T".equals(foodVO.sch_grade)){%>
           <col style="width:30px"/>
           <col style="width:30px"/>
           <col style="width:8%"/>
-          <col />
+          <col style="width:354px;"/>
           <col style="width:64px;" />
         </colgroup>
         <thead>
@@ -1154,7 +1259,7 @@ else if("T".equals(foodVO.sch_grade)){%>
             <td>
             <span class="wid_cate"><%=vo.cat_nm%>-<%=vo.food_cat_index%></span></td>
             <td><%=vo.food_code%></td>
-            <td><a href="#" class="dp_block"><span class="blue fb"><%=vo.nm_food%></span></a></td>
+            <td><a href="javascript:;" class="dp_block openItem" data-value="<%=vo.item_no %>"><span class="blue fb"><%=vo.nm_food%></span></a></td>
             <td><span class="wid_ndetail"><%=vo.dt_nm%></span></td>
             <td><span class="wid_expl"><%=vo.ex_nm%></span></td>
             <td><%=vo.unit_nm%></td>
@@ -1166,9 +1271,7 @@ else if("T".equals(foodVO.sch_grade)){%>
             	<label for="offDist_<%=vo.rsch_val_no%>" class="blind">비유통 체크</label>
             	<input type="checkbox" id="offDist_<%=vo.rsch_val_no%>" name="offDist" class="chbig" title="비유통 체크" value="Y" onclick="offChk('<%=vo.rsch_val_no%>', '2');"
             	<%if("Y".equals(vo.non_distri)){%>checked<%}%>/></td>
-            <td>
-            	<%=vo.item_comp_no %>
-            </td>
+            <td><%=vo.item_comp_no %>-<%=vo.item_comp_val %></td>
             <td>
               <label for="rschSel_<%=vo.rsch_val_no%>" class="blind">조사자 선택</label>
               <select id="rschSel_<%=vo.rsch_val_no%>" name="rschSel">
@@ -1182,12 +1285,14 @@ else if("T".equals(foodVO.sch_grade)){%>
                 }
                 %>
               </select>
+              				<br><span>학교명 : <%=vo.sch_nm %></span>
+							<br><span>급식소 : <%=vo.sch_tel %></span>
             </td>
             <td class="padR5 padL5">
               <table class="table_skin02 mag0 th-pd1 td-pd1 rsch_price">
                 <caption>조사가1~5에 대한 조사처 및 브랜드 정보 입력</caption>
                 <colgroup>
-                  <col style="width:15%" />
+                  <col style="width:17%" />
                   <col style="width:17%" span="5" />
                 </colgroup>
                 <thead>
@@ -1203,11 +1308,11 @@ else if("T".equals(foodVO.sch_grade)){%>
                 <tbody>
                   <tr>
                     <th scope="row" class="bg_green">조사가</th>
-                    <td><label><input type="text" name="rschVal1" id="rschVal1_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val1%>" title="조사가1 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal2" id="rschVal2_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val2%>" title="조사가2 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal3" id="rschVal3_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val3%>" title="조사가3 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal4" id="rschVal4_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val4%>" title="조사가4 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal5" id="rschVal5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val5%>" title="조사가5 가격" /></label></td>
+                    <td><label><input type="text" name="rschVal1" onkeyup="inputNumberFormat(this);" id="rschVal1_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val1)%>" title="조사가1 가격" /></label></td>
+                    <td><label><input type="text" name="rschVal2" onkeyup="inputNumberFormat(this);" id="rschVal2_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val2)%>" title="조사가2 가격" /></label></td>
+                    <td><label><input type="text" name="rschVal3" onkeyup="inputNumberFormat(this);" id="rschVal3_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val3)%>" title="조사가3 가격" /></label></td>
+                    <td><label><input type="text" name="rschVal4" onkeyup="inputNumberFormat(this);" id="rschVal4_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val4)%>" title="조사가4 가격" /></label></td>
+                    <td><label><input type="text" name="rschVal5" onkeyup="inputNumberFormat(this);" id="rschVal5_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val5)%>" title="조사가5 가격" /></label></td>
                   </tr>
                   <tr>
                     <th scope="row" class="bg_green">조사처</th>
@@ -1235,8 +1340,9 @@ else if("T".equals(foodVO.sch_grade)){%>
               <a href="javascript:;" class="reasonView_open openLayer" onclick="viewPopup('<%=vo.rsch_reason%>');" id="resViewBtn" title="사유보기"><span class="red u fb dp_block magB5">*사유보기</span></a>
             <%}%>
             <!--//사유 끝 -->
-              <button type="button" class="btn darkMblue initialism slide_open openLayer" onclick="submissionRsch('<%=vo.rsch_val_no%>', '1');">검토</button>
-              <button type="button" class="btn green" onclick="submissionRsch('<%=vo.rsch_val_no%>', '0');">마감</button>
+							<button type="button" class="btn darkMblue btn-mid initialism slide_open openLayer" onclick="submissionRsch('<%=vo.rsch_val_no%>', '1');">검토<br>마감</button>
+							<%--<button type="button" class="btn darkMblue initialism slide_open openLayer" onclick="submissionRsch('<%=vo.rsch_val_no%>', '1');">검토</button>
+              <button type="button" class="btn green" onclick="submissionRsch('<%=vo.rsch_val_no%>', '0');">마감</button>--%>
               <button type="button" class="btn red returnInput_open openLayer" onclick="returnPopup('<%=vo.rsch_val_no%>');">반려</button>
               <button type="button" class="btn white" onclick="careerRsch('<%=vo.item_no%>')">이력</button>
             </td>
@@ -1294,19 +1400,28 @@ else if("T".equals(foodVO.sch_grade)){%>
          		<tr>
 	             <td><span class="wid_cate"><%=vo.cat_nm%>-<%=vo.food_cat_index%></span></td>
 	             <td><%=vo.food_code%></td>
-	             <td><a href="#" class="dp_block"><span class="blue fb"><%=vo.nm_food%></span></a></td>
+	             <td><a href="javascript:;" class="dp_block openItem" data-value="<%=vo.item_no %>"><span class="blue fb"><%=vo.nm_food%></span></a></td>
 	             <td><span class="wid_ndetail"><%=vo.dt_nm%></span></td>
 	             <td><span class="wid_expl"><%=vo.ex_nm%></span></td>
 	             <td><%=vo.unit_nm%></td>
-	             <td><%=vo.non_season%></td>
-	             <td><%=vo.non_distri%></td>
-	             <td><%=vo.item_comp_no%></td>
-	             <td><%=vo.nu_nm%></td>
+	             <td><%
+							 	if("Y".equals(vo.non_season)) {out.println("<span class=\"red\">" + vo.non_season + "</span>");}
+								else {out.println(vo.non_season);}
+							 %></td>
+	             <td><%
+							 	if("Y".equals(vo.non_distri)) {out.println("<span class=\"red\">" + vo.non_distri + "</span>");}
+								else {out.println(vo.non_distri);}
+							 %></td>
+	             <td><%=vo.item_comp_no %>-<%=vo.item_comp_val %></td>
+	             <td><%=vo.nu_nm%>
+							 	<br><span>학교명 : <%=vo.sch_nm%></span>
+								<br><span>급식소 : <%=vo.sch_tel %></span>
+							 </td>
 	             <td class="padR5 padL5">
 	               <table class="table_skin02 mag0 th-pd1 td-pd1 rsch_price">
 	                 <caption>조사가1~5에 대한 조사처 및 브랜드 정보 입력</caption>
 	                 <colgroup>
-	                   <col style="width:15%">
+	                   <col style="width:17%">
 	                   <col style="width:17%" span="5">
 	                 </colgroup>
 	                 <thead>
@@ -1322,11 +1437,11 @@ else if("T".equals(foodVO.sch_grade)){%>
 	                 <tbody>
 	                   <tr>
 	                     <th scope="row" class="bg_green">조사가</th>
-	                     <td><%=vo.rsch_val1%></td>
-	                     <td><%=vo.rsch_val2%></td>
-	                     <td><%=vo.rsch_val3%></td>
-	                     <td><%=vo.rsch_val4%></td>
-	                     <td><%=vo.rsch_val5%></td>
+	                     <td><%=moneyComma(vo.rsch_val1)%></td>
+	                     <td><%=moneyComma(vo.rsch_val2)%></td>
+	                     <td><%=moneyComma(vo.rsch_val3)%></td>
+	                     <td><%=moneyComma(vo.rsch_val4)%></td>
+	                     <td><%=moneyComma(vo.rsch_val5)%></td>
 	                   </tr>
 	                   <tr>
 	                     <th scope="row" class="bg_green">조사처</th>
@@ -1347,7 +1462,10 @@ else if("T".equals(foodVO.sch_grade)){%>
 	                 </tbody>
 	               </table>
 	             </td>
-	             <td class="btn_mingroup"><span class="wid_state">마감완료</span></td>
+	             <td class="btn_mingroup"><span class="wid_state">
+							 	<%if ("Y".equals(vo.sts_flag)) { out.println("승인완료");
+								}else {out.println("마감완료");}%>
+							 </span></td>
 	           </tr>
          		<%
          	}
@@ -1376,7 +1494,7 @@ else if("T".equals(foodVO.sch_grade)){%>
           <col style="width:30px"/>
           <col style="width:30px"/>
           <col style="width:8%"/>
-          <col />
+          <col style="width:354px;"/>
           <col style="width:64px;" />
         </colgroup>
         <thead>
@@ -1411,7 +1529,7 @@ else if("T".equals(foodVO.sch_grade)){%>
             <td>
             <span class="wid_cate"><%=vo.cat_nm%>-<%=vo.food_cat_index%></span></td>
             <td><%=vo.food_code%></td>
-            <td><a href="#" class="dp_block"><span class="blue fb"><%=vo.nm_food%></span></a></td>
+            <td><a href="javascript:;" class="dp_block openItem" data-value="<%=vo.item_no %>"><span class="blue fb"><%=vo.nm_food%></span></a></td>
             <td><span class="wid_ndetail"><%=vo.dt_nm%></span></td>
             <td><span class="wid_expl"><%=vo.ex_nm%></span></td>
             <td><%=vo.unit_nm%></td>
@@ -1423,7 +1541,7 @@ else if("T".equals(foodVO.sch_grade)){%>
             	<label for="offDist_<%=vo.rsch_val_no%>" class="blind">비유통 체크</label>
             	<input type="checkbox" id="offDist_<%=vo.rsch_val_no%>" name="offDist" class="chbig" title="비유통 체크" value="Y" onclick="offChk('<%=vo.rsch_val_no%>', '2');"
             	<%if("Y".equals(vo.non_distri)){%>checked<%}%>/></td>
-            <td><%=vo.item_comp_no%></td>
+            <td><%=vo.item_comp_no %>-<%=vo.item_comp_val %></td>
             <td>
               <label for="rschSel_<%=vo.rsch_val_no%>" class="blind">조사자 선택</label>
               <select id="rschSel_<%=vo.rsch_val_no%>" name="rschSel">
@@ -1432,17 +1550,23 @@ else if("T".equals(foodVO.sch_grade)){%>
                 	String[] nu_no	=	vo.t_nu_no.split(",");
                 	String[] nu_nm	=	vo.t_nu_nm.split(",");
                 	for(int j=0; j<nu_no.length; j++){
-                		out.print(printOption(nu_no[j], nu_nm[j], vo.nu_no));
+										if (nu_no.length == 1) {
+											out.print(printOption(nu_no[j], nu_nm[j], nu_no[j]));
+										} else {
+											out.print(printOption(nu_no[j], nu_nm[j], vo.nu_no));
+										}
                 	}
                 }
                 %>
               </select>
+							<br><span>학교명 : <%=vo.sch_nm %></span>
+							<br><span>급식소 : <%=vo.sch_tel %></span>
             </td>
             <td class="padR5 padL5">
               <table class="table_skin02 mag0 th-pd1 td-pd1 rsch_price">
                 <caption>조사가1~5에 대한 조사처 및 브랜드 정보 입력</caption>
                 <colgroup>
-                  <col style="width:15%" />
+                  <col style="width:17%" />
                   <col style="width:17%" span="5" />
                 </colgroup>
                 <thead>
@@ -1458,11 +1582,11 @@ else if("T".equals(foodVO.sch_grade)){%>
                 <tbody>
                   <tr>
                     <th scope="row" class="bg_green">조사가</th>
-                    <td><label><input type="text" name="rschVal1" id="rschVal1_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val1%>" title="조사가1 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal2" id="rschVal2_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val2%>" title="조사가2 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal3" id="rschVal3_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val3%>" title="조사가3 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal4" id="rschVal4_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val4%>" title="조사가4 가격" /></label></td>
-                    <td><label><input type="text" name="rschVal5" id="rschVal5_<%=vo.rsch_val_no%>" value="<%=vo.rsch_val5%>" title="조사가5 가격" /></label></td>
+                    <td><label><input type="text" onkeyup="inputNumberFormat(this);" name="rschVal1" id="rschVal1_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val1)%>" title="조사가1 가격" /></label></td>
+                    <td><label><input type="text" onkeyup="inputNumberFormat(this);" name="rschVal2" id="rschVal2_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val2)%>" title="조사가2 가격" /></label></td>
+                    <td><label><input type="text" onkeyup="inputNumberFormat(this);" name="rschVal3" id="rschVal3_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val3)%>" title="조사가3 가격" /></label></td>
+                    <td><label><input type="text" onkeyup="inputNumberFormat(this);" name="rschVal4" id="rschVal4_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val4)%>" title="조사가4 가격" /></label></td>
+                    <td><label><input type="text" onkeyup="inputNumberFormat(this);" name="rschVal5" id="rschVal5_<%=vo.rsch_val_no%>" value="<%=moneyComma(vo.rsch_val5)%>" title="조사가5 가격" /></label></td>
                   </tr>
                   <tr>
                     <th scope="row" class="bg_green">조사처</th>
@@ -1527,7 +1651,7 @@ else if("T".equals(foodVO.sch_grade)){%>
 <!-- 사유 입력 모달 -->
   <div id="reasonInput" class="modal" style="display:none">
     <div class="topbar">
-      <h3>사유 입력</h3>
+      <h3>조사자료 재검토 / 사유입력</h3>
     </div>
     <div class="inner">
       <form name="reasonForm" id="reasonForm" method="post">
@@ -1535,6 +1659,7 @@ else if("T".equals(foodVO.sch_grade)){%>
         <!-- 빈번한 입력사유 자동 노출 영역 -->
         <p class="red fb c padT5 padB5" id="reasonInput_p"></p>
         <!-- //빈번 사유 끝 -->
+				<h3>사유입력</h3>
         <div class="sel_input magT10">
           <select name="reasonSel" id="reasonSel" title="사유를 선택해주세요." onchange="reasonChk(this.value);">
             <option value="">직접입력</option>
@@ -1543,7 +1668,8 @@ else if("T".equals(foodVO.sch_grade)){%>
           <textarea placeholder="구체적인 사유를 입력하세요." class="magT5 wps_100 h050" name="reason" id="reason"></textarea>
         </div>
         <div class="btn_area c mg_b5">
-          <input type="button" class="btn small edge darkMblue" value="확인" onclick="if(confirm('정말 제출하시겠습니까?')){submissionRsch('0', '3');}">
+          <input type="button" class="btn small edge darkMblue" value="사유입력" onclick="if(confirm('정말 제출하시겠습니까?')){submissionRsch('0', '3');}">
+					<input type="button" class="btn small edge green" value="조사자료 수정하기" onclick="modalClose('reasonInput');">
         </div>
       </form>
       <a href="javascript:modalClose('reasonInput');" class="btn_cancel" id="inputModalClose" title="창닫기"><img src="/img/art/layer_close.png" alt="창닫기"></a>

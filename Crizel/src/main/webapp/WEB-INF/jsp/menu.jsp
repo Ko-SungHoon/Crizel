@@ -55,6 +55,7 @@ $(function(){
 				<li><a href="http://www.youtube-audio.com/" target="blank">유튜브 mp3 추출</a></li>
 				<li><a href="http://www.anissia.net/anitime/" target="_blank">애니시아</a></li>
 				<li><a href="https://hentaku.net/poombun.php">검색기</a></li>
+				<li><a href="/test.do">TEST</a></li>
 			</ul></li>
 		<li><a href="/board.do?pageParam=1">게시판</a></li>
 	</ul>

@@ -139,60 +139,14 @@ private class ArtVOMapper implements RowMapper<ArtVO> {
     }
 %>
 <%
-/************************** 접근 허용 체크 - 시작 **************************/
 SessionManager sessionManager = new SessionManager(request);
-String sessionId = sessionManager.getId();
-if(sessionId == null || "".equals(sessionId)) {
-	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
-	if(true) return;
-}
-
-String roleId= null;
-String[] allowIp = null;
-Connection conn = null;
-try {
-	sqlMapClient.startTransaction();
-	conn = sqlMapClient.getCurrentConnection();
-	
-	// 접속한 관리자 회원의 권한 롤
-	roleId= getRoleId(sqlMapClient, conn, sessionId);
-	
-	// 관리자 접근 허용된 IP 배열
-	allowIp = getAllowIpArrays(sqlMapClient, conn);
-} catch (Exception e) {
-	sqlMapClient.endTransaction();
-	alertBack(out, "트랜잭션 오류가 발생했습니다.");
-} finally {
-	sqlMapClient.endTransaction();
-}
-
-// 권한정보 체크
-boolean isAdmin = sessionManager.isRole(roleId);
-
-// 접근허용 IP 체크
-String thisIp = request.getRemoteAddr();
-boolean isAllowIp = isAllowIp(thisIp, allowIp);
-
-/** Method 및 Referer 정보 **/
-String getMethod = parseNull(request.getMethod());
-String getReferer = parseNull(request.getHeader("referer"));
-
-if(!isAdmin) {
-	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
-	if(true) return;
-}
-if(!isAllowIp) {
-	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
-	if(true) return;
-}
-/************************** 접근 허용 체크 - 종료 **************************/
-
-//SessionManager sessionManager = new SessionManager(request);
 StringBuffer sql	=	null;
 List<ArtVO> list 	=	null;
 String search1		=	parseNull(request.getParameter("search1"));
+String search2		=	parseNull(request.getParameter("search2"), "NEW");
 String keyword		=	parseNull(request.getParameter("keyword"));
 String menuCd		=	parseNull(request.getParameter("menuCd"));
+
 
 Calendar cal = Calendar.getInstance();
 
@@ -244,6 +198,11 @@ if(!"".equals(search1) && !"".equals(keyword)){
 	}
     paging.setParams("search1", search1);
     paging.setParams("keyword", keyword);
+}
+if(!"".equals(search2)){
+	sql.append("	AND PRO_TYPE = ?									");
+	setList.add(search2);
+	paging.setParams("search2", search2);
 }
 sql.append("	AND A.REQ_DATE BETWEEN ? AND ?							");
 setList.add(start_date);
@@ -297,13 +256,13 @@ sql.append("			, NVL(C.REQ_PER, 0) AS REQ_PER						");
 sql.append("			, (SELECT NVL(SUM(REQ_AL_CNT.REQ_PER), 0) FROM ART_REQ_ALWAY REQ_AL LEFT JOIN ART_REQ_ALWAY_CNT REQ_AL_CNT ON REQ_AL.REQ_NO = REQ_AL_CNT.REQ_NO WHERE REQ_AL.REQ_DATE = A.REQ_DATE AND REQ_AL.APPLY_FLAG = 'Y' AND REQ_AL.REQ_AFT_FLAG IN ('D', A.REQ_AFT_FLAG) AND REQ_AL_CNT.PRO_NO = C.PRO_NO) AS CURR_PER");
 sql.append("			, NVL(B.MAX_PER, 0)	AS MAX_PER						");
 sql.append("			, (CASE												");
-sql.append("			WHEN (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM ART_REQ_ALWAY WHERE REQ_DATE = A.REQ_DATE AND APPLY_FLAG = 'Y') > 1 THEN 'N'	");
+sql.append("			WHEN (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM ART_REQ_ALWAY WHERE REQ_DATE = A.REQ_DATE AND APPLY_FLAG = 'Y') > 3 THEN 'N'	");
 sql.append("			WHEN (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM ART_REQ_ALWAY WHERE REQ_DATE = A.REQ_DATE AND REQ_SCH_ID = A.REQ_SCH_ID AND APPLY_FLAG = 'Y') > 0 THEN 'N'	");
 sql.append("			ELSE 'Y' END) AS DUPL_ID							");
 sql.append("			, C.ETC2							");
 
 sql.append("		FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT C		");
-sql.append("		ON A.REQ_NO = C.REQ_NO JOIN 						");
+sql.append("		ON A.REQ_NO = C.REQ_NO JOIN 							");
 sql.append("		(SELECT * FROM ART_PRO_ALWAY WHERE DEL_FLAG != 'Y' AND SHOW_FLAG = 'Y' ORDER BY PRO_NO ) B		");
 sql.append("		ON C.PRO_NO = B.PRO_NO									");
 sql.append("		WHERE 1=1 AND A.APPLY_FLAG NOT IN('C', 'A')				");
@@ -317,6 +276,9 @@ if(!"".equals(search1) && !"".equals(keyword)){
 	}
 	paging.setParams("search1", search1);
 	paging.setParams("keyword", keyword);
+}
+if(!"".equals(search2)){
+	sql.append("	AND B.PRO_TYPE = ?										");
 }
 sql.append("	AND A.REQ_DATE BETWEEN ? AND ?         						");
 paging.setParams("start_date", start_date);
@@ -333,7 +295,7 @@ list = jdbcTemplate.query(
 			setObj
 		);
 
-num = paging.getRowNo();
+num = paging.getRowNo();	
 
 %>
 <script>
@@ -419,7 +381,9 @@ num = paging.getRowNo();
 	<div id="content">
 		<div class="btn_area">
 			<button type="button" class="btn medium mako" onclick="location.href='/program/art/admin/alwaysReq.jsp'">승인대기 및 취소 - 상시</button>
+			<%if(sessionManager.isRoleAdmin()){%>
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/alwaysMng.jsp'">프로그램 관리 - 상시</button>
+			<%} %>
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/deepReq.jsp'">승인대기 및 취소 - 심화</button>
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/deepMng.jsp'">프로그램 관리 - 심화</button>
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/programStat.jsp'">통계관리</button>
@@ -442,6 +406,17 @@ num = paging.getRowNo();
 				<!-- <label for="keyword">검색어</label> -->
 				<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
 				<button class="btn small edge mako" onclick="searchSubmit();">검색하기</button>
+				<%
+				if("NEW".equals(search2)){
+				%>
+					<button class="btn small edge mako f_r" type="button" onclick="location.href='alwaysReq.jsp?search2=OLD';">2018년 1학기</button>
+				<%
+				}else{
+				%>
+					<button class="btn small edge mako f_r" type="button" onclick="location.href='alwaysReq.jsp';">2018년 1학기 이후</button>
+				<%	
+				}
+				%>
 			</fieldset>
 		</form>
 	</div>
@@ -452,157 +427,298 @@ num = paging.getRowNo();
 	</p>
 	<table class="bbs_list">
 		<caption>상시프로그램 승인대기 및 취소 테이블</caption>
-		<colgroup>
-			<col style="width:5%"/>
-			<col style="width:8%"/>
-			<col style="width:4%"/>
-			<col />
-			<col style="width:4%"/>
-			<col style="width:4%"/>
-			<col style="width:4%"/>
-			<col style="width:10%"/>
-			<col style="width:4%"/>
-			<col style="width:4%"/>
-			<col style="width:4%"/>
-			<col style="width:4%"/>
-			<col style="width:4%"/>
-			<col style="width:10%"/>
-			<col style="width:5%"/>
-			<col style="width:5%"/>
-		</colgroup>
-		<thead>
-			<tr>
-				<th scope="col">접수번호</th>
-				<th scope="col">신청일</th>
-				<th scope="col">분류</th>
-				<th scope="col">프로그램명</th>
-				<th scope="col">정원</th>
-				<th scope="col">현원</th>
-				<th scope="col">신청원</th>
-				<th scope="col">학년</th>
-				<th scope="col">아이디<br>/<br>학교명</th>
-				<th scope="col">담당자명</th>
-				<th scope="col">담당자 연락처</th>
-				<th scope="col">인솔자명</th>
-				<th scope="col">인솔자 연락처</th>
-				<th scope="col">접수일</th>
-				<th scope="col">승인상태</th>
-				<th scope="col">관리자<br>승인/취소</th>
-			</tr>
-		</thead>
-		<tbody>
-			<%
-			/*
-			*	PURPOSE	:	마지막 프로그램 primary key 확인
-			*	CREATE	:	20180329_thur	JI
-			*	MODIFY	:	....
-			*/
-			String lst_program_no	=	"";
-			sql	=	new StringBuffer();
-			sql.append(" SELECT NVL(MAX(PRO_NO), 0) FROM ART_PRO_ALWAY WHERE SHOW_FLAG = 'Y' AND DEL_FLAG != 'Y' ");
-			lst_program_no	=	jdbcTemplate.queryForObject(sql.toString(), String.class);
-			/* END */
-			if(list!=null && list.size() > 0){
-			for(ArtVO ob : list) {
-			%>
-			<tr
+		<%
+		if("NEW".equals(search2)){
+		%>
+			<colgroup>
+				<col style="width:8%"/>
+				<col style="width:8%"/>
+				<col style="width:8%"/>
+				<col style="width:8%"/>
+				<col />
+				<col style="width:8%"/>
+				<col style="width:8%"/>
+				<col style="width:8%"/>
+				<col style="width:8%"/>
+				<col style="width:8%"/>
+				<col style="width:8%"/>
+				<col style="width:8%"/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th scope="col">순번</th>
+					<th scope="col">체험일</th>
+					<th scope="col">신청학교</th>
+					<th scope="col">신청학년</th>
+					<th scope="col">프로그램 구분</th>
+					<th scope="col">정원</th>
+					<th scope="col">신청인원</th>
+					<th scope="col">인솔교사</th>
+					<th scope="col">인솔교사 전화번호</th>
+					<th scope="col">접수일자</th>
+					<th scope="col">관리자 승인/취소</th>
+					<th scope="col">승인상태</th>
+				</tr>
+			</thead>
+			<tbody>
 				<%
-				if ("N".equals(ob.apply_flag) && "Y".equals(ob.req_date_over)) {
-					out.println("class=\"bak-yellow\"");
+				/*
+				*	PURPOSE	:	마지막 프로그램 primary key 확인
+				*	CREATE	:	20180329_thur	JI
+				*	MODIFY	:	....
+				*/
+				String lst_program_no	=	"";
+				sql	=	new StringBuffer();
+				sql.append(" SELECT NVL(MAX(PRO_NO), 0) FROM ART_PRO_ALWAY WHERE SHOW_FLAG = 'Y' AND DEL_FLAG != 'Y' ");
+				lst_program_no	=	jdbcTemplate.queryForObject(sql.toString(), String.class);
+				/* END */
+				if(list!=null && list.size() > 0){
+				for(ArtVO ob : list) {
+				%>
+				<tr
+					<%
+					if ("N".equals(ob.apply_flag) && "Y".equals(ob.req_date_over)) {
+						out.println("class=\"bak-yellow\"");
+					}
+					%>
+				>
+					<td><%=ob.req_no %></td>
+					<td><a href="javascript:;" class="fb"><%=ob.req_date %></a></td>
+					<td><%=ob.req_sch_nm%></td>
+					<td><%=ob.etc2 %> 학년</td>
+					<td><%=ob.pro_name %></td>
+	                <td><%=ob.max_per %></td>
+	                <td><%=ob.req_per %></td>
+					<td><%=ob.sch_lead_nm %></td>
+					<td><%=ob.sch_lead_tel %></td>
+					<td><%=ob.reg_date %></td>
+					<%-- <td rowspan="<%=ob.rowspan %>" class="last_line">
+						<span <%if("N".equals(ob.dupl_id)) out.println("class='red'"); %>><%=ob.req_sch_id %></span><br> / <br><%=ob.req_sch_nm %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.sch_mng_nm %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.sch_mng_tel %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=parseNull(ob.sch_lead_nm, "-") %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=parseNull(ob.sch_lead_tel, "-") %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.reg_date %></td> --%>
+					<td>
+	                    <%
+	                    //승인 버튼 활성화 여부 중요!!!!
+	                    tmpPerFlag	=	true;
+	                    for(ArtVO proNm : list) {
+	                        if (ob.req_no == proNm.req_no) {
+	                            if (proNm.max_per < (proNm.curr_per + proNm.req_per)) {
+	                                tmpPerFlag	=	false;
+	                            }
+	                        }
+	                    }//END FOR
+	                    if (ob.req_date_over.equals("Y")) {
+	                        if("N".equals(ob.apply_flag)) {
+	                            //승인 아이디 2개와 인원 여부 확인
+	                            if ("Y".equals(ob.dupl_id) && tmpPerFlag) {
+	                        %><button type="button" class="btn small edge green" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button>
+							<button type="button" class="btn small edge white" onclick="cancelSubmit('<%=ob.req_no%>')">반려</button><%
+	                            } else {
+	                        %><span class="red">승인불가</span><%
+	                            }
+	                        } else if("Y".equals(ob.apply_flag)) {
+	                        %><button type="button" class="btn small edge white" onclick="cancelSubmit('<%=ob.req_no%>')">취소</button><%
+	                        } else if("A".equals(ob.apply_flag)) {		//관리자 취소
+	                        %>관리자 취소<%
+	                            if ("Y".equals(ob.dupl_id) && tmpPerFlag) {
+	                        %><button type="button" class="btn small edge green" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button><%
+	                            } else {
+	                        %><span class="red">승인불가</span><%
+	                            }
+	                        } else if("C".equals(ob.apply_flag)) {		//사용자 취소
+	                        %><%--사용자 취소--%><%
+	                            if ("Y".equals(ob.dupl_id) && tmpPerFlag) {
+	                        %><button type="button" class="btn small edge green" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button><%
+	                            } else {
+	                        %><span class="red">승인불가</span><%
+	                            }
+	                        }
+	                    } else {
+	                        out.println("기간초과");
+	                    }
+	                    %>
+					</td>
+					<td><%=applyText(ob.apply_flag) %></td>
+				</tr>
+				<%
+	                if (!(ob.req_no == tmpListNo)) {
+						tmpListNo	=	ob.req_no;
+						tmpProNm	=	"";
+						tmpPerFlag	=	true;
+	                }//END IF
+				}//END FOR
+				}else{
+				%>
+				<tr>
+					<td colspan="12">등록된 게시물이 없습니다.</td>
+				</tr>
+				<%
 				}
 				%>
-			>
-                <%if (!(ob.req_no == tmpListNo)) {%>
-				<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.req_no %></td>
-				<td rowspan="<%=ob.rowspan %>" class="last_line"><a href="javascript:;" class="fb"><%=ob.req_date %></a></td>
-				<td rowspan="<%=ob.rowspan %>" class="last_line"><%=aftText(ob.req_aft_flag)%></td>
-                <%}/* END IF */%>
-				<td align="left" <%if(lst_program_no.equals(Integer.toString(ob.pro_no))){out.println("class=\"last_line\"");}%>><%
-					/*for(ArtVO proNm : list) {
-						if (tmpListNo == proNm.req_no && tmpProNm.equals("")) {
-							tmpProNm	=	"<span>" + proNm.pro_name + "</span>/" + proNm.req_per + "/" + proNm.curr_per + "/" + proNm.max_per;
-						} else if (tmpListNo == proNm.req_no && tmpProNm.length() > 1) {
-							tmpProNm	+=	"<br>" + "<span>" + proNm.pro_name + "</span>/" + proNm.req_per + "/" + proNm.curr_per + "/" + proNm.max_per;
-						}
-					}//END FOR
-					out.println(tmpProNm);*/
-                    //정원을 초과할 경우가 1개라도 발생할 경우 false 저장
-                    out.println(ob.pro_no + ". "+ ob.pro_name);
-				%></td>
-                <td <%if(lst_program_no.equals(Integer.toString(ob.pro_no))){out.println("class=\"last_line\"");}%>><%=ob.max_per %></td>
-                <td <%if(lst_program_no.equals(Integer.toString(ob.pro_no))){out.println("class=\"last_line\"");}%>><%=ob.curr_per %></td>
-                <td <%if(lst_program_no.equals(Integer.toString(ob.pro_no))){out.println("class=\"last_line\"");}%>><%=ob.req_per %></td>
-				<td <%if(lst_program_no.equals(Integer.toString(ob.pro_no))){out.println("class=\"last_line\"");}%>><%=parseNull(ob.etc2, "-") %> 학년 </td>
-            <%if (!(ob.req_no == tmpListNo)) { %>
-				<%/*이미 아이디 2개 등록된 신청일 경우 빨간색 표시*/%>
-				<td rowspan="<%=ob.rowspan %>" class="last_line">
-					<span <%if("N".equals(ob.dupl_id)) out.println("class='red'"); %>><%=ob.req_sch_id %></span><br> / <br><%=ob.req_sch_nm %></td>
-				<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.sch_mng_nm %></td>
-				<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.sch_mng_tel %></td>
-				<td rowspan="<%=ob.rowspan %>" class="last_line"><%=parseNull(ob.sch_lead_nm, "-") %></td>
-				<td rowspan="<%=ob.rowspan %>" class="last_line"><%=parseNull(ob.sch_lead_tel, "-") %></td>
-				<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.reg_date %></td>
-				<td rowspan="<%=ob.rowspan %>" class="last_line"><%=applyText(ob.apply_flag) %></td>
-				<td rowspan="<%=ob.rowspan %>" class="last_line">
-                    <%
-                    //승인 버튼 활성화 여부 중요!!!!
-                    tmpPerFlag	=	true;
-                    for(ArtVO proNm : list) {
-                        if (ob.req_no == proNm.req_no) {
-                            if (proNm.max_per < (proNm.curr_per + proNm.req_per)) {
-                                tmpPerFlag	=	false;
-                            }
-                        }
-                    }//END FOR
-                    if (ob.req_date_over.equals("Y")) {
-                        if("N".equals(ob.apply_flag)) {
-                            //승인 아이디 2개와 인원 여부 확인
-                            if ("Y".equals(ob.dupl_id) && tmpPerFlag) {
-                        %><button type="button" class="btn small edge green" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button>
-						<button type="button" class="btn small edge white" onclick="cancelSubmit('<%=ob.req_no%>')">반려</button><%
-                            } else {
-                        %><span class="red">승인불가</span><%
-                            }
-                        } else if("Y".equals(ob.apply_flag)) {
-                        %><button type="button" class="btn small edge white" onclick="cancelSubmit('<%=ob.req_no%>')">취소</button><%
-                        } else if("A".equals(ob.apply_flag)) {		//관리자 취소
-                        %>관리자 취소<%
-                            if ("Y".equals(ob.dupl_id) && tmpPerFlag) {
-                        %><button type="button" class="btn small edge green" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button><%
-                            } else {
-                        %><span class="red">승인불가</span><%
-                            }
-                        } else if("C".equals(ob.apply_flag)) {		//사용자 취소
-                        %><%--사용자 취소--%><%
-                            if ("Y".equals(ob.dupl_id) && tmpPerFlag) {
-                        %><button type="button" class="btn small edge green" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button><%
-                            } else {
-                        %><span class="red">승인불가</span><%
-                            }
-                        }
-                    } else {
-                        out.println("기간초과");
-                    }
-                    %>
-				</td>
-            <%}%>
-			</tr>
-			<%
-                if (!(ob.req_no == tmpListNo)) {
-					tmpListNo	=	ob.req_no;
-					tmpProNm	=	"";
-					tmpPerFlag	=	true;
-                }//END IF
-			}//END FOR
-			}else{
-			%>
-			<tr>
-				<td colspan="16">등록된 게시물이 없습니다.</td>
-			</tr>
-			<%
-			}
-			%>
-		</tbody>
+			</tbody>
+		<%
+		}else{
+		%>
+			<colgroup>
+				<col style="width:5%"/>
+				<col style="width:8%"/>
+				<col style="width:4%"/>
+				<col />
+				<col style="width:4%"/>
+				<col style="width:4%"/>
+				<col style="width:4%"/>
+				<col style="width:10%"/>
+				<col style="width:4%"/>
+				<col style="width:4%"/>
+				<col style="width:4%"/>
+				<col style="width:4%"/>
+				<col style="width:4%"/>
+				<col style="width:10%"/>
+				<col style="width:5%"/>
+				<col style="width:5%"/>
+			</colgroup>
+			<thead>
+				<tr>
+					<th scope="col">접수번호</th>
+					<th scope="col">신청일</th>
+					<th scope="col">분류</th>
+					<th scope="col">프로그램명</th>
+					<th scope="col">정원</th>
+					<th scope="col">현원</th>
+					<th scope="col">신청원</th>
+					<th scope="col">학년</th>
+					<th scope="col">아이디<br>/<br>학교명</th>
+					<th scope="col">담당자명</th>
+					<th scope="col">담당자 연락처</th>
+					<th scope="col">인솔자명</th>
+					<th scope="col">인솔자 연락처</th>
+					<th scope="col">접수일</th>
+					<th scope="col">승인상태</th>
+					<th scope="col">관리자<br>승인/취소</th>
+				</tr>
+			</thead>
+			<tbody>
+				<%
+				/*
+				*	PURPOSE	:	마지막 프로그램 primary key 확인
+				*	CREATE	:	20180329_thur	JI
+				*	MODIFY	:	....
+				*/
+				String lst_program_no	=	"";
+				sql	=	new StringBuffer();
+				sql.append(" SELECT NVL(MAX(PRO_NO), 0) FROM ART_PRO_ALWAY WHERE SHOW_FLAG = 'Y' AND DEL_FLAG != 'Y' ");
+				lst_program_no	=	jdbcTemplate.queryForObject(sql.toString(), String.class);
+				/* END */
+				if(list!=null && list.size() > 0){
+				for(ArtVO ob : list) {
+				%>
+				<tr
+					<%
+					if ("N".equals(ob.apply_flag) && "Y".equals(ob.req_date_over)) {
+						out.println("class=\"bak-yellow\"");
+					}
+					%>
+				>
+	                <%if (!(ob.req_no == tmpListNo)) {%>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.req_no %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><a href="javascript:;" class="fb"><%=ob.req_date %></a></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=aftText(ob.req_aft_flag)%></td>
+	                <%}/* END IF */%>
+					<td align="left" <%if(lst_program_no.equals(Integer.toString(ob.pro_no))){out.println("class=\"last_line\"");}%>><%
+						/*for(ArtVO proNm : list) {
+							if (tmpListNo == proNm.req_no && tmpProNm.equals("")) {
+								tmpProNm	=	"<span>" + proNm.pro_name + "</span>/" + proNm.req_per + "/" + proNm.curr_per + "/" + proNm.max_per;
+							} else if (tmpListNo == proNm.req_no && tmpProNm.length() > 1) {
+								tmpProNm	+=	"<br>" + "<span>" + proNm.pro_name + "</span>/" + proNm.req_per + "/" + proNm.curr_per + "/" + proNm.max_per;
+							}
+						}//END FOR
+						out.println(tmpProNm);*/
+	                    //정원을 초과할 경우가 1개라도 발생할 경우 false 저장
+	                    out.println(ob.pro_no + ". "+ ob.pro_name);
+					%></td>
+	                <td <%if(lst_program_no.equals(Integer.toString(ob.pro_no))){out.println("class=\"last_line\"");}%>><%=ob.max_per %></td>
+	                <td <%if(lst_program_no.equals(Integer.toString(ob.pro_no))){out.println("class=\"last_line\"");}%>><%=ob.curr_per %></td>
+	                <td <%if(lst_program_no.equals(Integer.toString(ob.pro_no))){out.println("class=\"last_line\"");}%>><%=ob.req_per %></td>
+					<td <%if(lst_program_no.equals(Integer.toString(ob.pro_no))){out.println("class=\"last_line\"");}%>><%=parseNull(ob.etc2, "-") %> 학년 </td>
+	            <%if (!(ob.req_no == tmpListNo)) { %>
+					<%/*이미 아이디 2개 등록된 신청일 경우 빨간색 표시*/%>
+					<td rowspan="<%=ob.rowspan %>" class="last_line">
+						<span <%if("N".equals(ob.dupl_id)) out.println("class='red'"); %>><%=ob.req_sch_id %></span><br> / <br><%=ob.req_sch_nm %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.sch_mng_nm %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.sch_mng_tel %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=parseNull(ob.sch_lead_nm, "-") %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=parseNull(ob.sch_lead_tel, "-") %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=ob.reg_date %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line"><%=applyText(ob.apply_flag) %></td>
+					<td rowspan="<%=ob.rowspan %>" class="last_line">
+	                    <%
+	                    //승인 버튼 활성화 여부 중요!!!!
+	                    tmpPerFlag	=	true;
+	                    for(ArtVO proNm : list) {
+	                        if (ob.req_no == proNm.req_no) {
+	                            if (proNm.max_per < (proNm.curr_per + proNm.req_per)) {
+	                                tmpPerFlag	=	false;
+	                            }
+	                        }
+	                    }//END FOR
+	                    if (ob.req_date_over.equals("Y")) {
+	                        if("N".equals(ob.apply_flag)) {
+	                            //승인 아이디 2개와 인원 여부 확인
+	                            if ("Y".equals(ob.dupl_id) && tmpPerFlag) {
+	                        %><button type="button" class="btn small edge green" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button>
+							<button type="button" class="btn small edge white" onclick="cancelSubmit('<%=ob.req_no%>')">반려</button><%
+	                            } else {
+	                        %><span class="red">승인불가</span><%
+	                            }
+	                        } else if("Y".equals(ob.apply_flag)) {
+	                        %><button type="button" class="btn small edge white" onclick="cancelSubmit('<%=ob.req_no%>')">취소</button><%
+	                        } else if("A".equals(ob.apply_flag)) {		//관리자 취소
+	                        %>관리자 취소<%
+	                            if ("Y".equals(ob.dupl_id) && tmpPerFlag) {
+	                        %><button type="button" class="btn small edge green" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button><%
+	                            } else {
+	                        %><span class="red">승인불가</span><%
+	                            }
+	                        } else if("C".equals(ob.apply_flag)) {		//사용자 취소
+	                        %><%--사용자 취소--%><%
+	                            if ("Y".equals(ob.dupl_id) && tmpPerFlag) {
+	                        %><button type="button" class="btn small edge green" onclick="approvalSubmit('<%=ob.req_no%>')">승인</button><%
+	                            } else {
+	                        %><span class="red">승인불가</span><%
+	                            }
+	                        }
+	                    } else {
+	                        out.println("기간초과");
+	                    }
+	                    %>
+					</td>
+	            <%}%>
+				</tr>
+				<%
+	                if (!(ob.req_no == tmpListNo)) {
+						tmpListNo	=	ob.req_no;
+						tmpProNm	=	"";
+						tmpPerFlag	=	true;
+	                }//END IF
+				}//END FOR
+				}else{
+				%>
+				<tr>
+					<td colspan="16">등록된 게시물이 없습니다.</td>
+				</tr>
+				<%
+				}
+				%>
+			</tbody>
+		<%
+		}
+		%>
+	
+		
+		
 	</table>
 
 	<% if(paging.getTotalCount() > 0) { %>

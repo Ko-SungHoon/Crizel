@@ -351,7 +351,7 @@ public class CrizelController {
 		}else{
 			mav.addObject("view", mars.getView(addr));
 		}
-		mav.addObject("addr", URLDecoder.decode(addr, "UTF-8"));
+		mav.addObject("addr", URLEncoder.encode(addr, "UTF-8"));
 		mav.setViewName("mars");
 		return mav;
 	}
@@ -405,6 +405,12 @@ public class CrizelController {
 			
 			mf.get(i).transferTo(new File(path + saveFile));
 		}
+	}
+	
+	@RequestMapping("test.do")
+	public void test(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		service.test();
+		response.sendRedirect("/");
 	}
 	
 	public String parseNull(String value){

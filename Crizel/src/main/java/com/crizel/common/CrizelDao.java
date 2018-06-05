@@ -115,6 +115,10 @@ public class CrizelDao {
 		return sqlSession.selectList("crizel.comicViewList", addr);
 	}
 
+	public void test() {
+		sqlSession.update("crizel.test");
+	}
+
 	
 
 }

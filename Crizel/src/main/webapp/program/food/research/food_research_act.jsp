@@ -3,6 +3,7 @@
 *   PURPOSE :   월별조사항목개시 - 액션
 *   CREATE  :   20180405_thur    KO
 *	MODIFY  :   batch 방식 변경 20180424_tue    KO
+*	MODIFY  :   일괄 승인 및 나머지 승인 처리 20180517_thur		JI
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -17,19 +18,20 @@ request.setCharacterEncoding("UTF-8");
 
 String mode		= parseNull(request.getParameter("mode"));
 
-int rsch_no				= Integer.parseInt(parseNull(request.getParameter("rsch_no"), "0"));
-String rsch_nm 			= parseNull(request.getParameter("rsch_nm"));
-String rsch_year 		= parseNull(request.getParameter("rsch_year"));
-String rsch_month 		= parseNull(request.getParameter("rsch_month"));
-String str_date 		= parseNull(request.getParameter("str_date"));
-String mid_date 		= parseNull(request.getParameter("mid_date"));
-String end_date 		= parseNull(request.getParameter("end_date"));
-String[] cat_nm_arr 	= request.getParameterValues("cat_nm");					//	조사할 구분 
-String[] team_no_arr	= request.getParameterValues("team_no");				// 	조사할 팀
+int rsch_no				=	Integer.parseInt(parseNull(request.getParameter("rsch_no"), "0"));
+String rsch_nm 			=	parseNull(request.getParameter("rsch_nm"));
+String rsch_year 		=	parseNull(request.getParameter("rsch_year"));
+String rsch_month 		=	parseNull(request.getParameter("rsch_month"));
+String str_date 		=	parseNull(request.getParameter("str_date"));
+String mid_date 		=	parseNull(request.getParameter("mid_date"));
+String end_date 		=	parseNull(request.getParameter("end_date"));
+String[] cat_nm_arr 	=	request.getParameterValues("cat_nm");					//	조사할 구분 
+String[] team_no_arr	=	request.getParameterValues("team_no");				// 	조사할 팀
 
-int rsch_val_no 		= Integer.parseInt(parseNull(request.getParameter("rsch_val_no"), "0"));
-String sts_flag			= parseNull(request.getParameter("sts_flag"));
-String rj_reason		= parseNull(request.getParameter("rj_reason"));
+int rsch_val_no 		= 	Integer.parseInt(parseNull(request.getParameter("rsch_val_no"), "0"));
+String rsch_val_group	=	parseNull(request.getParameter("rsch_val_group"));	//일괄승인 그룹
+String sts_flag			=	parseNull(request.getParameter("sts_flag"));
+String rj_reason		=	parseNull(request.getParameter("rj_reason"));
 
 SessionManager sessionManager = new SessionManager(request);
 
@@ -528,30 +530,59 @@ try{
 	
 	else if("researchApproval".equals(mode)){			// 조사 승인/반려
 		if("Y".equals(sts_flag)){
-			sql = new StringBuffer();
-			sql.append("UPDATE FOOD_RSCH_VAL SET 			");
-			sql.append("	STS_FLAG = ?					");
-			sql.append("WHERE RSCH_VAL_NO = ?				");
-			result = jdbcTemplate.update(sql.toString(), sts_flag, rsch_val_no);
+			if (!"".equals(rsch_val_group)) {
+				String rsch_val_no_arr[] =   rsch_val_group.split(",");
+				int rsch_val_no_cnt      =   rsch_val_no_arr.length;
+				for (int i = 0; i < rsch_val_no_cnt; i++) {
+					sql	=	new StringBuffer();
+					sql.append("UPDATE FOOD_RSCH_VAL SET	");
+					sql.append("	STS_FLAG = ?			");
+					sql.append("WHERE RSCH_VAL_NO = ?		");
+					result	=	jdbcTemplate.update(sql.toString(), sts_flag, rsch_val_no_arr[i]);
+				}
+			} else {
+				sql = new StringBuffer();
+				sql.append("UPDATE FOOD_RSCH_VAL SET 			");
+				sql.append("	STS_FLAG = ?					");
+				sql.append("WHERE RSCH_VAL_NO = ?				");
+				result = jdbcTemplate.update(sql.toString(), sts_flag, rsch_val_no);
+			}
 		}else if("RR".equals(sts_flag)){
+			int itemCompNoRR = 0;
 			sql = new StringBuffer();
-			sql.append("UPDATE FOOD_RSCH_VAL SET 			");
-			sql.append("	STS_FLAG = ?					");
-			sql.append("	, RJ_REASON = ?					");
-			sql.append("	, RJ_DATE = SYSDATE				");
-			sql.append("	, RSCH_REASON = NULL			");
-			sql.append("	, T_RJ_REASON = NULL			");
-			sql.append("WHERE RSCH_VAL_NO IN (				");
-			sql.append("	SELECT RSCH_VAL_NO		");
-			sql.append("	FROM FOOD_RSCH_VAL A LEFT JOIN FOOD_ITEM_PRE B ON A.ITEM_NO = B.ITEM_NO			");
-			sql.append("	WHERE ITEM_COMP_NO = (															");
-			sql.append("  		SELECT B.ITEM_COMP_NO														");
-			sql.append("  		FROM FOOD_RSCH_VAL A LEFT JOIN FOOD_ITEM_PRE B ON A.ITEM_NO = B.ITEM_NO		");
-			sql.append("  		WHERE A.RSCH_VAL_NO = ?														");
-			sql.append("		)																			");
-			sql.append("	)																				");
-			sql.append("AND STS_FLAG NOT IN('N', 'RS')		");
-			result = jdbcTemplate.update(sql.toString(), sts_flag, rj_reason, rsch_val_no);
+			sql.append("SELECT NVL(B.ITEM_COMP_NO, 0)												");
+			sql.append("FROM FOOD_RSCH_VAL A LEFT JOIN FOOD_ITEM_PRE B ON A.ITEM_NO = B.ITEM_NO		");
+			sql.append("WHERE A.RSCH_VAL_NO = ? 													");
+			try{
+				itemCompNoRR = jdbcTemplate.queryForObject(sql.toString(), Integer.class, rsch_val_no);
+			}catch(Exception e){
+				itemCompNoRR = 0;
+			}
+			
+			sql = new StringBuffer();
+			sql.append("UPDATE FOOD_RSCH_VAL SET 															");
+			sql.append("	STS_FLAG = ?																	");
+			sql.append("	, RJ_REASON = ?																	");
+			sql.append("	, RJ_DATE = SYSDATE																");
+			sql.append("	, RSCH_REASON = NULL															");
+			sql.append("	, T_RJ_REASON = NULL															");
+			sql.append("WHERE 1=1																			");
+			if(itemCompNoRR>0){
+				sql.append("AND RSCH_VAL_NO IN (																");
+				sql.append("	SELECT RSCH_VAL_NO																");
+				sql.append("	FROM FOOD_RSCH_VAL A LEFT JOIN FOOD_ITEM_PRE B ON A.ITEM_NO = B.ITEM_NO			");
+				sql.append("	WHERE ITEM_COMP_NO = (															");
+				sql.append("  		SELECT B.ITEM_COMP_NO														");
+				sql.append("  		FROM FOOD_RSCH_VAL A LEFT JOIN FOOD_ITEM_PRE B ON A.ITEM_NO = B.ITEM_NO		");
+				sql.append("  		WHERE A.RSCH_VAL_NO = ?														");
+				sql.append("		)																			");
+				sql.append("	)																				");
+			}else{
+				sql.append("AND RSCH_VAL_NO = ?																	");
+			}
+			sql.append("AND ZONE_NO = (SELECT ZONE_NO FROM FOOD_RSCH_VAL WHERE RSCH_VAL_NO = ?)					");
+			sql.append("AND STS_FLAG NOT IN('N', 'RS')															");
+			result = jdbcTemplate.update(sql.toString(), sts_flag, rj_reason, rsch_val_no, rsch_val_no);
 		}
 	
 		if(result>0){
@@ -561,6 +592,26 @@ try{
 			out.println("opener.location.reload();");
 			out.println("</script>");
 		}else{
+			out.println("<script>alert('처리 중 오류가 발생하였습니다.');location.replace('" + returnPage + "');</script>");
+		}
+	}
+
+	//마감 내용을 모두 승인처리 하기
+	else if ("otherApproval".equals(mode)) {
+		sql	=	new StringBuffer();
+		sql.append("UPDATE FOOD_RSCH_VAL				");
+		sql.append("SET STS_FLAG = ?					");
+		sql.append("WHERE RSCH_NO = (					");
+		sql.append("	SELECT MAX(RSCH_NO) FROM		");
+		sql.append("	FOOD_RSCH_VAL)					");
+		sql.append("	AND STS_FLAG = 'SS'				");
+		result	=	jdbcTemplate.update(sql.toString(), sts_flag);
+		if (result > 0) {
+			out.println("<script>");
+			out.println("alert('정상적으로 처리되었습니다.');");
+			out.println("location.replace('" + returnPage + "');");
+			out.println("</script>");
+		} else {
 			out.println("<script>alert('처리 중 오류가 발생하였습니다.');location.replace('" + returnPage + "');</script>");
 		}
 	}
