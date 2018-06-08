@@ -31,7 +31,7 @@
         public String req_sch_group;
         public String apply_date;
         //신청 개별 변수
-        public int pro_no;
+        //public int pro_no;
         public String pro_name;
 
         public String req_date_over;
@@ -58,7 +58,7 @@
             reqData.req_sch_group   =   rs.getString("REQ_SCH_GROUP");
             reqData.apply_date      =   rs.getString("APPLY_DATE");
             //program tb data values
-            reqData.pro_no          =   rs.getInt("PRO_NO");
+            //reqData.pro_no          =   rs.getInt("PRO_NO");
             reqData.pro_name        =   rs.getString("PRO_NAME");
 
             reqData.req_date_over   =   rs.getString("REQ_DATE_OVER");
@@ -99,8 +99,6 @@
 %>
 
 <%
-String listPage 	= 	"DOM_000002001002003002";	// 실서버 : DOM_000002001002003002 , 테스트 : DOM_000000126002003005
-String confirmPage	=	"DOM_000002001002003004";	// 실서버 : DOM_000002001002003004 , 테스트 : DOM_000000126002003008
 
 SessionManager sessionManager   =   new SessionManager(request);
 
@@ -108,7 +106,7 @@ SessionManager sessionManager   =   new SessionManager(request);
 if (sessionManager.getName().trim().equals("") || sessionManager.getId().trim().equals("") || sessionManager.getName().trim().length() < 1 || sessionManager.getId().trim().length() < 1) {
     out.println("<script>");
     out.println("alert('로그인한 회원만 열람 가능합니다.');");
-    out.println("location.href='/index.gne?menuCd="+listPage+"';");
+    out.println("location.href='/index.gne?menuCd=DOM_000002001002003002';");
     out.println("</script>");
 }
 
@@ -178,12 +176,11 @@ try{
     sql_str +=  " , REQAL.REQ_SCH_GRADE ";
     sql_str +=  " , REQAL.REQ_SCH_GROUP ";
     sql_str +=  " , REQAL.APPLY_DATE ";
-    sql_str +=  " , REQAL_CNT.PRO_NO	";
     sql_str +=  " , REQAL_CNT.PRO_NAME ";
     sql_str +=  " , (CASE WHEN REQAL.REQ_DATE > TO_CHAR(SYSDATE, 'YYYY-MM-DD') THEN 'Y' ";
     sql_str +=  "   WHEN REQAL.REQ_DATE <= TO_CHAR(SYSDATE, 'YYYY-MM-DD') THEN 'N' END) AS REQ_DATE_OVER ";
     sql_str +=  " FROM ART_REQ_ALWAY REQAL LEFT JOIN ART_REQ_ALWAY_CNT REQAL_CNT ON REQAL.REQ_NO = REQAL_CNT.REQ_NO ";
-    sql_str +=  " JOIN (SELECT * FROM ART_PRO_ALWAY WHERE PRO_TYPE = 'NEW' AND DEL_FLAG != 'Y' AND SHOW_FLAG = 'Y') C ON REQAL_CNT.PRO_NO = C.PRO_NO ";
+    sql_str +=  " JOIN (SELECT * FROM ART_PRO_ALWAY WHERE DEL_FLAG != 'Y' AND SHOW_FLAG = 'Y') C ON REQAL_CNT.PRO_NO = C.PRO_NO ";
     sql_str +=  " WHERE REQAL.REQ_SCH_ID = ? ";
     sql_str +=  " ORDER BY REQAL.REQ_DATE DESC, REQAL.REQ_NO DESC ";
     sql_str +=  "  ) A WHERE ROWNUM <= ? ";
@@ -228,7 +225,6 @@ try{
 		</tr>
 	</thead>
 	<tbody>
-			<tr>
     <%
     if (reqDateList.size() > 0) {
         for(ArtReqData data : reqDateList){
@@ -239,7 +235,7 @@ try{
                 out.println("<tr>");
             %>
                 <td><span class="dis_mo">접수번호</span><%=data.req_no %></td>
-                <td><span class="dis_mo">신청일</span><a href="./index.gne?menuCd=<%=confirmPage%>&req_no=<%=data.req_no %>&req_date=<%=data.req_date %>&pro_no=<%=data.pro_no %>" class="fb"><%=data.req_date %></a></td>
+                <td><span class="dis_mo">신청일</span><a href="./index.gne?menuCd=DOM_000002001002003004&req_no=<%=data.req_no %>&req_date=<%=data.req_date %>" class="fb"><%=data.req_date %></a></td>
                 <td><span class="dis_mo">프로그램명</span><%
                 int pro_cnt =   0;
                 for(ArtReqData proNm : reqDateList) {

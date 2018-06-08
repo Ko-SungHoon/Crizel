@@ -117,8 +117,6 @@
 %>
 
 <%
-String insertPage	= "DOM_000002001002003003";		// 실서버 : DOM_000002001002003003 , 테스트 : DOM_000000126002003007
-String viewPage 	= "DOM_000002001002003005";		// 실서버 : DOM_000002001002003005 , 테스트 : DOM_000000126002003006
 
 SessionManager sessionManager   =   new SessionManager(request);
 
@@ -126,7 +124,7 @@ SessionManager sessionManager   =   new SessionManager(request);
 if (sessionManager.getName().trim().equals("") || sessionManager.getId().trim().equals("") || sessionManager.getName().trim().length() < 1 || sessionManager.getId().trim().length() < 1) {
     out.println("<script>");
     out.println("alert('로그인 정보 저장 시간초과 입니다. 다시 로그인 하세요.');");
-    out.println("location.href='/index.gne?menuCd="+viewPage+"';");
+    out.println("location.href='/index.gne?menuCd=DOM_000002001002003005';");
     out.println("</script>");
 }
 
@@ -145,12 +143,11 @@ int num         =   0;
 
 String req_no	=   parseNull(request.getParameter("req_no"), "");
 String req_date =   parseNull(request.getParameter("req_date"), "");
-String pro_no	=	parseNull(request.getParameter("pro_no"));
 //파라미터 확인
 if (req_no.trim().equals("") || req_no.length() < 1 || req_date.trim().equals("") || req_date.length() < 1) {
 	out.println("<script>");
     out.println("alert('파라미터가 확인 되지 않습니다. 관리자에게 문의하세요.');");
-    out.println("location.href='/index.gne?menuCd="+viewPage+"';");
+    out.println("location.href='/index.gne?menuCd=DOM_000002001002003005';");
     out.println("</script>");
 }
 
@@ -232,14 +229,13 @@ sql_str	+=	"   WHERE ART_REQ_ALWAY.APPLY_FLAG IN ('Y', 'N') AND ART_REQ_ALWAY_CN
 sql_str	+=	"   AND ART_REQ_ALWAY.REQ_AFT_FLAG IN ('D', ? ) ";
 sql_str	+=	"   ) AS CURR_PER ";
 sql_str	+=	" FROM ART_PRO_ALWAY APAL ";
-sql_str	+=	" WHERE APAL.PRO_NO = ? AND APAL.SHOW_FLAG = 'Y' AND APAL.DEL_FLAG != 'Y' ";
+sql_str	+=	" WHERE APAL.SHOW_FLAG = 'Y' AND APAL.DEL_FLAG != 'Y' ";
 sql_str	+=	" ORDER BY APAL.PRO_NO ";
 sql.append(sql_str);
 
 insObj  =   new Object[] {
         req_date
 		, aft_text
-		, pro_no
     };
 proDataList =   jdbcTemplate.query(sql.toString(), insObj, new ArtProList());
 
@@ -256,7 +252,10 @@ proDataList =   jdbcTemplate.query(sql.toString(), insObj, new ArtProList());
 	}
 
 	function go_modify(req_no, aft_text) {
-		location.href="/index.gne?menuCd=<%=insertPage%>&req_no=" + req_no + "&aft_flag=" + aft_text+"&req_date=<%=req_date%>&pro_no=<%=pro_no%>";
+		if (confirm("수정하시겠습니까?")) {
+			location.href="/index.gne?menuCd=DOM_000002001002003003&req_no=" + req_no + "&aft_flag=" + aft_text;
+			return;
+		}
 	}
 </script>
 <%/*************************************** 퍼블리싱 구역임 ****************************************/%>
@@ -336,14 +335,14 @@ proDataList =   jdbcTemplate.query(sql.toString(), insObj, new ArtProList());
 								</tr>
 							<%}%>
 							</tbody>
-							<%-- <tfoot>
+							<tfoot>
 								<tr>
 									<td colspan="4" class="c">계</td>
 									<td class="c"><%=totalMaxPer %></td>
 									<td class="c"><%=totalCurrPer %></td>
 									<td class="c"><%=totalReqPer %></td>
 								</tr>
-							</tfoot> --%>
+							</tfoot>
 						</table>
 				</td>
 			</tr>

@@ -107,7 +107,8 @@ public class Mars {
         
         for(int i=0; i<imgElem.size(); i++){
         	Element img = imgElem.get(i);
-        	imgList.add("https://5siri.com/" + img.attr("src"));
+        	//imgList.add("https://5siri.com/" + img.attr("src"));
+        	imgList.add("https://5siri.com/" + img.attr("src").substring(img.attr("src").indexOf("xe"), img.attr("src").length()));
         }
         
         fileMap.put("imgList", imgList);

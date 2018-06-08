@@ -34,13 +34,40 @@ function clipboardCopy(index){
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
-<%
+<%-- <%
 Cookie cookie = new Cookie("adult", "true");
-//cookie.setMaxAge(60*60*24*365);            			// 쿠키 유지 기간 - 1년
-cookie.setMaxAge(5);
-cookie.setPath("/");                       			// 모든 경로에서 접근 가능하도록 
-response.addCookie(cookie);                			// 쿠키저장
+//cookie.setMaxAge(60*60*24*365);            					// 쿠키 유지 기간 - 1년
+cookie.setMaxAge(60);
+cookie.setPath("/");                       						// 모든 경로에서 접근 가능하도록 
+response.addCookie(cookie);                						// 쿠키저장 
 %>	
+<script>
+function getCookie(cookie_name) {
+  var x, y;
+  var val = document.cookie.split(';');
+
+  for (var i = 0; i < val.length; i++) {
+    x = val[i].substr(0, val[i].indexOf('='));
+    y = val[i].substr(val[i].indexOf('=') + 1);
+    x = x.replace(/^\s+|\s+$/g, ''); // 앞과 뒤의 공백 제거하기
+    if (x == cookie_name) {
+      return unescape(y); // unescape로 디코딩 후 값 리턴
+    }
+  }
+}
+	//setCookie('adult', 'true', 1);
+	//setCookie('lpopup', 'no', 1);
+	
+alert(getCookie('adult'));
+
+var cookie = document.cookie;
+if(!cookie.length || cookie.indexOf('adult')==-1){
+	alert("없음");
+}else{
+	alert("있음");
+} 
+</script>
+--%>
 	<div class="search center">
 		<form id="postForm" action="/mars.do" method="get" onchange="document.getElementById('postForm').submit();">
 			<select id="addr" name="addr">

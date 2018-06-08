@@ -122,7 +122,7 @@ cell = row.createCell(13);
 cell.setCellValue("중앙가");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(14);
-cell.setCellValue("세권역 통합평균가");
+cell.setCellValue("권역 통합평균가");
 cell.setCellStyle(headCellStyle);
 cell = row.createCell(15);
 cell.setCellValue("조사자");
@@ -464,7 +464,7 @@ try{
     sql.append(" WHERE TB.SHOW_FLAG = 'Y'										\n");
     sql.append(" AND VAL.STS_FLAG = 'Y' 										\n");		
     sql.append(sqlWhere);
-    sql.append(" ORDER BY PRE.ITEM_NO											\n");
+    sql.append(" ORDER BY TB.RSCH_NO DESC, PRE.ITEM_NO, VAL.RSCH_VAL_NO			\n");
 
     if(setWhere != null && setWhere.size() > 0){
         setObject	=	new Object[setWhere.size()];
@@ -496,11 +496,12 @@ try{
             cell    =   row.createCell(11); cell.setCellValue(vo.item_comp_no); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(12); cell.setCellValue(moneyComma(parseNull(vo.avr_val, " - "))); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(13); cell.setCellValue(moneyComma(parseNull(vo.center_val, " - "))); cell.setCellStyle(cellStyle);
-            if ("3".equals(vo.zone_avr_cnt)) {
+            /* if ("3".equals(vo.zone_avr_cnt)) {
                 cell    =   row.createCell(14); cell.setCellValue(moneyComma(parseNull(vo.zone_avr_val, " - "))); cell.setCellStyle(cellStyle);
             } else {
                 cell    =   row.createCell(14); cell.setCellValue("-"); cell.setCellStyle(cellStyle);
-            }
+            } */
+            cell    =   row.createCell(14); cell.setCellValue(moneyComma(parseNull(vo.zone_avr_val, " - "))); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(15); cell.setCellValue(vo.sch_nm +" / "+ vo.nu_nm); cell.setCellStyle(cellStyle);
             cell    =   row.createCell(16); cell.setCellValue(vo.zone_nm +" / "+ vo.team_nm); cell.setCellStyle(cellStyle);
             /*조사가 정렬 출력*/

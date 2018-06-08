@@ -3,7 +3,6 @@
 *   PURPOSE :   승인대기 및 취소 - 심화
 *   CREATE  :   20180130_tue    Ko
 *   MODIFY  :   20180223 LJH 마크업, 클래스 수정
-*   MODIFY  :   20180607	KO	테이블 컬럼 수정
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -131,7 +130,55 @@ private String reqFlag (String req_flag, String sts_flag, int per_remain, int re
 
 %>
 <%
+/************************** 접근 허용 체크 - 시작 **************************/
 SessionManager sessionManager = new SessionManager(request);
+String sessionId = sessionManager.getId();
+if(sessionId == null || "".equals(sessionId)) {
+	alertParentUrl(out, "관리자 로그인이 필요합니다.", adminLoginUrl);
+	if(true) return;
+}
+
+String roleId= null;
+String[] allowIp = null;
+Connection conn = null;
+try {
+	sqlMapClient.startTransaction();
+	conn = sqlMapClient.getCurrentConnection();
+	
+	// 접속한 관리자 회원의 권한 롤
+	roleId= getRoleId(sqlMapClient, conn, sessionId);
+	
+	// 관리자 접근 허용된 IP 배열
+	allowIp = getAllowIpArrays(sqlMapClient, conn);
+} catch (Exception e) {
+	sqlMapClient.endTransaction();
+	alertBack(out, "트랜잭션 오류가 발생했습니다.");
+} finally {
+	sqlMapClient.endTransaction();
+}
+
+// 권한정보 체크
+boolean isAdmin = sessionManager.isRole(roleId);
+
+// 접근허용 IP 체크
+String thisIp = request.getRemoteAddr();
+boolean isAllowIp = isAllowIp(thisIp, allowIp);
+
+/** Method 및 Referer 정보 **/
+String getMethod = parseNull(request.getMethod());
+String getReferer = parseNull(request.getHeader("referer"));
+
+if(!isAdmin) {
+	alertBack(out, "해당 사용자("+sessionId+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+if(!isAllowIp) {
+	alertBack(out, "해당 IP("+thisIp+")는 접근 권한이 없습니다.");
+	if(true) return;
+}
+/************************** 접근 허용 체크 - 종료 **************************/
+
+//SessionManager sessionManager = new SessionManager(request);
 StringBuffer sql	= null;
 List<ArtVO> list 	= null;
 String search1		= parseNull(request.getParameter("search1"));
@@ -156,14 +203,13 @@ sql.append("		WHERE 1=1					 							");
 if(!"".equals(search1) && !"".equals(keyword)){
 	if("pro_cat_nm".equals(search1)){
 		sql.append("	AND B.PRO_CAT_NM LIKE '%'||?||'%'					");
+		setList.add(keyword);
 	}else if("req_user_nm".equals(search1)){
 		sql.append("	AND A.REQ_USER_NM LIKE '%'||?||'%'					");
-	}else if("pro_name".equals(search1)){
-		sql.append("	AND B.PRO_NAME LIKE '%'||?||'%'						");
+		setList.add(keyword);
 	}
-	setList.add(keyword);
-	paging.setParams("search1", search1);
-	paging.setParams("keyword", keyword);
+paging.setParams("search1", search1);
+paging.setParams("keyword", keyword);
 }
 
 setObj = new Object[setList.size()];
@@ -222,8 +268,6 @@ if(!"".equals(search1) && !"".equals(keyword)){
 		sql.append("	AND B.PRO_CAT_NM LIKE '%'||?||'%'					");
 	}else if("req_user_nm".equals(search1)){
 		sql.append("	AND A.REQ_USER_NM LIKE '%'||?||'%'					");
-	}else if("pro_name".equals(search1)){
-		sql.append("	AND B.PRO_NAME LIKE '%'||?||'%'						");
 	}
 paging.setParams("search1", search1);
 paging.setParams("keyword", keyword);
@@ -304,9 +348,7 @@ function motModalClose(){
 	<div id="content">
 		<div class="btn_area">
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/alwaysReq.jsp'">승인대기 및 취소 - 상시</button>
-			<%if(sessionManager.isRoleAdmin()){%>
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/alwaysMng.jsp'">프로그램 관리 - 상시</button>
-			<%} %>
 			<button type="button" class="btn medium mako" onclick="location.href='/program/art/admin/deepReq.jsp'">승인대기 및 취소 - 심화</button>
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/deepMng.jsp'">프로그램 관리 - 심화</button>
 			<button type="button" class="btn medium white" onclick="location.href='/program/art/admin/programStat.jsp'">통계관리</button>
@@ -319,8 +361,7 @@ function motModalClose(){
 					<select id="search1" name="search1">
 						<option value="">선택</option>
 						<option value="pro_cat_nm"  <%if("pro_cat_nm".equals(search1)){%> selected="selected" <%}%>>분류명</option>
-						<option value="pro_name" <%if("pro_name".equals(search1)){%> selected="selected" <%}%>>프로그램명</option>
-						<option value="req_user_nm" <%if("req_user_nm".equals(search1)){%> selected="selected" <%}%>>신청자명</option>
+						<option value="req_user_nm" <%if("req_user_nm".equals(search1)){%> selected="selected" <%}%>>담당자명</option>
 					</select>
 					<!-- <label for="keyword">검색어</label> -->
 					<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
@@ -337,34 +378,30 @@ function motModalClose(){
 			<caption>심화프로그램 승인대기 및 취소 테이블</caption>
 			<colgroup>
 				<col style="width:5%" />
-				<col style="width:7.3%" />
-				<col/>
-				<col style="width:7.3%" />
-				<col style="width:7.3%" />
-				<col style="width:7.3%" />
-				<col style="width:7.3%" />
-				<col style="width:7.3%" />
-				<col style="width:7.3%" />
-				<col style="width:7.3%" />
-				<col style="width:7.3%" />
-				<col style="width:7.3%" />
-				<col style="width:7.3%" />
+				<col style="width:10%" />
+				<col />
+				<col style="width:8%" />
+				<col style="width:8%" />
+				<col style="width:8%" />
+				<col style="width:9%" />
+				<col style="width:9%" />
+				<col style="width:10%" />
+				<col style="width:8%" />
+				<col style="width:8%" />
 			</colgroup>
 			<thead>
 				<tr>
 					<th scope="col">순서</th>
 					<th scope="col">분류</th>
-					<th scope="col">프로그램</th>
+					<th scope="col">프로그램명</th>
 					<th scope="col">정원</th>
 					<th scope="col">현원</th>
 					<th scope="col">신청원</th>
-					<th scope="col">신청자</th>
-					<th scope="col">소속기관</th>
-					<th scope="col">연락처</th>
-					<th scope="col">간략정보</th>
-					<th scope="col">접수일</th>
-					<th scope="col">승인/취소</th>
+					<th scope="col">신청자명</th>
+					<th scope="col">신청자 연락처</th>
+					<th scope="col">신청일</th>
 					<th scope="col">승인상태</th>
+					<th scope="col">승인/취소</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -383,19 +420,17 @@ function motModalClose(){
 					<td><%=ob.curr_per %></td>
 					<td><%=ob.req_per %></td>
 					<td><a href="javascript:motModal('<%=req_mot%>');"><%=ob.req_user_nm %></a></td>
-					<td><%=ob.req_group %></td>
 					<td><%=ob.req_user_tel %></td>
-					<td><%=ob.req_mot %></td>
 					<td><%=ob.reg_date %></td>
-					<td><%=reqFlag(ob.apply_flag, ob.pro_sts_flag, (ob.max_per - (ob.curr_per + ob.req_per)), ob.req_no) %></td>
 					<td><%=reqFlag(ob.apply_flag, ob.pro_sts_flag, (ob.max_per - (ob.curr_per + ob.req_per))) %></td>
+					<td><%=reqFlag(ob.apply_flag, ob.pro_sts_flag, (ob.max_per - (ob.curr_per + ob.req_per)), ob.req_no) %></td>
 				</tr>
 				<%
 				}
 				}else{
 				%>
 				<tr>
-					<td colspan="13">등록된 게시물이 없습니다.</td>
+					<td colspan="11">등록된 게시물이 없습니다.</td>
 				</tr>
 				<%
 				}

@@ -38,10 +38,6 @@
 request.setCharacterEncoding("UTF-8");
 response.setCharacterEncoding("UTF-8");
 
-String listPage		= "DOM_000002001002003002";		//	실서버 : DOM_000002001002003002 , 테스트 : DOM_000000126002003005
-String confirmPage	= "DOM_000002001002003004";		//	실서버 : DOM_000002001002003004 , 테스트 : DOM_000000126002003008
-String viewPage 	= "DOM_000002001002003005";		//	실서버 : DOM_000002001002003005 , 테스트 : DOM_000000126002003006
-
 SessionManager sessionManager   =   new SessionManager(request);
 
 /* dataType */
@@ -56,7 +52,7 @@ if (sessionManager.getName().trim().equals("") || sessionManager.getId().trim().
         if (dataType.equals("app")) {
             out.println("location.href='http://www.gne.go.kr/iam/login/login.sko';");
         }
-        out.println("location.href='/index.gne?menuCd="+listPage+"';");
+        out.println("location.href='/index.gne?menuCd=DOM_000002001002003002';");
         out.println("</script>");
         return;
     }
@@ -88,11 +84,11 @@ if (dataType != null && dataType.length() > 0) {
 /** 신청 insert **/
     if (dataType.equals("ins")) {
         
-        String proNo          	=   parseNull(request.getParameter("proNo"));
-        String req_per        	=   parseNull(request.getParameter("req_per"));
-        String etc2           	=   parseNull(request.getParameter("etc2"));
+        String[] proNo          =   request.getParameterValues("proNo");
+        String[] req_per        =   request.getParameterValues("req_per");
+        String[] etc2           =   request.getParameterValues("etc2");
         int req_total_cnt       =   0;
-        req_total_cnt = Integer.parseInt(req_per);
+        for (int i = 0; i < req_per.length; i++) {req_total_cnt   +=  Integer.parseInt(req_per[i]);}
         String sch_mng_name     =   parseNull(request.getParameter("sch_mng_name"));
         String sch_mng_tel      =   parseNull(request.getParameter("sch_mng_tel"));
         String sch_mng_mail     =   parseNull(request.getParameter("sch_mng_mail"));
@@ -103,7 +99,7 @@ if (dataType != null && dataType.length() > 0) {
         if (req_total_cnt < 1) {
             out.println("<script>");
             out.println("alert('신청인원이 없습니다. 다시 신청하세요.');");
-            out.println("location.href='/index.gne?menuCd="+listPage+"';");
+            out.println("location.href='/index.gne?menuCd=DOM_000002001002003002';");
             out.println("</script>");
             return;
         }
@@ -181,6 +177,10 @@ if (dataType != null && dataType.length() > 0) {
             );
             
             //프로그램 별 신청 insert 하기
+            if (proNo.length > 0 && req_total_cnt > 0) {
+                sqlMapClient.startTransaction();
+                conn    =   sqlMapClient.getCurrentConnection();
+                
                 result       =   0;
                 
                 sql         =   new StringBuffer();
@@ -202,21 +202,44 @@ if (dataType != null && dataType.length() > 0) {
                 sql_str     +=  " , ? ";
                 sql_str     +=  " ) ";
                 sql.append(sql_str);
+                pstmt       =   conn.prepareStatement(sql.toString());
                 
-                result = jdbcTemplate.update(sql_str, lastInsNo, proNo, proNo, req_per, req_date, etc2);
+                for (int i = 0; i < proNo.length; i++) {
+                    //if (Integer.parseInt(req_per[i]) > 0) {
+                        pstmt.setInt(1, lastInsNo);
+                        pstmt.setString(2, proNo[i]);
+                        pstmt.setString(3, proNo[i]);
+                        pstmt.setString(4, req_per[i]);
+                        pstmt.setString(5, req_date);
+                        pstmt.setString(6, etc2[i]);
+                        pstmt.addBatch();
+                    //}
+                }
+                
+                int[] batchCount 	=   pstmt.executeBatch();
+				result      		=   batchCount.length;
+            }
             
         }catch(Exception e){
+            if(conn!=null){conn.close();}
+            if(pstmt!=null){pstmt.close();}
+            sqlMapClient.endTransaction();
+
             out.println(e.toString());
         }finally{
+            if(conn!=null){conn.close();}
+            if(pstmt!=null){pstmt.close();}
+            sqlMapClient.endTransaction();
+
             if(result > 0){
                 out.println("<script>");
                 out.println("alert('정상적으로 처리되었습니다.');");
-                out.println("location.href='/index.gne?menuCd="+viewPage+"';");
+                out.println("location.href='/index.gne?menuCd=DOM_000002001002003005';");
                 out.println("</script>");
             } else {
                 out.println("<script>");
                 out.println("alert('저장되지 않았습니다. 관리자에게 문의하세요.');");
-                //out.println("location.href='/index.gne?menuCd="+listPage+"';");
+                out.println("location.href='/index.gne?menuCd=DOM_000002001002003002';");
                 out.println("</script>");
             }
         }
@@ -224,11 +247,11 @@ if (dataType != null && dataType.length() > 0) {
 /** 신청 update & insert **/
     } else if (dataType.equals("mod")) {
         
-        String proNo          	=   parseNull(request.getParameter("proNo"));
-        String req_per        	=   parseNull(request.getParameter("req_per"));
-        String etc2           	=   parseNull(request.getParameter("etc2"));
+        String[] proNo          =   request.getParameterValues("proNo");
+        String[] req_per        =   request.getParameterValues("req_per");
+        String[] etc2           =   request.getParameterValues("etc2");
         int req_total_cnt       =   0;
-        req_total_cnt   +=  Integer.parseInt(req_per);
+        for (int i = 0; i < req_per.length; i++) {req_total_cnt   +=  Integer.parseInt(req_per[i]);}
         String sch_mng_name     =   parseNull(request.getParameter("sch_mng_name"));
         String sch_mng_tel      =   parseNull(request.getParameter("sch_mng_tel"));
         String sch_mng_mail     =   parseNull(request.getParameter("sch_mng_mail"));
@@ -236,7 +259,7 @@ if (dataType != null && dataType.length() > 0) {
         String sch_lead_tel     =   parseNull(request.getParameter("sch_lead_tel"));
         
         req_total_cnt           =   0;
-        req_total_cnt   +=  Integer.parseInt(req_per);
+        for (int i = 0; i < req_per.length; i++) {req_total_cnt   +=  Integer.parseInt(req_per[i]);}
         
         List<ProData> proDataList   =   null;
         
@@ -244,12 +267,15 @@ if (dataType != null && dataType.length() > 0) {
         if (req_total_cnt < 1) {
             out.println("<script>");
             out.println("alert('신청인원이 없습니다. 다시 수정하세요.');");
-            out.println("location.href='/index.gne?menuCd="+viewPage+"&pro_no="+proNo+"';");
+            out.println("location.href='/index.gne?menuCd=DOM_000002001002003005';");
             out.println("</script>");
             return;
         }
         
         try {
+            sqlMapClient.startTransaction();
+            conn    =   sqlMapClient.getCurrentConnection();
+            
             //1st ART_REQ_ALWAY_CNT 모든 pro_no 삭제
             sql     =   new StringBuffer();
             sql.append(" DELETE FROM ART_REQ_ALWAY_CNT WHERE REQ_NO = ? ");
@@ -279,8 +305,23 @@ if (dataType != null && dataType.length() > 0) {
                 sql_str     +=  " , ? ";
                 sql_str     +=  " ) ";
                 sql.append(sql_str);
-                
-                result = jdbcTemplate.update(sql_str, req_no, proNo, proNo, req_per, req_date, etc2);
+                pstmt       =   conn.prepareStatement(sql.toString());
+
+                for (int i = 0; i < proNo.length; i++) {
+                    //if (Integer.parseInt(req_per[i]) > 0) {
+                        pstmt.setString(1, req_no);
+                        pstmt.setString(2, proNo[i]);
+                        pstmt.setString(3, proNo[i]);
+                        pstmt.setString(4, req_per[i]);
+                        pstmt.setString(5, req_date);
+                        pstmt.setString(6, etc2[i]);
+                        pstmt.addBatch();
+                    //}
+                }
+
+                int[] batchCount 	=   pstmt.executeBatch();
+                result      		=   batchCount.length;
+
             }
 
             //3rd ART_REQ_ALWAY update
@@ -319,12 +360,20 @@ if (dataType != null && dataType.length() > 0) {
             }
             
         } catch(Exception e) {
+            if(conn!=null){conn.close();}
+            if(pstmt!=null){pstmt.close();}
+            sqlMapClient.endTransaction();
+
             out.println(e.toString());
         } finally {
+            if(conn!=null){conn.close();}
+            if(pstmt!=null){pstmt.close();}
+            sqlMapClient.endTransaction();
+
             if(result > 0){
                 out.println("<script>");
                 out.println("alert('정상적으로 처리되었습니다.');");
-                out.println("location.href='/index.gne?menuCd="+confirmPage+"&req_no="+ req_no +"&req_date="+ req_date +"&pro_no="+proNo+"';");
+                out.println("location.href='/index.gne?menuCd=DOM_000002001002003004&req_no="+ req_no +"&req_date="+ req_date +"';");
                 out.println("</script>");
             } else {
                 out.println("<script>");
@@ -333,9 +382,13 @@ if (dataType != null && dataType.length() > 0) {
                 out.println("</script>");
             }
         }
+        
+        
 /** 승인 approval **/
     } else if (dataType.equals("app")) {
+        
         try {
+            
             sql     =   new StringBuffer();
             sql_str =   " UPDATE ART_REQ_ALWAY SET ";
             sql_str +=  " APPLY_FLAG    =   'Y' ";
@@ -347,8 +400,16 @@ if (dataType != null && dataType.length() > 0) {
             result  =   jdbcTemplate.update(sql.toString(), new Object[]{req_no});
             
         }catch(Exception e){
+            if(conn!=null){conn.close();}
+            if(pstmt!=null){pstmt.close();}
+            sqlMapClient.endTransaction();
+
             out.println(e.toString());
         }finally{
+            if(conn!=null){conn.close();}
+            if(pstmt!=null){pstmt.close();}
+            sqlMapClient.endTransaction();
+            
             if (result > 0) {
                 out.println("<script>");
                 out.println("alert('정상적으로 처리되었습니다.');");
@@ -364,6 +425,7 @@ if (dataType != null && dataType.length() > 0) {
         
 /** 취소 신청 cancel (사용자 & 관리자) **/
     } else if (dataType.equals("can")) {
+        
         try {
         
             sql         =   new StringBuffer();
@@ -377,13 +439,21 @@ if (dataType != null && dataType.length() > 0) {
             result      =   jdbcTemplate.update(sql.toString(), new Object[]{canAdmin, req_no});
         
         }catch(Exception e){
+            if(conn!=null){conn.close();}
+            if(pstmt!=null){pstmt.close();}
+            sqlMapClient.endTransaction();
+
             out.println(e.toString());
         }finally{
+            if(conn!=null){conn.close();}
+            if(pstmt!=null){pstmt.close();}
+            sqlMapClient.endTransaction();
+            
             if (result > 0) {
                 out.println("<script>");
                 out.println("alert('정상적으로 처리되었습니다.');");
                 if (canAdmin.equals("A")) out.println("location.href='/program/art/admin/alwaysReq.jsp';");
-                else out.println("location.href='/index.gne?menuCd="+viewPage+"';");
+                else out.println("location.href='/index.gne?menuCd=DOM_000002001002003005';");
                 out.println("</script>");
             } else {
                 out.println("<script>");
@@ -398,7 +468,7 @@ if (dataType != null && dataType.length() > 0) {
     //type 을 못 받았을 경우
     out.println("<script>");
     out.println("alert('파라미터 값이 부정확 합니다.');");
-    out.println("location.href='/index.gne?menuCd="+viewPage+"';");
+    out.println("location.href='/index.gne?menuCd=DOM_000000126002003005';");
     out.println("</script>");
     return;
 }

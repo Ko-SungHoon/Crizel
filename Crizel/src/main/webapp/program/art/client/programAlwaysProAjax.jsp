@@ -33,22 +33,34 @@ try {
     sqlMapClient.startTransaction();
     conn    =   sqlMapClient.getCurrentConnection();
     sql_str = new String();
-    sql_str += "SELECT 																									";
-    sql_str += "  A.*  																									";
-    sql_str += "  , (SELECT COUNT(*)  																					";
-    sql_str += "     FROM ART_REQ_ALWAY B LEFT JOIN ART_REQ_ALWAY_CNT C ON B.REQ_NO = C.REQ_NO  						";
-    sql_str += "     WHERE C.PRO_NO = A.PRO_NO AND B.REQ_DATE = ? AND B.APPLY_FLAG IN ('Y', 'N')) AS CNT				";
-    sql_str += "FROM ART_PRO_ALWAY A 																					";
-    sql_str += "WHERE PRO_TYPE = 'NEW' AND AFT_FLAG = ?  																";
-    sql_str += "ORDER BY PRO_NAME 																						";
+    sql_str += "SELECT																								";
+    sql_str += "	A.*  																							";																						
+    sql_str += "	, CASE																							";
+    sql_str += "   		WHEN 																						";
+    sql_str += "      		(SELECT COUNT(*)  																		";																					
+    sql_str += "       		FROM ART_REQ_ALWAY B LEFT JOIN ART_REQ_ALWAY_CNT C ON B.REQ_NO = C.REQ_NO  				";					
+    sql_str += "       		WHERE C.PRO_NO = A.PRO_NO AND B.REQ_DATE = ? AND B.APPLY_FLAG IN ('Y', 'N')) >= 3		";
+    sql_str += "    	THEN 'N'																					";
+    sql_str += "    	WHEN 																						";
+    sql_str += "      		A.MAX_PER <= 																			";
+    sql_str += "      		(SELECT SUM(B.REQ_CNT)																	";																			
+    sql_str += "       		FROM ART_REQ_ALWAY B LEFT JOIN ART_REQ_ALWAY_CNT C ON B.REQ_NO = C.REQ_NO  				";				
+    sql_str += "       		WHERE C.PRO_NO = A.PRO_NO AND B.REQ_DATE = ? AND B.APPLY_FLAG IN ('Y', 'N'))			";
+    sql_str += "    	THEN 'N'        																			";
+    sql_str += "    	ELSE 'Y'																					";
+    sql_str += "  	END AS APPROVAL_CHECK																			";	
+    sql_str += "FROM ART_PRO_ALWAY A 																				";																			
+    sql_str += "WHERE PRO_TYPE = 'NEW' AND AFT_FLAG = ? 															"; 																
+    sql_str += "ORDER BY PRO_NAME																					";
     pstmt	=	conn.prepareStatement(sql_str);
     pstmt.setString(1, req_date);
-    pstmt.setString(2, aft_flag);
+    pstmt.setString(2, req_date);
+    pstmt.setString(3, aft_flag);
     rs = pstmt.executeQuery();
     
    	while(rs.next()){
     	html += "<li>";
-    	if(rs.getInt("CNT")>=3){
+    	if("N".equals(rs.getString("APPROVAL_CHECK"))){
     		html += "<span title='마감'>";
         	html += rs.getString("PRO_NAME");
         	html += "</span>";

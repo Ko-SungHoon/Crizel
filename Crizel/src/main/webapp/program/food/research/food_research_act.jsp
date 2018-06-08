@@ -575,14 +575,16 @@ try{
 				sql.append("  		SELECT B.ITEM_COMP_NO														");
 				sql.append("  		FROM FOOD_RSCH_VAL A LEFT JOIN FOOD_ITEM_PRE B ON A.ITEM_NO = B.ITEM_NO		");
 				sql.append("  		WHERE A.RSCH_VAL_NO = ?														");
+				sql.append("  			AND A.RSCH_NO = (SELECT RSCH_NO FROM FOOD_RSCH_VAL WHERE RSCH_VAL_NO = ?)	");
 				sql.append("		)																			");
 				sql.append("	)																				");
 			}else{
 				sql.append("AND RSCH_VAL_NO = ?																	");
+				sql.append("AND RSCH_NO = (SELECT RSCH_NO FROM FOOD_RSCH_VAL WHERE RSCH_VAL_NO = ?)	");
 			}
 			sql.append("AND ZONE_NO = (SELECT ZONE_NO FROM FOOD_RSCH_VAL WHERE RSCH_VAL_NO = ?)					");
 			sql.append("AND STS_FLAG NOT IN('N', 'RS')															");
-			result = jdbcTemplate.update(sql.toString(), sts_flag, rj_reason, rsch_val_no, rsch_val_no);
+			result = jdbcTemplate.update(sql.toString(), sts_flag, rj_reason, rsch_val_no, rsch_val_no, rsch_val_no);
 		}
 	
 		if(result>0){

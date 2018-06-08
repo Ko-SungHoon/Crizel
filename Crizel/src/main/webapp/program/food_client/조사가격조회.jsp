@@ -411,7 +411,7 @@ if(viewYN == 1){
 		sql.append("SELECT * 					");
 		sql.append("FROM FOOD_RSCH_TB TB		");
 		sql.append("WHERE TB.SHOW_FLAG = 'Y'	");
-		sql.append("	AND TB.STS_FLAG = 'Y'	");
+		//sql.append("	AND TB.STS_FLAG = 'Y'	");		
 		if(!"".equals(srchSdate) && !"".equals(srchEdate)){
 			sql.append("AND ((TB.STR_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.STR_DATE <= TO_DATE(?, 'YY/MM/DD'))			");
 			sql.append("		OR (TB.END_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.END_DATE <= TO_DATE(?, 'YY/MM/DD')))		");
@@ -721,11 +721,12 @@ if(viewYN == 1){
 				</td>
 				<td><%=moneyComma(parseNull(vo.center_val, " - "))%></td>
 				<td><%
-					if ("3".equals(vo.zone_avr_cnt)) {
+					/* if ("3".equals(vo.zone_avr_cnt)) {
 						out.println(moneyComma(parseNull(vo.zone_avr_val, " - ")));
 					} else {
 						out.println(" - ");
-					}
+					} */
+					out.println(moneyComma(parseNull(vo.zone_avr_val, " - ")));
 				%></td>
 				<%/*조사가 정렬 출력*/
 					valMap	=	new HashMap<Integer, String>();

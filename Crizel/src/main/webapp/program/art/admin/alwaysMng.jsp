@@ -3,6 +3,7 @@
 *   PURPOSE :   프로그램 관리 - 상시
 *   CREATE  :   20180130_tue    Ko
 *   MODIFY  :   20180223 LJH 마크업, 클래스 수정
+*   MODIFY  :   20180607 KO 2018년 상반기와 그 이후 기간 폼 변경
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
