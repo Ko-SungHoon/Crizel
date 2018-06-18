@@ -8,6 +8,7 @@
 *   MODIFY  :   20180412 JI 시작 기준일 7일로 변경 todayAft = 7
 *   MODIFY  :   20180508 JI 신청 차단 날짜 추가(20180517, 20180518, 20180529 오후, 20180626, 20180711, 20180717 오후, 20180726, 20180727)
 *   MODIFY  :   20180607 KO 프로그램 개편(오전2개 오후2개, 전일 폐지)
+*   MODIFY  :   20180612 KO 오전,오후 각각 200명만 신청 가능하게 수정
 **/
 %>
 
@@ -211,20 +212,26 @@ int num         =   0;
     sql_str +=  "       ELSE 'Y' ";
     sql_str +=  "  END) AS ABLE_SCH_FLAG ";
 	
-	// 오전 프로그램에 2개 학교가 신청하면 막기
+	// 오전 프로그램에 2개 학교가 신청하거나 신청인원이 200명이면 막기
     sql_str +=  ", (CASE				";
     sql_str +=  "      WHEN  (SELECT COUNT(*)				";
     sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
     sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'M') >= 2 THEN 'N'				";
+    sql_str +=  "      WHEN  (SELECT SUM(REQ_PER)				";
+    sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
+    sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'M') >= 200 THEN 'N'				";
     sql_str +=  "      ELSE 'Y'				";
     sql_str +=  "     END				";
     sql_str +=  "  ) AS MOR_CNT_FLAG				";
   	 
- 	// 오후 프로그램에 2개 학교가 신청하면 막기
+ 	// 오후 프로그램에 2개 학교가 신청하거나 신청인원이 200명이면 막기
     sql_str +=  "  , (CASE				";
     sql_str +=  "      WHEN  (SELECT COUNT(*)				";
     sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
     sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'F') >= 2 THEN 'N'				";
+    sql_str +=  "      WHEN  (SELECT SUM(REQ_PER)				";
+    sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
+    sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'F') >= 200 THEN 'N'				";
     sql_str +=  "      ELSE 'Y'				";
     sql_str +=  "     END				";
     sql_str +=  "  ) AS AFT_CNT_FLAG  					";
@@ -353,6 +360,17 @@ int num         =   0;
 <%/*************************************** END Modal part ****************************************/%>
 
 <div class="box_02">
+<strong class="blue">&#8251; 알림</strong>
+  <ul class="type01 ">
+    <li><span class="fsize_90">2학기부터 상시프로그램의 내용 및 신청 방법이 변경 되었습니다.</span>
+      <ul>
+        <li class="red">전일반 폐지, 오전 A,B타입 중 선택, 오후 A,B타입 중 선택 (오전·오후 중복 신청 불가)</li>
+      </ul>
+    </li>
+     <li><span class="fsize_90">홈페이지 정비 관계로 1학기 상시 프로그램 신청은 유선으로만 가능합니다.</span></li>
+  </ul>
+</div>
+<div class="box_02">
 	<ul class="badge-guide">
 		<li><i class="badge bg-am">오전</i> 오전반(신청가능)</li>
 		<li><i class="badge bg-pm">오후</i> 오후반(신청가능)</li>
@@ -430,8 +448,8 @@ int num         =   0;
 
                             //오늘 과 이전 날짜 확인
                             if (
-                            	(diffDate <= todayAft || diffDate > 130) 
-								|| (Integer.parseInt(compareDay) < 20180903)
+                            	//(diffDate <= todayAft || diffDate > 130) || 
+								(Integer.parseInt(compareDay) < 20180903)
                                 || (Integer.parseInt(compareDay) == 20180430) || (Integer.parseInt(compareDay) == 20180517)
                                 || (Integer.parseInt(compareDay) == 20180518) || (Integer.parseInt(compareDay) == 20180521)
                                 || (Integer.parseInt(compareDay) == 20180626) || (Integer.parseInt(compareDay) == 20180627)
@@ -439,8 +457,7 @@ int num         =   0;
                                 || (Integer.parseInt(compareDay) == 20180724) || (Integer.parseInt(compareDay) == 20180725) 
                                 || (Integer.parseInt(compareDay) == 20180726) || (Integer.parseInt(compareDay) == 20180727)
                                 || (Integer.parseInt(compareDay) == 20180927) || (Integer.parseInt(compareDay) == 20180928)
-                                || ((Integer.parseInt(compareDay) >= 20181008) && (Integer.parseInt(compareDay) <= 20181221))
-                                
+                                || (Integer.parseInt(compareDay) == 20181008) || (Integer.parseInt(compareDay) >= 20181221)
                             	) {
                                 outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-am finish\">오전</span>";
                                 outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";

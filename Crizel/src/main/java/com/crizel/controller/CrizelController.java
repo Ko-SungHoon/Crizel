@@ -63,11 +63,11 @@ public class CrizelController {
 	}
 
 	@RequestMapping("listDetail.do")
-	public ModelAndView listDetail(@RequestParam String keyword, String type,
-			HttpServletResponse response) throws ParserConfigurationException,
+	public ModelAndView listDetail(@RequestParam String keyword, String type, String site,
+			HttpServletResponse response) throws Exception,
 			SAXException, IOException {
 		ModelAndView mav = new ModelAndView();
-		mav.addObject("listDetail",service.listDetail(keyword,type));
+		mav.addObject("listDetail",service.listDetail(keyword,type,site));
 		mav.setViewName("/list/list");
 		return mav;
 

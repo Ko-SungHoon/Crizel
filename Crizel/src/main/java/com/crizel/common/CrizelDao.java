@@ -1,23 +1,20 @@
 package com.crizel.common;
 
 import java.io.IOException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import com.crizel.util.Leopard;
+import com.crizel.util.Ohys;
 
 @Repository("dao")
 public class CrizelDao {
@@ -29,44 +26,26 @@ public class CrizelDao {
 		return sqlSession.selectList("crizel.list", day);
 	}
 
-	public List<Object> listDetail(String keyword, String type)
-			throws ParserConfigurationException, SAXException, IOException {
-		List<Object> a = new ArrayList<Object>();
-		Map<String, Object> map;
-		DocumentBuilderFactory factory2 = DocumentBuilderFactory.newInstance();
-		DocumentBuilder builder = factory2.newDocumentBuilder();
-		Document doc;
-		if (type.equals("video")) {
-			doc = builder.parse("https://torrents.ohys.net/download/rss.php?dir=new&q=" + keyword);
-			//doc = builder.parse("https://www.nyaa.se/?page=rss&cats=1_11&term=" + keyword);       //nyaa가 막혀서 못씀
-		} else if (type.equals("audio")) {
-			doc = builder.parse("https://www.nyaa.se/?page=rss&cats=3_0&term=" + keyword);
-		} else {
-			doc = builder.parse("https://sukebei.nyaa.se/?page=rss&term=" + keyword);
+	public List<Object> listDetail(String keyword, String type, String site) throws Exception {
+		Ohys ohys 		= new Ohys();
+		Leopard lp 		= new Leopard();
+		List<Object> a 	= new ArrayList<Object>();
+		String addr		= "";
+		
+		if("ohys".equals(site)){
+			if("video".equals(type)){
+				addr = "https://torrents.ohys.net/download/rss.php?dir=new&q=" + URLEncoder.encode(keyword, "UTF-8");
+			}else if("audio".equals(type)){
+				addr = "https://www.nyaa.se/?page=rss&cats=3_0&term=" + URLEncoder.encode(keyword, "UTF-8");
+			}else{
+				addr = "https://sukebei.nyaa.se/?page=rss&term=" + URLEncoder.encode(keyword, "UTF-8");
+			}
+			a = ohys.getList(addr);
+		}else{
+			addr = "http://leopard-raws.org/?search=" + URLEncoder.encode(keyword, "UTF-8");
+			a = lp.getList(addr);
 		}
-		NodeList list = doc.getElementsByTagName("title");
-		NodeList list2 = doc.getElementsByTagName("link");
-
-		int i = 0;
-		Element element, element2;
-		String content, content2;
-
-		while (list.item(i) != null) {
-			map = new HashMap<String, Object>();
-			element = (Element) list.item(i);
-			content = element.getTextContent();
-
-			element2 = (Element) list2.item(i);
-			content2 = element2.getTextContent();
-
-			map.put("title", content);
-			map.put("link", content2);
-
-			a.add(map);
-
-			i++;
-		}
-
+		
 		return a;
 	}
 

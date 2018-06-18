@@ -37,6 +37,11 @@
 request.setCharacterEncoding("UTF-8");
 response.setCharacterEncoding("UTF-8");
 
+String listPage		=	"DOM_000000129001001002";	//	DOM_000000139008002002	,	TEST : DOM_000000129001001002
+String viewPage		=	"DOM_000000129001001003";	//	DOM_000000139008002003	,	TEST : DOM_000000129001001003
+String writePage	=	"DOM_000000129001001004";	//	DOM_000000139008002004	,	TEST : DOM_000000129001001004
+String confirmPage	=	"DOM_000000129001001005";	//	DOM_000000139008002005	,	TEST : DOM_000000129001001005
+
 SessionManager sessionManager   =   new SessionManager(request);
 
 /* dataType */
@@ -48,7 +53,7 @@ if (sessionManager.getName().trim().equals("") || sessionManager.getId().trim().
 	} else {
         out.println("<script>");
         out.println("alert('로그인 정보 저장 시간초과 입니다. 다시 로그인 하세요.');");
-        out.println("location.href='/index.gne?menuCd=DOM_000000139008002002';");
+        out.println("location.href='/index.gne?menuCd="+listPage+"';");
         if (dataType.equals("app")) {
             out.println("location.href='http://www.gne.go.kr/iam/login/login.sko';");
         }
@@ -60,6 +65,10 @@ if (sessionManager.getName().trim().equals("") || sessionManager.getId().trim().
 String req_no           =   parseNull(request.getParameter("reqNo"));       //only use => modify, delete, cancel
 
 String canAdmin         =   parseNull(request.getParameter("canAdmin"), "C");    //admin cancel flag
+
+String req_sch_type		=	parseNull(request.getParameter("req_sch_type"));    //신청유형
+
+String req_sch_id		=	parseNull(request.getParameter("req_sch_id"));
 
 /* set values */
 String req_date         =   parseNull(request.getParameter("req_date"));
@@ -94,7 +103,7 @@ if (dataType != null && dataType.length() > 0) {
         if (req_total_cnt < 1) {
             out.println("<script>");
             out.println("alert('신청인원이 없습니다. 다시 신청하세요.');");
-            out.println("location.href='/index.gne?menuCd=DOM_000000139008002002';");
+            out.println("location.href='/index.gne?menuCd="+listPage+"';");
             out.println("</script>");
             return;
         }
@@ -128,6 +137,7 @@ if (dataType != null && dataType.length() > 0) {
             sql_str     +=  " , REQ_SCH_NM ";
             sql_str     +=  " , REQ_SCH_GRADE ";
             sql_str     +=  " , REQ_SCH_GROUP ";
+            sql_str     +=  " , REQ_SCH_TYPE ";
             sql_str     +=  " ) ";
             sql_str     +=  " VALUES ";
             sql_str     +=  " ( ";
@@ -145,6 +155,7 @@ if (dataType != null && dataType.length() > 0) {
             sql_str     +=  " , ? ";//REQ_SCH_NM
             sql_str     +=  " , NULL ";//REQ_SCH_GRADE
             sql_str     +=  " , NULL ";//REQ_SCH_GROUP
+            sql_str     +=  " , ? ";	//REQ_SCH_TYPE
             sql_str     +=  " ) ";//
             sql.append(sql_str);
             
@@ -159,6 +170,7 @@ if (dataType != null && dataType.length() > 0) {
                     , req_date
                     , aft_flag
                     , sessionManager.getName()
+                    , req_sch_type
             };
             result = jdbcTemplate.update(
 					sql.toString()
@@ -220,12 +232,12 @@ if (dataType != null && dataType.length() > 0) {
             if(result > 0){
                 out.println("<script>");
                 out.println("alert('정상적으로 처리되었습니다.');");
-                out.println("location.href='/index.gne?menuCd=DOM_000000139008002003';");
+                out.println("location.href='/index.gne?menuCd="+viewPage+"';");
                 out.println("</script>");
             } else {
                 out.println("<script>");
                 out.println("alert('저장되지 않았습니다. 관리자에게 문의하세요.');");
-                out.println("location.href='/index.gne?menuCd=DOM_000000139008002002';");
+                out.println("location.href='/index.gne?menuCd="+listPage+"';");
                 out.println("</script>");
             }
         }
@@ -250,7 +262,7 @@ if (dataType != null && dataType.length() > 0) {
         if (req_total_cnt < 1) {
             out.println("<script>");
             out.println("alert('신청인원이 없습니다. 다시 수정하세요.');");
-            out.println("location.href='/index.gne?menuCd=DOM_000000139008002003';");
+            out.println("location.href='/index.gne?menuCd="+viewPage+"';");
             out.println("</script>");
             return;
         }
@@ -317,6 +329,7 @@ if (dataType != null && dataType.length() > 0) {
                 sql_str +=  " , MOD_DATE = TO_CHAR(SYSDATE, 'YYYY-MM-DD HH24:MI:SS') ";
                 sql_str +=  " , REG_IP = ? ";
                 sql_str +=  " , REQ_CNT = ? ";
+                sql_str +=  " , REQ_SCH_TYPE = ? ";
                 sql_str +=  " WHERE REQ_NO = ? ";
                 sql.append(sql_str);
                 
@@ -326,6 +339,7 @@ if (dataType != null && dataType.length() > 0) {
                     , sch_mng_mail
                     , request.getRemoteAddr()
                     , req_total_cnt
+                    , req_sch_type
                     , req_no
                 };
                 
@@ -349,7 +363,7 @@ if (dataType != null && dataType.length() > 0) {
             if(result > 0){
                 out.println("<script>");
                 out.println("alert('정상적으로 처리되었습니다.');");
-                out.println("location.href='/index.gne?menuCd=DOM_000000139008002005&req_no="+ req_no +"&req_date="+ req_date +"';");
+                out.println("location.href='/index.gne?menuCd="+confirmPage+"&req_sch_id="+ req_sch_id +"&req_date="+ req_date +"';");
                 out.println("</script>");
             } else {
                 out.println("<script>");
@@ -434,7 +448,7 @@ if (dataType != null && dataType.length() > 0) {
                 out.println("<script>");
                 out.println("alert('정상적으로 처리되었습니다.');");
                 if (canAdmin.equals("A")) out.println("location.href='/program/happysch/admin/schReq.jsp';");
-                else out.println("location.href='/index.gne?menuCd=DOM_000000139008002003';");
+                else out.println("location.href='/index.gne?menuCd="+viewPage+"';");
                 out.println("</script>");
             } else {
                 out.println("<script>");
@@ -449,7 +463,7 @@ if (dataType != null && dataType.length() > 0) {
     //type 을 못 받았을 경우
     out.println("<script>");
     out.println("alert('파라미터 값이 부정확 합니다.');");
-    out.println("location.href='/index.gne?menuCd=DOM_000000139008002003';");
+    out.println("location.href='/index.gne?menuCd="+viewPage+"';");
     out.println("</script>");
     return;
 }

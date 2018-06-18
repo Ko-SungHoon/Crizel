@@ -19,6 +19,7 @@
         public String callDateWeek;     //요일 한글
         public String hlyDateFlag;      //요일 구분 SA,SU = 토,일 D = 평일, H = 휴일
         public String hlyDateName;      //휴일 이름, NULL
+        public String req_info;			// 특정일 신청자 정보
 
         //프로그램 변수
         public String pro_name;
@@ -51,6 +52,9 @@
         public int apply_cnt;
         public String mor_sch_flag;
         public String aft_sch_flag;
+        
+        public String mor_cnt_flag;
+        public String aft_cnt_flag;
     }
 
     private class ArtCalList implements RowMapper<ArtCalData> {
@@ -85,22 +89,40 @@
             //block able request variables
             calData.able_sch_flag   =   rs.getString("ABLE_SCH_FLAG");
             calData.my_request      =   rs.getString("MY_REQUEST");
-            calData.my_req_no       =   rs.getInt("MY_REQ_NO");
+            //calData.my_req_no       =   rs.getInt("MY_REQ_NO");
             calData.hold_cnt        =   rs.getInt("HOLD_CNT");
             calData.apply_cnt        =   rs.getInt("APPLY_CNT");
             calData.mor_sch_flag    =   rs.getString("MOR_SCH_FLAG");
             calData.aft_sch_flag    =   rs.getString("AFT_SCH_FLAG");
+            
+            calData.mor_cnt_flag    =   rs.getString("MOR_CNT_FLAG");
+            calData.aft_cnt_flag    =   rs.getString("AFT_CNT_FLAG");
+            
+            calData.req_info		=	rs.getString("REQ_INFO");
             return calData;
         }
     }
 
+    public int dayOfWeek(String date) throws Exception{		// 1:일, 2:월, 3:화 , ... , 7:토
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd") ;
+        Date nDate = dateFormat.parse(date) ;
+        Calendar cal = Calendar.getInstance() ;
+        cal.setTime(nDate);
+        int dayNum = cal.get(Calendar.DAY_OF_WEEK) ;
+    	return dayNum;
+    }
 %>
 
 <%
-String writePage	=	"DOM_000000139008002004";
-String viewPage		=	"DOM_000000139008002005";
+try{
+	
 
-String loginPage	=	"DOM_000000103007007000";
+String listPage		=	"DOM_000000129001001002";	//	DOM_000000139008002002	,	TEST : DOM_000000129001001002
+String viewPage		=	"DOM_000000129001001003";	//	DOM_000000139008002003	,	TEST : DOM_000000129001001003
+String writePage	=	"DOM_000000129001001004";	//	DOM_000000139008002004	,	TEST : DOM_000000129001001004
+String confirmPage	=	"DOM_000000129001001005";	//	DOM_000000139008002005	,	TEST : DOM_000000129001001005
+
+String loginPage	=	"DOM_000000101001000000";	//	DOM_000000103007007000	,	TEST : DOM_000000101001000000
 
 SessionManager sessionManager   =   new SessionManager(request);
 
@@ -128,9 +150,20 @@ List<ArtCalData> calDateList    =   null;
 int totalDate   =   0;
 int cnt         =   0;
 int num         =   0;
+String tmpInfo	=	"";
 
     sql     =   new StringBuffer();
     sql_str =   "SELECT STANDARD_MONTH.* ";
+    sql_str +=  ",(SELECT 					 ";
+    sql_str +=  "	  REQ_SCH_NM || '(' || (SELECT LISTAGG(CASE REQ_AFT_FLAG		 "; 
+    sql_str +=  "	                                          WHEN 'M' THEN '오후'	 ";	 
+    sql_str +=  "	                                          WHEN 'F' THEN '오전'		 "; 
+    sql_str +=  "	                                       END || ':' || (SELECT SUM(REQ_PER) FROM HAPPY_REQ_SCH_CNT WHERE REQ_NO = A.REQ_NO)  , ', ')  WITHIN GROUP (ORDER BY REQ_AFT_FLAG)		 ";  
+    sql_str +=  "	                        FROM HAPPY_REQ_SCH A		 ";  
+    sql_str +=  "	                        WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND APPLY_FLAG IN ('Y', 'N') AND REQ_SCH_ID = COMPARE_DATE.REQ_SCH_ID) || ')' AS REQ_INFO		 "; 
+    sql_str +=  "	FROM HAPPY_REQ_SCH		 ";  
+    sql_str +=  "	WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND APPLY_FLAG IN ('Y', 'N') AND REQ_SCH_ID = COMPARE_DATE.REQ_SCH_ID		 "; 
+    sql_str +=  "	GROUP BY REQ_SCH_NM) AS REQ_INFO		 "; 
     sql_str +=  ", CASE ";
     sql_str +=  "   WHEN (SELECT COUNT(BANNO) FROM HAPPY_BAN_TABLE WHERE BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) > 0 ";
     sql_str +=  "   THEN 'H' ";
@@ -152,9 +185,27 @@ int num         =   0;
     sql_str +=  "  WHEN /*정원 확인*/ ";
     sql_str +=  "       (SELECT SUM(MAX_PER) FROM HAPPY_PRO_SCH WHERE DEL_FLAG != 'Y' AND SHOW_FLAG = 'Y') ";
     sql_str +=  "       <= (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM HAPPY_REQ_SCH WHERE APPLY_FLAG IN ('Y', 'N') AND REQ_AFT_FLAG = 'D') A LEFT JOIN HAPPY_REQ_SCH_CNT B ON A.REQ_NO = B.REQ_NO WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE) THEN 'N' ";
-    sql_str +=  "       WHEN /*내가 신청한 건지 확인*/ (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM HAPPY_REQ_SCH WHERE (REQ_DATE = STANDARD_MONTH.MON_DTE) AND APPLY_FLAG IN ('Y', 'N') AND REQ_SCH_ID = '"+sessionManager.getId()+"') > 0 THEN 'N' ";
+    //sql_str +=  "       WHEN /*내가 신청한 건지 확인*/ (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM HAPPY_REQ_SCH WHERE (REQ_DATE = STANDARD_MONTH.MON_DTE) AND APPLY_FLAG IN ('Y', 'N') AND REQ_SCH_ID = '"+sessionManager.getId()+"') > 0 THEN 'N' ";
     sql_str +=  "       ELSE 'Y' ";
     sql_str +=  "  END) AS ABLE_SCH_FLAG ";
+
+ 	// 오전 프로그램에 신청했으면 막기
+    sql_str +=  ", (CASE														";
+    sql_str +=  "      WHEN  (SELECT COUNT(*) AS CNT							";
+    sql_str +=  "             FROM HAPPY_REQ_SCH								";
+    sql_str +=  "             WHERE REQ_SCH_ID = '"+sessionManager.getId()+"' AND APPLY_FLAG IN ('Y', 'N') AND REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_AFT_FLAG = 'M') > 0 THEN 'N'	";
+    sql_str +=  "      ELSE 'Y'								";
+    sql_str +=  "     END									";
+    sql_str +=  "  ) AS MOR_CNT_FLAG						";
+  	 
+ 	// 오후 프로그램에 신청했으면 막기
+    sql_str +=  ", (CASE														";
+    sql_str +=  "      WHEN  (SELECT COUNT(*) AS CNT							";
+    sql_str +=  "             FROM HAPPY_REQ_SCH								";
+    sql_str +=  "             WHERE REQ_SCH_ID = '"+sessionManager.getId()+"' AND APPLY_FLAG IN ('Y', 'N') AND REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_AFT_FLAG = 'F') > 0 THEN 'N'	";
+    sql_str +=  "      ELSE 'Y'								";
+    sql_str +=  "     END									";
+    sql_str +=  "  ) AS AFT_CNT_FLAG  						";
 
     sql_str +=  "  , (CASE ";
     sql_str +=  "  WHEN /*내가 신청 승인완료*/ ";
@@ -165,7 +216,7 @@ int num         =   0;
     sql_str +=  "  THEN 'H' ";
     sql_str +=  "  END) AS MY_REQUEST ";
 
-    sql_str +=  "  , (SELECT REQ_NO FROM HAPPY_REQ_SCH WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_SCH_ID = '"+sessionManager.getId()+"' AND APPLY_FLAG IN ('Y', 'N')) AS MY_REQ_NO ";
+    //sql_str +=  "  , (SELECT REQ_NO FROM HAPPY_REQ_SCH WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_SCH_ID = '"+sessionManager.getId()+"' AND APPLY_FLAG IN ('Y', 'N')) AS MY_REQ_NO ";
 
     //승인대기자
     sql_str +=  "  , (SELECT NVL(COUNT(REQ_NO), 0) FROM HAPPY_REQ_SCH ";
@@ -213,7 +264,7 @@ int num         =   0;
     sql_str +=  "       ) ";
     sql_str +=  "   CONNECT BY LEVEL <= END_DTE - START_DTE ";
     sql_str +=  "   ) STANDARD_MONTH LEFT JOIN (SELECT * FROM HAPPY_REQ_SCH WHERE APPLY_FLAG = 'Y') COMPARE_DATE ON STANDARD_MONTH.MON_DTE = COMPARE_DATE.REQ_DATE ";
-    sql_str +=  "ORDER BY STANDARD_MONTH.MON_DTE ";
+    sql_str +=  "ORDER BY STANDARD_MONTH.MON_DTE, COMPARE_DATE.REQ_SCH_ID ";
     sql.append(sql_str);
 
     calDateList =   jdbcTemplate.query(sql.toString(), new ArtCalList());
@@ -343,60 +394,74 @@ int num         =   0;
                             outHtml +=  "<span class=\"badge-group badge_type2\">";
 
                             //오늘 과 이전 날짜 확인
-                            if ((diffDate <= 4 || diffDate > 300) || (Integer.parseInt(compareDay) < 20180507) || (Integer.parseInt(compareDay) > 20180720)) {
+                             if (
+                            		(diffDate <= 4 || diffDate > 300) 
+                            		|| ((Integer.parseInt(toDay)!=20180614 && Integer.parseInt(toDay)!=20180615) && Integer.parseInt(compareDay) < 20180507) 
+                            		|| ((Integer.parseInt(toDay)!=20180614 && Integer.parseInt(toDay)!=20180615) && Integer.parseInt(compareDay) > 20180720)
+                            		|| ((Integer.parseInt(toDay)==20180614 || Integer.parseInt(toDay)==20180615) && Integer.parseInt(compareDay) < 20180903)
+                            		|| ((Integer.parseInt(toDay)==20180614 || Integer.parseInt(toDay)==20180615) && Integer.parseInt(compareDay) > 20181221)
+                            	) {
                                 outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-am finish\">오전</span>";
                                 outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
-                                outHtml +=  "<span title=\"전일반 신청 불가\" class=\"badge bg-day finish\">전일</span>";
+                                //outHtml +=  "<span title=\"전일반 신청 불가\" class=\"badge bg-day finish\">전일</span>";
                                 outHtml +=  "</span>";
-                            } else {
+                            } 
+                            else if(dayOfWeek(compareDay) == 3 || dayOfWeek(compareDay) == 5){
+                            	outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
+                                outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
+                            }
+                            else {
                                 //차단 조건 1(쿼리에서 제어) => 한날짜 아이디 2개 or 자신의 아이디로 승인 받은 신청 존재 or 정원이 없을 경우
                                 if ("Y".equals(data.able_sch_flag)) {
                                     //차단 조건 2(쿼리에서 제어) 오전반 정원 확인(승인된 전일 + 오전이 정원을 넘었을 경우)
-                                    if ("Y".equals(data.mor_sch_flag) && "Y".equals(data.aft_sch_flag)) {
-                                        outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
-                                        outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
-                                        outHtml +=  "<a href=\"javascript:;\" title=\"전일제반 신청\" class=\"badge bg-day initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">전일</a>";
-                                    } else if ("Y".equals(data.mor_sch_flag)) {
-                                        outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
-                                        outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
-                                        outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
-                                    } else if ("Y".equals(data.aft_sch_flag)) {
-                                        outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
-                                        outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
-                                        outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
-                                    } else {
-                                        outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
-                                        outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
-                                        outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
-                                    }
+	                                if (("Y".equals(data.mor_sch_flag) && "Y".equals(data.mor_cnt_flag)) && ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_cnt_flag))) {
+	                                    outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
+	                                    outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
+	                                    //outHtml +=  "<a href=\"javascript:;\" title=\"전일제반 신청\" class=\"badge bg-day initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">전일</a>";
+	                                } else if ("Y".equals(data.mor_sch_flag) && "Y".equals(data.mor_cnt_flag)) {
+	                                    outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
+	                                    outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
+	                                    //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
+	                                } else if ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_cnt_flag)) {
+	                                    outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
+	                                    outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
+	                                    //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
+	                                } else {
+	                                    outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
+	                                    outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
+	                                    //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
+	                                }
                                     outHtml +=  "</span>";
 
                                 } else {
                                     outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
                                     outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
-                                    outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
+                                    //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
                                     outHtml +=  "</span>";
                                 }
                             }/* END ELSE */
 
                             //대기자 count
                             if (/*"Y".equals(data.able_sch_flag) && */(diffDate > 1)) {
-                                if (data.hold_cnt > 0) {outHtml +=  "<p class=\"state waiting\">승인대기자 : "+ data.hold_cnt +"</p>";}
-                                if (data.apply_cnt > 0) {outHtml +=  "<p class=\"state waiting\">승인완료자 : "+ data.apply_cnt +"</p>";}
+                               /*  if (data.hold_cnt > 0) {outHtml +=  "<p class=\"state waiting\">승인대기자 : "+ data.hold_cnt +"</p>";}
+                                if (data.apply_cnt > 0) {outHtml +=  "<p class=\"state waiting\">승인완료자 : "+ data.apply_cnt +"</p>";} */
                             }
 
                             //임시 테스트
                             for(ArtCalData pro : calDateList){
-                                if (pro.callDate.equals(data.callDate)) {
-                                    //승인완료 학교명 노출 && 자기 아이디는 제외
-                                    /*if (pro.req_sch_id != null && pro.req_sch_id.length() > 0 && (sessionManager.getId() != null && !pro.req_sch_id.equals(sessionManager.getId()))) {
-                                        outHtml +=  "<p class=\"state\">" + pro.req_sch_nm + "("+ pro.req_cnt +")</p>";
-                                    } else */if ("Y".equals(pro.my_request) && (diffDate > 1)) {
-                                        outHtml +=  "<p class=\"state red\"><a href=\"/index.gne?menuCd="+viewPage+"&req_no="+pro.my_req_no+"&req_date="+pro.callDate.substring(0, 10)+"\">승인완료</a></p>";
-                                    } else if ("H".equals(pro.my_request) && (diffDate > 1)) {
-                                        outHtml +=  "<p class=\"state\"><a href=\"/index.gne?menuCd="+viewPage+"&req_no="+pro.my_req_no+"&req_date="+pro.callDate.substring(0, 10)+"\">승인대기 중</a></p>";
-                                    }
-                                }/*END IF*/
+                            	if(!tmpInfo.equals(parseNull(pro.req_info))){
+                            		tmpInfo = parseNull(pro.req_info);
+                            		if (pro.callDate.equals(data.callDate)) {
+                                        //승인완료 학교명 노출 && 자기 아이디는 제외
+                                        if (pro.req_sch_id != null && pro.req_sch_id.length() > 0 && (sessionManager.getId() != null && !pro.req_sch_id.equals(sessionManager.getId()))) {
+                                            outHtml +=  "<p class=\"state\">" + parseNull(pro.req_info) + "</p>";
+                                        } else if ("Y".equals(pro.my_request) && (diffDate > 1)) {
+                                            outHtml +=  "<p class=\"state red\"><a href=\"/index.gne?menuCd="+confirmPage+"&req_sch_id="+sessionManager.getId()+"&req_date="+pro.callDate.substring(0, 10)+"\">승인완료</a></p>";
+                                        } else if ("H".equals(pro.my_request) && (diffDate > 1)) {
+                                            outHtml +=  "<p class=\"state\"><a href=\"/index.gne?menuCd="+confirmPage+"&req_sch_id="+sessionManager.getId()+"&req_date="+pro.callDate.substring(0, 10)+"\">승인대기 중</a></p>";
+                                        }
+                                    }/*END IF*/
+                            	}/*END IF*/
                             }/*END FOR*/
                         }
                         outHtml +=  "</td>";
@@ -423,7 +488,7 @@ int num         =   0;
 	<ul class="badge-guide badge_type2">
 		<li><i class="badge bg-am">오전</i> 오전반(신청가능)</li>
 		<li><i class="badge bg-pm">오후</i> 오후반(신청가능)</li>
-		<li><i class="badge bg-day">전일</i> 전일제반(신청가능)</li>
+		<!-- <li><i class="badge bg-day">전일</i> 전일제반(신청가능)</li> -->
 		<li><i class="badge finish">grey</i> 마감(신청불가)</li>
 	</ul>
 </div>
@@ -518,10 +583,10 @@ int num         =   0;
                 alert("로그인한 회원만 신청가능 합니다.");
 
                 var send_url    =   "/index.gne?menuCd=<%=loginPage%>";
-                /*var params      =   {"forwardUrl": decodeURIComponent("/e-sucheop/index.gne?menuCd=DOM_000000139008002002&callYear=<%=callYear %>&callMonth=<%=callMonth %>"),
-                                    "returnUrl": decodeURIComponent("/e-sucheop/index.gne?menuCd=DOM_000000139008002002&callYear=<%=callYear %>&callMonth=<%=callMonth %>")};*/
-                var params      =   {"forwardUrl": decodeURIComponent("/e-sucheop/index.gne?menuCd=DOM_000000139008002002"),
-                                    "returnUrl": decodeURIComponent("/e-sucheop/index.gne?menuCd=DOM_000000139008002002")};
+                /*var params      =   {"forwardUrl": decodeURIComponent("/e-sucheop/index.gne?menuCd=<%=listPage%>&callYear=<%=callYear %>&callMonth=<%=callMonth %>"),
+                                    "returnUrl": decodeURIComponent("/e-sucheop/index.gne?menuCd=<%=listPage%>&callYear=<%=callYear %>&callMonth=<%=callMonth %>")};*/
+                var params      =   {"forwardUrl": decodeURIComponent("/e-sucheop/index.gne?menuCd=<%=listPage%>"),
+                                    "returnUrl": decodeURIComponent("/e-sucheop/index.gne?menuCd=<%=listPage%>")};
                 post_to_url(send_url, params, "post");
 
                 return;
@@ -552,5 +617,11 @@ int num         =   0;
                 form.submit();
             }
 
-            function move(arrow){var presentYear="<%=callYear %>";var presentMonth="<%=callMonth %>";presentYear*=1;presentMonth*=1;if(arrow=="pre"){if((presentMonth-1)<1){presentYear-=1;presentMonth=12}else{presentMonth=addZero(presentMonth-1)}}else if(arrow=="next"){if((presentMonth+1)>12){presentYear+=1;presentMonth="01"}else{presentMonth=addZero(presentMonth+1)}}location.href="/index.gne?menuCd=DOM_000000139008002002&callYear="+presentYear+"&callMonth="+presentMonth;function addZero(value){if(value<10){return"0"+value}else{return value}}}
+            function move(arrow){var presentYear="<%=callYear %>";var presentMonth="<%=callMonth %>";presentYear*=1;presentMonth*=1;if(arrow=="pre"){if((presentMonth-1)<1){presentYear-=1;presentMonth=12}else{presentMonth=addZero(presentMonth-1)}}else if(arrow=="next"){if((presentMonth+1)>12){presentYear+=1;presentMonth="01"}else{presentMonth=addZero(presentMonth+1)}}location.href="/index.gne?menuCd=<%=listPage%>&callYear="+presentYear+"&callMonth="+presentMonth;function addZero(value){if(value<10){return"0"+value}else{return value}}}
 </script>
+
+<%
+}catch(Exception finalE){
+	out.println(finalE.toString());
+}
+%>

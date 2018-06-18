@@ -387,7 +387,7 @@ if(viewYN == 1){
  		/*sql.append(" AND TB.STS_FLAG = 'Y'											\n");*/
  		sql.append(" AND VAL.STS_FLAG = 'Y'											\n");
 		sql.append(sqlWhere);
-		sql.append(" ORDER BY TB.RSCH_NO DESC, PRE.ITEM_NO							\n");
+		sql.append(" ORDER BY TB.RSCH_NO DESC, PRE.ITEM_NO, VAL.RSCH_VAL_NO			\n");
 		sql.append(" )A WHERE ROWNUM <= ?											\n");
 		sql.append(" ) WHERE RNUM > ?												\n");
 		
@@ -483,10 +483,11 @@ if(viewYN == 1){
 		});
 
 		$("#rschDwExcel").click(function (){
-			var sendForm	=	$("#foodSrch");
+			alert("오류가 발생하여 엑셀다운로드가 일시적으로 중단됩니");
+			/* var sendForm	=	$("#foodSrch");
 			sendForm.attr("action", "/program/food/research/food_research_val_excel.jsp");
 			sendForm.submit();
-			sendForm.attr("action", "/index.gne?menuCd=DOM_000002101003000000");
+			sendForm.attr("action", "/index.gne?menuCd=DOM_000002101003000000"); */
 		});
 		
 		
@@ -777,7 +778,7 @@ if(viewYN == 1){
 							}
 							for (int j = 1; j <= valMap.size(); j++) {
 								if (j != minNo && j != maxNo) {%>
-									<td><span><%=valMap.get(j) %></span></td>
+									<td><span><%=moneyComma(valMap.get(j)) %></span></td>
 							<%	
 									useMaxVal   =   Integer.parseInt(valMap.get(j));
                                     useMinVal   =   Integer.parseInt(valMap.get(j));

@@ -55,8 +55,8 @@ public class CrizelService {
 		return dao.list(day);
 	}
 
-	public List<Object> listDetail(String keyword, String type) throws ParserConfigurationException, SAXException, IOException {
-		return dao.listDetail(keyword,type);
+	public List<Object> listDetail(String keyword, String type, String site) throws Exception {
+		return dao.listDetail(keyword,type,site);
 	}
 
 	public void listInsert(CrizelVo vo) {

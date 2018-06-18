@@ -66,14 +66,15 @@ $(function(){
 						<span class="ani_time">${ob.ani_time}</span>
 					</td>
 					<td colspan="5">
-						<c:choose>
+						<a href="/listDetail.do?keyword=${ob.keyword}&type=video&site=${ob.site}" class="ani_title">${ob.title}</a>
+						<%-- <c:choose>
 							<c:when test="${ob.site eq 'ohys'}">
-								<a href="/listDetail.do?keyword=${ob.keyword}&type=video" class="ani_title">${ob.title}</a>
+								<a href="/listDetail.do?keyword=${ob.keyword}&type=video&site=${ob.site}" class="ani_title">${ob.title}</a>
 							</c:when>
 							<c:otherwise>
 								<a href="http://leopard-raws.org/?search=${ob.keyword}" class="ani_title">${ob.title}</a>							
 							</c:otherwise>
-						</c:choose>
+						</c:choose> --%>
 					</td>
 					<td>
 						<a href="/aniDelete.do?ani_id=${ob.ani_id}&day=${ob.day}" class="ani_del">삭제</a>	
