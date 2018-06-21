@@ -323,9 +323,9 @@ try{
 		sql.append("      , VAL.NON_DISTRI																										\n");
 		sql.append("      , PRE.ITEM_COMP_VAL																									\n");
 		sql.append("      , PRE.ITEM_COMP_NO																									\n");
-		sql.append("      , VAL.AVR_VAL																											\n");
-		sql.append("      , VAL.CENTER_VAL																										\n");
-		sql.append("      , (SELECT ROUND(AVG(AVR_VAL), 0) FROM FOOD_RSCH_VAL WHERE RSCH_NO = VAL.RSCH_NO AND ITEM_NO = VAL.ITEM_NO) AS ZONE_AVR_VAL	\n");
+		sql.append("      , TRUNC(VAL.AVR_VAL+9, -1) AS AVR_VAL																					\n");
+		sql.append("      , TRUNC(VAL.CENTER_VAL+9, -1) AS CENTER_VAL																			\n");
+		sql.append("      , TRUNC((SELECT ROUND(AVG(AVR_VAL), 0) FROM FOOD_RSCH_VAL WHERE RSCH_NO = VAL.RSCH_NO AND ITEM_NO = VAL.ITEM_NO)+9, -1) AS ZONE_AVR_VAL	\n");
 		sql.append("      , (SELECT SCH_NM FROM FOOD_SCH_TB WHERE SCH_NO = VAL.SCH_NO) AS SCH_NM		\n");
 		sql.append("      , (SELECT NU_NM FROM FOOD_SCH_NU WHERE NU_NO = VAL.NU_NO) AS NU_NM			\n");
 		sql.append("      , (SELECT TEAM_NM FROM FOOD_TEAM WHERE TEAM_NO = VAL.TEAM_NO) AS TEAM_NM		\n");

@@ -200,6 +200,43 @@ String rsch_no		= 	parseNull(request.getParameter("rsch_no"));
 String[] keyCateOp	=	{"title", "detail"};
 String[] keyCateTxt =	{"조사명", "식품설명"};
 
+//검색어 where
+if(!"".equals(keywordInp)){
+    
+    //제목 where
+    if("title".equals(keywordCate))	{
+        sqlWhere	+=	" AND TB.RSCH_NM LIKE '%' ||?|| '%' 	\n";
+        setWhere.add(keywordInp);
+    }
+    
+    //식품 상세설명 where
+    else if("detail".equals(keywordCate)){
+        sqlWhere	+=	" AND (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', EX_NM)			\n";
+        sqlWhere	+=	" ORDER BY EX_NM).EXTRACT('//text()').GETSTRINGVAL(), 2)		\n";
+        sqlWhere	+=	" EX_NM															\n";
+        sqlWhere	+=	" FROM FOOD_ST_EXPL												\n";
+        sqlWhere	+=	" WHERE EX_NO IN(												\n";
+        sqlWhere	+=	" FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,		\n";
+        sqlWhere	+=	" FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, 		\n";
+        sqlWhere	+=	" FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15,	\n";
+        sqlWhere	+=	" FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20,	\n";
+        sqlWhere	+=	" FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25))	\n";
+        sqlWhere	+=	" LIKE '%' ||?|| '%'											\n";
+        setWhere.add(keywordInp);
+    }
+}
+
+//날짜검색
+if(!"".equals(srchSdate) && !"".equals(srchEdate)){
+    sqlWhere	+=	" AND ((TB.STR_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.STR_DATE <= TO_DATE(?, 'YY/MM/DD')) 	\n";
+    sqlWhere	+=	" OR (TB.END_DATE >= TO_DATE(?, 'YY/MM/DD') AND TB.END_DATE <= TO_DATE(?, 'YY/MM/DD'))) 	\n";
+    
+    setWhere.add(srchSdate);
+    setWhere.add(srchEdate);
+    setWhere.add(srchSdate);
+    setWhere.add(srchEdate);
+}
+
 try{
     //권역 목록
     sql		=	new StringBuffer();
@@ -210,7 +247,22 @@ try{
     sql.append(" WHERE SHOW_FLAG = 'Y'  \n");
     zoneList	=	jdbcTemplate.query(sql.toString(), new FoodList());
     
-  
+    //권역선택 where
+    if(zoneList != null && zoneList.size() > 0 && !"".equals(zoneType)){
+        for(int i=0; i<zoneList.size(); i++){
+            if(zoneList.get(i).zone_no.equals(zoneType)){
+                sqlWhere	+=	" AND SCH.ZONE_NO = ? 			\n";
+                setWhere.add(zoneType);
+            }
+        }
+    }
+
+    //월별조사 where
+    if(!"".equals(rsch_no)){
+        sqlWhere += "AND TB.RSCH_NO = ?			";
+        setWhere.add(rsch_no);
+    }
+
     //카테고리 목록
     sql		=	new StringBuffer();
     sql.append(" SELECT  				\n");
@@ -220,141 +272,199 @@ try{
     sql.append(" WHERE SHOW_FLAG = 'Y'  \n");
     cateList	=	jdbcTemplate.query(sql.toString(), new FoodList());
     
-  //검색 조건
-  		setWhere = new ArrayList<String>();
-  		sqlWhere =	new String();
-  		sqlWhere += "WHERE 1=1						\n";
-  		sqlWhere += "AND RSCHTB.SHOW_FLAG = 'Y'		\n";
-  		sqlWhere += "AND VAL.STS_FLAG = 'Y'			\n";
-  		if(!"".equals(srchSdate) && !"".equals(srchEdate)){
-  			sqlWhere += "AND ((RSCHTB.STR_DATE >= TO_DATE(?, 'YY/MM/DD') AND RSCHTB.STR_DATE <= TO_DATE(?, 'YY/MM/DD'))		\n";
-  			sqlWhere += "	 OR (RSCHTB.END_DATE >= TO_DATE(?, 'YY/MM/DD') AND RSCHTB.END_DATE <= TO_DATE(?, 'YY/MM/DD')))	\n";
-  			setWhere.add(srchSdate);
-  			setWhere.add(srchEdate);
-  			setWhere.add(srchSdate);
-  			setWhere.add(srchEdate);
-  		}
-  		if(!"".equals(rsch_no)){
-  			sqlWhere += "AND VAL.RSCH_NO = ?	\n";
-  			setWhere.add(rsch_no);
-  		}
-  		if(!"".equals(zoneType)){
-  			sqlWhere += "AND ZONE.ZONE_NO = ?	\n";
-  			setWhere.add(zoneType);
-  		}
-  		if(!"".equals(foodItem)){
-  			sqlWhere += "AND CAT.CAT_NO = ?		\n";
-  			setWhere.add(foodItem);
-  		}
-  		if(!"".equals(foodName)){
-  			sqlWhere += "AND ( SELECT SUBSTR( XMLAGG(  																							\n";																				
-  			sqlWhere += "                    XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()' 								\n";								
-  			sqlWhere += "                ).GETSTRINGVAL(),2) NM_FOOD 																			\n";									
-  			sqlWhere += "  FROM FOOD_ST_NM 																										\n";											
-  			sqlWhere += "  WHERE NM_NO IN (ITEM.FOOD_NM_1, ITEM.FOOD_NM_2, ITEM.FOOD_NM_3, ITEM.FOOD_NM_4, ITEM.FOOD_NM_5)) LIKE '%'||?||'%'	\n";
-  			setWhere.add(foodName);
-  		}
-  		if(!"".equals(keywordCate)){
-  			if("title".equals(keywordCate)){
-  				sqlWhere += "AND RSCHTB.RSCH_NM LIKE '%'||?||'%'			\n";
-  			}else if("detail".equals(keywordCate)){	
-  				sqlWhere += "AND ( SELECT SUBSTR( XMLAGG(																							\n";																					  
-  				sqlWhere += "                        XMLELEMENT(COL ,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()'									\n";										 
-  				sqlWhere += "                    ).GETSTRINGVAL(),2) EX_NM																			\n";															 
-  				sqlWhere += "      FROM FOOD_ST_EXPL																								\n";																					
-  				sqlWhere += "      WHERE EX_NO IN (ITEM.FOOD_EP_1, ITEM.FOOD_EP_2, ITEM.FOOD_EP_3, ITEM.FOOD_EP_4, ITEM.FOOD_EP_5					\n";										
-  				sqlWhere += "     		, ITEM.FOOD_EP_6, ITEM.FOOD_EP_7, ITEM.FOOD_EP_8, ITEM.FOOD_EP_9, ITEM.FOOD_EP_10							\n";										
-  				sqlWhere += "         	, ITEM.FOOD_EP_11, ITEM.FOOD_EP_12, ITEM.FOOD_EP_13, ITEM.FOOD_EP_14, ITEM.FOOD_EP_15						\n";									
-  				sqlWhere += "        	, ITEM.FOOD_EP_16, ITEM.FOOD_EP_17, ITEM.FOOD_EP_18, ITEM.FOOD_EP_19, ITEM.FOOD_EP_20						\n";									
-  				sqlWhere += "         	, ITEM.FOOD_EP_21, ITEM.FOOD_EP_22, ITEM.FOOD_EP_23, ITEM.FOOD_EP_24, ITEM.FOOD_EP_25)) LIKE '%'||?||'%'	\n";
-  			}
-  			setWhere.add(keywordInp);
-  		}
-  		
-  		sql = new StringBuffer();
-  		sql.append("  SELECT																													\n"); 
-		sql.append("    ROWNUM AS RNUM, A.*																										\n");
-		sql.append("    , DECODE(AVR_VAL, NULL																									\n");
-		sql.append("        , 'N'																												\n");
-		sql.append("        , CASE																												\n");
-		sql.append("            WHEN (SELECT MAX(AVR_VAL)																						\n"); 
-		sql.append("                FROM FOOD_RSCH_VAL																							\n"); 
-		sql.append("                WHERE RSCH_NO = A.RSCH_NO AND ITEM_NO = A.ITEM_NO)															\n"); 
-		sql.append("                - (SELECT MIN(AVR_VAL)																						\n"); 
-		sql.append("                   FROM FOOD_RSCH_VAL																						\n"); 
-		sql.append("                   WHERE RSCH_NO = A.RSCH_NO AND ITEM_NO = A.ITEM_NO)														\n");
-		sql.append("                <= (SELECT MAX(AVR_VAL)																						\n"); 
-		sql.append("                    FROM FOOD_RSCH_VAL																						\n"); 
-		sql.append("                    WHERE RSCH_NO = A.RSCH_NO AND ITEM_NO = A.ITEM_NO) * 0.3 THEN 'N'										\n");
-		sql.append("            ELSE 'Y'																										\n");
-		sql.append("          END																												\n");
-		sql.append("        ) AS RCH_BACK																										\n");
-		sql.append("  FROM(																														\n");
-		sql.append("    SELECT																													\n"); 
-		sql.append("      VAL.RSCH_VAL_NO    																									\n");
-		sql.append("      , VAL.RSCH_NO																											\n");
-		sql.append("      , VAL.ITEM_NO																											\n");
-		sql.append("      , (CAT.CAT_NM || '-' || ITEM.FOOD_CAT_INDEX) AS CAT_NM																\n");
-		sql.append("      , ZONE.ZONE_NM																										\n");
-		sql.append("      , ITEM.FOOD_CODE																										\n");
-		sql.append("      , RSCHTB.RSCH_NM																										\n");
-		sql.append("      , ( SELECT SUBSTR( XMLAGG(																							\n");  																									
-		sql.append("                            XMLELEMENT(COL ,',', NM_FOOD) ORDER BY NM_FOOD).EXTRACT('//text()'								\n"); 										
-		sql.append("                        ).GETSTRINGVAL(),2) NM_FOOD																			\n"); 																				
-		sql.append("          FROM FOOD_ST_NM																									\n"); 																											
-		sql.append("          WHERE NM_NO IN (ITEM.FOOD_NM_1, ITEM.FOOD_NM_2, ITEM.FOOD_NM_3, ITEM.FOOD_NM_4, ITEM.FOOD_NM_5)) AS NM_FOOD		\n");								 
-		sql.append("      , ( SELECT SUBSTR( XMLAGG(																							\n");																									  
-		sql.append("                            XMLELEMENT(COL,',',DT_NM) ORDER BY DT_NM).EXTRACT('//text()'									\n");											 
-		sql.append("                        ).GETSTRINGVAL(),2) DT_NM																			\n");																					 
-		sql.append("          FROM FOOD_ST_DT_NM																								\n");																										 
-		sql.append("          WHERE DT_NO IN (ITEM.FOOD_DT_1, ITEM.FOOD_DT_2, ITEM.FOOD_DT_3, ITEM.FOOD_DT_4, ITEM.FOOD_DT_5					\n");											
-		sql.append("                        , ITEM.FOOD_DT_6, ITEM.FOOD_DT_7, ITEM.FOOD_DT_8, ITEM.FOOD_DT_9, ITEM.FOOD_DT_10)) AS DT_NM		\n");
-		sql.append("      , ( SELECT SUBSTR( XMLAGG(																							\n");																									  
-		sql.append("                            XMLELEMENT(COL ,',', EX_NM) ORDER BY EX_NM).EXTRACT('//text()'									\n");											 
-		sql.append("                        ).GETSTRINGVAL(),2) EX_NM																			\n");																					 
-		sql.append("          FROM FOOD_ST_EXPL																									\n");																											
-		sql.append("          WHERE EX_NO IN (ITEM.FOOD_EP_1, ITEM.FOOD_EP_2, ITEM.FOOD_EP_3, ITEM.FOOD_EP_4, ITEM.FOOD_EP_5					\n");											
-		sql.append("                        , ITEM.FOOD_EP_6, ITEM.FOOD_EP_7, ITEM.FOOD_EP_8, ITEM.FOOD_EP_9, ITEM.FOOD_EP_10					\n");											
-		sql.append("                        , ITEM.FOOD_EP_11, ITEM.FOOD_EP_12, ITEM.FOOD_EP_13, ITEM.FOOD_EP_14, ITEM.FOOD_EP_15				\n");										
-		sql.append("                        , ITEM.FOOD_EP_16, ITEM.FOOD_EP_17, ITEM.FOOD_EP_18, ITEM.FOOD_EP_19, ITEM.FOOD_EP_20				\n");										
-		sql.append("                        , ITEM.FOOD_EP_21, ITEM.FOOD_EP_22, ITEM.FOOD_EP_23, ITEM.FOOD_EP_24, ITEM.FOOD_EP_25)) AS EX_NM	\n");
-		sql.append("      , (SELECT UNIT_NM FROM FOOD_ST_UNIT WHERE UNIT_NO = ITEM.FOOD_UNIT) AS UNIT_NM										\n");     
-		sql.append("      , VAL.NON_SEASON																										\n");
-		sql.append("      , VAL.NON_DISTRI																										\n");
-		sql.append("      , PRE.ITEM_COMP_VAL																									\n");
-		sql.append("      , PRE.ITEM_COMP_NO																									\n");
-		sql.append("      , VAL.AVR_VAL																											\n");
-		sql.append("      , VAL.CENTER_VAL																										\n");
-		sql.append("      , (SELECT ROUND(AVG(AVR_VAL), 0) FROM FOOD_RSCH_VAL WHERE RSCH_NO = VAL.RSCH_NO AND ITEM_NO = VAL.ITEM_NO) AS ZONE_AVR_VAL	\n");
-		sql.append("      , (SELECT SCH_NM FROM FOOD_SCH_TB WHERE SCH_NO = VAL.SCH_NO) AS SCH_NM		\n");
-		sql.append("      , (SELECT NU_NM FROM FOOD_SCH_NU WHERE NU_NO = VAL.NU_NO) AS NU_NM			\n");
-		sql.append("      , (SELECT TEAM_NM FROM FOOD_TEAM WHERE TEAM_NO = VAL.TEAM_NO) AS TEAM_NM		\n");
-		sql.append("      , VAL.RSCH_VAL1		\n");
-		sql.append("      , VAL.RSCH_VAL2		\n");
-		sql.append("      , VAL.RSCH_VAL3		\n");
-		sql.append("      , VAL.RSCH_VAL4		\n");
-		sql.append("      , VAL.RSCH_VAL5		\n");
-		sql.append("      , VAL.RSCH_LOC1		\n");
-		sql.append("      , VAL.RSCH_LOC2		\n");
-		sql.append("      , VAL.RSCH_LOC3		\n");
-		sql.append("      , VAL.RSCH_LOC4		\n");
-		sql.append("      , VAL.RSCH_LOC5		\n");
-		sql.append("      , VAL.RSCH_COM1		\n");
-		sql.append("      , VAL.RSCH_COM2		\n");
-		sql.append("      , VAL.RSCH_COM3		\n");
-		sql.append("      , VAL.RSCH_COM4		\n");
-		sql.append("      , VAL.RSCH_COM5		\n");
-		sql.append("      , VAL.RSCH_REASON		\n");
-		sql.append("      , VAL.REG_DATE		\n");
-		sql.append("      , VAL.RSCH_DATE		\n");
-		sql.append("    FROM FOOD_RSCH_VAL VAL LEFT JOIN FOOD_ST_CAT CAT ON VAL.CAT_NO = CAT.CAT_NO					\n");
-		sql.append("                           LEFT JOIN FOOD_ST_ITEM ITEM ON VAL.ITEM_NO = ITEM.ITEM_NO			\n");
-		sql.append("                           LEFT JOIN FOOD_ZONE ZONE ON VAL.ZONE_NO = ZONE.ZONE_NO				\n");
-		sql.append("                           LEFT JOIN FOOD_RSCH_TB RSCHTB ON VAL.RSCH_NO = RSCHTB.RSCH_NO		\n");
-		sql.append("                           LEFT JOIN FOOD_ITEM_PRE PRE ON VAL.ITEM_NO = PRE.ITEM_NO				\n");
-		sql.append(sqlWhere);
-		sql.append(" 	ORDER BY RSCHTB.RSCH_NO DESC, VAL.ITEM_NO, VAL.RSCH_VAL_NO									\n");
-		sql.append(") A																								\n");
+    //품목구분 where
+    if(cateList != null && cateList.size() > 0){
+        if(!"".equals(foodItem)){
+            for(int i=0; i<cateList.size(); i++){
+                if(cateList.get(i).cat_no.equals(foodItem)){
+                    sqlWhere	+=	" AND ITEM.CAT_NO = ? 				\n";
+                    setWhere.add(foodItem);
+                }
+            }
+        }
+    }
+            
+    //품목 검색 where
+    sqlWhere	+=	" AND (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', NM_FOOD)	\n";
+    sqlWhere	+=	" ORDER BY NM_FOOD).EXTRACT('//text()').GETSTRINGVAL(),2)	\n";
+    sqlWhere	+=	" NM_FOOD													\n";
+    sqlWhere	+=	" FROM FOOD_ST_NM											\n";
+    sqlWhere	+=	" WHERE NM_NO IN (											\n";
+    sqlWhere	+=	" FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5))	\n";
+    sqlWhere	+=	" LIKE '%' ||?|| '%'										\n";
+    setWhere.add(foodName);
+
+    //입력 parameter 가 없을 경우
+    if ("".equals(srchSdate) && "".equals(srchEdate) && "".equals(zoneType) && "".equals(foodItem)
+    && "".equals(foodName) && "".equals(keywordCate) && "".equals(keywordInp) && "".equals(rsch_no)) {
+        //sqlWhere    +=  " AND TB.RSCH_NO = (SELECT MAX(RSCH_NO) FROM                \n";
+        //sqlWhere    +=  "   FOOD_RSCH_TB WHERE SHOW_FLAG = 'Y'/* AND STS_FLAG = 'Y'*/)  \n";
+    }
+
+    //검색목록
+    sql		=	new StringBuffer();
+    sql.append(" SELECT 														\n");
+    sql.append(" VAL.RSCH_VAL_NO,												\n");
+    sql.append(" PRE.ITEM_NO,													\n");
+    sql.append(" (SELECT CAT_NM	FROM FOOD_ST_CAT								\n");
+    sql.append(" WHERE CAT_NO = ITEM.CAT_NO) AS CAT_NM,							\n");
+
+    sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', NM_FOOD)			\n");
+    sql.append(" ORDER BY NM_FOOD).EXTRACT('//text()').GETSTRINGVAL(),2)		\n");
+    sql.append(" NM_FOOD														\n");
+    sql.append(" FROM FOOD_ST_NM												\n");
+    sql.append(" WHERE NM_NO IN (												\n");
+    sql.append(" FOOD_NM_1, FOOD_NM_2, FOOD_NM_3, FOOD_NM_4, FOOD_NM_5))		\n");
+    sql.append(" AS NM_FOOD,													\n");
+
+    sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', DT_NM)				\n");
+    sql.append(" ORDER BY DT_NM).EXTRACT('//text()').GETSTRINGVAL(), 2)			\n");
+    sql.append(" DT_NM															\n");
+    sql.append(" FROM FOOD_ST_DT_NM												\n");
+    sql.append(" WHERE DT_NO IN(												\n");
+    sql.append(" FOOD_DT_1, FOOD_DT_2, FOOD_DT_3, FOOD_DT_4, FOOD_DT_5,			\n");
+    sql.append(" FOOD_DT_6, FOOD_DT_7, FOOD_DT_8, FOOD_DT_9, FOOD_DT_10))		\n");
+    sql.append(" AS DT_NM, 														\n");
+
+    sql.append(" (SELECT SUBSTR(XMLAGG(XMLELEMENT(COL, ',', EX_NM)				\n");
+    sql.append(" ORDER BY EX_NM).EXTRACT('//text()').GETSTRINGVAL(), 2)			\n");
+    sql.append(" EX_NM															\n");
+    sql.append(" FROM FOOD_ST_EXPL												\n");
+    sql.append(" WHERE EX_NO IN(												\n");
+    sql.append(" FOOD_EP_1, FOOD_EP_2, FOOD_EP_3, FOOD_EP_4, FOOD_EP_5,			\n");
+    sql.append(" FOOD_EP_6, FOOD_EP_7, FOOD_EP_8, FOOD_EP_9, FOOD_EP_10, 		\n");
+    sql.append(" FOOD_EP_11, FOOD_EP_12, FOOD_EP_13, FOOD_EP_14, FOOD_EP_15,	\n");
+    sql.append(" FOOD_EP_16, FOOD_EP_17, FOOD_EP_18, FOOD_EP_19, FOOD_EP_20,	\n");
+    sql.append(" FOOD_EP_21, FOOD_EP_22, FOOD_EP_23, FOOD_EP_24, FOOD_EP_25))	\n");
+    sql.append(" AS EX_NM, 														\n");
+
+    sql.append(" (SELECT UNIT_NM FROM FOOD_ST_UNIT 								\n");
+    sql.append(" WHERE UNIT_NO = ITEM.FOOD_UNIT) AS UNIT_NM, 					\n");
+    sql.append(" PRE.REG_DATE,													\n");
+    sql.append(" PRE.MOD_DATE,													\n");
+    sql.append(" PRE.SHOW_FLAG,													\n");
+    sql.append(" (SELECT REG_IP FROM FOOD_UP_FILE							 	\n");
+    sql.append(" WHERE FILE_NO = PRE.FILE_NO) REG_IP,							\n");
+    sql.append(" (SELECT REG_ID FROM FOOD_UP_FILE								\n");
+    sql.append(" WHERE FILE_NO = PRE.FILE_NO) REG_ID,							\n");
+    sql.append(" PRE.ITEM_GRP_NO,												\n");
+    sql.append(" PRE.ITEM_GRP_ORDER,											\n");
+    sql.append(" PRE.ITEM_COMP_NO, 												\n");
+    sql.append(" PRE.ITEM_COMP_VAL,												\n");
+    sql.append(" PRE.LOW_RATIO, 												\n");
+    sql.append(" PRE.AVR_RATIO, 												\n");
+    sql.append(" PRE.LB_RATIO,	 												\n");
+    sql.append(" VAL.LOW_VAL,	 												\n");
+    sql.append(" VAL.AVR_VAL,	 												\n");
+    sql.append(" VAL.CENTER_VAL, 												\n");
+    sql.append(" ( 	SELECT														\n");
+    sql.append(" 		ROUND(AVG(AVR_VAL), 0)									\n");
+    sql.append(" 	FROM FOOD_RSCH_VAL											\n");
+    sql.append(" 	WHERE RSCH_NO = VAL.RSCH_NO									\n");
+    sql.append(" 		AND ITEM_NO = VAL.ITEM_NO								\n");
+    sql.append(" ) AS ZONE_AVR_VAL,												\n");
+    sql.append(" ( 	SELECT														\n");
+    sql.append(" 		COUNT(AVR_VAL)											\n");
+    sql.append(" 	FROM FOOD_RSCH_VAL											\n");
+    sql.append(" 	WHERE RSCH_NO = VAL.RSCH_NO									\n");
+    sql.append(" 		AND ITEM_NO = VAL.ITEM_NO								\n");
+    sql.append(" ) AS ZONE_AVR_CNT,												\n");
+
+    sql.append(" (SELECT TEAM_NM                                                \n");
+    sql.append("   FROM FOOD_TEAM                                               \n");
+    sql.append("   WHERE TEAM_NO = VAL.TEAM_NO                                  \n");
+    sql.append(" ) AS TEAM_NM,                                                  \n");
+    sql.append(" TB.RSCH_NM,	 												\n");
+    sql.append(" SCH.SCH_NM,	 												\n");
+    sql.append(" SCH.ZONE_NO,	 												\n");
+    sql.append(" NU.NU_NM,  	 												\n");
+    sql.append(" ZONE.ZONE_NM,	 												\n");
+    sql.append(" ITEM.FOOD_CAT_INDEX,											\n");
+    sql.append(" ITEM.FOOD_CODE,    											\n");
+    sql.append(" VAL.NON_SEASON,												\n");
+    sql.append(" VAL.NON_DISTRI,												\n");
+    sql.append(" VAL.RSCH_VAL1,													\n");
+    sql.append(" VAL.RSCH_VAL2,													\n");
+    sql.append(" VAL.RSCH_VAL3,													\n");
+    sql.append(" VAL.RSCH_VAL4,													\n");
+    sql.append(" VAL.RSCH_VAL5,													\n");
+    sql.append(" VAL.RSCH_LOC1,													\n");
+    sql.append(" VAL.RSCH_LOC2,													\n");
+    sql.append(" VAL.RSCH_LOC3,													\n");
+    sql.append(" VAL.RSCH_LOC4,													\n");
+    sql.append(" VAL.RSCH_LOC5,													\n");
+    sql.append(" VAL.RSCH_COM1,													\n");
+    sql.append(" VAL.RSCH_COM2,													\n");
+    sql.append(" VAL.RSCH_COM3,													\n");
+    sql.append(" VAL.RSCH_COM4,													\n");
+    sql.append(" VAL.RSCH_COM5													\n");
+    sql.append("    , (                        									\n");
+    sql.append("        CASE                                                    \n");
+    sql.append("        WHEN (                                                  \n");
+    sql.append("            VAL.LOW_VAL / ((SELECT Z.LOW_VAL                    \n");
+    sql.append("            FROM (SELECT * FROM FOOD_RSCH_VAL                   \n");
+    sql.append("                ORDER BY RSCH_VAL_NO DESC) Z                    \n");
+    sql.append("            WHERE Z.RSCH_VAL_NO < VAL.RSCH_VAL_NO               \n");
+    sql.append("                AND Z.RSCH_NO < VAL.RSCH_NO                     \n");
+    sql.append("                AND Z.ITEM_NO = VAL.ITEM_NO                     \n");
+    sql.append("                AND Z.ZONE_NO = VAL.ZONE_NO                     \n");
+    sql.append("                AND ROWNUM = 1) + VAL.LOW_VAL) * 100            \n");
+    sql.append("        ) IS NULL                                               \n");
+    sql.append("        THEN 'Y'                                                \n");
+    sql.append("        WHEN (                                                  \n");
+    sql.append("            VAL.LOW_VAL / ((SELECT Z.LOW_VAL                    \n");
+    sql.append("            FROM (SELECT * FROM FOOD_RSCH_VAL                   \n");
+    sql.append("                ORDER BY RSCH_VAL_NO DESC) Z                    \n");
+    sql.append("            WHERE Z.RSCH_VAL_NO < VAL.RSCH_VAL_NO               \n");
+    sql.append("                AND Z.RSCH_NO < VAL.RSCH_NO                     \n");
+    sql.append("                AND Z.ITEM_NO = VAL.ITEM_NO                     \n");
+    sql.append("                AND Z.ZONE_NO = VAL.ZONE_NO                     \n");
+    sql.append("                AND ROWNUM = 1) + VAL.LOW_VAL) * 100            \n");
+    sql.append("        ) < PRE.LOW_RATIO                                       \n");
+    sql.append("        THEN 'N'                                                \n");
+    sql.append("        ELSE 'Y'                                                \n");
+    sql.append("        END                                                     \n");
+    sql.append("    ) AS LOW_FLAG            									\n");
+    sql.append("    , (															\n");
+    sql.append("		CASE			 										\n");
+    sql.append("        WHEN (			 										\n");
+    sql.append("			VAL.AVR_VAL / ((SELECT Z.LOW_VAL			 		\n");
+    sql.append("            FROM (SELECT * FROM FOOD_RSCH_VAL					\n");
+    sql.append("            	ORDER BY RSCH_VAL_NO DESC) Z					\n");
+    sql.append("            WHERE Z.RSCH_VAL_NO < VAL.RSCH_VAL_NO				\n");
+    sql.append("            	AND Z.RSCH_NO < VAL.RSCH_NO						\n");
+    sql.append("            	AND Z.ITEM_NO = VAL.ITEM_NO						\n");
+    sql.append("            	AND Z.ZONE_NO = VAL.ZONE_NO						\n");
+    sql.append("            	AND ROWNUM = 1) + VAL.LOW_VAL) * 100			\n");
+    sql.append("            ) IS NULL											\n");
+    sql.append("		THEN 'Y'												\n");
+    sql.append("        WHEN (													\n");
+    sql.append("        	VAL.LOW_VAL / ((SELECT Z.LOW_VAL					\n");
+    sql.append("            FROM (SELECT * FROM FOOD_RSCH_VAL					\n");
+    sql.append("            	ORDER BY RSCH_VAL_NO DESC) Z					\n");
+    sql.append("            WHERE Z.RSCH_VAL_NO < VAL.RSCH_VAL_NO				\n");
+    sql.append("            	AND Z.RSCH_NO < VAL.RSCH_NO						\n");
+    sql.append("            	AND Z.ITEM_NO = VAL.ITEM_NO						\n");
+    sql.append("            	AND ROWNUM = 1) + VAL.LOW_VAL) * 100			\n");
+    sql.append("		) < PRE.LOW_RATIO										\n");
+    sql.append("        THEN 'N'												\n");
+    sql.append("        ELSE 'Y'												\n");
+    sql.append("        END														\n");
+    sql.append("		) AS AVR_FLAG,											\n");
+    sql.append(" VAL.RSCH_DATE													\n");
+
+    sql.append(" FROM FOOD_ITEM_PRE PRE 										\n");
+    sql.append(" LEFT JOIN FOOD_ST_ITEM ITEM ON PRE.S_ITEM_NO = ITEM.ITEM_NO	\n");
+    sql.append(" LEFT JOIN FOOD_RSCH_VAL VAL ON VAL.ITEM_NO = ITEM.ITEM_NO		\n");
+    sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
+    sql.append(" LEFT JOIN FOOD_SCH_TB SCH ON VAL.SCH_NO = SCH.SCH_NO			\n");
+    sql.append(" LEFT JOIN FOOD_SCH_NU NU ON VAL.NU_NO = NU.NU_NO				\n");
+    sql.append(" LEFT JOIN FOOD_ZONE ZONE ON VAL.ZONE_NO = ZONE.ZONE_NO			\n");
+
+    sql.append(" WHERE TB.SHOW_FLAG = 'Y'										\n");
+    sql.append(" AND VAL.STS_FLAG = 'Y' 										\n");		
+    sql.append(sqlWhere);
+    sql.append(" ORDER BY TB.RSCH_NO DESC, PRE.ITEM_NO, VAL.RSCH_VAL_NO			\n");
 
     if(setWhere != null && setWhere.size() > 0){
         setObject	=	new Object[setWhere.size()];
@@ -455,32 +565,22 @@ try{
                             maxNo	=	j;
                         }
                     }
-                    int cellCnt = 0;
                     for (int j = 1; j <= valMap.size(); j++) {
                         if (j != minNo && j != maxNo) {
-                        	if(cellCnt == 0){
-                        		cell    =   row.createCell(17); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
-                        	}else if(cellCnt == 1){
-                        		cell    =   row.createCell(18); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
-                        	}else{
-                        		cell    =   row.createCell(19); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
-                        	}
-                        	cellCnt++;
+                            cell    =   row.createCell(17); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(18); cell.setCellValue(moneyComma(valMap.get(j+1))); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(19); cell.setCellValue(moneyComma(valMap.get(j+2))); cell.setCellStyle(cellStyle);
+                            break;
                         }
                     }
                 //가격이 3개 일 경우
                 } else if (valMapCnt == 3) {
-                	int cellCnt = 0;
                     for (int j = 1; j <= valMap.size(); j++) {
                         if (!"-".equals(valMap.get(j))) {
-                        	if(cellCnt == 0){
-                        		cell    =   row.createCell(17); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
-                        	}else if(cellCnt == 1){
-                        		cell    =   row.createCell(18); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
-                        	}else{
-                        		cell    =   row.createCell(19); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
-                        	}
-                        	cellCnt++;
+                            cell    =   row.createCell(17); cell.setCellValue(moneyComma(valMap.get(j))); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(18); cell.setCellValue(moneyComma(valMap.get(j+1))); cell.setCellStyle(cellStyle);
+                            cell    =   row.createCell(19); cell.setCellValue(moneyComma(valMap.get(j+2))); cell.setCellStyle(cellStyle);
+                            break;
                         }
                     }
                 //가격이 1개일 경우... 혹시 모르니...

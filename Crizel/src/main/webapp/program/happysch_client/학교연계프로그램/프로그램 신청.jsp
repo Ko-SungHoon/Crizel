@@ -400,6 +400,7 @@ String tmpInfo	=	"";
                             		|| ((Integer.parseInt(toDay)!=20180614 && Integer.parseInt(toDay)!=20180615) && Integer.parseInt(compareDay) > 20180720)
                             		|| ((Integer.parseInt(toDay)==20180614 || Integer.parseInt(toDay)==20180615) && Integer.parseInt(compareDay) < 20180903)
                             		|| ((Integer.parseInt(toDay)==20180614 || Integer.parseInt(toDay)==20180615) && Integer.parseInt(compareDay) > 20181221)
+                            		|| (Integer.parseInt(compareDay) == 20181004) || (Integer.parseInt(compareDay) == 20181005)
                             	) {
                                 outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-am finish\">오전</span>";
                                 outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
@@ -495,7 +496,7 @@ String tmpInfo	=	"";
 
  <div class="btn_area c magT25 magB50">
        <a class="btn white medium" href="/program/down.jsp?path=/img/happysch&amp;filename=organization_table.hwp" title="오리엔테이션 및 반편성표 다운로드">
-       <i class="ico-hwp"></i> 오리엔테이션  및 반편성표 다운로드</a>
+       <i class="ico-hwp"></i> 오리엔테이션  및 반편성표 다운로드</a><span style="display:none;"><%=cm.isMenuCmsManager(sm) %></span>
     </div>
 
 <script>
@@ -622,6 +623,9 @@ String tmpInfo	=	"";
 
 <%
 }catch(Exception finalE){
-	out.println(finalE.toString());
+	out.println("<script>");
+	out.println("alert('처리중 오류가 발생하였습니다.');");
+	out.println("history.go(-1);");
+	out.println("</script>");
 }
 %>

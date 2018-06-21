@@ -46,7 +46,7 @@ public class Leopard {
 				map = new HashMap<String,Object>();
 				Element link = linkElem.get(i);
 				
-				map.put("addr", "http://leopard-raws.org/" + link.attr("href"));
+				map.put("link", "http://leopard-raws.org/" + link.attr("href"));
 				map.put("title", link.text());
 				
 				//System.out.println("http://leopard-raws.org/" + link.attr("href") + " ~ " + link.text());

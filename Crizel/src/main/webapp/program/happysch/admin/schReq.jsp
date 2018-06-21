@@ -193,6 +193,8 @@ else {start_date    =   Integer.toString(cal.get(Calendar.YEAR)) + "-01-01";}
 
 String end_date		=   parseNull(request.getParameter("end_date"), "");
 if (end_date != null && end_date.length() > 0) {}
+else {end_date    =   Integer.toString(cal.get(Calendar.YEAR)) + "-12-31";}
+if (end_date != null && end_date.length() > 0) {}
 else {end_date    =   Integer.toString(cal.get(Calendar.YEAR)) + "-" + addZero(cal.get(Calendar.MONTH) + 4) + "-" + addZero(cal.get(Calendar.DAY_OF_MONTH));}
 
 //프로그램 수 확인

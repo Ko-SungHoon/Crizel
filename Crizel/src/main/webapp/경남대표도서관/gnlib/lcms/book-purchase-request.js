@@ -106,7 +106,7 @@ var bookRequest = new Vue({
       self.price = value.PRICE
       self.title = value.TITLE.replace(rex,"")
       self.publisher = value.PUBLISHER
-      self.publish = value.PUBDATE
+      self.publish = value.PUBDATE.substring(0,4)
       self.author = value.AUTHOR
     })
   },
@@ -134,7 +134,7 @@ var bookRequest = new Vue({
       var self = this
       var requestUrl = 'http://lib.gyeongnam.go.kr/kdotapi/ksearchapi/bookfurnishrequest?'
       requestUrl = requestUrl + 'userkey=' + self.userKey
-                    +'&publish=' + self.publish
+                    +'&publish_year=' + self.publish
                     +'&sms_receipt_yn=' + self.sms
                     +'&author=' + self.author
                     +'&recom_opinion=' + self.recomOpinion
