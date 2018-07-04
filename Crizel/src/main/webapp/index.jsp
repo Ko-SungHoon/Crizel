@@ -49,6 +49,21 @@ jQuery(document).ready(function(){
 			</a>
 		</li>
 		<li>
+			<a href="/torrent.do">
+				<img src="/img/mans.jpg" />
+			</a>
+		</li>
+		<li>
+			<a href="/onejav.do">
+				<img src="/img/onejav.png" />
+			</a>
+		</li>
+		<li>
+			<a href="https://5siri.com/xe/index.php?mid=manko">
+				<img src="/img/mars.png" />
+			</a>
+		</li>
+		<li>
 			<a href="/girls.do">
 				<img src="/img/nana.jpg" />
 			</a>

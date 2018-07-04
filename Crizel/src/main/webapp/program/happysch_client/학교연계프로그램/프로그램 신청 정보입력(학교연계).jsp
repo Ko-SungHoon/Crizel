@@ -2,7 +2,7 @@
 /**
 *   PURPOSE :   <학교연계> 프로그램 신청 정보 입력
 *   CREATE  :   20180208_thur   JI
-*   MODIFY  :   ...
+*   MODIFY  :   20180621	KO	전일제 삭제, 한 아이디로 오전·오후 중복 선택 가능하게 수정
 **/
 %>
 
@@ -90,9 +90,9 @@
 %>
 
 <%
-String listPage		=	"DOM_000000129001001002";	//	DOM_000000129001001002	,	TEST : DOM_000000129001001002
-String writePage	=	"DOM_000000129001001004";	//	DOM_000000129001001004	,	TEST : DOM_000000129001001004
-String confirmPage	=	"DOM_000000129001001005";	//	DOM_000000129001001005	,	TEST : DOM_000000129001001005
+String listPage		=	"DOM_000000139008002002";	//	DOM_000000139008002002	,	TEST : DOM_000000129001001002
+String writePage	=	"DOM_000000139008002004";	//	DOM_000000139008002004	,	TEST : DOM_000000129001001004
+String confirmPage	=	"DOM_000000139008002005";	//	DOM_000000139008002005	,	TEST : DOM_000000129001001005
 
 //session check
 SessionManager sessionManager	=	new SessionManager(request);
@@ -400,11 +400,10 @@ if (req_no != null && req_no.length() > 0) {
 				<tr>
 					<th scope="row"><span class="red fb">*</span>신청유형</th>
 					<td colspan="3">
-						<input type="radio" id="req_sch_type1" name="req_sch_type" value="학교 단위 진로 체험" required 
-						<%if("학교 단위 진로 체험".equals(req_sch_type)){out.println("checked");}%>
+						<input type="radio" id="req_sch_type1" name="req_sch_type" value="학교 단위 진로 체험, 자유학기제" required 
+						<%if("학교 단위 진로 체험, 자유학기제".equals(req_sch_type)){out.println("checked");}%>
 						>
-						
-						<label for="req_sch_type1">학교 단위 진로 체험</label>
+						<label for="req_sch_type1">학교 단위 진로 체험, 자유학기제</label>
 						<br>
 						<input type="radio" id="req_sch_type2" name="req_sch_type" value="꿈키움, WeeClass, 학업중단숙려제, 자유학교, Wee센터 체험 등" required
 						<%if("꿈키움, WeeClass, 학업중단숙려제, 자유학교, Wee센터 체험 등".equals(req_sch_type)){out.println("checked");}%>

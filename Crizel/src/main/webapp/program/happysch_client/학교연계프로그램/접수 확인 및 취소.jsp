@@ -2,7 +2,7 @@
 /**
 *   PURPOSE :   <상시> 프로그램 접수확인 및 취소
 *   CREATE  :   20180208_thur   JI
-*   MODIFY  :   ...
+*   MODIFY  :   20180621	KO	전일제 삭제, 한 아이디로 오전·오후 중복 선택 가능하게 수정
 **/
 %>
 
@@ -99,9 +99,9 @@
 %>
 
 <%
-String listPage		=	"DOM_000000129001001002";	//	DOM_000000139008002002	,	TEST : DOM_000000129001001002
-String writePage	=	"DOM_000000129001001004";	//	DOM_000000139008002004	,	TEST : DOM_000000129001001004
-String confirmPage	=	"DOM_000000129001001005";	//	DOM_000000139008002005	,	TEST : DOM_000000129001001005
+String listPage		=	"DOM_000000139008002002";	//	DOM_000000139008002002	,	TEST : DOM_000000129001001002
+String writePage	=	"DOM_000000139008002004";	//	DOM_000000139008002004	,	TEST : DOM_000000129001001004
+String confirmPage	=	"DOM_000000139008002005";	//	DOM_000000139008002005	,	TEST : DOM_000000129001001005
 
 SessionManager sessionManager   =   new SessionManager(request);
 
@@ -195,7 +195,10 @@ try{
     reqDateList =   jdbcTemplate.query(sql.toString(), insObj, new ArtReqList());
     
 }catch(Exception e){
-	out.println(e.toString());
+	out.println("<script>");
+	out.println("alert('처리중 오류가 발생하였습니다.');");
+	out.println("history.go(-1);");
+	out.println("</script>");
 }
 
 %>

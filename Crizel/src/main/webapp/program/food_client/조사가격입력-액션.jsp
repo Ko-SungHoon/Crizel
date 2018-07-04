@@ -11,105 +11,75 @@
 *	MODIFY	:	20180425	KO		최저가 기능 제거
 */
 %>
-<%!
-
-//순서코드 비교를 위해 알파벳을 숫자로 변환
-public int codeToNumber(String code) {
-	int number = 0;
-	switch (code) {
-	case "A":
-		number = 1;
-		break;
-	case "B":
-		number = 2;
-		break;
-	case "C":
-		number = 3;
-		break;
-	case "D":
-		number = 4;
-		break;
-	case "E":
-		number = 5;
-		break;
-	case "F":
-		number = 6;
-		break;
-	case "G":
-		number = 7;
-		break;
-	case "H":
-		number = 8;
-		break;
-	case "I":
-		number = 9;
-		break;
-	case "J":
-		number = 10;
-		break;
-	case "K":
-		number = 11;
-		break;
-	case "L":
-		number = 12;
-		break;
-	case "M":
-		number = 13;
-		break;
-	case "N":
-		number = 14;
-		break;
-	case "O":
-		number = 15;
-		break;
-	case "P":
-		number = 16;
-		break;
-	case "Q":
-		number = 17;
-		break;
-	case "R":
-		number = 18;
-		break;
-	case "S":
-		number = 19;
-		break;
-	case "T":
-		number = 20;
-		break;
-	case "U":
-		number = 21;
-		break;
-	case "V":
-		number = 22;
-		break;
-	case "W":
-		number = 23;
-		break;
-	case "X":
-		number = 24;
-		break;
-	case "Y":
-		number = 25;
-		break;
-	case "Z":
-		number = 26;
-		break;
-	default:
-		number = 0;
+<%!//순서코드 비교를 위해 알파벳을 숫자로 변환
+	public int codeToNumber(String code) {
+		int number = 0;
+		if ("A".equals(code)) {
+			number = 1;
+		} else if ("B".equals(code)) {
+			number = 2;
+		} else if ("C".equals(code)) {
+			number = 3;
+		} else if ("D".equals(code)) {
+			number = 4;
+		} else if ("E".equals(code)) {
+			number = 5;
+		} else if ("F".equals(code)) {
+			number = 6;
+		} else if ("G".equals(code)) {
+			number = 7;
+		} else if ("H".equals(code)) {
+			number = 8;
+		} else if ("I".equals(code)) {
+			number = 9;
+		} else if ("J".equals(code)) {
+			number = 10;
+		} else if ("K".equals(code)) {
+			number = 11;
+		} else if ("L".equals(code)) {
+			number = 12;
+		} else if ("M".equals(code)) {
+			number = 13;
+		} else if ("N".equals(code)) {
+			number = 14;
+		} else if ("O".equals(code)) {
+			number = 15;
+		} else if ("P".equals(code)) {
+			number = 16;
+		} else if ("Q".equals(code)) {
+			number = 17;
+		} else if ("R".equals(code)) {
+			number = 18;
+		} else if ("S".equals(code)) {
+			number = 19;
+		} else if ("T".equals(code)) {
+			number = 20;
+		} else if ("U".equals(code)) {
+			number = 21;
+		} else if ("V".equals(code)) {
+			number = 22;
+		} else if ("W".equals(code)) {
+			number = 23;
+		} else if ("X".equals(code)) {
+			number = 24;
+		} else if ("Y".equals(code)) {
+			number = 25;
+		} else if ("Z".equals(code)) {
+			number = 26;
+		} else {
+			number = 0;
+		}
+		return number;
 	}
-	return number;
-}
 
-//text가 빈값이 아닐 경우, ','를 붙이고 + value 한다.
-public String appendComma(String text, String value){
-	if(text.length() > 0){
-		text	+=	",";
-	}
-	text	+=	value;
-	return text;
-}
-%>
+	//text가 빈값이 아닐 경우, ','를 붙이고 + value 한다.
+	public String appendComma(String text, String value) {
+		if (text.length() > 0) {
+			text += ",";
+		}
+		text += value;
+		return text;
+	}%>
 
 
 <%
@@ -180,6 +150,9 @@ if(viewYN == 1){
 	foodVO.t_rj_reason	=	parseNull(request.getParameter("returnWrite"));		//반려사유
 	String rCondition	=	parseNull(request.getParameter("rCondition"));		//사유입력 발생조건
 	
+	foodVO.rsch_no		=	parseNull(request.getParameter("rschNo"));		// 조사번호
+	String preRschNo	=	"";												// 이전조사
+	
 	int avgVal			=	0;		//최저값, 최고값을 제외한 나머지 3개중 평균값
 	int minVal			=	0;		//최저값, 최고값을 제외한 나머지 3개중 최저값
 	int maxVal			=	0;		//최저값, 최고값을 제외한 나머지 3개중 최고값
@@ -188,6 +161,8 @@ if(viewYN == 1){
 	int highNLowMin		=	0;		//전월 최저값 * 최저가비율%
 	int highNLowAvr		=	0;		//전월 평균값 * 평균가비율%
 	int highNLow		=	0;		//최고값과 최저값 차이
+	
+	String rt_ip		= 	parseNull(request.getParameter("rt_ip"));	//반려 아이피
 		
 	//최저값, 최고값, 평균값 구하기 start
 	List<Integer> vals	=	new ArrayList<Integer>();	//조사가를 담을 리스트
@@ -195,7 +170,7 @@ if(viewYN == 1){
 	
 	if(rschValArr != null && rschValArr.length > 0){
 		for(int i=0; i<rschValArr.length; i++){
-			if(!"0".equals(rschValArr[i]) && !"".equals(rschValArr[i])){
+			if(/* !"0".equals(rschValArr[i]) &&  */!"".equals(rschValArr[i])){
 				vals.add(Integer.parseInt(rschValArr[i]));
 			}
 		}
@@ -263,10 +238,11 @@ if(viewYN == 1){
 	
 	try{
 		sqlMapClient.startTransaction();
-		conn = sqlMapClient.getCurrentConnection();
+		conn	=	sqlMapClient.getCurrentConnection();
 		
 		sql		=	new StringBuffer();
 		sql.append(" SELECT 					\n");
+		sql.append(" VAL.ITEM_NO,				\n");
 		sql.append(" VAL.STS_FLAG, 				\n");
 		sql.append(" PRE.ITEM_GRP_NO,			\n");
 		sql.append(" PRE.ITEM_GRP_ORDER,		\n");
@@ -450,7 +426,8 @@ if(viewYN == 1){
 					sql.append(" ITEM.FOOD_CAT_INDEX,		 	\n");
 					sql.append(" PRE.ITEM_COMP_VAL,				\n");
 					sql.append(" VAL.STS_FLAG, 					\n");
-					sql.append(" VAL.AVR_VAL 					\n");
+					sql.append(" VAL.AVR_VAL, 					\n");
+					sql.append(" PRE.ITEM_NM 					\n");
 					sql.append(" FROM FOOD_ITEM_PRE PRE 		\n");
 					sql.append(" LEFT JOIN 						\n");
 					sql.append(" FOOD_RSCH_VAL VAL 				\n");
@@ -459,9 +436,14 @@ if(viewYN == 1){
 					sql.append(" FOOD_ST_ITEM ITEM 				\n");		
 					sql.append(" ON ITEM.ITEM_NO = VAL.ITEM_NO	\n");		
 					sql.append(" WHERE PRE.ITEM_COMP_NO = ?		\n");
+					sql.append(" AND VAL.RSCH_NO = ?			\n");
+					sql.append(" AND VAL.SCH_NO = (				\n");
+					sql.append(" 	SELECT SCH_NO FROM			\n");
+					sql.append(" 	FOOD_RSCH_VAL WHERE			\n");
+					sql.append(" 	RSCH_VAL_NO = ?)			\n");
 					sql.append(" ORDER BY PRE.ITEM_COMP_VAL 	\n");	
 						
-					cList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{dataVO.item_comp_no});
+					cList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{dataVO.item_comp_no, foodVO.rsch_no, foodVO.rsch_val_no});
 				
 					if(cList != null && cList.size() > 0){
 						for(int i=0; i<cList.size(); i++){
@@ -481,8 +463,8 @@ if(viewYN == 1){
 								if(!"".equals(cList.get(i).avr_val) && avgVal != 0){
 									if(codeToNumber(dataVO.item_comp_val) > codeToNumber(cList.get(i).item_comp_val)){
 										if(avgVal < Integer.parseInt(cList.get(i).avr_val)){
-											obj.put("resultMsg", cList.get(i).cat_nm + "-" + cList.get(i).food_cat_index + "의 평균가보다 높거나 같아야합니다.");
-											obj.put("chkCode", "");
+											obj.put("resultMsg", cList.get(i).cat_nm + "-" + cList.get(i).food_cat_index + " "+ cList.get(i).item_nm +"보다 조사가가 낮습니다.");
+											obj.put("chkCode", "1");
 											actChk	=	false;
 											break;
 										}
@@ -498,32 +480,50 @@ if(viewYN == 1){
 					if(!"Y".equals(foodVO.non_season) && !"Y".equals(foodVO.non_distri)){
 						
 						sql		=	new StringBuffer();
-						sql.append(" SELECT 														\n");
-						sql.append(" ROWNUM, 														\n");
-						sql.append(" VAL.LOW_VAL,													\n");
-						sql.append(" VAL.AVR_VAL,													\n");
-						sql.append(" VAL.RSCH_VAL_NO												\n");
-						sql.append(" FROM FOOD_RSCH_VAL VAL 										\n");
-						sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
-						sql.append(" WHERE TB.STS_FLAG = 'Y' 										\n");
-						sql.append(" AND TB.RSCH_YEAR = ? AND TB.RSCH_MONTH = ? AND ROWNUM = 1		\n");
-						sql.append(" ORDER BY END_DATE DESC											\n");
-						
+						sql.append(" SELECT 						\n");
+						sql.append(" RSCH_NO 						\n");
+						sql.append(" FROM FOOD_RSCH_TB				\n");
+						sql.append(" WHERE RSCH_YEAR = ?			\n");
+						sql.append(" AND RSCH_MONTH = ?				\n");
+						sql.append(" AND STS_FLAG = 'Y'				\n");
+						sql.append(" AND SHOW_FLAG = 'Y'			\n");
+						sql.append(" AND ROWNUM = 1 				\n");						
+						sql.append(" ORDER BY END_DATE DESC, 		\n");	
+						sql.append(" RSCH_NO DESC					\n");
+			
 						try{
-							preDataVO	=	jdbcTemplate.queryForObject(sql.toString(), new FoodList(), new Object[]{
+							preRschNo	=	jdbcTemplate.queryForObject(sql.toString(), String.class, new Object[]{
 									preYear, preMonth
 							});
-							
 						}catch(Exception e){
-							preDataVO	=	new FoodVO();
+							preRschNo	=	"";
+						}
+						
+						if(!"".equals(preRschNo)){
+							sql		=	new StringBuffer();
+							sql.append(" SELECT 														\n");
+							sql.append(" VAL.AVR_VAL,													\n");
+							sql.append(" VAL.RSCH_VAL_NO												\n");
+							sql.append(" FROM FOOD_RSCH_VAL VAL 										\n");
+							sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
+							sql.append(" WHERE TB.RSCH_NO = ? AND VAL.ITEM_NO = ?						\n");
+							sql.append(" ORDER BY END_DATE DESC											\n");
+							
+							try{
+								preDataVO	=	jdbcTemplate.queryForObject(sql.toString(), new FoodList(), new Object[]{
+										preRschNo, dataVO.item_no
+								});
+								
+							}catch(Exception e){
+								preDataVO	=	new FoodVO();
+							}
 						}
 						
 						//전월 데이터가 있을 경우
-						if(!"".equals(preDataVO.rsch_val_no)){
+						if(preDataVO != null && preDataVO.avr_val != null && !"".equals(preDataVO.avr_val)){
 							/* 
 							//전월 최저가와 비교
 							highNLowMin	=	(int)(Integer.parseInt(preDataVO.low_val) * (Integer.parseInt(dataVO.low_ratio) / 100.0));
-							highNLowAvr	=	(int)(Integer.parseInt(preDataVO.avr_val) * (Integer.parseInt(dataVO.avr_ratio) / 100.0));
 							
 							if((Integer.parseInt(preDataVO.low_val) + highNLow) > minVal || 
 									((Integer.parseInt(preDataVO.low_val) - highNLow) < minVal )){
@@ -545,9 +545,10 @@ if(viewYN == 1){
 							}
 							 */
 							//전월 평균가와 비교
-							if((Integer.parseInt(preDataVO.avr_val) + highNLow) > avgVal ||
-									((Integer.parseInt(preDataVO.avr_val) - highNLow) < avgVal)){
-								resultMsg	=	appendComma(resultMsg, "전월 평균가 비율보다 " + Integer.parseInt(dataVO.avr_ratio) + "% 미만 또는 초과입니다.");
+							highNLowAvr	=	(int)(Integer.parseInt(preDataVO.avr_val) * (Integer.parseInt(dataVO.avr_ratio) / 100.0));
+							if((Integer.parseInt(preDataVO.avr_val) + highNLowAvr) <= avgVal ||
+									((Integer.parseInt(preDataVO.avr_val) - highNLowAvr) >= avgVal)){
+								resultMsg	=	appendComma(resultMsg, "전월대비 조사가(평균가) 차이가 " + Integer.parseInt(dataVO.avr_ratio) + "% 이상입니다.");
 								returnType	=	appendComma(returnType, "2");
 								obj.put("resultMsg", resultMsg);
 								obj.put("chkCode", returnType);
@@ -557,7 +558,7 @@ if(viewYN == 1){
 						
 						//최저,최고값 비율
 						highNLow	=	(int)(maxVal * (Integer.parseInt(dataVO.lb_ratio) / 100.0));
-						if((maxVal - highNLow) > minVal){
+						if((maxVal - highNLow) >= minVal){
 							resultMsg	=	appendComma(resultMsg, "최저값이 최고값의 " + Integer.parseInt(dataVO.lb_ratio) + "% 보다 낮습니다.");
 							returnType	=	appendComma(returnType, "3");
 							obj.put("resultMsg", resultMsg);
@@ -679,6 +680,7 @@ if(viewYN == 1){
 							obj.put("resultMsg", resultMsg);
 							obj.put("chkCode", returnType);
 						}else{
+							obj.put("resultMsg", resultCnt);
 							obj.put("resultMsg", "검증에 오류가 발생하였습니다. 관리자게에 문의해주세요.");
 							obj.put("chkCode", "");
 						}
@@ -979,7 +981,7 @@ if(viewYN == 1){
 				}
 				
 				sql.append(" AND RSCH_VAL_NO = ?						\n");
-				sql.append(" AND STS_FLAG = 'SR'						\n");
+				sql.append(" AND (STS_FLAG = 'SR' OR STS_FLAG = 'RC')	\n");
 				
 				cnt		=	jdbcTemplate.queryForInt(sql.toString(), new Object[]{
 						rschValArr[0], rschValArr[1], rschValArr[2], rschValArr[3], rschValArr[4], 
@@ -1002,7 +1004,8 @@ if(viewYN == 1){
 						sql.append(" ITEM.FOOD_CAT_INDEX,		 	\n");
 						sql.append(" PRE.ITEM_COMP_VAL,				\n");
 						sql.append(" VAL.STS_FLAG, 					\n");
-						sql.append(" VAL.AVR_VAL 					\n");
+						sql.append(" VAL.AVR_VAL, 					\n");
+						sql.append(" PRE.ITEM_NM 					\n");
 						sql.append(" FROM FOOD_ITEM_PRE PRE 		\n");
 						sql.append(" LEFT JOIN 						\n");
 						sql.append(" FOOD_RSCH_VAL VAL 				\n");
@@ -1011,9 +1014,14 @@ if(viewYN == 1){
 						sql.append(" FOOD_ST_ITEM ITEM 				\n");		
 						sql.append(" ON ITEM.ITEM_NO = VAL.ITEM_NO	\n");		
 						sql.append(" WHERE PRE.ITEM_COMP_NO = ?		\n");
-						sql.append(" ORDER BY PRE.ITEM_COMP_VAL 	\n");	
+						sql.append(" AND VAL.RSCH_NO = ?			\n");
+						sql.append(" AND VAL.SCH_NO = (				\n");
+						sql.append(" 	SELECT SCH_NO FROM			\n");
+						sql.append(" 	FOOD_RSCH_VAL WHERE			\n");
+						sql.append(" 	RSCH_VAL_NO = ?)			\n");
+						sql.append(" ORDER BY PRE.ITEM_COMP_VAL 	\n");
 							
-						cList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{dataVO.item_comp_no});
+						cList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{dataVO.item_comp_no, foodVO.rsch_no, foodVO.rsch_val_no});
 					
 						if(cList != null && cList.size() > 0){
 							for(int i=0; i<cList.size(); i++){
@@ -1032,7 +1040,7 @@ if(viewYN == 1){
 									if(!"".equals(cList.get(i).avr_val) && avgVal != 0){
 										if(codeToNumber(dataVO.item_comp_val) > codeToNumber(cList.get(i).item_comp_val)){
 											if(avgVal < Integer.parseInt(cList.get(i).avr_val)){
-												obj.put("resultMsg", cList.get(i).cat_nm + "-" + cList.get(i).food_cat_index + "의 평균가보다 높거나 같아야합니다.");
+												obj.put("resultMsg", cList.get(i).cat_nm + "-" + cList.get(i).food_cat_index + " " + cList.get(i).item_nm + "의 보다 조사가가 낮습니다.");
 												obj.put("chkCode", "");
 												actChk	=	false;
 												break;
@@ -1050,32 +1058,52 @@ if(viewYN == 1){
 							
 							//전월데이터 확인
 							sql		=	new StringBuffer();
-							sql.append(" SELECT 														\n");
-							sql.append(" ROWNUM, 														\n");
-							sql.append(" VAL.LOW_VAL,													\n");
-							sql.append(" VAL.AVR_VAL,													\n");
-							sql.append(" VAL.RSCH_VAL_NO												\n");
-							sql.append(" FROM FOOD_RSCH_VAL VAL 										\n");
-							sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
-							sql.append(" WHERE TB.STS_FLAG = 'Y' 										\n");
-							sql.append(" AND TB.RSCH_YEAR = ? AND TB.RSCH_MONTH = ? AND ROWNUM = 1		\n");
-							sql.append(" ORDER BY END_DATE DESC											\n");
-							
+							sql.append(" SELECT 						\n");
+							sql.append(" RSCH_NO 						\n");
+							sql.append(" FROM FOOD_RSCH_TB				\n");
+							sql.append(" WHERE RSCH_YEAR = ?			\n");
+							sql.append(" AND RSCH_MONTH = ?				\n");
+							sql.append(" AND STS_FLAG = 'Y'				\n");
+							sql.append(" AND SHOW_FLAG = 'Y'			\n");
+							sql.append(" AND ROWNUM = 1 				\n");						
+							sql.append(" ORDER BY END_DATE DESC, 		\n");	
+							sql.append(" RSCH_NO DESC					\n");
+				
 							try{
-								preDataVO	=	jdbcTemplate.queryForObject(sql.toString(), new FoodList(), new Object[]{
-										preYear, preMonth
+								preRschNo	=	jdbcTemplate.queryForObject(sql.toString(), String.class, new Object[]{
+									preYear, preMonth
 								});
-								
 							}catch(Exception e){
-								preDataVO	=	new FoodVO();
+								preRschNo	=	"";
 							}
 							
+							if(!"".equals(preRschNo)){
+							
+								sql		=	new StringBuffer();
+								sql.append(" SELECT 														\n");
+								sql.append(" VAL.AVR_VAL,													\n");
+								sql.append(" VAL.RSCH_VAL_NO												\n");
+								sql.append(" FROM FOOD_RSCH_VAL VAL 										\n");
+								sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
+								sql.append(" WHERE TB.RSCH_NO = ? AND VAL.ITEM_NO = ?						\n");
+								sql.append(" ORDER BY END_DATE DESC											\n");
+								try{
+									preDataVO	=	jdbcTemplate.queryForObject(sql.toString(), new FoodList(), new Object[]{
+											preRschNo, dataVO.item_no
+									});
+									
+								}catch(Exception e){
+									preDataVO	=	new FoodVO();
+								}
+							}
 							//전월 데이터가 있을 경우
-							if(!"".equals(preDataVO.rsch_val_no)){
+							if(preDataVO != null && preDataVO.avr_val != null && !"".equals(preDataVO.avr_val)){
 								//전월 평균가와 비교
-								if((Integer.parseInt(preDataVO.avr_val) + highNLow) > avgVal ||
-										((Integer.parseInt(preDataVO.avr_val) - highNLow) < avgVal)){
-									resultMsg	=	appendComma(resultMsg, "전월 평균가 비율보다 " + Integer.parseInt(dataVO.avr_ratio) + "% 미만 또는 초과입니다.");
+								
+								highNLowAvr	=	(int)(Integer.parseInt(preDataVO.avr_val) * (Integer.parseInt(dataVO.avr_ratio) / 100.0));
+								if((Integer.parseInt(preDataVO.avr_val) + highNLowAvr) <= avgVal ||
+										((Integer.parseInt(preDataVO.avr_val) - highNLowAvr) >= avgVal)){
+									resultMsg	=	appendComma(resultMsg, "전월대비 조사가(평균가) 차이가 " + Integer.parseInt(dataVO.avr_ratio) + "% 이상입니다." + (Integer.parseInt(preDataVO.avr_val) + highNLowAvr));
 									returnType	=	appendComma(returnType, "2");
 									obj.put("resultMsg", resultMsg);
 									obj.put("chkCode", returnType);
@@ -1109,7 +1137,7 @@ if(viewYN == 1){
 							
 							//최저,최고값 비율
 							highNLow	=	(int)(maxVal * (Integer.parseInt(dataVO.lb_ratio) / 100.0));
-							if((maxVal - highNLow) > minVal){
+							if((maxVal - highNLow) >= minVal){
 								resultMsg	=	appendComma(resultMsg, "최저값이 최고값의 " + Integer.parseInt(dataVO.lb_ratio) + "% 보다 낮습니다.");
 								returnType	=	appendComma(returnType, "3");
 								obj.put("resultMsg", resultMsg);
@@ -1254,9 +1282,11 @@ if(viewYN == 1){
 						sql.append(" FOOD_ST_ITEM ITEM 				\n");		
 						sql.append(" ON ITEM.ITEM_NO = VAL.ITEM_NO	\n");		
 						sql.append(" WHERE PRE.ITEM_COMP_NO = ?		\n");
+						sql.append(" AND VAL.RSCH_NO = ?			\n");
+						sql.append(" AND VAL.SCH_NO = ?				\n");
 						sql.append(" ORDER BY PRE.ITEM_COMP_VAL 	\n");	
 							
-						cList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{dataVO.item_comp_no});
+						cList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{dataVO.item_comp_no, foodVO.rsch_no, foodVO.sch_no});
 					
 						if(cList != null && cList.size() > 0){
 							for(int i=0; i<cList.size(); i++){
@@ -1350,53 +1380,94 @@ if(viewYN == 1){
 			
 			//반려
 			else if(actType == 3){
-				sql		=	new StringBuffer();
-				sql.append(" SELECT  						\n");
-				sql.append(" VAL.RSCH_VAL_NO				\n");
-				sql.append(" FROM FOOD_RSCH_VAL VAL 		\n");
-				sql.append(" LEFT JOIN  					\n");
-				sql.append(" FOOD_ITEM_PRE PRE 				\n");
-				sql.append(" ON VAL.ITEM_NO = PRE.ITEM_NO 	\n");
-				sql.append(" WHERE PRE.ITEM_COMP_NO = ?	 	\n");
-				sql.append(" AND (VAL.STS_FLAG = 'SR' OR	\n");
-				sql.append(" VAL.STS_FLAG = 'RC')		 	\n");
-				
-				rList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{
-						dataVO.item_comp_no
-				});
-				
-				sql		=	new StringBuffer();
-				sql.append(" UPDATE FOOD_RSCH_VAL SET 		\n");
-				sql.append(" STS_FLAG = 'RT', 				\n");
-				sql.append(" T_RJ_REASON = ?, 				\n");
-				sql.append(" RJ_DATE = SYSDATE				\n");
-				sql.append(" WHERE RSCH_VAL_NO = ? 			\n");
-				pstmt = conn.prepareStatement(sql.toString());
-				for(int i=0; i<rList.size(); i++){
-					key = 0;
-					pstmt.setString(++key,  foodVO.t_rj_reason);
-					pstmt.setString(++key,  rList.get(i).rsch_val_no);
-					pstmt.addBatch();
-				}
-				
-				batchSuccess	=	null;
-				batchSuccess	=	pstmt.executeBatch();
-				if(pstmt!=null){pstmt.close();}
+				if(!"".equals(dataVO.item_comp_no) && !"".equals(dataVO.item_comp_val)){
+					sql		=	new StringBuffer();
+					sql.append(" SELECT  						\n");
+					sql.append(" VAL.RSCH_VAL_NO				\n");
+					sql.append(" FROM FOOD_RSCH_VAL VAL 		\n");
+					sql.append(" LEFT JOIN  					\n");
+					sql.append(" FOOD_ITEM_PRE PRE 				\n");
+					sql.append(" ON VAL.ITEM_NO = PRE.ITEM_NO 	\n");
+					sql.append(" WHERE PRE.ITEM_COMP_NO = ?	 	\n");
+					//sql.append(" AND (VAL.STS_FLAG = 'SR' OR	\n");
+					//sql.append(" VAL.STS_FLAG = 'RC')		 	\n");
+					
+					rList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{
+							dataVO.item_comp_no
+					});
+					
+					sql		=	new StringBuffer();
+					sql.append(" UPDATE FOOD_RSCH_VAL SET 		\n");
+					sql.append(" STS_FLAG = 'RT', 				\n");
+					sql.append(" T_RJ_REASON = ?, 				\n");
+					sql.append(" RJ_DATE = SYSDATE				\n");
+					sql.append(" , RT_IP = ?					\n");
+					sql.append(" , RT_ID = ?					\n");
+					sql.append(" WHERE RSCH_VAL_NO = ? 			\n");
+					sql.append(" AND ZONE_NO = (SELECT ZONE_NO FROM FOOD_RSCH_VAL WHERE RSCH_VAL_NO = ?)					\n");
+					sql.append(" AND RSCH_NO = ?				\n");
+					pstmt = conn.prepareStatement(sql.toString());
+					for(int i=0; i<rList.size(); i++){
+						key = 0;
+						pstmt.setString(++key,  foodVO.t_rj_reason);
+						pstmt.setString(++key,  rt_ip);
+						pstmt.setString(++key, 	sManager.getId());
+						pstmt.setString(++key,  rList.get(i).rsch_val_no);
+						pstmt.setString(++key,  rList.get(i).rsch_val_no);
+						pstmt.setString(++key, foodVO.rsch_no);
+						pstmt.addBatch();
+					}
+					
+					batchSuccess	=	null;
+					batchSuccess	=	pstmt.executeBatch();
+					if(pstmt!=null){pstmt.close();}
+					
+					if(batchSuccess.length > 0){
+						obj.put("resultMsg", "정상적으로 반려되었습니다.");
+						obj.put("chkCode", "");
+					}else{
+						obj.put("resultMsg", "반려중 오류가 발생하였습니다. 관리자에게 문의하세요.");
+						obj.put("chkCode", "");
+					}
 
-				/* batchList	=	new ArrayList<Object[]>();
-				
-				for(int i=0; i<rList.size(); i++){
-					Object[] ob	=	new Object[]{foodVO.t_rj_reason, rList.get(i).rsch_val_no};
-					batchList.add(ob);
-				}
-				
-				batchSuccess	=	null;
-				batchSuccess	=	jdbcTemplate.batchUpdate(sql.toString(), batchList); */
-				
-				if(batchSuccess.length > 0){
-					obj.put("resultMsg", "정상적으로 반려되었습니다.");
-					obj.put("chkCode", "");
-				}
+					/* batchList	=	new ArrayList<Object[]>();
+					
+					for(int i=0; i<rList.size(); i++){
+						Object[] ob	=	new Object[]{foodVO.t_rj_reason, rList.get(i).rsch_val_no};
+						batchList.add(ob);
+					}
+					
+					batchSuccess	=	null;
+					batchSuccess	=	jdbcTemplate.batchUpdate(sql.toString(), batchList); */
+				} else {
+					sql		=	new StringBuffer();
+					sql.append(" UPDATE FOOD_RSCH_VAL SET 		\n");
+					sql.append(" STS_FLAG = 'RT', 				\n");
+					sql.append(" T_RJ_REASON = ?, 				\n");
+					sql.append(" RJ_DATE = SYSDATE				\n");
+					sql.append(" , RT_IP = ?					\n");
+					sql.append(" , RT_ID = ?					\n");
+					sql.append(" WHERE RSCH_VAL_NO = ? 			\n");
+					sql.append(" AND ZONE_NO = (SELECT ZONE_NO FROM FOOD_RSCH_VAL WHERE RSCH_VAL_NO = ?)					\n");
+					sql.append(" AND RSCH_NO = ?				\n");
+					
+					resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+							foodVO.t_rj_reason
+							, rt_ip
+							, sManager.getId()
+							, foodVO.rsch_val_no
+							, foodVO.rsch_val_no
+							, foodVO.rsch_no
+							});
+					
+					if(resultCnt > 0){
+						obj.put("resultMsg", "정상적으로 반려되었습니다.");
+						obj.put("chkCode", "");
+					}else{
+						obj.put("resultMsg", "반려중 오류가 발생하였습니다. 관리자에게 문의하세요.");
+						obj.put("chkCode", "");
+					}
+				}				
 			}
 			//그외의 actType
 			else{
@@ -1407,10 +1478,10 @@ if(viewYN == 1){
 		}//조사팀장 end
 
 	}catch(Exception e){
-		if(actType == 0)		out.print("0" + e.toString());
-		else if(actType	== 1)	out.print("1" + e.toString());	
-		else if(actType == 2)	out.print("2" + e.toString());
-		else if(actType == 3)	out.print("3" + e.toString());
+		if(actType == 0)		obj.put("resultMsg", "0");
+		else if(actType	== 1)	obj.put("resultMsg", "1");
+		else if(actType == 2)	obj.put("resultMsg", "2");
+		else if(actType == 3)	obj.put("resultMsg", "3");
 		
 	}finally{
 		if("R".equals(foodVO.sch_grade)){		//조사자일 때

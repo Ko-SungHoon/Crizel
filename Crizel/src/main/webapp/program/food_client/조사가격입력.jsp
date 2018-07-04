@@ -38,7 +38,7 @@ SessionManager sManager =	new SessionManager(request);
 int viewYN			=	0;		//1일경우 페이지 정상 작동
 String moveUrl		=	"/index.gne?contentsSid=2303";					//액션페이지		// 운영서버:2303, 테스트서버:661
 String moveUrlLog	=	"/index.gne?menuCd=DOM_000002101003001000";	//이력페이지(새창)	// 운영서버:DOM_000002101003001000, 테스트서버:DOM_000000127003002000
-String moveUrlMain	=	"/index.gne?menuCd=DOM_000002101000000000";	//메인페이지
+String moveUrlMain	=	"/index.gne?menuCd=DOM_000002101000000000";	//메인페이지		// DOM_000002101000000000, DOM_000000127000000000
 
 //2차 로그인 여부
 if("Y".equals(session.getAttribute("foodLoginChk")) || sManager.isRoleAdmin() || sManager.isRole(foodRole)){
@@ -517,7 +517,10 @@ if(viewYN == 1){
 		}
 		
 	}catch(Exception e){
-		alertBack(out, e.toString());
+		out.println("<script>");
+		out.println("alert('처리중 오류가 발생하였습니다.');");
+		out.println("history.go(-1);");
+		out.println("</script>");
 	}finally{
 		
 	}
@@ -536,7 +539,7 @@ $(function() {
 		var index	=	$(".openItem").index(this);
 		var item_no	=	$(".openItem").eq(index).data("value");
 		
-		var send_url	=	"/index.gne?menuCd=DOM_000002101003001000&item_no=" + item_no;
+		var send_url	=	"/index.gne?menuCd=<%=moveUrlLog%>&item_no=" + item_no;
 		var param		=	{item_no: item_no};
 		newWin(send_url, "식품이력 page", 1500, 1000);
 	});
@@ -579,6 +582,8 @@ function submissionRsch(number, type){
 	var nonSeason	=	"N";								//비계절
 	var nonDist		=	"N";								//비유통
 	var rCondition	=	$("#reasonInput_p").text();			//사유입력 발생조건 
+	
+	var rt_ip		=	$("#rt_ip").val();					//반려하는 아이피
 	
 	//비유통, 비계절 제품 체크여부에 따라 값 전달
 	if($("input:checkbox[id='offSeason_" + number + "']").is(":checked") == true){
@@ -631,7 +636,7 @@ function submissionRsch(number, type){
 			"reason" : reason,			"zoneNo" : zoneNo,
 			"teamNo" : teamNo,			"userType" : userType,
 			"rCondition" : rCondition, 	"returnWrite" : returnWrite,
-			"rschNo" : rschNo			
+			"rschNo" : rschNo,			"rt_ip"	: rt_ip	
 		},
 		dataType : "json",
 		async : false,
@@ -1698,6 +1703,7 @@ else if("T".equals(foodVO.sch_grade)){%>
     <div class="inner">
       <form name="returnForm" id="returnForm" method="post">
       <input type="hidden" id="rschValNoR" value="">
+      	<input type="hidden" id="rt_ip" value="<%=request.getRemoteAddr()%>">
         <div class="sel_input magT10">
           <label for="reselDirect" class="blind">직접입력 선택</label>
           <select name="reSelDirect" id="reselDirect" title="반려사유를 선택해주세요." onchange="returnChk(this.value);">

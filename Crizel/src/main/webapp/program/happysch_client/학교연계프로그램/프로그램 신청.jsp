@@ -3,6 +3,7 @@
 *   PURPOSE :   <학교연계> 프로그램 신청 and 달력
 *   CREATE  :   20180314_wed    JI
 *   MODIFY  :   전일제반 모두 주석 처리 20180315_thur   JI
+*   MODIFY  :   20180621	KO	전일제 삭제, 한 아이디로 오전·오후 중복 선택 가능하게 수정, 신청자 정보 출력
 **/
 %>
 
@@ -135,9 +136,11 @@ SimpleDateFormat sdf    =   new SimpleDateFormat("yyyy")
                 , sdf2  =   new SimpleDateFormat("MM")
                 , sdf3  =   new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 , sdf4  =   new SimpleDateFormat("dd")
-                , adfToday  =   new SimpleDateFormat("yyyyMMdd");
+                , adfToday  =   new SimpleDateFormat("yyyyMMdd")
+				, hourToday = new SimpleDateFormat("yyyyMMddHH");
 
 String toDay        =   adfToday.format(cal.getTime());
+String hToday		=	hourToday.format(cal.getTime());
 
 String callYear     =   parseNull(request.getParameter("callYear"), sdf.format(cal.getTime()));     //기본은 이번년
 String callMonth    =   parseNull(request.getParameter("callMonth"), sdf2.format(cal.getTime()));   //기본은 이번달
@@ -156,8 +159,8 @@ String tmpInfo	=	"";
     sql_str =   "SELECT STANDARD_MONTH.* ";
     sql_str +=  ",(SELECT 					 ";
     sql_str +=  "	  REQ_SCH_NM || '(' || (SELECT LISTAGG(CASE REQ_AFT_FLAG		 "; 
-    sql_str +=  "	                                          WHEN 'M' THEN '오후'	 ";	 
-    sql_str +=  "	                                          WHEN 'F' THEN '오전'		 "; 
+    sql_str +=  "	                                          WHEN 'F' THEN '오후'	 ";	 
+    sql_str +=  "	                                          WHEN 'M' THEN '오전'		 "; 
     sql_str +=  "	                                       END || ':' || (SELECT SUM(REQ_PER) FROM HAPPY_REQ_SCH_CNT WHERE REQ_NO = A.REQ_NO)  , ', ')  WITHIN GROUP (ORDER BY REQ_AFT_FLAG)		 ";  
     sql_str +=  "	                        FROM HAPPY_REQ_SCH A		 ";  
     sql_str +=  "	                        WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND APPLY_FLAG IN ('Y', 'N') AND REQ_SCH_ID = COMPARE_DATE.REQ_SCH_ID) || ')' AS REQ_INFO		 "; 
@@ -263,7 +266,7 @@ String tmpInfo	=	"";
     sql_str +=  "       FROM DUAL ";
     sql_str +=  "       ) ";
     sql_str +=  "   CONNECT BY LEVEL <= END_DTE - START_DTE ";
-    sql_str +=  "   ) STANDARD_MONTH LEFT JOIN (SELECT * FROM HAPPY_REQ_SCH WHERE APPLY_FLAG = 'Y') COMPARE_DATE ON STANDARD_MONTH.MON_DTE = COMPARE_DATE.REQ_DATE ";
+    sql_str +=  "   ) STANDARD_MONTH LEFT JOIN (SELECT * FROM HAPPY_REQ_SCH WHERE APPLY_FLAG IN ('Y', 'N')) COMPARE_DATE ON STANDARD_MONTH.MON_DTE = COMPARE_DATE.REQ_DATE ";
     sql_str +=  "ORDER BY STANDARD_MONTH.MON_DTE, COMPARE_DATE.REQ_SCH_ID ";
     sql.append(sql_str);
 
@@ -395,12 +398,15 @@ String tmpInfo	=	"";
 
                             //오늘 과 이전 날짜 확인
                              if (
-                            		(diffDate <= 4 || diffDate > 300) 
-                            		|| ((Integer.parseInt(toDay)!=20180614 && Integer.parseInt(toDay)!=20180615) && Integer.parseInt(compareDay) < 20180507) 
-                            		|| ((Integer.parseInt(toDay)!=20180614 && Integer.parseInt(toDay)!=20180615) && Integer.parseInt(compareDay) > 20180720)
-                            		|| ((Integer.parseInt(toDay)==20180614 || Integer.parseInt(toDay)==20180615) && Integer.parseInt(compareDay) < 20180903)
-                            		|| ((Integer.parseInt(toDay)==20180614 || Integer.parseInt(toDay)==20180615) && Integer.parseInt(compareDay) > 20181221)
-                            		|| (Integer.parseInt(compareDay) == 20181004) || (Integer.parseInt(compareDay) == 20181005)
+                            		 !cm.isMenuCmsManager(sm)
+                             		&&(
+                             		(diffDate <= 4 || diffDate > 300) 
+                             		|| (Integer.parseInt(compareDay) < 20180507) 
+                             		|| ((Integer.parseInt(compareDay) > 20180720) && (Integer.parseInt(compareDay) < 20180903))
+                             		|| ((Integer.parseInt(hToday) < 2018062509) && (Integer.parseInt(compareDay) >= 20180903))
+                             		|| ((Integer.parseInt(hToday) >= 2018062509) && (Integer.parseInt(compareDay) > 20181221))
+                                    || (Integer.parseInt(compareDay) == 20181004) || (Integer.parseInt(compareDay) == 20181005)
+                                     )
                             	) {
                                 outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-am finish\">오전</span>";
                                 outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
@@ -408,8 +414,28 @@ String tmpInfo	=	"";
                                 outHtml +=  "</span>";
                             } 
                             else if(dayOfWeek(compareDay) == 3 || dayOfWeek(compareDay) == 5){
-                            	outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
-                                outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
+                            	if ("Y".equals(data.able_sch_flag)) {
+                                    //차단 조건 2(쿼리에서 제어) 오전반 정원 확인(승인된 전일 + 오전이 정원을 넘었을 경우)
+	                                if (("Y".equals(data.mor_sch_flag) && "Y".equals(data.mor_cnt_flag)) && ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_cnt_flag))) {
+	                                    outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
+	                                    outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
+	                                } else if ("Y".equals(data.mor_sch_flag) && "Y".equals(data.mor_cnt_flag)) {
+	                                    outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
+	                                    outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
+	                                } else if ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_cnt_flag)) {
+	                                    outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
+	                                    outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
+	                                } else {
+	                                    outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
+	                                    outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
+	                                }
+                                    outHtml +=  "</span>";
+
+                                } else {
+                                    outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
+                                    outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
+                                    outHtml +=  "</span>";
+                                }
                             }
                             else {
                                 //차단 조건 1(쿼리에서 제어) => 한날짜 아이디 2개 or 자신의 아이디로 승인 받은 신청 존재 or 정원이 없을 경우

@@ -17,9 +17,16 @@ request.setCharacterEncoding("UTF-8");
 response.setCharacterEncoding("UTF-8");
 String root = request.getSession().getServletContext().getRealPath("/");
 String directory = "/program/art/upload/";
-MultipartRequest mr = new MultipartRequest(request, root+directory, 10*1024*1024, "UTF-8", new DefaultFileRenamePolicy());
+MultipartRequest mr = null;
 
-String mode			= parseNull(mr.getParameter("mode"));
+String mode	= "";
+
+if (request.getContentType() != null && request.getContentType().toLowerCase().indexOf("multipart/form-data") > -1 ) {
+	mr = new MultipartRequest(request, root+directory, 10*1024*1024, "UTF-8", new DefaultFileRenamePolicy());
+	mode	= parseNull(mr.getParameter("mode"));
+}else{
+	mode	= parseNull(request.getParameter("mode"));
+}
 
 StringBuffer sql 		= null;
 Object[] setObj 		= null;

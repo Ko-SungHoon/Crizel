@@ -286,7 +286,7 @@ function updateSubmit(inst_no){
 }
 
 function deleteSubmit(inst_no){
-	if(confirm("프로그램을 삭제하시겠습니까?")){
+	if(confirm("악기를 삭제하시겠습니까?")){
 		location.href="/program/art/insAdmin/instInsertAction.jsp?mode=delete&inst_no="+inst_no;
 	}else{
 		return false;

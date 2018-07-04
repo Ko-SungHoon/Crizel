@@ -2,7 +2,7 @@
 /**
 *   PURPOSE :   <학교연계> 프로그램 신청 확인
 *   CREATE  :   20180314_wed	JI
-*   MODIFY  :   ...
+*   MODIFY  :   20180621	KO	전일제 삭제, 한 아이디로 오전·오후 중복 선택 가능하게 수정
 **/
 %>
 
@@ -29,6 +29,7 @@
 		String req_no;
 		String apply_flag;
 		String req_date_over;
+		String req_sch_type;
 	}
 
 	private class ArtProList implements RowMapper<ArtProData> {
@@ -50,6 +51,7 @@
 			artProData.req_no			=	rs.getString("REQ_NO");
 			artProData.apply_flag		=	rs.getString("APPLY_FLAG");
 			artProData.req_date_over	=	rs.getString("REQ_DATE_OVER");
+			artProData.req_sch_type		=	rs.getString("REQ_SCH_TYPE");
 
 			return artProData;
 		}
@@ -129,10 +131,10 @@
 try{
 	
 
-String listPage		=	"DOM_000000129001001002";	//	DOM_000000139008002002	,	TEST : DOM_000000129001001002
-String viewPage		=	"DOM_000000129001001003";	//	DOM_000000139008002003	,	TEST : DOM_000000129001001003
-String writePage	=	"DOM_000000129001001004";	//	DOM_000000139008002004	,	TEST : DOM_000000129001001004
-String confirmPage	=	"DOM_000000129001001005";	//	DOM_000000139008002005	,	TEST : DOM_000000129001001005
+String listPage		=	"DOM_000000139008002002";	//	DOM_000000139008002002	,	TEST : DOM_000000129001001002
+String viewPage		=	"DOM_000000139008002003";	//	DOM_000000139008002003	,	TEST : DOM_000000129001001003
+String writePage	=	"DOM_000000139008002004";	//	DOM_000000139008002004	,	TEST : DOM_000000129001001004
+String confirmPage	=	"DOM_000000139008002005";	//	DOM_000000139008002005	,	TEST : DOM_000000129001001005
 
 SessionManager sessionManager   =   new SessionManager(request);
 
@@ -177,6 +179,8 @@ String sch_mng_nm		=	null;
 String sch_mng_tel		=	null;
 String sch_mng_mail		=	null;
 String req_date_over	=	null;
+
+String req_sch_type		= 	""; 
 
 Date trsDate    =   new SimpleDateFormat("yyyy-MM-dd").parse(req_date);
 Calendar cal    =   Calendar.getInstance();
@@ -253,6 +257,7 @@ sql_str += "	, B.REQ_AFT_FLAG																													";
 sql_str += "	, B.REQ_NO																															";
 sql_str += "	, (SELECT COUNT(*) FROM HAPPY_REQ_SCH_CNT WHERE REQ_DATE = B.REQ_DATE AND REQ_NO = B.REQ_NO) AS ROWSPAN								";
 sql_str += "	, B.APPLY_FLAG																														";
+sql_str += "	, B.REQ_SCH_TYPE																													";
 sql_str += "	, (CASE WHEN B.REQ_DATE > TO_CHAR(SYSDATE, 'YYYY-MM-DD') THEN 'Y'																	";
 sql_str += "	   WHEN B.REQ_DATE <= TO_CHAR(SYSDATE, 'YYYY-MM-DD') THEN 'N' END) AS REQ_DATE_OVER													";   
 sql_str += "	, A.REQ_PER																															";
@@ -260,7 +265,7 @@ sql_str += "	, (SELECT SUM(REQ_PER) 																												";
 sql_str += "		FROM HAPPY_REQ_SCH_CNT 																											";
 sql_str += "	     WHERE REQ_DATE = B.REQ_DATE AND PRO_NO = A.PRO_NO AND REQ_NO IN (SELECT REQ_NO 												";
 sql_str += "	                                              	FROM HAPPY_REQ_SCH 																	";
-sql_str += "	                                               	WHERE REQ_DATE = B.REQ_DATE AND REQ_AFT_FLAG = B.REQ_AFT_FLAG) ) AS CURR_PER		";					
+sql_str += "	                                               	WHERE REQ_DATE = B.REQ_DATE AND REQ_AFT_FLAG = B.REQ_AFT_FLAG AND APPLY_FLAG IN ('Y', 'N')) ) AS CURR_PER		";					
 sql_str += "	, (SELECT SUM(REQ_PER) FROM HAPPY_REQ_SCH_CNT WHERE REQ_DATE = B.REQ_DATE AND PRO_NO = A.PRO_NO ) AS CURR_PER						";
 sql_str += "FROM HAPPY_REQ_SCH_CNT A LEFT JOIN HAPPY_REQ_SCH B ON A.REQ_NO = B.REQ_NO																";
 sql_str += "						 LEFT JOIN HAPPY_PRO_SCH C ON A.PRO_NO = C.PRO_NO																";
@@ -295,6 +300,7 @@ proDataList =   jdbcTemplate.query(sql_str, insObj, new ArtProList());
 
 <form id="" method="">
 	<h3>프로그램 신청 정보</h3>
+	<p class="f_r red">※ 신청유형(A:학교 단위 진로 체험, 자유학기제, B:꿈키움, WeeClass, 학업중단숙려제, 자유학교, Wee센터 체험 등)</p>
 	<table class="table_skin01 fsize td-l f_nanum">
 		<caption>프로그램 신청 정보 확인</caption>
 		<colgroup>
@@ -327,9 +333,10 @@ proDataList =   jdbcTemplate.query(sql_str, insObj, new ArtProList());
 								<col />
 								<col style="width:20%">
 								<col style="width:15%">
-								<col style="width:10%">
-								<col style="width:10%">
-								<col style="width:65px">
+								<col style="width:7%">
+								<col style="width:7%">
+								<col style="width:7%">
+								<col style="width:5%">
 								<col style="width:65px">
 							</colgroup>
 							<thead>
@@ -341,6 +348,7 @@ proDataList =   jdbcTemplate.query(sql_str, insObj, new ArtProList());
 									<th scope="col">정원</th>
 									<th scope="col">현원</th>
 									<th scope="col">신청인원</th>
+									<th scope="col">신청유형</th>
 									<th scope="col">접수취소</th>
 								</tr>
 							</thead>
@@ -351,6 +359,14 @@ proDataList =   jdbcTemplate.query(sql_str, insObj, new ArtProList());
 								totalMaxPer		+=	data.max_per;
 								totalCurrPer	+=	data.curr_per;
 								totalReqPer		+=	Integer.parseInt(data.req_per);
+								req_sch_type 	= parseNull(data.req_sch_type);
+								if(!"".equals(req_sch_type)){
+									if("학교 단위 진로 체험, 자유학기제".equals(data.req_sch_type)){
+										req_sch_type = "A";
+									}else{
+										req_sch_type = "B";
+									}
+								}
 							%>
 								<tr>
 									<td><%=data.pro_no %></td>
@@ -372,15 +388,16 @@ proDataList =   jdbcTemplate.query(sql_str, insObj, new ArtProList());
 										}// else {out.println("0");}
 									}%> --%>
 									</span></td>
+									<td><%=req_sch_type%></td>
 									<%
 									if(!tmpReq.equals(data.req_no)){
 									%>
 									<td rowspan="<%=data.rowspan%>">
 										<%if ("N".equals(data.apply_flag) && "Y".equals(data.req_date_over)) {%>
-										<button type="button" onclick="go_modify('<%=data.req_no%>')" class="btn small edge mako">수정</button>
-										<button type="button" onclick="go_cancel('<%=data.req_no%>')" class="btn small edge mako">접수취소</button>
+										<button type="button" onclick="go_modify('<%=data.req_no%>')" class="btn small edge mako mg_b15">수정</button>
+										<button type="button" onclick="go_cancel('<%=data.req_no%>')" class="btn small edge mako mg_b15">취소</button>
 										<%} else if ("Y".equals(data.req_date_over) && "Y".equals(data.apply_flag)) {%>
-										<button type="button" onclick="go_cancel('<%=data.req_no%>')" class="btn small edge mako">접수취소</button>
+										<button type="button" onclick="go_cancel('<%=data.req_no%>')" class="btn small edge mako mg_b15">취소</button>
 										<%}%>
 									</td>
 									<%
@@ -396,7 +413,7 @@ proDataList =   jdbcTemplate.query(sql_str, insObj, new ArtProList());
 									<td class="c"><%=totalMaxPer %></td>
 									<td class="c"><%=totalCurrPer %></td>
 									<td class="c"><%=totalReqPer %></td>
-									<td class="c"></td>
+									<td colspan="2" class="c"></td>
 								</tr>
 							</tfoot>
 						</table>
@@ -418,17 +435,20 @@ proDataList =   jdbcTemplate.query(sql_str, insObj, new ArtProList());
 	<fieldset>
 		<legend>실행 버튼 영역</legend>
 		<div class="btn_area c">
-			<%if (apply_text.equals("N") && req_date_over.equals("Y")) {%>
+			<%-- <%if (apply_text.equals("N") && req_date_over.equals("Y")) {%>
 			<button type="button" onclick="go_modify('<%=req_sch_id%>')" class="btn medium edge mako">수정</button>
 			<button type="button" onclick="go_cancel('<%=req_sch_id%>')" class="btn medium edge mako">접수 취소</button>
 			<%} else if (req_date_over.equals("Y") && apply_text.equals("Y")) {%>
 			<button type="button" onclick="go_cancel('<%=req_sch_id%>')" class="btn medium edge mako">접수 취소</button>
-			<%}%>
+			<%}%> --%>
 			<button onclick="history.back();" type="button" class="btn medium edge darkMblue w_100">확인</button>
 		</div>
 	</fieldset>
 </form>
 
 <%}catch(Exception ee){
-	out.println(ee.toString());
+	out.println("<script>");
+	out.println("alert('처리중 오류가 발생하였습니다.');");
+	out.println("history.go(-1);");
+	out.println("</script>");
 }%>

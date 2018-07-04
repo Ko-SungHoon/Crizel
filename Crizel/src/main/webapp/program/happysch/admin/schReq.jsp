@@ -2,7 +2,7 @@
 /**
 *   PURPOSE :   승인대기 및 취소 - 학교연계프로그램
 *   CREATE  :   20180314_wed    JI
-*   MODIFY  :   ...
+*   MODIFY  :   20180621	KO	신청유형 추가, 신청일자 종료날짜 12월31일로 고정
 **/
 %>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
@@ -45,6 +45,7 @@ private class ArtVO{
 	public String req_sch_nm;
 	public String req_sch_grade;
 	public String req_sch_group;
+	public String req_sch_type;
 
 	public String pro_cat_nm;
 	public String pro_name;
@@ -79,6 +80,7 @@ private class ArtVOMapper implements RowMapper<ArtVO> {
         vo.req_sch_nm		=	rs.getString("REQ_SCH_NM");
         vo.req_sch_grade	=	rs.getString("REQ_SCH_GRADE");
         vo.req_sch_group	=	rs.getString("REQ_SCH_GROUP");
+        vo.req_sch_type		=	rs.getString("REQ_SCH_TYPE");
 
         vo.pro_cat_nm		=	rs.getString("PRO_CAT_NM");
         vo.pro_name			=	rs.getString("pro_name");
@@ -185,6 +187,8 @@ String search1		=	parseNull(request.getParameter("search1"));
 String keyword		=	parseNull(request.getParameter("keyword"));
 String menuCd		=	parseNull(request.getParameter("menuCd"));
 
+String req_sch_type	=	"";
+
 Calendar cal = Calendar.getInstance();
 
 String start_date	=   parseNull(request.getParameter("start_date"), "");
@@ -279,6 +283,7 @@ sql.append("			A.REQ_AFT_FLAG,			 							");
 sql.append("			A.REQ_SCH_NM,			 							");
 sql.append("			A.REQ_SCH_GRADE,			 						");
 sql.append("			A.REQ_SCH_GROUP,			 						");
+sql.append("			A.REQ_SCH_TYPE,				 						");
 sql.append("			B.PRO_CAT_NM,				 						");
 sql.append("			B.PRO_NAME,					 						");
 sql.append("			(CASE WHEN  A.REQ_DATE > TO_CHAR(SYSDATE, 'YYYY-MM-DD') THEN 'Y'	");
@@ -434,11 +439,14 @@ num = paging.getRowNo();
 			</fieldset>
 		</form>
 	</div>
+	
+	<p class="f_r red">※ 신청유형(A:학교 단위 진로 체험, 자유학기제, B:꿈키움, WeeClass, 학업중단숙려제, 자유학교, Wee센터 체험 등)</p>
 
 	<p>
 		<strong>총 <span><%=totalCount%></span> 건
 		</strong> [ Page <%=pageNo %>/<%=paging.getFinalPageNo() %>]
 	</p>
+	
 
 	<table class="bbs_list">
 		<caption>상시프로그램 승인대기 및 취소 테이블</caption>
@@ -456,6 +464,7 @@ num = paging.getRowNo();
 			<col style="width:10%"/>
 			<col style="width:5%"/>
 			<col style="width:5%"/>
+			<col style="width:5%"/>
 		</colgroup>
 		<thead>
 			<tr>
@@ -470,6 +479,7 @@ num = paging.getRowNo();
 				<th scope="col">담당자명</th>
 				<th scope="col">담당자 연락처</th>
 				<th scope="col">접수일</th>
+				<th scope="col">신청유형</th>
 				<th scope="col">승인상태</th>
 				<th scope="col">관리자<br>승인/취소</th>
 			</tr>
@@ -478,6 +488,14 @@ num = paging.getRowNo();
 			<%
 			if(list!=null && list.size()>0){
 			for(ArtVO ob : list) {
+				req_sch_type = parseNull(ob.req_sch_type);
+				if(!"".equals(req_sch_type)){
+					if("학교 단위 진로 체험, 자유학기제".equals(ob.req_sch_type)){
+						req_sch_type = "A";
+					}else{
+						req_sch_type = "B";
+					}
+				}
 			%>
 			<tr <%if("N".equals(ob.apply_flag) && "Y".equals(ob.req_date_over)) {out.println("style=\"background: #dde098;\"");}%> >
                 <%if (!(ob.req_no == tmpListNo)) {%>
@@ -506,6 +524,7 @@ num = paging.getRowNo();
 				<td rowspan="<%=ob.rowspan %>"><%=ob.sch_mng_nm %></td>
 				<td rowspan="<%=ob.rowspan %>"><%=ob.sch_mng_tel %></td>
 				<td rowspan="<%=ob.rowspan %>"><%=ob.reg_date %></td>
+				<td rowspan="<%=ob.rowspan %>"><%=req_sch_type%></td>
 				<td rowspan="<%=ob.rowspan %>"><%=applyText(ob.apply_flag) %></td>
 				<td rowspan="<%=ob.rowspan %>">
                     <%

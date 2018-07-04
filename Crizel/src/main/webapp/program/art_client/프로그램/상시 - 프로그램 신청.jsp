@@ -9,6 +9,7 @@
 *   MODIFY  :   20180508 JI 신청 차단 날짜 추가(20180517, 20180518, 20180529 오후, 20180626, 20180711, 20180717 오후, 20180726, 20180727)
 *   MODIFY  :   20180607 KO 프로그램 개편(오전2개 오후2개, 전일 폐지)
 *   MODIFY  :   20180612 KO 오전,오후 각각 200명만 신청 가능하게 수정
+*   MODIFY  :   20180612 LEE 알림문구 수정
 **/
 %>
 
@@ -364,17 +365,24 @@ int num         =   0;
   <ul class="type01 ">
     <li><span class="fsize_90">2학기부터 상시프로그램의 내용 및 신청 방법이 변경 되었습니다.</span>
       <ul>
-        <li class="red">전일반 폐지, 오전 A,B타입 중 선택, 오후 A,B타입 중 선택 (오전·오후 중복 신청 불가)</li>
+        <li><strong>(방법) 오전, 오후 선택 → A, B타입 중 선택하여 신청</strong> <span class="red">※ 중복신청 불가</span></li>
       </ul>
     </li>
+<li><span class="fsize_90">프로그램 신청 학교 수는 오전반 총 2개교, 오후반 총 2개교로 제한합니다.</span>
+<ul>
+<li>오전반&middot;오후반 최대 신청 인원은 각각 200명이며, 두 번째로 신청 학교의 경우 첫 번째 학교 신청 인원 잔여 신청 인원 내에서만 신청 가능합니다.</li>
+<li>2개교 신청의 경우 프로그램 첫 번째 신청한 학교에 반 편성 우선권이 있습니다.</li>
+</ul>
+</li>
      <li><span class="fsize_90">홈페이지 정비 관계로 1학기 상시 프로그램 신청은 유선으로만 가능합니다.</span></li>
   </ul>
 </div>
+
 <div class="box_02">
 	<ul class="badge-guide">
 		<li><i class="badge bg-am">오전</i> 오전반(신청가능)</li>
 		<li><i class="badge bg-pm">오후</i> 오후반(신청가능)</li>
-		<!-- <li><i class="badge bg-day">전일</i> 전일제반(신청가능)</li> -->
+		<%-- <li><i class="badge bg-day">전일</i> 전일제반(신청가능)</li> --%>
 		<li><i class="badge finish">grey</i> 마감(신청불가)</li>
 	</ul>
 </div>
@@ -458,6 +466,13 @@ int num         =   0;
                                 || (Integer.parseInt(compareDay) == 20180726) || (Integer.parseInt(compareDay) == 20180727)
                                 || (Integer.parseInt(compareDay) == 20180927) || (Integer.parseInt(compareDay) == 20180928)
                                 || (Integer.parseInt(compareDay) == 20181008) || (Integer.parseInt(compareDay) >= 20181221)
+                                
+                                //2018.06.28. 요청
+                                || (Integer.parseInt(compareDay) == 20180920) || (Integer.parseInt(compareDay) == 20180921)
+                                || (Integer.parseInt(compareDay) == 20181016) || (Integer.parseInt(compareDay) == 20181031)
+                                || (Integer.parseInt(compareDay) == 20181101) || (Integer.parseInt(compareDay) == 20181203)
+                                || (Integer.parseInt(compareDay) == 20181204)
+                                
                             	) {
                                 outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-am finish\">오전</span>";
                                 outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
@@ -472,14 +487,30 @@ int num         =   0;
                                         || (Integer.parseInt(compareDay) == 20180612) || (Integer.parseInt(compareDay) == 20180613)
                                         || (Integer.parseInt(compareDay) == 20180614) || (Integer.parseInt(compareDay) == 20180615)
                                         || (Integer.parseInt(compareDay) == 20180608) || (Integer.parseInt(compareDay) == 20180621)
-                                    		
+                                        
+                                        //2018.06.28. 요청
+                                        || (Integer.parseInt(compareDay) == 20181018) || (Integer.parseInt(compareDay) == 20181026)
+                                        || (Integer.parseInt(compareDay) == 20181106) 
                                     		) 
                                         && ("Y".equals(data.mor_sch_flag) && "Y".equals(data.aft_sch_flag))) {
                                         outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
                                         outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
                                         //outHtml +=  "<span title=\"전일반 신청 불가\" class=\"badge bg-day finish\">전일</span>";
                                     /*END 20180508_tue 20180717 오후와 전일 막기*/
-                                    } else if (("Y".equals(data.mor_sch_flag) && "Y".equals(data.mor_cnt_flag)) && ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_cnt_flag))) {
+                                    }
+                                    /*20180628  오전과 전일 막기*/
+                                    else if (((Integer.parseInt(compareDay) == 20180904) || (Integer.parseInt(compareDay) == 20181024)
+                                            	|| (Integer.parseInt(compareDay) == 20181025) || (Integer.parseInt(compareDay) == 20181105)
+                                            	|| (Integer.parseInt(compareDay) == 20181129) || (Integer.parseInt(compareDay) == 20181205)
+                                            	|| (Integer.parseInt(compareDay) == 20181212) || (Integer.parseInt(compareDay) == 20181214)
+                                            	|| (Integer.parseInt(compareDay) == 20181217)
+                                            		) 
+                                                && ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_sch_flag))) {
+                                                outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-pm finish\">오전</span>";
+                                                outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
+                                    }/*END 20180628 오전과 전일 막기*/
+                                    else if (("Y".equals(data.mor_sch_flag) && "Y".equals(data.mor_cnt_flag)) && ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_cnt_flag))
+                                    		) {
                                         outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
                                         outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
                                         //outHtml +=  "<a href=\"javascript:;\" title=\"전일제반 신청\" class=\"badge bg-day initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">전일</a>";
@@ -545,7 +576,7 @@ int num         =   0;
     </div>
 
  <div class="btn_area c magT25 magB50">
-       <a class="btn white medium" href="/program/down.jsp?path=/img/art&amp;filename=art_down1.zip" title="오리엔테이션 및 반편성표 다운로드">
+       <a class="btn white medium" href="/board/download.gne?boardId=DUMY001&startPage=1&dataSid=975819&command=update&fileSid=1439657" title="오리엔테이션 및 반편성표 다운로드">
        <i class="ico-hwp"></i> 오리엔테이션  및 반편성표 다운로드</a>
     </div>
 
