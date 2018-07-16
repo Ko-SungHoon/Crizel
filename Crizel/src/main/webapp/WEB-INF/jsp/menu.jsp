@@ -31,7 +31,7 @@ $(function(){
 	</ul>
 	<ul class="menu">
 		<li><a href="/index.jsp">홈</a></li>
-		<li><a href="/list.do?day=today">리스트</a>
+		<li><a href="/list.do?mode=nyaa">리스트</a>
 			<ul>
 				<li><a href="/listInsertPage.do">추가</a></li>
 			</ul>

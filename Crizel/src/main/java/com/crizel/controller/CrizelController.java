@@ -48,35 +48,43 @@ public class CrizelController {
 		this.service = service;
 	}
 	@RequestMapping("list.do")
-	public ModelAndView list(@RequestParam(value="day", required=false, defaultValue="today") String day) {
+	public ModelAndView list(
+			@RequestParam(value="day", required=false, defaultValue="today") String day,
+			@RequestParam(value="mode", required=false, defaultValue="") String mode,
+			@RequestParam(value="type", required=false, defaultValue="") String type) {
 		ModelAndView mav = new ModelAndView();		
 		Calendar cal = Calendar.getInstance();
 		final String[] week = { "일", "월", "화", "수", "목", "금", "토" };
 		if (day.equals("today")) {
 			day = week[cal.get(Calendar.DAY_OF_WEEK) - 1];
 		}
-		mav.addObject("list",service.list(day));
-		mav.addObject("day",day);
+		mav.addObject("list", service.list(day));
+		mav.addObject("day", day);
+		mav.addObject("mode", mode);
+		mav.addObject("type", type);
 		mav.setViewName("/list/list");
 		return mav;
-
 	}
 
 	@RequestMapping("listDetail.do")
 	public ModelAndView listDetail(@RequestParam String keyword, String type, String site,
+			@RequestParam(value="mode", defaultValue="") String mode,
 			HttpServletResponse response) throws Exception,
 			SAXException, IOException {
 		ModelAndView mav = new ModelAndView();
-		mav.addObject("listDetail",service.listDetail(keyword,type,site));
+		mav.addObject("listDetail",service.listDetail(keyword, type, site, mode));
+		mav.addObject("mode", mode);
+		mav.addObject("type", type);
+		mav.addObject("keyword", keyword);
 		mav.setViewName("/list/list");
 		return mav;
-
 	}
 	
 	@RequestMapping("aniDelete.do")
-	public String aniDelete(@ModelAttribute CrizelVo vo){
+	public String aniDelete(@ModelAttribute CrizelVo vo,
+			@RequestParam(value="mode", defaultValue="") String mode){
 		service.aniDelete(vo);
-		return "redirect:list.do?day=today";
+		return "redirect:list.do?day=today&mode="+mode;
 	}
 
 		
@@ -88,9 +96,9 @@ public class CrizelController {
 	}
 	
 	@RequestMapping("listInsert.do")
-	public String listInsert(@ModelAttribute CrizelVo vo) throws UnsupportedEncodingException {
+	public String listInsert(@ModelAttribute CrizelVo vo, @RequestParam(value="mode", defaultValue="") String mode) throws UnsupportedEncodingException {
 		service.listInsert(vo);
-		return "redirect:listInsertPage.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8");
+		return "redirect:listInsertPage.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8")+"&mode="+mode;
 	}
 	
 	@RequestMapping("loginPage.do")
@@ -405,12 +413,6 @@ public class CrizelController {
 			
 			mf.get(i).transferTo(new File(path + saveFile));
 		}
-	}
-	
-	@RequestMapping("test.do")
-	public void test(HttpServletRequest request, HttpServletResponse response) throws IOException {
-		service.test();
-		response.sendRedirect("/");
 	}
 	
 	public String parseNull(String value){

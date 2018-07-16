@@ -44,7 +44,7 @@ jQuery(document).ready(function(){
 <div class="content">
 	<ul class="bookMark">
 		<li>
-			<a href="/list.do">
+			<a href="/list.do?mode=nyaa">
 				<img src="/img/video.png" />
 			</a>
 		</li>

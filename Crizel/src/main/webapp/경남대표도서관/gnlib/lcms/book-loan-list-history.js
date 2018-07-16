@@ -23,7 +23,6 @@ Vue.component('bookSimpleList', {
       var userKey = 'userkey='+self.userKey
       requestUrl = self.apiUrl + userKey + '&startdate=20180101&pageno=1&display=1000'
       requestUrl = encodeURI(requestUrl)
-      console.log('requestUrl ', requestUrl)
       xhr.open('GET', requestUrl)
       xhr.onload = function () {
         self.records = JSON.parse(xhr.responseText)

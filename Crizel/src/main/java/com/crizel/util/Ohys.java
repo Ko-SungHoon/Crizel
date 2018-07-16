@@ -30,13 +30,13 @@ public class Ohys {
 		ohys.getList(addr);
 	}
 	
-	public List<Object> getList(String addr) throws Exception{
+	public List<Map<String,Object>> getList(String addr) throws Exception{
 		DocumentBuilderFactory factory2 = DocumentBuilderFactory.newInstance();
 		DocumentBuilder builder 		= factory2.newDocumentBuilder();
 		Document doc					= null;
 		NodeList list 					= null;
 		NodeList list2 					= null;
-		List<Object> a 					= new ArrayList<Object>();
+		List<Map<String,Object>> a 		= new ArrayList<Map<String,Object>>();
         Map<String,Object> map			= null;
         int i 							= 0;
         Element element, element2;

@@ -31,7 +31,8 @@ String day = request.getParameter("day")==null?"":request.getParameter("day");
 String dayArr[] = {"월", "화", "수", "목", "금", "토", "일"};
 %>
 	<div class="content">
-			<form action="/listInsert.do" method="post" onsubmit="return formSubmit();">
+			<form action="/listInsert.do" method="post" onsubmit="return formSubmit();">	
+				<input type="hidden" id="mode" name="mode" value="${mode}">
 				<table class="tbl_type02">
 					<tr>
 						<th>사이트</th>

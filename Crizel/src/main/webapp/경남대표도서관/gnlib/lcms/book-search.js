@@ -11,7 +11,6 @@ var spinner = new Vue({
   created: function () {
     self = this
     bus.$on('loadingBus', function (value) {
-      console.log(value)
       self.loading = value
     })
   },
@@ -145,15 +144,12 @@ var bookSearch = new Vue({
     },
 
     pageChanged: function() {
-      console.log('Page changed to: ' + this.pagination.currentPage);
       this.page = this.pagination.currentPage
     },
     setPage: function(pageNo) {
-      console.log('pageNo: ', pageNo)
       this.page = pageNo
     },
     searchBook: function(searchText) {
-      console.log('searchText: ', searchText)
       this.searchText = searchText
       this.fetchData()
     },

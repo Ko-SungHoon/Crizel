@@ -1,597 +1,732 @@
 <%
 /**
-*	PURPOSE	:	시설별 예약현황 / 예약관리
-*	CREATE	:	2017....
-*	MODIFY	:	....
-*/
+*   PURPOSE :   <상시> 프로그램 신청 and 달력
+*   CREATE  :   20180207_wed    JI
+*   MODIFY  :   퍼블리싱 보다 조금 더 먼저 작업  20180207_wed    JI
+*   MODIFY  :   20180222 LJH 모달윈도우, 데이터피커 css작업
+*   MODIFY  :   20180305 JI 학교계정이 아닐 경우 alert 창으로 대처하기
+*   MODIFY  :   20180412 JI 시작 기준일 7일로 변경 todayAft = 7
+*   MODIFY  :   20180508 JI 신청 차단 날짜 추가(20180517, 20180518, 20180529 오후, 20180626, 20180711, 20180717 오후, 20180726, 20180727)
+*   MODIFY  :   20180607 KO 프로그램 개편(오전2개 오후2개, 전일 폐지)
+*   MODIFY  :   20180612 KO 오전,오후 각각 200명만 신청 가능하게 수정
+*   MODIFY  :   20180612 LEE 알림문구 수정
+**/
 %>
-<%@ include file="/program/class/UtilClass.jsp" %>
-<%@ include file="/program/class/PagingClass.jsp" %>
-<%@ page import="egovframework.rfc3.user.web.SessionManager" %>
+
+<%@ include file="/program/class/UtilClass.jsp"%>
+<%@ include file="/program/class/PagingClass.jsp"%>
+
+<%/*************************************** 프로그램 ****************************************/%>
+
+<%!
+/** Class Part **/
+    private class ArtCalData {
+        //calendar
+        public String callDate;         //날짜
+        public String callDateWeek;     //요일 한글
+        public String hlyDateFlag;      //요일 구분 SA,SU = 토,일 D = 평일, H = 휴일
+        public String hlyDateName;      //휴일 이름, NULL
+
+        //프로그램 변수
+        public String pro_name;
+        public int max_per;
+        public int curr_per;
+
+        //신청 변수
+        public int req_no;
+        public int pro_no;
+        public String req_sch_id;
+        public String sch_mng_nm;
+        public String sch_mng_tel;
+        public String sch_mng_mail;
+        public String reg_date;
+        public String reg_ip;
+        public String apply_flag;
+        public int req_cnt;
+        public String req_date;
+        public String req_aft_flag;
+        public String req_sch_nm;
+        public String req_sch_grade;
+        public String req_sch_group;
+        public String apply_date;
+
+        //신청 불가 확인 변수
+        public String able_sch_flag;
+        public String my_request;
+        public int my_req_no;
+        public int hold_cnt;
+        public String mor_sch_flag;
+        public String aft_sch_flag;
+        
+        public String pro_cat;
+        public String pro_cat_nm;
+        public String pro_memo;
+        public String pro_year;
+        public String reg_id;
+        public String mod_date;
+        public String show_flag;
+        public String del_flag;
+        public String aft_flag;
+        public String pro_tch_nm;
+        public String pro_type;
+        
+        public String mor_cnt_flag;
+        public String aft_cnt_flag;
+    }
+
+    private class ArtCalList implements RowMapper<ArtCalData> {
+        public ArtCalData mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ArtCalData calData   =   new ArtCalData();
+            //date values
+            calData.callDate        =   rs.getString("MON_DTE");
+            calData.callDateWeek    =   rs.getString("WEEK_DTE");
+            calData.hlyDateFlag     =   rs.getString("HLY_DTE");
+            calData.hlyDateName     =   rs.getString("HLY_NAME");
+            //program tb data values
+            calData.pro_name        =   rs.getString("PRO_NAME");
+            calData.max_per         =   rs.getInt("MAX_PER");
+            calData.curr_per        =   rs.getInt("CURR_PER");
+            //request tb data values
+            calData.req_no          =   rs.getInt("REQ_NO");
+            calData.pro_no          =   rs.getInt("PRO_NO");
+            calData.req_sch_id      =   rs.getString("REQ_SCH_ID");
+            calData.sch_mng_nm      =   rs.getString("SCH_MNG_NM");
+            calData.sch_mng_tel     =   rs.getString("SCH_MNG_TEL");
+            calData.sch_mng_mail    =   rs.getString("SCH_MNG_MAIL");
+            calData.reg_date        =   rs.getString("REG_DATE");
+            calData.reg_ip          =   rs.getString("REG_IP");
+            calData.apply_flag      =   rs.getString("APPLY_FLAG");
+            calData.req_cnt         =   rs.getInt("REQ_CNT");
+            calData.req_date        =   rs.getString("REQ_DATE");
+            calData.req_aft_flag    =   rs.getString("REQ_AFT_FLAG");
+            calData.req_sch_nm      =   rs.getString("REQ_SCH_NM");
+            calData.req_sch_grade   =   rs.getString("REQ_SCH_GRADE");
+            calData.req_sch_group   =   rs.getString("REQ_SCH_GROUP");
+            calData.apply_date      =   rs.getString("APPLY_DATE");
+            //block able request variables
+            calData.able_sch_flag   =   rs.getString("ABLE_SCH_FLAG");
+            calData.my_request      =   rs.getString("MY_REQUEST");
+            calData.my_req_no       =   rs.getInt("MY_REQ_NO");
+            calData.hold_cnt        =   rs.getInt("HOLD_CNT");
+            calData.mor_sch_flag    =   rs.getString("MOR_SCH_FLAG");
+            calData.aft_sch_flag    =   rs.getString("AFT_SCH_FLAG");
+            
+            calData.mor_cnt_flag	= 	rs.getString("MOR_CNT_FLAG");
+            calData.aft_cnt_flag	= 	rs.getString("AFT_CNT_FLAG");
+            return calData;
+        }
+    }
+    
+    private class ArtProList implements RowMapper<ArtCalData> {
+        public ArtCalData mapRow(ResultSet rs, int rowNum) throws SQLException {
+            ArtCalData vo   =   new ArtCalData();
+            vo.pro_no		=   rs.getInt("PRO_NO");
+            vo.pro_cat		=   rs.getString("PRO_CAT");
+            vo.pro_cat_nm	=   rs.getString("PRO_CAT_NM");
+            vo.pro_name		=   rs.getString("PRO_NAME");
+            vo.pro_memo		=   rs.getString("PRO_MEMO");
+            vo.pro_year		=   rs.getString("PRO_YEAR");
+            vo.reg_id		=   rs.getString("REG_ID");
+            vo.reg_ip		=   rs.getString("REG_IP");
+            vo.reg_date		=   rs.getString("REG_DATE");
+            vo.mod_date		=   rs.getString("MOD_DATE");
+            vo.show_flag	=   rs.getString("SHOW_FLAG");
+            vo.del_flag		=   rs.getString("DEL_FLAG");
+            vo.max_per		=   rs.getInt("MAX_PER");
+            vo.aft_flag		=   rs.getString("AFT_FLAG");
+            vo.pro_tch_nm	=   rs.getString("PRO_TCH_NM");
+            vo.pro_type		=   rs.getString("PRO_TYPE");
+            return vo;
+        }
+    }
+%>
+
 <%
-String listPage = "DOM_000001201007002000";	// DOM_000001201007002000 , TEST : DOM_000000106007002000
-
-Connection conn = null;
-PreparedStatement pstmt = null;
-ResultSet rs = null;
-StringBuffer sql = null;
-List<Map<String, Object>> dataList = null;
-List<Map<String, Object>> optionList = null;
-List<Map<String, Object>> dayList = null;
-List<Map<String, Object>> dateDelList = null;
-
-String pageNo = parseNull(request.getParameter("pageNo"), "1");
-int totalCount = 0;
-Paging paging = new Paging();
-
-String user_account 	= "";
-String school_id 		= parseNull(request.getParameter("school_id"));
-String user_id 			= parseNull(request.getParameter("user_id"));
-String user_name 		= parseNull(request.getParameter("user_name"));
-String user_phone 		= parseNull(request.getParameter("user_phone"));
-String organ_name 		= parseNull(request.getParameter("organ_name"));
-String reserve_man 		= parseNull(request.getParameter("reserve_man"));
-String use_purpose 		= parseNull(request.getParameter("use_purpose"));
-String use_type 		= parseNull(request.getParameter("use_type"));
-String school_area 		= parseNull(request.getParameter("school_area"));
-String school_name 		= parseNull(request.getParameter("school_name"));
-String reserve_type 	= parseNull(request.getParameter("reserve_type"));
-String reserve_type2 	= parseNull(request.getParameter("reserve_type2"));
-String reserve_date 	= parseNull(request.getParameter("reserve_date"));
-String time_value 		= parseNull(request.getParameter("time_value"));
-String reserve_approval = parseNull(request.getParameter("reserve_approval"));
-String reserve_delete 	= parseNull(request.getParameter("reserve_delete"));
-String reserve_register = parseNull(request.getParameter("reserve_register"));
-String account	 		= parseNull(request.getParameter("account"));
-String total_price 		= parseNull(request.getParameter("total_price"));
-String reserve_change 	= parseNull(request.getParameter("reserve_change"));
-String reserve_cancel 	= parseNull(request.getParameter("reserve_cancel"));
-String reserve_code 	= parseNull(request.getParameter("reserve_code"));
-String refund_account 	= parseNull(request.getParameter("refund_account"));
-String reserve_refund	= "";
-String cancel_date 		= parseNull(request.getParameter("cancel_date"));
-String date_value 		= "";
-String user_option 		= "";
-String add_comment 		= "";
-
-String search1 = parseNull(request.getParameter("search1"));
-String keyword = parseNull(request.getParameter("keyword"));
-String reserve_notice = "";
-String time_min = "";
-String time_max = "";
-String option_title = "";
-int count = 0;
-
-int num = 0;
-int key = 0;
-boolean id_check = false;
-boolean delDateCheck = false;
-
-user_account = sm.getId();
-
-try {
-	sqlMapClient.startTransaction();
-	conn = sqlMapClient.getCurrentConnection();
-
-	//학교 정보
-	key = 0;
-	sql = new StringBuffer();
-	sql.append("SELECT * FROM RESERVE_SCHOOL WHERE SCHOOL_ID = (SELECT SCHOOL_ID FROM RESERVE_USER WHERE USER_ID = ?) AND SCHOOL_APPROVAL = 'Y' ");
-	pstmt = conn.prepareStatement(sql.toString());
-	pstmt.setString(++key, user_id);
-	rs = pstmt.executeQuery();
-	if(rs.next()){
-		school_name = rs.getString("SCHOOL_NAME");
-		account = rs.getString("ACCOUNT");
-		id_check = true;
-	}
-
-	//시설 정보
-	key = 0;
-	sql = new StringBuffer();
-	sql.append("SELECT * FROM RESERVE_ROOM WHERE ROOM_ID = (SELECT ROOM_ID FROM RESERVE_USER WHERE USER_ID = ?) ");
-	pstmt = conn.prepareStatement(sql.toString());
-	pstmt.setString(++key, user_id);
-	rs = pstmt.executeQuery();
-	if(rs.next()){
-		reserve_notice = rs.getString("RESERVE_NOTICE");
-	}
-
-	//예약자 정보
-	key = 0;
-	sql = new StringBuffer();
-	sql.append("SELECT  RESERVE_TYPE, RESERVE_TYPE2, TO_CHAR(RESERVE_REGISTER, 'yyyy-MM-dd') RESERVE_REGISTER, RESERVE_APPROVAL, USER_NAME, USER_PHONE,ORGAN_NAME,  ");
-	sql.append("	RESERVE_MAN, TOTAL_PRICE, USE_TYPE, USE_PURPOSE, RESERVE_CANCEL, RESERVE_CODE, REFUND_ACCOUNT, TO_CHAR(CANCEL_DATE, 'yyyy-MM-dd') CANCEL_DATE ");
-	sql.append("	,USER_DATE_VALUE, USER_TIME_START, USER_TIME_END, USER_OPTION, RESERVE_REFUND, ADD_COMMENT ");
-	sql.append("FROM RESERVE_USER WHERE USER_ID = ? ");
-	pstmt = conn.prepareStatement(sql.toString());
-	pstmt.setString(++key, user_id);
-	rs = pstmt.executeQuery();
-	if(rs.next()){
-		user_name = parseNull(rs.getString("USER_NAME"));
-		user_phone = parseNull(rs.getString("USER_PHONE"));
-		organ_name = parseNull(rs.getString("ORGAN_NAME"));
-		reserve_type = parseNull(rs.getString("RESERVE_TYPE"));
-		reserve_type2 = parseNull(rs.getString("RESERVE_TYPE2"));
-		reserve_man = parseNull(rs.getString("RESERVE_MAN"));
-		total_price = parseNull(rs.getString("TOTAL_PRICE"));
-		use_type = parseNull(rs.getString("USE_TYPE"));
-		use_purpose = parseNull(rs.getString("USE_PURPOSE"));
-		reserve_approval = parseNull(rs.getString("RESERVE_APPROVAL"));
-		reserve_register = parseNull(rs.getString("RESERVE_REGISTER"));
-		reserve_cancel = parseNull(rs.getString("RESERVE_CANCEL"));
-		reserve_code = parseNull(rs.getString("RESERVE_CODE"));
-		refund_account = parseNull(rs.getString("REFUND_ACCOUNT"));
-		reserve_refund = parseNull(rs.getString("RESERVE_REFUND"));
-		cancel_date = parseNull(rs.getString("CANCEL_DATE"));
-		time_min = timeSet(rs.getString("USER_TIME_START"));
-		time_max = timeSet(rs.getString("USER_TIME_END"));
-		date_value=rs.getString("USER_DATE_VALUE");
-		user_option = parseNull(rs.getString("USER_OPTION"));
-		add_comment = parseNull(rs.getString("ADD_COMMENT"));
-	}
-
-	//실 개수 정보
-	key = 0;
-	sql = new StringBuffer();
-	sql.append("SELECT USER_ID, USE_ID FROM RESERVE_USE WHERE USER_ID = ? GROUP BY USER_ID, USE_ID ");
-	pstmt = conn.prepareStatement(sql.toString());
-	pstmt.setString(++key, user_id);
-	rs = pstmt.executeQuery();
-	while(rs.next()){
-		count++;
-	}
-
-	//예약 옵션
-	key = 0;
-	sql = new StringBuffer();
-	sql.append("SELECT * FROM RESERVE_OPTION WHERE ROOM_ID = (SELECT ROOM_ID FROM RESERVE_USER WHERE USER_ID = ? ) ");
-	pstmt = conn.prepareStatement(sql.toString());
-	pstmt.setString(++key, user_id);
-	rs = pstmt.executeQuery();
-	optionList = getResultMapRows(rs);
-
-	/* //날짜 리스트
-	key = 0;
-	sql = new StringBuffer();
-	sql.append("SELECT * FROM RESERVE_USE WHERE USER_ID = ? ");
-	pstmt = conn.prepareStatement(sql.toString());
-	pstmt.setString(++key, user_id);
-	rs = pstmt.executeQuery();
-	if(rs.next()){
-		date_value=rs.getString("DATE_VALUE");
-	}
-	if (pstmt != null)pstmt.close();
-	if (rs != null)rs.close();
-
-	
+try{
 	
 
-	//시간 정보
-	key = 0;
-	sql = new StringBuffer();
-	sql.append("SELECT MIN(TIME_START) MIN, MAX(TIME_END) MAX FROM RESERVE_USE WHERE USER_ID = ? ");
-	pstmt = conn.prepareStatement(sql.toString());
-	pstmt.setString(++key, user_id);
-	rs = pstmt.executeQuery();
-	if(rs.next()){
-		if(rs.getString("MIN") != null){
-			time_min = timeSet(rs.getString("MIN"));
-			time_max = timeSet(rs.getString("MAX"));
-		}
-	}
-	if (pstmt != null)pstmt.close();
-	if (rs != null)rs.close(); */
-} catch (Exception e) {
-	sqlMapClient.endTransaction();
-        alertBack(out, "처리중 오류가 발생하였습니다.");
-} finally {
-	if (rs != null) try { rs.close(); } catch (SQLException se) {}
-	if (pstmt != null) try { pstmt.close(); } catch (SQLException se) {}
-	if (conn != null) try { conn.close(); } catch (SQLException se) {}
-	sqlMapClient.endTransaction();
-}
+String listPage		=	"DOM_000002001002003002";	// 실서버 : DOM_000002001002003002 , 테스트 : DOM_000000126002003005
+String insertPage 	= 	"DOM_000002001002003003";	// 실서버 : DOM_000002001002003003 , 테스트 : DOM_000000126002003007
+String confirmPage	=	"DOM_000002001002003004";	// 실서버 : DOM_000002001002003004 , 테스트 : DOM_000000126002003008
+	
+SessionManager sessionManager   =   new SessionManager(request);
+
+String outHtml      =   "";
+String tmpDate      =   "";
+
+//request year / month value
+Calendar cal            =   Calendar.getInstance();
+SimpleDateFormat sdf    =   new SimpleDateFormat("yyyy")
+                , sdf2  =   new SimpleDateFormat("MM")
+                , sdf3  =   new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                , sdf4  =   new SimpleDateFormat("dd")
+                , adfToday  =   new SimpleDateFormat("yyyyMMdd");
+
+String toDay        =   adfToday.format(cal.getTime());
+
+/**/
+String strDate      =   "20180316";
+String requestDate  =   "20180402";
+/**/
+
+int todayAft        =   7;  //오늘 기준 이후 예약가능 날짜
+
+String callYear     =   parseNull(request.getParameter("callYear"), sdf.format(cal.getTime()));     //기본은 이번년
+String callMonth    =   parseNull(request.getParameter("callMonth"), sdf2.format(cal.getTime()));   //기본은 이번달
+
+/** SQL Data Part **/
+StringBuffer sql                =   null;
+String sql_str                  =   "";
+List<ArtCalData> calDateList    =   null;
+List<ArtCalData> artProListM	=	null;
+List<ArtCalData> artProListF	=	null;
+
+int totalDate   =   0;
+int cnt         =   0;
+int num         =   0;
+
+    sql     =   new StringBuffer();
+    sql_str =   "SELECT STANDARD_MONTH.* ";
+    sql_str +=  "	, (SELECT MAX(PRO_NO) FROM ART_REQ_ALWAY_CNT WHERE REQ_NO = COMPARE_DATE.REQ_NO) AS PRO_NO		";
+    sql_str +=  ", CASE ";
+    sql_str +=  "   WHEN (SELECT COUNT(BANNO) FROM ART_BAN_TABLE WHERE BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) > 0 ";
+    sql_str +=  "   THEN 'H' ";
+    sql_str +=  "   WHEN TO_CHAR(STANDARD_MONTH.MON_DTE, 'd') = '1' THEN 'SU' ";
+    sql_str +=  "   WHEN TO_CHAR(STANDARD_MONTH.MON_DTE, 'd') = '7' THEN 'SA' ";
+    sql_str +=  "   ELSE 'D' ";
+    sql_str +=  "  END AS HLY_DTE ";
+    sql_str +=  ", CASE (SELECT COUNT(BANNO) FROM ART_BAN_TABLE WHERE BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) ";
+    sql_str +=  "   WHEN 1 THEN (SELECT BAN_NM FROM ART_BAN_TABLE WHERE BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) ";
+    sql_str +=  "   ELSE NULL ";
+    sql_str +=  "  END AS HLY_NAME ";
+    sql_str +=  "  , (SELECT PRO_NAME FROM ART_PRO_ALWAY WHERE PRO_NO = COMPARE_DATE.PRO_NO) AS PRO_NAME ";
+    sql_str +=  "  , (SELECT MAX_PER FROM ART_PRO_ALWAY WHERE PRO_NO = COMPARE_DATE.PRO_NO) AS MAX_PER ";
+    sql_str +=  "  , (SELECT SUM(REQ_CNT) FROM ART_REQ_ALWAY WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND PRO_NO = COMPARE_DATE.PRO_NO AND APPLY_FLAG IN ('Y', 'N')) AS CURR_PER ";
+    sql_str +=  "  , COMPARE_DATE.* ";
+/* 날짜 신청 여부 flag value 호출 */
+    sql_str +=  "  , (CASE ";
+    sql_str +=  "  WHEN (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM ART_REQ_ALWAY WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND APPLY_FLAG IN ('Y', 'N')) >= 4 THEN 'N' ";
+    sql_str +=  "  WHEN /*정원 확인*/ ";
+    sql_str +=  "       (SELECT SUM(MAX_PER) FROM ART_PRO_ALWAY WHERE DEL_FLAG != 'Y' AND SHOW_FLAG = 'Y') ";
+    sql_str +=  "       <= (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG IN ('Y', 'N') AND REQ_AFT_FLAG = 'D') A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE) THEN 'N' ";
+    sql_str +=  "       WHEN /*내가 신청한 건지 확인*/ (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM ART_REQ_ALWAY WHERE (REQ_DATE = STANDARD_MONTH.MON_DTE) AND APPLY_FLAG IN ('Y', 'N') AND REQ_SCH_ID = '"+sessionManager.getId()+"') > 0 THEN 'N' ";
+    sql_str +=  "       ELSE 'Y' ";
+    sql_str +=  "  END) AS ABLE_SCH_FLAG ";
+	
+	// 오전 프로그램에 2개 학교가 신청하거나 신청인원이 200명이면 막기
+    sql_str +=  ", (CASE				";
+    sql_str +=  "      WHEN  (SELECT COUNT(*)				";
+    sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
+    sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'M') >= 2 THEN 'N'				";
+    sql_str +=  "      WHEN  (SELECT SUM(REQ_PER)				";
+    sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
+    sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'M') >= 200 THEN 'N'				";
+    sql_str +=  "      ELSE 'Y'				";
+    sql_str +=  "     END				";
+    sql_str +=  "  ) AS MOR_CNT_FLAG				";
+  	 
+ 	// 오후 프로그램에 2개 학교가 신청하거나 신청인원이 200명이면 막기
+    sql_str +=  "  , (CASE				";
+    sql_str +=  "      WHEN  (SELECT COUNT(*)				";
+    sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
+    sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'F') >= 2 THEN 'N'				";
+    sql_str +=  "      WHEN  (SELECT SUM(REQ_PER)				";
+    sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
+    sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'F') >= 200 THEN 'N'				";
+    sql_str +=  "      ELSE 'Y'				";
+    sql_str +=  "     END				";
+    sql_str +=  "  ) AS AFT_CNT_FLAG  					";
+
+    sql_str +=  "  , (CASE ";
+    sql_str +=  "  WHEN /*내가 신청 승인완료*/ ";
+    sql_str +=  "  (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG = 'Y') WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_SCH_ID = '"+sessionManager.getId()+"') > 0 ";
+    sql_str +=  "  THEN 'Y' ";
+    sql_str +=  "  WHEN /*내가 신청 승인대기*/ ";
+    sql_str +=  "  (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG = 'N') WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_SCH_ID = '"+sessionManager.getId()+"') > 0 ";
+    sql_str +=  "  THEN 'H' ";
+    sql_str +=  "  END) AS MY_REQUEST ";
+
+    sql_str +=  "  , (SELECT REQ_NO FROM ART_REQ_ALWAY WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_SCH_ID = '"+sessionManager.getId()+"' AND APPLY_FLAG IN ('Y', 'N')) AS MY_REQ_NO ";
+
+    sql_str +=  "  , (SELECT NVL(COUNT(REQ_NO), 0) FROM ART_REQ_ALWAY ";
+    sql_str +=  "  WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_SCH_ID NOT IN ('"+sessionManager.getId()+"') AND APPLY_FLAG IN ('N') ";
+    sql_str +=  "  ) AS HOLD_CNT ";
+
+    sql_str +=  "  , (CASE ";
+    sql_str +=  "  WHEN ";
+    sql_str +=  "  (SELECT SUM(MAX_PER) FROM ART_PRO_ALWAY WHERE DEL_FLAG != 'Y' AND SHOW_FLAG = 'Y') ";
+    sql_str +=  "    <= (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG IN ('Y', 'N') AND REQ_AFT_FLAG IN ('M', 'D')) A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE) THEN 'N' ";
+    sql_str +=  "  ELSE 'Y' ";
+    sql_str +=  "  END) AS MOR_SCH_FLAG ";
+    sql_str +=  "  , (CASE ";
+    sql_str +=  "  WHEN ";
+    sql_str +=  "  (SELECT SUM(MAX_PER) FROM ART_PRO_ALWAY WHERE DEL_FLAG != 'Y' AND SHOW_FLAG = 'Y') ";
+    sql_str +=  "    <= (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG IN ('Y', 'N') AND REQ_AFT_FLAG IN ('F', 'D')) A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE) THEN 'N' ";
+    sql_str +=  "  ELSE 'Y' ";
+    sql_str +=  "  END) AS AFT_SCH_FLAG ";
+/* 날짜 테이블 생성 및 프로그램 테이블 JOIN */
+    sql_str +=  "   ";
+    sql_str +=  "  FROM ";
+    sql_str +=  "   (SELECT ";
+    sql_str +=  "       (START_DTE + LEVEL) AS MON_DTE ";
+    sql_str +=  "       , TO_CHAR(START_DTE + LEVEL, 'DY') AS WEEK_DTE ";
+    sql_str +=  "   FROM ";
+    sql_str +=  "       ( ";
+    sql_str +=  "       SELECT ";
+    sql_str +=  "           ( ";
+    sql_str +=  "           CASE TO_CHAR(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD'), 'D') ";
+    sql_str +=  "               WHEN '1' THEN TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD') -1 ";
+    sql_str +=  "               ELSE TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD') - TO_NUMBER(TO_CHAR(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD'), 'D')) ";
+    sql_str +=  "           END ";
+    sql_str +=  "           ) AS START_DTE ";
+    sql_str +=  "           , ( ";
+    sql_str +=  "           CASE TO_CHAR(ADD_MONTHS(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD'), 1), 'D') ";
+    sql_str +=  "               WHEN '7' THEN ADD_MONTHS(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD'), 1) -1 ";
+    sql_str +=  "               ELSE ADD_MONTHS(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD') -1, 1) + (7 - TO_NUMBER(TO_CHAR(ADD_MONTHS(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD') -1, 1), 'D' ))) ";
+    sql_str +=  "           END ";
+    sql_str +=  "           ) AS END_DTE ";
+    sql_str +=  "       FROM DUAL ";
+    sql_str +=  "       ) ";
+    sql_str +=  "   CONNECT BY LEVEL <= END_DTE - START_DTE ";
+    sql_str +=  "   ) STANDARD_MONTH LEFT JOIN (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG = 'Y') COMPARE_DATE ON STANDARD_MONTH.MON_DTE = COMPARE_DATE.REQ_DATE ";
+    sql_str +=  "ORDER BY STANDARD_MONTH.MON_DTE ";
+    sql.append(sql_str);
+
+    calDateList =   jdbcTemplate.query(sql.toString(), new ArtCalList());
+    
+    
+    
+    sql_str = new String();
+    sql_str += "SELECT * FROM ART_PRO_ALWAY WHERE PRO_TYPE = 'NEW' AND AFT_FLAG = 'M' ORDER BY PRO_NO		";
+    artProListM = jdbcTemplate.query(sql_str, new ArtProList());
+    
+    sql_str = new String();
+    sql_str += "SELECT * FROM ART_PRO_ALWAY WHERE PRO_TYPE = 'NEW' AND AFT_FLAG = 'F' ORDER BY PRO_NO		";
+    artProListF = jdbcTemplate.query(sql_str, new ArtProList());
+
 %>
+
+<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/humanity/jquery-ui.css" type="text/css" media="all" />
+
+<%/*************************************** STR Modal part ****************************************/%>
+<div id="slide" style="display:none;">
+  <div class="topbar">
+    <h3>신청일 및 분류선택</h3>
+  </div>
+  <div class="inner">
+    <form name="validate" id="validate" action="./index.gne?menuCd=<%=insertPage %>" onsubmit="return validateForm()" method="post" enctype="multipart/form-data">
+        <table class="bbs_list2 td-l th-c fsize_80">
+          <caption>신청일 및 분류선택 : 학교명, 선택일자, 분류 입력란입니다.</caption>
+            <colgroup>
+                <col style="width:30%">
+                <col />
+            </colgroup>
+            <tr>
+                <th scope="row">학교명</th>
+                <td>
+                    <label for="school_name" class="blind">학교명</label>
+                    <input type="text" id="school_name" value="<%=sessionManager.getName() %>" readonly required>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">선택일자</th>
+                <td><label for="req_date" class="blind">선택일자</label><input type="text" name="req_date" id="req_date" required readonly></td>
+            </tr>
+            <tr>
+            	<th scope="row">프로그램</th>
+            	<td>	
+            		<input type="hidden" id="pro_no" name="pro_no">
+            		<input type="hidden" id="aft_flag" name="aft_flag">
+            		<ul id="artProList">
+            		</ul>
+            	</td>
+            </tr>
+            <!-- <tr>
+                <th scope="row">분류</th>
+                <td>
+                  <label for="aft_flag" class="blind">분류</label>
+                  <input type="hidden" id="aft_flag" name="aft_flag" value="D" readonly required>
+                  <input type="text" id="aft_flag_text" title="분류" name="aft_flag_text" value="전일반(09:00 ~ 16:00)" readonly required>
+                </td>
+            </tr> -->
+        </table>
+        <!-- <div class="btn_area c mg_b5">
+            <input type="submit" class="btn medium edge darkMblue" value="신청하기">
+        </div> -->
+    </form>
+    <a href="javascript:;" class="btn_cancel popup_close slide_close" id="modalClose" title="창닫기"><img src="/img/art/layer_close.png" alt="창닫기"></a>
+  </div>
+</div>
+
+<%/*************************************** END Modal part ****************************************/%>
+
+<div class="box_02">
+<strong class="blue">&#8251; 알림</strong>
+  <ul class="type01 ">
+    <li><span class="fsize_90">2학기부터 상시프로그램의 내용 및 신청 방법이 변경 되었습니다.</span>
+      <ul>
+        <li><strong>(방법) 오전, 오후 선택 → A, B타입 중 선택하여 신청</strong> <span class="red">※ 중복신청 불가</span></li>
+      </ul>
+    </li>
+<li><span class="fsize_90">프로그램 신청 학교 수는 오전반 총 2개교, 오후반 총 2개교로 제한합니다.</span>
+<ul>
+<li>오전반&middot;오후반 최대 신청 인원은 각각 200명이며, 두 번째로 신청 학교의 경우 첫 번째 학교 신청 인원 잔여 신청 인원 내에서만 신청 가능합니다.</li>
+<li>2개교 신청의 경우 프로그램 첫 번째 신청한 학교에 반 편성 우선권이 있습니다.</li>
+</ul>
+</li>
+     <li><span class="fsize_90">홈페이지 정비 관계로 1학기 상시 프로그램 신청은 유선으로만 가능합니다.</span></li>
+  </ul>
+</div>
+
+<div class="box_02">
+	<ul class="badge-guide">
+		<li><i class="badge bg-am">오전</i> 오전반(신청가능)</li>
+		<li><i class="badge bg-pm">오후</i> 오후반(신청가능)</li>
+		<%-- <li><i class="badge bg-day">전일</i> 전일제반(신청가능)</li> --%>
+		<li><i class="badge finish">grey</i> 마감(신청불가)</li>
+	</ul>
+</div>
+
+<div class="cal magT30">
+	<div class="calbtn">
+		<a href="javascript:;" class="prem" onclick="move('pre')" title="이전 달">&lt; <span class="blind">이전달</span></a> <span><%=callYear %>.<%=callMonth %></span> <a href="javascript:;" class="nextm" onclick="move('next')" title="다음 달"><span class="blind">다음달</span> &gt;</a>
+	</div>
+	<%--<div class="booking">
+		<a href="javascript:;" class="btn small edge mako initialism slide_open openLayer" id="pro_request">프로그램 신청하기 &gt;</a>
+	</div>--%>
+	<table class="table_skin01 td-l wps_100">
+		<caption>상시프로그램 신청 현황을 보여주는 달력으로 오전,오후,전일로 구분하여 신청할 수 있습니다.</caption>
+		<colgroup>
+			<col style="width:14.285%">
+			<col style="width:14.285%">
+			<col style="width:14.285%">
+			<col style="width:14.285%">
+			<col style="width:14.285%">
+			<col style="width:14.285%">
+			<col style="width:14.285%">
+		</colgroup>
+		<thead>
+			<tr>
+				<th scope="col" class="sun">일</th>
+				<th scope="col">월</th>
+				<th scope="col">화</th>
+				<th scope="col">수</th>
+				<th scope="col">목</th>
+				<th scope="col">금</th>
+				<th scope="col" class="sat">토</th>
+			</tr>
+		</thead>
+		<tbody>
+<%/***************달력 STR*******************/%>
+            <%
+                for(ArtCalData data : calDateList){
+
+                    String compareDay   =   "";
+                    long diff           =   0;
+                    int diffDate        =   0;
+
+                    if (!tmpDate.equals(data.callDate)) {
+                        //날짜 비교
+                        compareDay  =   adfToday.format(sdf3.parse(data.callDate));
+                        //4월 2일 보다 이후 인지 확인 (나중 삭제)
+                        if (Integer.parseInt(compareDay) < 20180402) {
+                            diff        =   0;
+                        } else {
+                            diff        =   adfToday.parse(compareDay).getTime() - adfToday.parse(toDay).getTime();
+                            diff        =   diff / (24 * 60 * 60 * 1000);
+                            diffDate    =   (int) diff;
+                            tmpDate     =   data.callDate;
+
+                        }
+
+                        if (data.hlyDateFlag.equals("SU")) {
+                            outHtml =   "<td class=\"sun\">";
+                            outHtml +=  "<span class=\"date\">" + sdf4.format(sdf3.parse(data.callDate)) + "</span>";
+                        } else if (data.hlyDateFlag.equals("SA")) {
+                            outHtml =   "<td class=\"sat\">";
+                            outHtml +=  "<span class=\"date\">" + sdf4.format(sdf3.parse(data.callDate)) + "</span>";
+                        } else if (data.hlyDateFlag.equals("H")) {
+                            outHtml =   "<td class=\"holiday\">";
+                            outHtml +=  "<span class=\"date\">" + sdf4.format(sdf3.parse(data.callDate)) /*+ data.hlyDateName*/ + "</span>";
+                        } else {
+                            outHtml =   "<td class=\"\">";
+                            outHtml +=  "<span class=\"date\">" + sdf4.format(sdf3.parse(data.callDate)) + "</span>";
+
+                            outHtml +=  "<span class=\"badge-group\">";
+
+                            //오늘 과 이전 날짜 확인
+                            if (
+                            	//(diffDate <= todayAft || diffDate > 130) || 
+								(Integer.parseInt(compareDay) < 20180903)
+                                || (Integer.parseInt(compareDay) == 20180430) || (Integer.parseInt(compareDay) == 20180517)
+                                || (Integer.parseInt(compareDay) == 20180518) || (Integer.parseInt(compareDay) == 20180521)
+                                || (Integer.parseInt(compareDay) == 20180626) || (Integer.parseInt(compareDay) == 20180627)
+                                || (Integer.parseInt(compareDay) == 20180711) || (Integer.parseInt(compareDay) == 20180723) 
+                                || (Integer.parseInt(compareDay) == 20180724) || (Integer.parseInt(compareDay) == 20180725) 
+                                || (Integer.parseInt(compareDay) == 20180726) || (Integer.parseInt(compareDay) == 20180727)
+                                || (Integer.parseInt(compareDay) == 20180927) || (Integer.parseInt(compareDay) == 20180928)
+                                || (Integer.parseInt(compareDay) == 20181008) || (Integer.parseInt(compareDay) >= 20181221)
+                                
+                                //2018.06.28. 요청
+                                || (Integer.parseInt(compareDay) == 20180920) || (Integer.parseInt(compareDay) == 20180921)
+                                || (Integer.parseInt(compareDay) == 20181016) || (Integer.parseInt(compareDay) == 20181031)
+                                || (Integer.parseInt(compareDay) == 20181101) || (Integer.parseInt(compareDay) == 20181203)
+                                || (Integer.parseInt(compareDay) == 20181204)
+                                
+                                //2018.07.04. 요청
+                                || (Integer.parseInt(compareDay) == 20180918)
+                                
+                            	) {
+                                outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-am finish\">오전</span>";
+                                outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
+                                //outHtml +=  "<span title=\"전일반 신청 불가\" class=\"badge bg-day finish\">전일</span>";
+                                outHtml +=  "</span>";
+                            } else {
+                                //차단 조건 1(쿼리에서 제어) => 한날짜 아이디 2개 or 자신의 아이디로 승인 받은 신청 존재 or 정원이 없을 경우
+                                if ("Y".equals(data.able_sch_flag)) {
+                                    //차단 조건 2(쿼리에서 제어) 오전반 정원 확인(승인된 전일 + 오전이 정원을 넘었을 경우)
+                                    /*20180508_tue 20180717 오후와 전일 막기*/
+                                    if (((Integer.parseInt(compareDay) == 20180717) || (Integer.parseInt(compareDay) == 20180611)
+                                        || (Integer.parseInt(compareDay) == 20180612) || (Integer.parseInt(compareDay) == 20180613)
+                                        || (Integer.parseInt(compareDay) == 20180614) || (Integer.parseInt(compareDay) == 20180615)
+                                        || (Integer.parseInt(compareDay) == 20180608) || (Integer.parseInt(compareDay) == 20180621)
+                                        
+                                        //2018.06.28. 요청
+                                        || (Integer.parseInt(compareDay) == 20181018) || (Integer.parseInt(compareDay) == 20181026)
+                                        || (Integer.parseInt(compareDay) == 20181106)
+                                        
+                                        //2018.07.04. 요청
+                                		|| (Integer.parseInt(compareDay) == 20180905) || (Integer.parseInt(compareDay) == 20180906)
+                                		|| (Integer.parseInt(compareDay) == 20180911)
+                                    		) 
+                                        && ("Y".equals(data.mor_sch_flag) && "Y".equals(data.aft_sch_flag))) {
+                                        outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
+                                        outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
+                                        //outHtml +=  "<span title=\"전일반 신청 불가\" class=\"badge bg-day finish\">전일</span>";
+                                    /*END 20180508_tue 20180717 오후와 전일 막기*/
+                                    }
+                                    /*20180628  오전과 전일 막기*/
+                                    else if (((Integer.parseInt(compareDay) == 20180904) || (Integer.parseInt(compareDay) == 20181024)
+                                            	|| (Integer.parseInt(compareDay) == 20181025) || (Integer.parseInt(compareDay) == 20181105)
+                                            	|| (Integer.parseInt(compareDay) == 20181129) || (Integer.parseInt(compareDay) == 20181205)
+                                            	|| (Integer.parseInt(compareDay) == 20181212) || (Integer.parseInt(compareDay) == 20181214)
+                                            	|| (Integer.parseInt(compareDay) == 20181217)
+                                            	
+                                            	//2018.07.04. 요청
+                                				|| (Integer.parseInt(compareDay) == 20180907) || (Integer.parseInt(compareDay) == 20180912)
+                                            		) 
+                                                && ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_sch_flag))) {
+                                                outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-pm finish\">오전</span>";
+                                                outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
+                                    }/*END 20180628 오전과 전일 막기*/
+                                    else if (("Y".equals(data.mor_sch_flag) && "Y".equals(data.mor_cnt_flag)) && ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_cnt_flag))
+                                    		) {
+                                        outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
+                                        outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
+                                        //outHtml +=  "<a href=\"javascript:;\" title=\"전일제반 신청\" class=\"badge bg-day initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">전일</a>";
+                                    } else if ("Y".equals(data.mor_sch_flag) && "Y".equals(data.mor_cnt_flag)) {
+                                        outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
+                                        outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
+                                        //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
+                                    } else if ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_cnt_flag)) {
+                                        outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
+                                        outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
+                                        //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
+                                    } else {
+                                        outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
+                                        outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
+                                        //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
+                                    }
+                                    outHtml +=  "</span>";
+
+                                } else {
+                                    outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
+                                    outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
+                                    //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
+                                    outHtml +=  "</span>";
+                                }
+                            }/* END ELSE */
+                            //대기자 count
+                            if (/*"Y".equals(data.able_sch_flag) && */(diffDate > 1)) {
+                                if (data.hold_cnt > 0) {outHtml +=  "<p class=\"state waiting\">승인대기자 : "+ data.hold_cnt +"</p>";}
+                            }
+
+                            //임시 테스트
+                            for(ArtCalData pro : calDateList){
+                                if (pro.callDate.equals(data.callDate)) {
+                                    //승인완료 학교명 노출 && 자기 아이디는 제외
+                                    if (pro.req_sch_id != null && pro.req_sch_id.length() > 0 && (sessionManager.getId() != null && !pro.req_sch_id.equals(sessionManager.getId()))) {
+                                        outHtml +=  "<p class=\"state\">" + pro.req_sch_nm + "("+ pro.req_cnt +")</p>";
+                                    } else if ("Y".equals(pro.my_request) && (diffDate > 1)) {
+                                        outHtml +=  "<p class=\"state red\"><a href=\"/index.gne?menuCd="+confirmPage+"&req_no="+pro.my_req_no+"&req_date="+pro.callDate.substring(0, 10)+"&pro_no="+pro.pro_no+"\">승인완료</a></p>";
+                                    } else if ("H".equals(pro.my_request) && (diffDate > 1)) {
+                                        outHtml +=  "<p class=\"state\"><a href=\"/index.gne?menuCd="+confirmPage+"&req_no="+pro.my_req_no+"&req_date="+pro.callDate.substring(0, 10)+"&pro_no="+pro.pro_no+"\">승인대기 중</a></p>";
+                                    }
+                                }/*END IF*/
+                            }/*END FOR*/
+                        }
+                        outHtml +=  "</td>";
+                        //sunday
+                        if (data.callDateWeek.equals("일")) {
+                            out.println("<tr>");
+                            out.println(outHtml);
+                        //saturday
+                        } else if (data.callDateWeek.equals("토")) {
+                            out.println(outHtml);
+                            out.println("</tr>");
+                        } else {
+                            out.println(outHtml);
+                        }
+                    }
+                }
+            %>
+
+            </tbody>
+        </table>
+    </div>
+
+ <div class="btn_area c magT25 magB50">
+       <a class="btn white medium" href="/board/download.gne?boardId=DUMY001&startPage=1&dataSid=975819&command=update&fileSid=1439657" title="오리엔테이션 및 반편성표 다운로드">
+       <i class="ico-hwp"></i> 오리엔테이션  및 반편성표 다운로드</a>
+    </div>
+
 <script>
-function printPage(){
-	$("#printArea").printThis();
-}
-function postForm(reserve_type){
-	$("#postForm").submit();
-}
-function reserveChange(){
-	if($("#changeVal").val() == $("#reserve_approval").val()){
-		return false;
-	}else{
-		var check = true;
-		
-		if($("#changeVal").val() == "D" || $("#changeVal").val() == "F"){
-			if($("#reserve_approval").val() == "B" || $("#reserve_approval").val() =="C"){
-				if($.trim($("#refund_price").val()) == ""){
-					alert("환불금액을 입력하여 주시기 바랍니다.");
-					check = false;
-					return false;
-				}else{
-					check = true;
-				}
-				
-				if(parseInt($("#total_price").val()) < parseInt($("#refund_price").val())){
-					alert("환불금액이 사용금액보다 많습니다.");
-					check = false;
-					return false;
-				}
-			}
-			
-			if($.trim($("#reserve_cancel").val()) == ""){
-				alert("예약승인 불가(취소) 사유를 입력하여 주시기 바랍니다.");
-				check = false;
-				return false;
-			}else{
-				check = true;
-			}
-			
-		}else if($("#changeVal").val() == "B" ){
-			if($.trim($("#add_price").val()) == ""){
-				check = true;
-			}else{
-				if($.trim($("#add_comment").val()) == ""){
-					alert("추가금액 사유를 입력하여 주시기 바랍니다.");
-					check = false;
-				}else{
-					check = true;
-				}
-			}
-		}
-		
-		if(check){
-			if(confirm("진행상태를 변경하시겠습니까?")){
-				var reserve_approval = $("#changeVal").val();
-				$("#reserve_change").val("Y");
-				$("#reserve_approval").val(reserve_approval);
-				$("#postForm").attr("action","/program/school_reserve/reserve_change.jsp");
-				$("#postForm").submit();
-			}
-		}
+	function proNoSelect(pro_no, aft_flag){
+		$("#pro_no").val(pro_no);
+		$("#aft_flag").val(aft_flag);
+		$("#validate").submit();
 	}
-}
-
-function refundAction(){
-	if($.trim($("#refund_price").val()) == ""){
-		alert("환불금액을 입력하여 주시기 바랍니다.");	
-		return false;
-	}else{
-		if(parseInt($("#total_price").val()) < parseInt($("#refund_price").val())){
-			alert("환불금액이 사용금액보다 많습니다.");
-			check = false;
-		}else{
-			if(confirm("환불완료로 상태를 변경하시겠습니까?")){
-				$("#postForm").attr("action", "/program/school_reserve/refundAction.jsp").submit();
-			}else{
-				return false;
-			}
-		}
-	}
-}
 
 
-$(function(){
-	f_changeVal($("#changeVal").val());
-	$("#add_price").keyup(function(){$(this).val($(this).val().replace(/[^0-9]/g,"") );} );
-	$("#add_price").keydown(function(){$(this).val($(this).val().replace(/[^0-9]/g,"") );} );
-	$("#refund_price").keyup(function(){$(this).val($(this).val().replace(/[^0-9]/g,"") );} );
-	$("#refund_price").keydown(function(){$(this).val($(this).val().replace(/[^0-9]/g,"") );} );
-	
-	<%
-	if(/* "F".equals(reserve_approval) &&  */!"".equals(refund_account)/*  && "N".equals(reserve_refund) */){
-	%>
-		$("#refundPrice").css("display","");
-	<%
-	}else{
-	%>
-		$("#refundPrice").css("display","none");
-	<%
-	}
-	%>
-	
-});
+    var apply_submit=false;
+    function validateForm(){
+        var req_date=$("#req_date").val();
+        var school_name=$("#school_name").val();
+        if(req_date==null||req_date==""||req_date.trim().length<1||school_name==null||school_name==""||school_name.trim().length<1){
+            alert("신청가능한 선택일자와 학교이름을 입력하세요.");
+            $("#req_date").focus();
+            return false;
+        }else{
+            if(apply_submit){
+                return true;
+            }else{
+                alert("신청가능한 선택일자와 학교이름을 입력하세요");
+                $("#req_date").focus();
+                return false;
+            }
+        }
+    }
 
+    $("#req_date").change(function(){apply_submit=false;var set_req_date=$(this).val();
+        var set_aft_flag=$("#aft_flag").val();
+        if($.inArray(set_req_date,banDate)==-1){
+            req_date_chk(set_req_date,set_aft_flag);
+        }else{
+            alert("신청가능한 날짜를 선택하세요.");
+            $(this).val("");return;
+        }
+    });
 
+    function req_date_chk(req_date,aft_flag){if(!req_date||!aft_flag){alert("날짜가 없거나 올바르지 않은 값입니다.");return}
+        $.ajax({
+            type:"POST",
+            url:"/program/art/client/programAlwaysAjaxAction.jsp?",
+            data:{"req_date":req_date,"aft_flag":aft_flag},dataType:"text",
+            async:false,
+            success:function(data){
+            if(data.trim()=="1"){
+                apply_submit=true;return}else{$(this).val("");
+            if(data="s_f"){
+                alert("학교계정으로 로그인 해야 합니다.")
+            }else if(data="f"){
+                alert("신청가능한 날짜가 아닙니다.");
+            }return}
+            },error:function(request,status,error){
+                alert("code:"+request.status+"\n"+"message:"+request.responseText.trim()+"\n"+"error:"+error)
+            }
+        });
+    }
 
-function f_changeVal(value){
-	if($("#changeVal").val() == $("#reserve_approval").val()){
-		$("#changeBtn").css("background", "#666666");
-	}else{
-		$("#changeBtn").css("background", "#35518b");
-	}
-	
-	if(value == "D"){
-		$("#changeValInsert").css("display","");
-		$("#add_price_div").css("display","none");
-		$("#add_comment_div").css("display","none");
-		if($("#reserve_approval").val() == "B" || $("#reserve_approval").val() =="C"){
-			$("#refundPrice").css("display","");
-		}
-	}else if(value == "B"){
-		$("#add_price_div").css("display","");
-		$("#add_comment_div").css("display","");
-		$("#changeValInsert").css("display","none");
-		$("#refundPrice").css("display","none");
-	}else if(value == "F"){
-		$("#changeValInsert").css("display","");
-		$("#add_price_div").css("display","none");
-		$("#add_comment_div").css("display", "none");
-		if($("#reserve_approval").val() == "B" || $("#reserve_approval").val() =="C"){
-			$("#refundPrice").css("display","");
-		}
-	}
-	else{
-		$("#changeValInsert").css("display","none");
-		$("#add_price_div").css("display","none");
-		$("#add_comment_div").css("display","none");
-		$("#refundPrice").css("display","none");
-	}
-}
+        $.datepicker.regional['ko']={closeText:'닫기',prevText:'',nextText:'',currentText:'오늘',monthNames:['1월(JAN)','2월(FEB)','3월(MAR)','4월(APR)','5월(MAY)','6월(JUN)','7월(JUL)','8월(AUG)','9월(SEP)','10월(OCT)','11월(NOV)','12월(DEC)'],monthNamesShort:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],dayNames:['일','월','화','수','목','금','토'],dayNamesShort:['일','월','화','수','목','금','토'],dayNamesMin:['일','월','화','수','목','금','토'],beforeShowDay:disableAllTheseDays};$.datepicker.setDefaults($.datepicker.regional['ko']);/*$("#req_date").datepicker({minDate:1,maxDate:90,dateFormat:'yy-mm-dd',changeMonth:false,changeYear:false,showOtherMonths:false,selectOtherMonths:true,showButtonPanel:false}).click(function(){$(".ui-datepicker-calendar").prepend("<caption>프로그램 신청 및 달력</caption>")});*/
 
-function dateDelApproval(){
-	if(confirm("날짜변경을 승인하시겠습니까?")){
-		$("#postForm").attr("action", "/program/school_reserve/dateDelAdmin.jsp");
-		$("#postForm").submit();
-	}else{
-		return false;
-	}
-}
+        var banDate=new Array;
 
-function phoneChange(){
-	var user_phone = $("#user_phone").val().replace(/-/gi,"");
-	$("#user_phone").val(user_phone);
-	$("#postForm").attr("action","/program/school_reserve/userPhoneChange.jsp").submit();
-}
+        <%for(ArtCalData data:calDateList){if("SU".equals(data.hlyDateFlag)||"SA".equals(data.hlyDateFlag)||"H".equals(data.hlyDateFlag)||"N".equals(data.able_sch_flag)){%>
+        banDate.push("<%=data.callDate.substring(0, 10) %>");<%}}%>
+
+        function disableAllTheseDays(date){
+            var m=date.getMonth(),d=date.getDate(),y=date.getFullYear();
+            for(i=0;i<banDate.length;i++){
+                if($.inArray(y+'-'+(m+1)+'-'+d,banDate)!=-1){return[false]}
+            }return[true]}
+
+        $(function(){
+            $(".bg-am").click(function(){
+                $("#req_date").val($(this).data("value"));
+                modal_open("M");
+            });
+            $(".bg-pm").click(function(){
+                $("#req_date").val($(this).data("value"));
+                modal_open("F");
+            });
+            $(".bg-day").click(function(){
+                $("#req_date").val($(this).data("value"));
+                modal_open("D")
+            });
+            $("#pro_request").click(function(){modal_open("D")});
+        });
+
+        function modal_open(aft_flag){
+        	var reg_date = $("#req_date").val();
+            var reg_name="<%=parseNull(sessionManager.getName(), "") %>";
+            
+            if(parseInt(reg_date.replace(/-/g,"")) < parseInt(20180903)){
+            	alert("2018년 9월 3일 이후에 신청 가능합니다.");
+            	return;
+            }else{
+            	if(reg_name==""&&reg_name.length<1){
+                    alert("로그인한 회원만 신청가능 합니다.");
+                    return;
+                }
+                
+                apply_submit=true;
+                if (aft_flag == "M") {
+                	$("#artProListM").css("display", "block");
+                	$("#artProListF").css("display", "none");
+                }
+                else if (aft_flag == "F") {
+                	$("#artProListM").css("display", "none");
+                	$("#artProListF").css("display", "block");
+                }
+                
+                $.ajax({
+        			type : "POST",
+        			url : "/program/art/client/programAlwaysProAjax.jsp",
+        			contentType : "application/x-www-form-urlencoded; charset=utf-8",
+        			data : {
+        				aft_flag 	: aft_flag
+        				, req_date	: reg_date
+        			},
+        			datatype : "html",
+        			success : function(data) {
+        				$("#artProList").html(data.trim());
+        			},
+        			error:function(request,status,error){
+        				alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        			}
+        		});
+                
+
+                //$("#aft_flag").val(aft_flag).prop("selected",true);
+                $('#slide').popup({focusdelay:400,outline:true,vertical:'middle',});
+            }
+            
+            
+        }
+            function move(arrow){var presentYear="<%=callYear %>";var presentMonth="<%=callMonth %>";presentYear*=1;presentMonth*=1;if(arrow=="pre"){if((presentMonth-1)<1){presentYear-=1;presentMonth=12}else{presentMonth=addZero(presentMonth-1)}}else if(arrow=="next"){if((presentMonth+1)>12){presentYear+=1;presentMonth="01"}else{presentMonth=addZero(presentMonth+1)}}location.href="/index.gne?menuCd=<%=listPage%>&callYear="+presentYear+"&callMonth="+presentMonth;function addZero(value){if(value<10){return"0"+value}else{return value}}}
 </script>
-<%if(id_check){%>
-<form action="" method="post" id="postForm">
-<input type="hidden" name="reserve_change" id="reserve_change" value="N">
-<input type="hidden" name="reserve_approval" id="reserve_approval" value="<%=reserve_approval%>">
-<input type="hidden" name="user_id" id="user_id" value="<%=user_id%>">
-<input type="hidden" name="totaL_price" id="total_price" value="<%=total_price%>">
 <%
-if("A".equals(reserve_approval)){
-	reserve_approval = "승인대기";
-}else if("B".equals(reserve_approval)){
-	reserve_approval = "입금요청";
-}else if("C".equals(reserve_approval)){
-	reserve_approval = "예약완료";
-}else if("D".equals(reserve_approval)){
-	reserve_approval = "승인불가";
-}else if("E".equals(reserve_approval)){
-	reserve_approval = "예약취소(미입금)";
-}else if("F".equals(reserve_approval)){
-	if(!"".equals(refund_account)){
-		if("N".equals(reserve_refund)){
-			reserve_approval = "예약취소(환불요청)";		//입금완료 후 예약취소했을 경우
-		}else{
-			reserve_approval = "예약취소(환불완료)";		//관리자가 환불완료했을 경우
-		}
-	}else{
-		reserve_approval = "예약취소";
-	}
+}catch(Exception aaa){
+	out.println(aaa.toString());
 }
 %>
-<div id="printArea">
-
-<section>
-	<h3>시설예약정보</h3>
-	<table class="table_skin01">
-		<caption> 학교 시설물 예약 상세 정보입니다. </caption>
-		<colgroup>
-			<col class="wps_20" />
-			<col />
-			<col class="wps_20" />
-			<col class="wps_30"/>
-		</colgroup>
-		<tbody>
-			<tr>
-				<th scope="row">학교명</th>
-				<td><%=school_name %></td>
-				<th scope="row">시설명</th>
-				<td><strong><%=reserve_type %>(<%=count%>)실 /
-				<%
-				if(!"".equals(user_option) ){
-				%>
-				<%=user_option %> 사용
-				<%
-				}
-				%></strong>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row">사용일자</th>
-				<td><strong>
-				<span><%=date_value %></span>
-					<%
-					if(dayList != null && dayList.size()>0){
-						for(int i=0; i<dayList.size(); i++){
-							Map<String, Object> map = dayList.get(i);
-							reserve_date = map.get("RESERVE_DATE").toString();
-							
-							if(dateDelList != null && dateDelList.size() > 0){
-								for(Map<String,Object> ob : dateDelList){
-									if(ob.get("RESERVE_DATE").toString().equals(reserve_date)){
-										delDateCheck = true;
-									}
-								}
-							}
-							if(i==0){
-						%>
-							<span <%if(delDateCheck){delDateCheck=false;%> style="color: red;" <%}%>><%=reserve_date %> </span>
-						<%
-							}else{
-						%>
-							, <span <%if(delDateCheck){delDateCheck=false;%> style="color: red;" <%}%>><%=reserve_date %></span>
-						<%
-							}
-						}
-					}
-					%></strong>
-				</td>
-				<th scope="row">예약시간</th>
-				<td><strong><%=time_min %> ~ <%=time_max %>	</strong></td>
-			</tr>
-			<tr>
-				<th scope="row">신청일자</th>
-				<td><%=reserve_register %></td>
-				<th scope="row">진행상태</th>
-				<td class="l">
-					<label for="changeVal" class="blind">진행상태</label>
-					<%
-					if("예약취소(환불요청)".equals(reserve_approval)){
-					%>
-					<select id="changeVal" onchange="f_changeVal(this.value)" class="wps_80">
-						<option value="G">예약취소(환불요청)</option>
-					</select>
-					<button type="button" onclick="refundAction()" class="btn small edge darkMblue" id="changeBtn">환불완료</button>
-					<%
-					}else if("예약취소(환불완료)".equals(reserve_approval)){
-					%>
-					<select id="changeVal" onchange="f_changeVal(this.value)" class="wps_80">
-						<option value="H">예약취소(환불완료)</option>
-					</select>
-					<%	
-					}else{
-					%>
-					<select id="changeVal" onchange="f_changeVal(this.value)" class="wps_60">
-					<%if("승인대기".equals(reserve_approval)){ %>
-						<option value="A" <%if("예약접수".equals(reserve_approval)){%> selected="selected" <%}%>>예약접수</option>
-					<%} %>
-					<%if("승인대기".equals(reserve_approval) || "입금요청".equals(reserve_approval)){ %>
-						<option value="B" <%if("입금요청".equals(reserve_approval)){%> selected="selected" <%}%>>입금요청</option>
-					<%} %>
-					<%if("승인대기".equals(reserve_approval) || "입금요청".equals(reserve_approval) || "예약완료".equals(reserve_approval)){ %>
-						<option value="C" <%if("예약완료".equals(reserve_approval)){%> selected="selected" <%}%>>예약완료</option>
-					<%} %>
-					<%if("승인대기".equals(reserve_approval) || "입금요청".equals(reserve_approval) || "예약완료".equals(reserve_approval) || "승인불가".equals(reserve_approval)){ %>
-						<option value="D" <%if("승인불가".equals(reserve_approval)){%> selected="selected" <%}%>>승인불가</option>
-					<%} %>
-					<%if("승인대기".equals(reserve_approval) || "입금요청".equals(reserve_approval) || "예약완료".equals(reserve_approval) || "승인불가".equals(reserve_approval)){ %>
-						<option value="E" <%if("예약취소(미입금)".equals(reserve_approval)){%> selected="selected" <%}%>>예약취소(미입금)</option>
-					<%} %>
-						
-						<option value="F" <%if("예약취소".equals(reserve_approval)){%> selected="selected" <%}%>>예약취소</option>
-					</select>
-					<button type="button" onclick="reserveChange()" class="btn small edge darkMblue" id="changeBtn">변경</button>
-					<%} %>
-				</td>
-			</tr>
-			<tr id="refundPrice" style="display: none;">
-				<th scope="row" class="red">환불금액 입력</th>
-				<td colspan="3" class="l">
-					<input type="text" id="refund_price" name="refund_price">
-				</td>
-			</tr>
-			<tr id="changeValInsert" style="display: none;">
-				<th scope="row" class="red">예약불가(취소) 사유입력</th>
-				<td colspan="3" class="l">
-					<!-- input type="text" id="reserve_cancel" name="reserve_cancel" value="<%=reserve_cancel %>" -->
-					<label for="reserve_cancel" class="hidden">예약불가(취소) 사유입력</label>
-					<textarea id="reserve_cancel" name="reserve_cancel" rows="3" class="wps_80"><%=reserve_cancel %></textarea>
-					<!-- <button type="submit" class="btn medium edge mako">저장</button> -->
-				</td>
-			</tr>
-			<tr id="add_price_div" style="display: none;">
-				<th scope="row" class="red">추가금액 입력</th>
-				<td colspan="3" class="l">
-					<input type="text" id="add_price" name="add_price">
-				</td>
-			</tr>
-			<tr id="add_comment_div" style="display: none;">
-				<th scope="row" class="red">추가금액 사유</th>
-				<td colspan="3" class="l">
-					<label for="add_comment" class="hidden">추가금액 사유</label>
-					<textarea id="add_comment" name="add_comment" rows="3" class="wps_80"><%=add_comment %></textarea>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row">사용유형</th>
-				<td colspan="3" class="l"><%=use_type %></td>
-			</tr>
-			<tr>
-				<th scope="row">사용금액</th>
-				<td><strong class="red"><%=moneySet(total_price)%>원</strong></td>
-				<th scope="row">입금계좌</th>
-				<td><%=account%></td>
-			</tr>
-		</tbody>
-	</table>
-</section>
-<section>
-	<h3>예약자 정보</h3>
-	<table class="table_skin01">
-		<caption>예약자 상세 정보입니다. </caption>
-		<colgroup>
-			<col class="wps_20" />
-			<col />
-			<col class="wps_20" />
-			<col class="wps_30"/>
-		</colgroup>
-		<tbody>
-			<tr>
-				<th scope="row">예약번호</th>
-				<td><%=reserve_code %></td>
-				<th scope="row">예약자명</th>
-				<td><%=user_name %></td>
-			</tr>
-			<tr>
-				<th scope="row">단체명/인원</th>
-				<td><%=organ_name %> / <%=reserve_man %></td>
-				<th scope="row">연락처</th>
-				<td>
-					<input type="text" name="user_phone" id="user_phone" value="<%=telSet(user_phone) %>" class="wps_60">
-					<button type="button" onclick="phoneChange()" class="btn small edge darkMblue">변경</button>
-					<%-- <strong><%=telSet(user_phone) %></strong>  --%>
-				</td>
-			</tr>
-			<tr>
-				<th scope="row">사용목적</th>
-				<td colspan="3"><%=use_purpose %></td>
-			</tr>
-			<%if(!"".equals(refund_account)){%>
-			<tr>
-				<th scope="row">환불계좌</th>
-				<td colspan="3"><%=refund_account %></td>
-			</tr>
-			<tr>
-				<th scope="row">예약취소일</th>
-				<td colspan="3"><%=cancel_date %></td>
-			</tr>
-			<%} %>
-			<%if(dateDelList!=null && dateDelList.size()>0){
-				int dateDelCnt = 0;
-			%>
-			<tr>
-				<th scope="row">날짜변경요청</th>
-				<td colspan="3">
-				<%for(Map<String,Object> ob : dateDelList){ %>			
-					<label><input type="checkbox" name="reserve_date_del" id="reserve_date_del" value="<%=ob.get("RESERVE_DATE").toString() %>"></label>	
-					<%=ob.get("RESERVE_DATE").toString() %>
-				<%} %>
-				<button type="button" onclick="dateDelApproval()" class="btn small edge darkMblue">날짜변경승인</button>
-				</td>
-			</tr>
-			<%
-			}
-			%>
-			
-		</tbody>
-	</table>
-</section>
-</div>
-<div class="btn_area c">
-	<button type="button" onclick="location.href='/index.gne?menuCd=<%=listPage %>'" class="btn medium edge mako">목록보기</button>
-	<button type="button" onclick="printPage();" class="btn medium edge mako">출력</button>
-</div>
-</form>
-
-<%}else{ %>
-<div class="topbox2 c">
-	학교정보가 등록되지 않았거나 승인되지 않았습니다.
-</div>
-<%} %>

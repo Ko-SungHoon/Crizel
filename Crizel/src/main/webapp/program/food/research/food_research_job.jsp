@@ -101,12 +101,15 @@ String yearStr 	= Integer.toString(cal.get(Calendar.YEAR));
 String monthStr = month<10 	? "0" + Integer.toString(cal.get(Calendar.MONTH)+1) : Integer.toString(cal.get(Calendar.MONTH)+1);
 String dateStr	= date<10 	? "0" + Integer.toString(cal.get(Calendar.DATE)) 	: Integer.toString(cal.get(Calendar.DATE));
 
-String search1 = parseNull(request.getParameter("search1"));	// 미조사식품
-String search2 = parseNull(request.getParameter("search2"));	// 이상조사
-String search3 = parseNull(request.getParameter("search3"));	// 권역
-String search4 = parseNull(request.getParameter("search4"));	// 팀
-String search5 = parseNull(request.getParameter("search5"));	// 구분
-String search6 = parseNull(request.getParameter("search6"));	// 년도 
+String search1 	= parseNull(request.getParameter("search1"));	// 미조사식품
+String search2 	= parseNull(request.getParameter("search2"));	// 이상조사
+String search3 	= parseNull(request.getParameter("search3"));	// 권역
+String search4 	= parseNull(request.getParameter("search4"));	// 팀
+String search5 	= parseNull(request.getParameter("search5"));	// 구분
+String search6 	= parseNull(request.getParameter("search6"));	// 년도 
+String sr_1		= parseNull(request.getParameter("sr_1"));		// 조사자 제출 식품
+String rt_1		= parseNull(request.getParameter("rt_1"));		// 팀장 반려 식품
+String rr_1		= parseNull(request.getParameter("rr_1"));		// 관리자 반려 식품
 
 String search7 		= parseNull(request.getParameter("search7"));	// 미조사식품
 String search8 		= parseNull(request.getParameter("search8"));	// 이상조사
@@ -114,6 +117,9 @@ String search9 		= parseNull(request.getParameter("search9"));	// 권역
 String search10 	= parseNull(request.getParameter("search10"));	// 팀
 String search11		= parseNull(request.getParameter("search11"));	// 구분
 String his_rsch_no	= parseNull(request.getParameter("his_rsch_no"));	// 이전 조사 정보 리스트를 불러오기 위한 변수
+String sr_2			= parseNull(request.getParameter("sr_2"));		// 조사자 제출 식품
+String rt_2			= parseNull(request.getParameter("rt_2"));		// 팀장 반려 식품
+String rr_2			= parseNull(request.getParameter("rr_2"));		// 관리자 반려 식품
 
 StringBuffer sql = null;
 FoodVO rschVO 					= new FoodVO();
@@ -210,15 +216,28 @@ try{
 	if(!"".equals(search1)){
 		sql.append("AND B.STS_FLAG = 'N'																				");
 		paging.setParams("search1", search1);
-	}else{
-		sql.append("AND B.STS_FLAG != 'N'																				");
 	}
+	
 	if(!"".equals(search2)){
 		sql.append("AND (B.NON_SEASON = 'Y' OR B.NON_DISTRI = 'Y')														");
 		paging.setParams("search2", search2);
-	}else{
-		sql.append("AND B.NON_SEASON = 'N' AND B.NON_DISTRI = 'N'														");
 	}
+	
+	if(!"".equals(sr_1)){
+		sql.append("AND B.STS_FLAG = 'SR'		");
+		paging.setParams("sr_1", sr_1);
+	}
+	
+	if(!"".equals(rt_1)){
+		sql.append("AND B.STS_FLAG = 'RT'		");
+		paging.setParams("rt_1", rt_1);
+	}
+	
+	if(!"".equals(rr_1)){
+		sql.append("AND B.STS_FLAG = 'RR'		");
+		paging.setParams("rr_1", rr_1);
+	}
+
 	if(!"".equals(search3)){
 		sql.append("AND (SELECT ZONE_NO FROM FOOD_SCH_TB WHERE SCH_NO = B.SCH_NO) = ?									");
 		paging.setParams("search3", search3);
@@ -242,11 +261,12 @@ try{
     
 	totalCount = jdbcTemplate.queryForObject(sql.toString(), Integer.class, setObj);
 
-	paging.setPageSize(30);
+	paging.setPageSize(50);
     paging.setPageNo(Integer.parseInt(pageNo));
 	paging.setTotalCount(totalCount);
 	paging.makePaging();
 	
+	// 현재 진행 중인 조사 목록
 	sql = new StringBuffer();
 	sql.append("SELECT * FROM(																                   								 	");
 	sql.append("	SELECT ROWNUM AS RNUM, A.* FROM (										                    								");
@@ -288,21 +308,36 @@ try{
 	sql.append("  , B.STS_FLAG																													");
 	sql.append("  , B.SP_CHK																													");
 	sql.append("  , B.RJ_DATE																													");
-	sql.append("  , (SELECT ITEM_COMP_NO FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_NO	");
-	sql.append("  , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL	");
+	sql.append("  , (SELECT ITEM_COMP_NO FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_NO											");
+	sql.append("  , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL										");
+	sql.append("  , CASE																														");
+	sql.append("      WHEN (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO)								");
+	sql.append("       <= (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO AND STS_FLAG NOT IN('N', 'RT', 'RR')) THEN 'Y'	");
+	sql.append("      ELSE 'N'																													");
+	sql.append("    END RCH_BACK 																												");
 	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
 	sql.append("                    LEFT JOIN FOOD_ST_ITEM C ON B.ITEM_NO = C.ITEM_NO															");
 	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.RSCH_NO = ?																						");
 	if(!"".equals(search1)){
 		sql.append("AND B.STS_FLAG = 'N'																										");
-	}else{
-		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
+
 	if(!"".equals(search2)){
 		sql.append("AND (B.NON_SEASON = 'Y' OR B.NON_DISTRI = 'Y')																				");
-	}else{
-		sql.append("AND B.NON_SEASON = 'N' AND B.NON_DISTRI = 'N'																				");
 	}
+	
+	if(!"".equals(sr_1)){
+		sql.append("AND B.STS_FLAG = 'SR'		");
+	}
+	
+	if(!"".equals(rt_1)){
+		sql.append("AND B.STS_FLAG = 'RT'		");
+	}
+	
+	if(!"".equals(rr_1)){
+		sql.append("AND B.STS_FLAG = 'RR'		");
+	}
+
 	if(!"".equals(search3)){
 		sql.append("AND (SELECT ZONE_NO FROM FOOD_SCH_TB WHERE SCH_NO = B.SCH_NO) = ?															");
 	}
@@ -312,7 +347,7 @@ try{
 	if(!"".equals(search5)){
 		sql.append("AND B.CAT_NO = ?																											");
 	}
-	sql.append("ORDER BY DECODE(B.STS_FLAG, 'SS', 1), B.RSCH_VAL_NO																				");
+	sql.append("ORDER BY DECODE(B.STS_FLAG, 'SS', 1, 'Y', 2, 'RR', 3, 'RT', 4, 'RS', 5, 'RC', 6, 'N', 7), B.RSCH_VAL_NO							");
 	sql.append("	) A WHERE ROWNUM <= " + paging.getEndRowNo() + "																			");
 	sql.append(") WHERE RNUM > " + paging.getStartRowNo() + " 																					");
 	rschList = jdbcTemplate.query(sql.toString(), new FoodList(), setObj);
@@ -377,15 +412,28 @@ try{
 	if(!"".equals(search7)){
 		sql.append("AND B.STS_FLAG = 'N'																										");
 		paging3.setParams("search7", search7);
-	}else{
-		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
+
 	if(!"".equals(search8)){
 		sql.append("AND (B.NON_SEASON = 'Y' OR B.NON_DISTRI = 'Y')																				");
 		paging3.setParams("search8", search8);
-	}else{
-		sql.append("AND B.NON_SEASON = 'N' AND B.NON_DISTRI = 'N'																				");
 	}
+	
+	if(!"".equals(sr_2)){
+		sql.append("AND B.STS_FLAG = 'SR'		");
+		paging.setParams("sr_2", sr_2);
+	}
+	
+	if(!"".equals(rt_2)){
+		sql.append("AND B.STS_FLAG = 'RT'		");
+		paging.setParams("rt_2", rt_2);
+	}
+	
+	if(!"".equals(rr_2)){
+		sql.append("AND B.STS_FLAG = 'RR'		");
+		paging.setParams("rr_2", rr_2);
+	}
+
 	
 	if(!"".equals(search9)){
 		sql.append("AND (SELECT ZONE_NO FROM FOOD_SCH_TB WHERE SCH_NO = B.SCH_NO) = ?															");
@@ -410,7 +458,7 @@ try{
     
 	totalCount = jdbcTemplate.queryForObject(sql.toString(), Integer.class, setObj);
 
-	paging3.setPageSize(30);
+	paging3.setPageSize(50);
     paging3.setPageNo(Integer.parseInt(pageNo3));
 	paging3.setTotalCount(totalCount);
 	paging3.makePaging();
@@ -456,21 +504,36 @@ try{
 	sql.append("  , B.STS_FLAG																													");
 	sql.append("  , B.SP_CHK																													");
 	sql.append("  , B.RJ_DATE																													");
-	sql.append("  , (SELECT ITEM_COMP_NO FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_NO		");
-	sql.append("  , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL	");
+	sql.append("  , (SELECT ITEM_COMP_NO FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_NO											");
+	sql.append("  , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL										");
+	sql.append("  , CASE																														");
+	sql.append("      WHEN (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO)								");
+	sql.append("       <= (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO AND STS_FLAG NOT IN('N', 'RT', 'RR')) THEN 'Y'	");
+	sql.append("      ELSE 'N'																													");
+	sql.append("    END RCH_BACK 																												");
 	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
 	sql.append("                    LEFT JOIN FOOD_ST_ITEM C ON B.ITEM_NO = C.ITEM_NO															");
 	sql.append("WHERE A.SHOW_FLAG = 'Y' AND A.RSCH_NO = ?																						");
 	if(!"".equals(search7)){
 		sql.append("AND B.STS_FLAG = 'N'																										");
-	}else{
-		sql.append("AND B.STS_FLAG != 'N'																										");
 	}
+
 	if(!"".equals(search8)){
 		sql.append("AND (B.NON_SEASON = 'Y' OR B.NON_DISTRI = 'Y')																				");
-	}else{
-		sql.append("AND B.NON_SEASON = 'N' AND B.NON_DISTRI = 'N'																				");
 	}
+	
+	if(!"".equals(sr_2)){
+		sql.append("AND B.STS_FLAG = 'SR'		");
+	}
+	
+	if(!"".equals(rt_2)){
+		sql.append("AND B.STS_FLAG = 'RT'		");
+	}
+	
+	if(!"".equals(rr_2)){
+		sql.append("AND B.STS_FLAG = 'RR'		");
+	}
+
 	if(!"".equals(search9)){
 		sql.append("AND (SELECT ZONE_NO FROM FOOD_SCH_TB WHERE SCH_NO = B.SCH_NO) = ?															");
 	}
@@ -584,6 +647,15 @@ try{
             $(".val_chk").prop('checked', false);
             return;
         });
+		
+		
+		$("#sr_1").click(function(){$("#rt_1").prop("checked", false); $("#rr_1").prop("checked", false);});
+		$("#rt_1").click(function(){$("#sr_1").prop("checked", false); $("#rr_1").prop("checked", false);});
+		$("#rr_1").click(function(){$("#sr_1").prop("checked", false); $("#rt_1").prop("checked", false);});
+		
+		$("#sr_2").click(function(){$("#rt_2").prop("checked", false); $("#rr_2").prop("checked", false);});
+		$("#rt_2").click(function(){$("#sr_2").prop("checked", false); $("#rr_2").prop("checked", false);});
+		$("#rr_2").click(function(){$("#sr_2").prop("checked", false); $("#rt_2").prop("checked", false);});
 	});
 	//마감 모두 승인 function
 	function otherAcept () {
@@ -639,6 +711,22 @@ try{
 			$("#totalForm #t_search2").val($("#searchForm #search2").val());
 			$("#totalForm #t_search2").attr("checked", "true");
 		}
+		
+		if($("#searchForm #sr_1").is(":checked")){
+			$("#totalForm #t_sr_1").val($("#searchForm #sr_1").val());
+			$("#totalForm #t_sr_1").attr("checked", "true");
+		}
+		
+		if($("#searchForm3 #rt_1").is(":checked")){
+			$("#totalForm #t_rt_1").val($("#searchForm3 #rt_1").val());
+			$("#totalForm #t_rt_1").attr("checked", "true");
+		}
+		
+		if($("#searchForm #rr_1").is(":checked")){
+			$("#totalForm #t_rr_1").val($("#searchForm #rr_1").val());
+			$("#totalForm #t_rr_1").attr("checked", "true");
+		}
+		
 		$("#totalForm #t_search3").val($("#searchForm #search3").val());
 		$("#totalForm #t_search4").val($("#searchForm #search4").val());
 		$("#totalForm #t_search5").val($("#searchForm #search5").val());
@@ -653,6 +741,22 @@ try{
 			$("#totalForm #t_search8").val($("#searchForm3 #search8").val());
 			$("#totalForm #t_search8").attr("checked", "true");
 		}
+		
+		if($("#searchForm3 #sr_2").is(":checked")){
+			$("#totalForm #t_sr_2").val($("#searchForm3 #sr_2").val());
+			$("#totalForm #t_sr_2").attr("checked", "true");
+		}
+		
+		if($("#searchForm3 #rt_2").is(":checked")){
+			$("#totalForm #t_rt_2").val($("#searchForm3 #rt_2").val());
+			$("#totalForm #t_rt_2").attr("checked", "true");
+		}
+		
+		if($("#searchForm3 #rr_2").is(":checked")){
+			$("#totalForm #t_rr_2").val($("#searchForm3 #rr_2").val());
+			$("#totalForm #t_rr_2").attr("checked", "true");
+		}
+		
 		$("#totalForm #t_search9").val($("#searchForm3 #search9").val());
 		$("#totalForm #t_search10").val($("#searchForm3 #search10").val());
 		$("#totalForm #t_search11").val($("#searchForm3 #search11").val());
@@ -827,6 +931,9 @@ try{
 	<%if(!"".equals(rschVO.rsch_no)){%>
 		<input type="checkbox" name="search1" id="t_search1">
 		<input type="checkbox" name="search2" id="t_search2">
+		<input type="checkbox" name="sr_1" id="t_sr_1">
+		<input type="checkbox" name="rt_1" id="t_rt_1">
+		<input type="checkbox" name="rr_1" id="t_rr_1">
 		<input type="hidden" name="search3" id="t_search3">
 		<input type="hidden" name="search4" id="t_search4">
 		<input type="hidden" name="search5" id="t_search5">
@@ -838,6 +945,9 @@ try{
 		<input type="hidden" name="search9" id="t_search9">
 		<input type="hidden" name="search10" id="t_search10">
 		<input type="hidden" name="search11" id="t_search11">
+		<input type="checkbox" name="sr_2" id="t_sr_2">
+		<input type="checkbox" name="rt_2" id="t_rt_2">
+		<input type="checkbox" name="rr_2" id="t_rr_2">
 	<%} %>
 		<input type="hidden" name="his_rsch_no" id="t_his_rsch_no" value="<%=his_rsch_no%>">
 	</form>
@@ -866,6 +976,12 @@ try{
 					<label for="search1">미조사 식품 보기</label>
 				<input type="checkbox" id="search2" name="search2" value="Y" <%if("Y".equals(search2)){out.println("checked"); }%>>
 					<label for="search2">이상 조사 보기</label>
+				<input type="checkbox" id="sr_1" name="sr_1" value="Y" <%if("Y".equals(sr_1)){out.println("checked"); }%>>
+					<label for="sr_1">조사자 제출 식품 보기</label>
+				<input type="checkbox" id="rt_1" name="rt_1" value="Y" <%if("Y".equals(rt_1)){out.println("checked"); }%>>
+					<label for="rt_1">팀장 반려 식품 보기</label>
+				<input type="checkbox" id="rr_1" name="rr_1" value="Y" <%if("Y".equals(rr_1)){out.println("checked"); }%>>
+					<label for="rr_1">관리자 반려 식품 보기</label>
 				<select id="search3" name="search3">
 					<option value="">권역 선택</option>
 				<%
@@ -990,7 +1106,7 @@ try{
 		if(rschList!=null && rschList.size()>0){
 			for(FoodVO ob : rschList){
 		%>
-			<tr>
+			<tr <%if("Y".equals(ob.rch_back)){out.println("class=\"bak-yellow\"");} %>>
 				<%//일괄승인 체크 박스 추가	20180517_thur	JI
 				%>
 				<td>
@@ -1173,6 +1289,12 @@ try{
 					<label for="search7">미조사 식품 보기</label>
 				<input type="checkbox" id="search8" name="search8" value="Y" <%if("Y".equals(search8)){out.println("checked"); }%>>
 					<label for="search8">이상 조사 보기</label>
+				<input type="checkbox" id="sr_2" name="sr_2" value="Y" <%if("Y".equals(sr_2)){out.println("checked"); }%>>
+					<label for="sr_2">조사자 제출 식품 보기</label>
+				<input type="checkbox" id="rt_2" name="rt_2" value="Y" <%if("Y".equals(rt_2)){out.println("checked"); }%>>
+					<label for="rt_2">팀장 반려 식품 보기</label>
+				<input type="checkbox" id="rr_2" name="rr_2" value="Y" <%if("Y".equals(rr_2)){out.println("checked"); }%>>
+					<label for="rr_2">관리자 반려 식품 보기</label>
 				<select id="search9" name="search9" >
 					<option value="">권역 선택</option>
 				<%
@@ -1287,7 +1409,7 @@ try{
 		if(rschHisViewList!=null && rschHisViewList.size()>0){
 			for(FoodVO ob : rschHisViewList){
 		%>
-			<tr>
+			<tr <%if("Y".equals(ob.rch_back)){out.println("class=\"bak-yellow\"");} %>>
 				<td><%=ob.rsch_val_no %></td>
 				<td><%=ob.cat_nm%></td>
 				<td><%=ob.food_code %></td>

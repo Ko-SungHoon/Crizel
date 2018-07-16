@@ -13,7 +13,6 @@ var spinner = new Vue({
   created: function () {
     self = this
     bus.$on('loadingBus', function (value) {
-      console.log(value)
       self.loading = value
     })
   },
@@ -42,7 +41,7 @@ var newbook = new Vue({
       var date = new Date()
       var enddate = '&enddate='+ date.toISOString().slice(0,10).replace(/-/g,"")
       var dayOfMonth = date.getDate();
-      date.setDate(dayOfMonth - 30)
+      date.setDate(dayOfMonth - 120)
       var startdate = '&startdate='+date.toISOString().slice(0,10).replace(/-/g,"")
       var perPage = '&display='+self.perPage
       requetUrl = newBookApiURL + perPage + startdate + enddate

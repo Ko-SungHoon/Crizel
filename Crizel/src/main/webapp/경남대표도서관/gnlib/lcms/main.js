@@ -11,7 +11,6 @@ var spinner = new Vue({
   created: function () {
     self = this
     bus.$on('loadingBus', function (value) {
-      console.log(value)
       self.loading = value
     })
   },
@@ -65,13 +64,14 @@ var demo = new Vue({
       var date = new Date()
       var enddate = '&enddate='+date.toISOString().slice(0,10).replace(/-/g,"")
       var dayOfMonth = date.getDate();
-      date.setDate(dayOfMonth - 30)
+      date.setDate(dayOfMonth - 120)
       var startdate = '&startdate='+date.toISOString().slice(0,10).replace(/-/g,"")
       requetUrl = apiURL + perPage + page + startdate + enddate
       xhr.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) self.onNext(xhr.responseText)
       }
       xhr.open('GET', requetUrl)
+      console.log(requetUrl);
       // xhr.onload = function () {
       //   self.records = JSON.parse(xhr.responseText)
       // }
@@ -91,7 +91,6 @@ var demo = new Vue({
       this.loading = false
       this.transferLoading()
       // setTimeout(function() {
-      //   console.log('Works!')
       //   self.records = JSON.parse(responseText)
       //   self.loading = false
       //   self.transferLoading()
@@ -144,11 +143,9 @@ var demo = new Vue({
     },
 
     pageChanged: function() {
-      console.log('Page changed to: ' + this.pagination.currentPage);
       this.page = this.pagination.currentPage
     },
     setPage: function(pageNo) {
-      console.log('pageNo: ', pageNo)
       this.page = pageNo
     }
   }

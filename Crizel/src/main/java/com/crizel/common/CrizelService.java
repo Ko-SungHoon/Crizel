@@ -55,8 +55,8 @@ public class CrizelService {
 		return dao.list(day);
 	}
 
-	public List<Object> listDetail(String keyword, String type, String site) throws Exception {
-		return dao.listDetail(keyword,type,site);
+	public List<Map<String,Object>> listDetail(String keyword, String type, String site, String mode) throws Exception {
+		return dao.listDetail(keyword,type,site,mode);
 	}
 
 	public void listInsert(CrizelVo vo) {
@@ -510,7 +510,4 @@ public class CrizelService {
 		return dao.comicViewList(addr);
 	}
 
-	public void test() {
-		dao.test();
-	}
 }

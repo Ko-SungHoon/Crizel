@@ -1,7 +1,15 @@
 Vue.component('bookSimpleList', {
   template: [
-    '    <table class="tb_board">',
+    '    <table class="tb_board center" v-if="records">',
     '      <caption>도서 정보</caption>',
+    '      <colgroup>',
+    '           <col style="width: 6%;">', 
+    '           <col style="width: auto;">', 
+    '           <col style="width: 12%;">', 
+    '           <col style="width: 12%;">', 
+    '           <col style="width: 8%;">',
+    '           <col style="width: 10%;">',
+    '       </colgroup>',
     '       <thead>',
     '         <tr>',
     '           <th scope="col">번호</th>',
@@ -17,18 +25,18 @@ Vue.component('bookSimpleList', {
     '           v-for="(record, index) in records.LIST_DATA"',
     '           v-if="index > 0"',
     '    >',
-    '           <td class="object1">{{record.RNUM}}</td>',
-    '           <td class="object2 left">',
+    '           <td class="">{{record.RNUM}}</td>',
+    '           <td class="left">',
     '             <div>{{record.TITLE_INFO}}</div>',
     '             <div>{{record.AUTHOR}}</div>',
     '           </td>',
-    '           <td class="etc center">{{record.LOAN_DATE}}</td>',
-    '           <td class="etc center">{{record.RETURN_PLAN_DATE}}</td>',
-    '           <td class="etc center" v-if="record.STATUS == 0">대출</td>',
-    '           <td class="etc center" v-else-if="record.STATUS == 1">반납</td>',
-    '           <td class="etc center" v-else-if="record.STATUS == 2">예약</td>',
-    '           <td class="etc center" v-else-if="record.STATUS == 3">예약취소</td>',
-    '           <td class="etc center">',
+    '           <td class="center">{{record.LOAN_DATE}}</td>',
+    '           <td class="center">{{record.RETURN_PLAN_DATE}}</td>',
+    '           <td class="center" v-if="record.STATUS == 0">대출</td>',
+    '           <td class="center" v-else-if="record.STATUS == 1">반납</td>',
+    '           <td class="center" v-else-if="record.STATUS == 2">예약</td>',
+    '           <td class="center" v-else-if="record.STATUS == 3">예약취소</td>',
+    '           <td class="center">',
     '		        	<template v-if="record.RETURN_DEALY_CODE == 100">',
     '     			    <button type="button" class="btn medium color1">대출연장</button>',
     '			        </template>',
@@ -68,7 +76,6 @@ Vue.component('bookSimpleList', {
       var userKey = 'userkey='+self.userKey
       requestUrl = self.apiUrl + userKey
       requestUrl = encodeURI(requestUrl)
-      console.log('requestUrl ', requestUrl)
       xhr.open('GET', requestUrl)
       xhr.onload = function () {
         //self.headers = xhr.getResponseHeader('link').split(',')

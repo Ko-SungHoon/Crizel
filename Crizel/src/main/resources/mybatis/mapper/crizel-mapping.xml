@@ -241,18 +241,4 @@
 		WHERE ADDR = #{addr}
 		ORDER BY TITLE
 	</select>
-	
-	<delete id="test">
-		{CALL
-	        DECLARE
-	        BEGIN
-	            DELETE FROM TEST WHERE A = 1;
-				DELETE FROM TEST WHERE A = 2;
-				DELETE FROM TEST WHERE A = 3;
-	        END
-	    }
-		
-	</delete>
-	
-	
 </mapper>

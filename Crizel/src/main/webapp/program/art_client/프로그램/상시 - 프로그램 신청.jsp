@@ -10,6 +10,7 @@
 *   MODIFY  :   20180607 KO 프로그램 개편(오전2개 오후2개, 전일 폐지)
 *   MODIFY  :   20180612 KO 오전,오후 각각 200명만 신청 가능하게 수정
 *   MODIFY  :   20180612 LEE 알림문구 수정
+*	MODIFY	:	20180706 KO	관리자 페이지에서 추가한 신청 제한 날짜 설정 
 **/
 %>
 
@@ -72,6 +73,9 @@
         
         public String mor_cnt_flag;
         public String aft_cnt_flag;
+        
+        public String ban_m;
+        public String ban_f;
     }
 
     private class ArtCalList implements RowMapper<ArtCalData> {
@@ -113,6 +117,9 @@
             
             calData.mor_cnt_flag	= 	rs.getString("MOR_CNT_FLAG");
             calData.aft_cnt_flag	= 	rs.getString("AFT_CNT_FLAG");
+            
+            calData.ban_m			= 	rs.getString("BAN_M");
+            calData.ban_f			= 	rs.getString("BAN_F");
             return calData;
         }
     }
@@ -189,12 +196,37 @@ int num         =   0;
     sql_str =   "SELECT STANDARD_MONTH.* ";
     sql_str +=  "	, (SELECT MAX(PRO_NO) FROM ART_REQ_ALWAY_CNT WHERE REQ_NO = COMPARE_DATE.REQ_NO) AS PRO_NO		";
     sql_str +=  ", CASE ";
-    sql_str +=  "   WHEN (SELECT COUNT(BANNO) FROM ART_BAN_TABLE WHERE BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) > 0 ";
+    sql_str +=  "   WHEN (SELECT COUNT(BANNO) FROM ART_BAN_TABLE WHERE BAN_ETC IS NULL AND BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) > 0 ";
     sql_str +=  "   THEN 'H' ";
     sql_str +=  "   WHEN TO_CHAR(STANDARD_MONTH.MON_DTE, 'd') = '1' THEN 'SU' ";
     sql_str +=  "   WHEN TO_CHAR(STANDARD_MONTH.MON_DTE, 'd') = '7' THEN 'SA' ";
     sql_str +=  "   ELSE 'D' ";
     sql_str +=  "  END AS HLY_DTE ";
+    
+    // 날짜 제한 (오전)
+    sql_str += 	",  CASE				";
+    sql_str += 	" 		WHEN (SELECT COUNT(BANNO) 	";
+    sql_str += 	"			  FROM ART_BAN_TABLE  	";
+    sql_str += 	"			  WHERE BAN_ETC = '오전'  	";
+    sql_str += 	"					AND BAN_DATE <= TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD') 		";
+    sql_str += 	"					AND BAN_DATE2 >= TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD') 	";
+    sql_str += 	"			 ) > 0 	 	";
+    sql_str +=	" 		THEN 'Y'		";
+    sql_str +=	"		ELSE 'N'		";
+    sql_str += 	"	END AS BAN_M		";
+    
+ 	// 날짜 제한 (오후)
+    sql_str += 	",  CASE				";
+    sql_str += 	" 		WHEN (SELECT COUNT(BANNO) 	";
+    sql_str += 	"			  FROM ART_BAN_TABLE  	";
+    sql_str += 	"			  WHERE BAN_ETC = '오후'  	";
+    sql_str += 	"					AND BAN_DATE <= TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD') 		";
+    sql_str += 	"					AND BAN_DATE2 >= TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD') 	";
+    sql_str += 	"			 ) > 0 	 	";
+    sql_str +=	" 		THEN 'Y'		";
+    sql_str +=	"		ELSE 'N'		";
+    sql_str += 	"	END AS BAN_F		";
+    
     sql_str +=  ", CASE (SELECT COUNT(BANNO) FROM ART_BAN_TABLE WHERE BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) ";
     sql_str +=  "   WHEN 1 THEN (SELECT BAN_NM FROM ART_BAN_TABLE WHERE BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) ";
     sql_str +=  "   ELSE NULL ";
@@ -473,6 +505,15 @@ int num         =   0;
                                 || (Integer.parseInt(compareDay) == 20181101) || (Integer.parseInt(compareDay) == 20181203)
                                 || (Integer.parseInt(compareDay) == 20181204)
                                 
+                                //2018.07.04. 요청
+                                || (Integer.parseInt(compareDay) == 20180918)
+                                
+                                //2018.07.11. 요청
+                                || (Integer.parseInt(compareDay) == 20181026)
+                                
+                                // 관리자 페이지에서 설정한 날짜 막기
+                                || ("Y".equals(data.ban_m) && "Y".equals(data.ban_f))
+                                
                             	) {
                                 outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-am finish\">오전</span>";
                                 outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
@@ -484,13 +525,20 @@ int num         =   0;
                                     //차단 조건 2(쿼리에서 제어) 오전반 정원 확인(승인된 전일 + 오전이 정원을 넘었을 경우)
                                     /*20180508_tue 20180717 오후와 전일 막기*/
                                     if (((Integer.parseInt(compareDay) == 20180717) || (Integer.parseInt(compareDay) == 20180611)
-                                        || (Integer.parseInt(compareDay) == 20180612) || (Integer.parseInt(compareDay) == 20180613)
+                                   		|| (Integer.parseInt(compareDay) == 20180612) || (Integer.parseInt(compareDay) == 20180613)
                                         || (Integer.parseInt(compareDay) == 20180614) || (Integer.parseInt(compareDay) == 20180615)
                                         || (Integer.parseInt(compareDay) == 20180608) || (Integer.parseInt(compareDay) == 20180621)
                                         
                                         //2018.06.28. 요청
-                                        || (Integer.parseInt(compareDay) == 20181018) || (Integer.parseInt(compareDay) == 20181026)
-                                        || (Integer.parseInt(compareDay) == 20181106) 
+                                        || (Integer.parseInt(compareDay) == 20181018)
+                                        || (Integer.parseInt(compareDay) == 20181106)
+                                           
+                                           //2018.07.04. 요청
+                                   		|| (Integer.parseInt(compareDay) == 20180905) || (Integer.parseInt(compareDay) == 20180906)
+                                   		|| (Integer.parseInt(compareDay) == 20180911)
+                                        
+                                   		// 관리자 페이지에서 설정한 날짜 막기 (오후)
+                                        || "Y".equals(data.ban_f)
                                     		) 
                                         && ("Y".equals(data.mor_sch_flag) && "Y".equals(data.aft_sch_flag))) {
                                         outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
@@ -500,10 +548,16 @@ int num         =   0;
                                     }
                                     /*20180628  오전과 전일 막기*/
                                     else if (((Integer.parseInt(compareDay) == 20180904) || (Integer.parseInt(compareDay) == 20181024)
-                                            	|| (Integer.parseInt(compareDay) == 20181025) || (Integer.parseInt(compareDay) == 20181105)
-                                            	|| (Integer.parseInt(compareDay) == 20181129) || (Integer.parseInt(compareDay) == 20181205)
-                                            	|| (Integer.parseInt(compareDay) == 20181212) || (Integer.parseInt(compareDay) == 20181214)
-                                            	|| (Integer.parseInt(compareDay) == 20181217)
+	                                    		|| (Integer.parseInt(compareDay) == 20181025) || (Integer.parseInt(compareDay) == 20181105)
+	                                        	|| (Integer.parseInt(compareDay) == 20181129) || (Integer.parseInt(compareDay) == 20181205)
+	                                        	|| (Integer.parseInt(compareDay) == 20181212) || (Integer.parseInt(compareDay) == 20181214)
+	                                        	|| (Integer.parseInt(compareDay) == 20181217)
+	                                        	
+	                                        	//2018.07.04. 요청
+	                            				|| (Integer.parseInt(compareDay) == 20180907) || (Integer.parseInt(compareDay) == 20180912)
+                                            	
+	                            				// 관리자 페이지에서 설정한 날짜 막기 (오전)
+                                            	|| "Y".equals(data.ban_m)
                                             		) 
                                                 && ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_sch_flag))) {
                                                 outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-pm finish\">오전</span>";

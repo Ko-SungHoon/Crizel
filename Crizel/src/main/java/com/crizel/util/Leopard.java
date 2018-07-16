@@ -24,10 +24,10 @@ public class Leopard {
 		
 	}
 	
-	public List<Object> getList(String addr){
+	public List<Map<String,Object>> getList(String addr){
 		String URL 						= addr;
         Document doc 					= null;
-        List<Object> list 				= new ArrayList<Object>();
+        List<Map<String,Object>> list 	= new ArrayList<Map<String,Object>>();
         Map<String,Object> map			= null;
         
         Elements linkElem 				= null;

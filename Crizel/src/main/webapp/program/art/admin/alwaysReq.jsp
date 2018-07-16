@@ -365,6 +365,24 @@ num = paging.getRowNo();
             return false;
         }
     }
+    
+    function newWin(url, title, w, h){
+    	var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+        var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+        var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+        var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+        var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+        var top = ((height / 2) - (h / 2)) + dualScreenTop;
+        var newWindow = window.open(url, title, 'scrollbars=yes, resizable=yes, width=' + w + ', height=' + h + ', top=' + top + ', left=' + left);
+
+    }
+    
+    function datePopup(){
+    	newWin("datePopup.jsp", "PRINTVIEW", "1000", "740");
+    }
+
 
 </script>
 
@@ -406,6 +424,7 @@ num = paging.getRowNo();
 				<!-- <label for="keyword">검색어</label> -->
 				<input type="text" id="keyword" name="keyword" value="<%=keyword%>">
 				<button class="btn small edge mako" onclick="searchSubmit();">검색하기</button>
+				<button class="btn small edge green" onclick="datePopup();">날짜관리</button>
 				<%
 				if("NEW".equals(search2)){
 				%>

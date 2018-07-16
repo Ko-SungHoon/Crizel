@@ -33,8 +33,27 @@ $(function(){
 	<input type="hidden" value="${day}" id="dayCheck">
 	<div class="search center">
 		<form action="/listDetail.do" method="get">
-			<input type="hidden" id="type" name="type" value="video">
-			<input type="text" name="keyword" id="keyword">
+			<c:choose>
+				<c:when test="${mode eq 'nyaa'}">
+					<button type="button" onclick="location.href='/list.do'">ohys&leopard</button>
+					<input type="hidden" id="mode" name="mode" value="nyaa">
+					<select id="type" name="type">
+						<option value="1_0" <c:if test="${type eq '1_0'}"> selected </c:if>>VIDEO</option>
+						<option value="2_0" <c:if test="${type eq '2_0'}"> selected </c:if>>AUDIO</option>
+						<option value="4_0" <c:if test="${type eq '4_0'}"> selected </c:if>>LIVE</option>
+						<option value="5_0" <c:if test="${type eq '5_0'}"> selected </c:if>>PICTURE</option>
+					</select>
+				</c:when>
+				<c:otherwise>
+					<button type="button" onclick="location.href='/list.do?mode=nyaa'">nyaa</button>
+					<input type="hidden" id="type" name="type" value="video">
+					<select id="site" name="site">
+						<option value="ohys">ohys</option>
+						<option value="leopard">leopard</option>
+					</select>
+				</c:otherwise>
+			</c:choose>
+			<input type="text" name="keyword" id="keyword" value="${keyword}">
 			<button>검색</button>
 		</form>
 	</div>
@@ -50,13 +69,13 @@ $(function(){
 		</colgroup>
 		<thead>
 		<tr>
-			<th scope="col" ><a href="/list.do?day=월" class="mon">월</a></th>
-			<th scope="col" ><a href="/list.do?day=화" class="tue">화</a></th>
-			<th scope="col" ><a href="/list.do?day=수" class="wed">수</a></th>
-			<th scope="col" ><a href="/list.do?day=목" class="thu">목</a></th>
-			<th scope="col" ><a href="/list.do?day=금" class="fri">금</a></th>
-			<th scope="col" ><a href="/list.do?day=토" class="sat">토</a></th>
-			<th scope="col" ><a href="/list.do?day=일" class="sun">일</a></th>
+			<th scope="col" ><a href="/list.do?day=월&mode=${mode}" class="mon">월</a></th>
+			<th scope="col" ><a href="/list.do?day=화&mode=${mode}" class="tue">화</a></th>
+			<th scope="col" ><a href="/list.do?day=수&mode=${mode}" class="wed">수</a></th>
+			<th scope="col" ><a href="/list.do?day=목&mode=${mode}" class="thu">목</a></th>
+			<th scope="col" ><a href="/list.do?day=금&mode=${mode}" class="fri">금</a></th>
+			<th scope="col" ><a href="/list.do?day=토&mode=${mode}" class="sat">토</a></th>
+			<th scope="col" ><a href="/list.do?day=일&mode=${mode}" class="sun">일</a></th>
 		</tr>
 		</thead>
 		<c:if test="${list ne null}">
@@ -66,7 +85,7 @@ $(function(){
 						<span class="ani_time">${ob.ani_time}</span>
 					</td>
 					<td colspan="5">
-						<a href="/listDetail.do?keyword=${ob.keyword}&type=video&site=${ob.site}" class="ani_title">${ob.title}</a>
+						<a href="/listDetail.do?keyword=${ob.keyword}&type=${type}&site=${ob.site}&mode=${mode}" class="ani_title">${ob.title}</a>
 						<%-- <c:choose>
 							<c:when test="${ob.site eq 'ohys'}">
 								<a href="/listDetail.do?keyword=${ob.keyword}&type=video&site=${ob.site}" class="ani_title">${ob.title}</a>
@@ -77,7 +96,7 @@ $(function(){
 						</c:choose> --%>
 					</td>
 					<td>
-						<a href="/aniDelete.do?ani_id=${ob.ani_id}&day=${ob.day}" class="ani_del">삭제</a>	
+						<a href="/aniDelete.do?ani_id=${ob.ani_id}&day=${ob.day}&mode=${mode}" class="ani_del">삭제</a>	
 					</td>
 				</tr>
 			</c:forEach>

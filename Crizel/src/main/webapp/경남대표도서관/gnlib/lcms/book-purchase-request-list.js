@@ -23,7 +23,6 @@ Vue.component('bookSimpleList', {
       var userKey = 'userkey='+self.userKey
       requestUrl = self.apiUrl + userKey + '&display=1000'
       requestUrl = encodeURI(requestUrl)
-      console.log('requestUrl ', requestUrl)
       xhr.open('GET', requestUrl, false)
       xhr.onload = function () {
         self.records = JSON.parse(xhr.responseText)
@@ -35,8 +34,6 @@ Vue.component('bookSimpleList', {
       var self = this
       var requestUrl = 'http://lib.gyeongnam.go.kr/kdotapi/ksearchapi/bookfurnishcancel?'
       requestUrl = requestUrl + 'reckey=' + reckey
-
-      console.log('requestUrl',requestUrl)
 
       xhr.open('GET', requestUrl, false)
       xhr.onload = function() {
