@@ -1,0 +1,85 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-4.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head_script">
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7 "> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- js 로딩 순서 바꾸면 안됨 -->
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/forge.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/jsbn.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/util.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/sha1.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/sha256.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/sha512.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/asn1.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/cipher.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/cipherModes.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/seed.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/aes.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/prng.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/random.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/rsa.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/forge/pkcs1.js?v=3.0.4.5" charset="UTF-8"></script>
+
+    <script type="text/javascript" src="/resources/js/webcrypto/js/json/json2.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/webcrypto/common/webcrypto.js?v=3.0.4.5" charset="UTF-8"></script>
+    <script type="text/javascript" src="/resources/js/webcrypto/js/webcrypto/common/webcrypto_msg.js?v=3.0.4.5" charset="UTF-8"></script>
+
+    <script type="text/javascript" src="/resources/js/webcrypto/js/webcrypto/common/webcrypto_addon.js?v=3.0.4.5" charset="UTF-8"></script>
+
+
+    <script type="text/javascript" src="/resources/js/webcrypto/js/webcrypto/e2e/webcrypto_e2e.js?v=3.0.4.5" charset="UTF-8"></script>
+
+    <script type="text/javascript" src="/resources/js/webcrypto/js/webcrypto/e2e/webcrypto_e2e_addon.js?v=3.0.4.5" charset="UTF-8"></script>
+
+    
+    <script type="text/javascript">
+      
+      function setupWebCryptoE2E(onload_callback) {
+          //D'AmoWA WhiteList
+          var whiteList = document.getElementById("whiteList").value;
+
+          // 설치 프로그램과 통신을 위한 URL 초기화 및 동작 여부 확인
+          var reqInit = webcrypto.addon.initializeCorsUrl(1500, whiteList);  // 입력 변수는 응답 대기 시간 msec 단위
+          reqInit.onsuccess = function() {
+              // 설치 프로그램의 버전 업그레이드 필요 여부 확인
+              var necessaryVersion = '3.0.4.5';
+              if (webcrypto.addon.checkAddonVersion(necessaryVersion) === false) {
+                  // 자바스크립트 모듈 버전보다 동작중 프로그램 버전이 낮을 경우 false 발생. 설치 패키지의 업그레이드가 필요한 상황
+                  if (confirm('D\'Amo WebCrypto 프로그램 버전이 낮습니다. 프로그램 다운로드 페이지로 이동하시겠습니까?')) {
+                      // TODO : 다운로드 페이지 적용할 것
+                      location.href = "/authentication/pki/download/download.html";
+                  }
+
+                  // 특정 버전을 고정하여 설치패키지를 유도하고 싶을 때 위의 방식을 빼고 다음처럼 사용 가능
+                  /*
+                  var necessaryVersion = '2.0.4.0';
+                  if (reqInit.version !== necessaryVersion) {
+                      if(confirm('D\'Amo WebCrypto 프로그램의 재설치가 필요합니다. 다운로드 페이지로 이동하시겠습니까?')) {
+                          // TODO : 다운로드 페이지 적용할 것
+                      }
+                  }
+                  */
+              } else {
+                  if (onload_callback) {
+                      onload_callback();
+                  }
+              }
+          };
+          reqInit.onerror = function(err) {
+              if (confirm('D\'Amo WebCrypto 프로그램이 실행중이 아닙니다. 프로그램 다운로드 페이지로 이동하시겠습니까?')) {
+                  // TODO : 다운로드 페이지 적용할 것
+                  location.href = "/authentication/pki/download/download.html";
+              }
+          };
+          reqInit.onforbidden = function() {
+              alert('허용되지 않은 도메인입니다. D\'Amo WebCrypto 프로그램을 사용할 수 없습니다.');
+          };
+      }
+    </script>
+</head>
+<body></body>
+</html>

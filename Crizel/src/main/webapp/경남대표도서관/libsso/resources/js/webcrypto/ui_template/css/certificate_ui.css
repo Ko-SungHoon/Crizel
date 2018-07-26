@@ -1,0 +1,609 @@
+@charset "UTF-8";
+/* =============== basis =============== */
+.webcryptoLayout {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 12px;
+  font-family: "돋움", Dotum, Helvetica, sans-serif;
+  color: #333333; }
+  .webcryptoLayout * {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box; }
+  .webcryptoLayout a {
+    text-decoration: none;
+    color: #333333;
+    margin: 0;
+    padding: 0;
+    border: 0; }
+  .webcryptoLayout input, .webcryptoLayout select {
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    font-family: "돋움", Dotum, Helvetica, sans-serif;
+    color: #333333;
+    vertical-align: middle; }
+  .webcryptoLayout input[type="radio"], .webcryptoLayout input[type="checkbox"] {
+    margin: 0;
+    padding: 0;
+    margin-right: 3px;
+    width: 13px;
+    height: 13px; }
+  .webcryptoLayout table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    empty-cells: show;
+    table-layout: fixed; }
+  .webcryptoLayout label {
+    cursor: pointer; }
+  .webcryptoLayout img {
+    vertical-align: middle;
+    margin: 0;
+    padding: 0;
+    border: 0; }
+  .webcryptoLayout i {
+    font-style: normal; }
+  .webcryptoLayout ul, .webcryptoLayout ol, .webcryptoLayout li, .webcryptoLayout dl, .webcryptoLayout dt, .webcryptoLayout dd {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border: 0; }
+  .webcryptoLayout h1, .webcryptoLayout h2, .webcryptoLayout h3, .webcryptoLayout h4, .webcryptoLayout h5, .webcryptoLayout h6 {
+    font-size: 12px;
+    font-family: "돋움", Dotum, Helvetica, sans-serif; }
+  .webcryptoLayout .hide, .webcryptoLayout legend, .webcryptoLayout caption {
+    position: absolute !important;
+    left: -1000%;
+    top: 0;
+    width: 0;
+    height: 0;
+    font-size: 0;
+    line-height: 0;
+    overflow: hidden;
+    border: 0 !important; }
+  .webcryptoLayout applet, .webcryptoLayout object, .webcryptoLayout embed {
+    position: absolute !important;
+    top: 0;
+    width: 0;
+    height: 0;
+    font-size: 0px;
+    line-height: 0px;
+    overflow: hidden;
+    border: 0 none !important; }
+  .webcryptoLayout .scroll {
+    overflow-x: hidden;
+    overflow-y: auto;
+    scrollbar-face-color: #FFF;
+    scrollbar-track-color: #FFF;
+    scrollbar-arrow-color: #545454;
+    scrollbar-highlight-color: #bcbcbc;
+    scrollbar-3dlight-color: #FFF;
+    scrollbar-shadow-color: #bcbcbc;
+    scrollbar-darkshadow-color: #FFF; }
+
+/* =============== Content =============== */
+/* 각 영역 공통 */
+.wcCertificateWrap {
+  width: 470px;
+  height: 594px;
+  background: #fff;
+  border: 1px #bbb solid;
+  cursor: default; }
+
+.wcSection {
+  margin: 0;
+  padding: 5px 10px; }
+
+.wcTitleBar {
+  padding: 10px 10px 7px;
+  background: #777;
+  color: #fff; }
+
+h2.wcTitle {
+  padding-bottom: 2px;
+  height: 20px;
+  font-size: 14px;
+  line-height: 20px; }
+
+.wcBlinder {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: url(../image/bg_blinder.png) 0 0 repeat; }
+
+.wcBlinderSub {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -297px 0 0 -235px;
+  width: 472px;
+  height: 596px;
+  background: url(../image/bg_blinder.png) 0 0 repeat;
+  z-index: 10; }
+
+.wcCertificateWrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -297px 0 0 -235px; }
+
+/* 상단 이미지 */
+.wcHeader {
+  padding-top: 5px;
+  width: 100%;
+  height: 60px;
+  line-height: 60px;
+  background: url(../image/header.jpg) 100% 100% no-repeat; }
+
+/* 인증서 저장매체 선택 탭 */
+.wcMediaTabs {
+  *zoom: 1; }
+  .wcMediaTabs:after {
+    display: block;
+    clear: both;
+    content: ''; }
+  .wcMediaTabs li {
+    float: left;
+    margin-left: 10px;
+    width: 80px;
+    height: 63px;
+    border: 1px #ddd solid;
+    background: #fff;
+    z-index: 2; }
+    .wcMediaTabs li:first-child {
+      margin-left: 0; }
+    .wcMediaTabs li label {
+      top: 2px;
+      display: block;
+      width: 80px;
+      height: 61px;
+      color: #777; }
+      .wcMediaTabs li label span {
+        display: block;
+        padding-top: 46px;
+        width: 100%;
+        text-align: center;
+        font-size: 11px;
+        letter-spacing: -1px;
+        white-space: nowrap; }
+    .wcMediaTabs li .wcMediaTabHDD {
+      background: url(../image/icon_hardware.png) 50% 26% no-repeat; }
+    .wcMediaTabs li .wcMediaTabUSB {
+      background: url(../image/icon_movabledisk.png) 50% 30% no-repeat; }
+    .wcMediaTabs li .wcMediaTabPhone {
+      background: url(../image/icon_ubikey.png) 50% 26% no-repeat; }
+    .wcMediaTabs li .wcMediaTabHWToken {
+      background: url(../image/icon_hsm.png) 50% 26% no-repeat; }
+    .wcMediaTabs li .wcMediaTabUSIM {
+      background: url(../image/icon_usim.png) 50% 26% no-repeat; }
+    .wcMediaTabs li:hover {
+      border: 1px #157 dashed; }
+    .wcMediaTabs li.wcSelcOn {
+      border: 1px #157 solid; }
+    .wcMediaTabs li:hover .wcMediaTabHDD, .wcMediaTabs li.wcSelcOn .wcMediaTabHDD {
+      background: url(../image/icon_hardware_on.png) 50% 26% no-repeat; }
+    .wcMediaTabs li:hover .wcMediaTabUSB, .wcMediaTabs li.wcSelcOn .wcMediaTabUSB {
+      background: url(../image/icon_movabledisk_on.png) 50% 30% no-repeat; }
+    .wcMediaTabs li:hover .wcMediaTabPhone, .wcMediaTabs li.wcSelcOn .wcMediaTabPhone {
+      background: url(../image/icon_ubikey_on.png) 50% 26% no-repeat; }
+    .wcMediaTabs li:hover .wcMediaTabHWToken, .wcMediaTabs li.wcSelcOn .wcMediaTabHWToken {
+      background: url(../image/icon_hsm_on.png) 50% 26% no-repeat; }
+    .wcMediaTabs li:hover .wcMediaTabUSIM, .wcMediaTabs li.wcSelcOn .wcMediaTabUSIM {
+      background: url(../image/icon_usim_on.png) 50% 26% no-repeat; }
+    .wcMediaTabs li:hover label, .wcMediaTabs li.wcSelcOn label {
+      color: #333; }
+    .wcMediaTabs li.wcSelcOff {
+      background: #eee; }
+      .wcMediaTabs li.wcSelcOff:hover {
+        border: 1px #ddd solid; }
+      .wcMediaTabs li.wcSelcOff label {
+        color: #bbb; }
+      .wcMediaTabs li.wcSelcOff .wcMediaTabHDD {
+        background: url(../image/icon_hardware.png) 50% 26% no-repeat; }
+      .wcMediaTabs li.wcSelcOff .wcMediaTabUSB {
+        background: url(../image/icon_movabledisk.png) 50% 30% no-repeat; }
+      .wcMediaTabs li.wcSelcOff .wcMediaTabPhone {
+        background: url(../image/icon_ubikey.png) 50% 26% no-repeat; }
+      .wcMediaTabs li.wcSelcOff .wcMediaTabHWToken {
+        background: url(../image/icon_hsm.png) 50% 26% no-repeat; }
+      .wcMediaTabs li.wcSelcOff .wcMediaTabUSIM {
+        background: url(../image/icon_usim.png) 50% 26% no-repeat; }
+
+/* 인증서 목록 */
+.wcCertList {
+  position: relative;
+  width: 448px;
+  height: 170px;
+  border: 1px #ccc solid; }
+  .wcCertList * {
+    line-height: 14px; }
+  .wcCertList table thead th, .wcCertList table tbody td {
+    table-layout: auto;
+    border-right: 1px #e4e4e4 solid;
+    text-align: center; }
+  .wcCertList table thead th {
+    padding: 5px;
+    background: #f4f4f4; }
+    .wcCertList table thead th .wcCertListTit {
+      position: relative; }
+    .wcCertList table thead th .wcMoveBar {
+      position: absolute;
+      top: -5px;
+      left: 100%;
+      margin: 0 0 0 3px;
+      width: 6px;
+      height: 24px;
+      cursor: w-resize;
+      background: transparent; }
+  .wcCertList tbody td {
+    padding: 0;
+    border-bottom: 1px #e4e4e4 solid; }
+  .wcCertList tbody tr.wcSelcOn td {
+    background: #6aa2ff;
+    color: #fff; }
+  .wcCertList tbody td .wcCertListConts {
+    overflow: hidden;
+    padding: 4px 3px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer; }
+
+/* 비밀번호 입력 */
+.wcPwWrap {
+  padding: 10px;
+  border: 1px #ccc solid;
+  text-align: center; }
+  .wcPwWrap .wcPwInput input[type="password"] {
+    width: 260px;
+    height: 23px;
+    padding: 0 5px;
+    border: 1px #777 solid;
+    -moz-box-shadow: inset 0 1px 4px 0 #dddddd;
+    -webkit-box-shadow: inset 0 1px 4px 0 #dddddd;
+    box-shadow: inset 0 1px 4px 0 #dddddd; }
+  .wcPwWrap .wcTipText {
+    margin-top: 10px;
+    color: #555; }
+
+/* 비밀번호 변경 */
+.wcPwChangeWrap {
+  padding: 10px;
+  border: 1px #ccc solid;
+  text-align: center; }
+  .wcPwChangeWrap .wcPwChange {
+    clear: both;
+    width: 300px;
+    height: 23px;
+    margin-bottom: 10px; }
+    .wcPwChangeWrap .wcPwChange span {
+      float: left;
+      display: block;
+      padding-top: 0px;
+      width: 98px;
+      padding: 5px 0;
+      text-align: left; }
+    .wcPwChangeWrap .wcPwChange input[type="password"] {
+      float: left;
+      width: 190px;
+      height: 23px;
+      padding: 0 5px;
+      border: 1px #777 solid;
+      -moz-box-shadow: inset 0 1px 4px 0 #dddddd;
+      -webkit-box-shadow: inset 0 1px 4px 0 #dddddd;
+      box-shadow: inset 0 1px 4px 0 #dddddd; }
+  .wcPwChangeWrap .wcTipText {
+    clear: both;
+    color: #555; }
+
+/* 버튼 */
+.wcBtnWrap {
+  text-align: right;
+  padding-top: 5px; }
+
+.wcBtnWrap02 {
+  text-align: right;
+  padding-right: 10px; }
+
+.wcBtnWrap input[type="button"], .wcBtnWrap02 input[type="button"] {
+  border: 1px #777 solid;
+  background: #fff;
+  width: 100px;
+  height: 25px;
+  line-height: 25px;
+  cursor: pointer;
+  -moz-box-shadow: inset 0 -2px 8px -2px #bbbbbb;
+  -webkit-box-shadow: inset 0 -2px 8px -2px #bbbbbb;
+  box-shadow: inset 0 -2px 8px -2px #bbbbbb; }
+
+.wcBtnWrap input[type="button"]:hover, .wcBtnWrap02 input[type="button"]:hover {
+  -moz-box-shadow: inset 0 2px 8px -2px #999999;
+  -webkit-box-shadow: inset 0 2px 8px -2px #999999;
+  box-shadow: inset 0 2px 8px -2px #999999; }
+
+.wcProgBtnWrap {
+  text-align: center;
+  padding-top: 5px; }
+  .wcProgBtnWrap input[type="button"] {
+    border: 1px #777 solid;
+    background: #fff;
+    width: 60px;
+    height: 35px;
+    line-height: 35px;
+    cursor: pointer;
+    -moz-box-shadow: inset 0 -2px 8px -2px #bbbbbb;
+    -webkit-box-shadow: inset 0 -2px 8px -2px #bbbbbb;
+    box-shadow: inset 0 -2px 8px -2px #bbbbbb; }
+    .wcProgBtnWrap input[type="button"]:hover {
+      -moz-box-shadow: inset 0 2px 8px -2px #999999;
+      -webkit-box-shadow: inset 0 2px 8px -2px #999999;
+      box-shadow: inset 0 2px 8px -2px #999999; }
+  .wcProgBtnWrap .wcOkBtn input[type="button"] {
+    border: 1px #157 solid;
+    background: #fff; }
+
+/* 드라이브 선택 팝업 */
+.wcDriveSelectionWrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -225px 0 0 -160px;
+  padding-bottom: 10px;
+  width: 320px;
+  border: 1px #777 solid;
+  background: #fff; }
+
+.wcDriveSelectionCont {
+  padding: 10px; }
+
+.wcDriveSelection {
+  position: relative;
+  background: #fff;
+  height: 102px;
+  border: 1px #ddd solid; }
+  .wcDriveSelection table thead th {
+    table-layout: auto;
+    padding: 5px;
+    text-align: center;
+    border-bottom: 1px #ddd solid;
+    background: #efefef; }
+    .wcDriveSelection table thead th .wcDriveTit {
+      position: relative; }
+  .wcDriveSelection table tbody td {
+    table-layout: auto;
+    border-top: 1px #e4e4e4 solid;
+    text-align: center; }
+    .wcDriveSelection table tbody td .wcDriveConts {
+      overflow: hidden;
+      padding: 3px 3px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      cursor: pointer; }
+  .wcDriveSelection table tbody tr.wcSelcOn td {
+    background: #6aa2ff;
+    color: #fff; }
+
+/*
+.wcDriveSelection table thead th .wcMoveBar {
+  position: absolute;
+  top: -5px;
+  left: 100%;
+  width: 3px;
+  height: 24px;
+  cursor: w-resize;
+  background: transparent;
+}
+*/
+/* PIN 또는 비밀번호 입력 팝업 */
+.wcPwLayoutWrap, .wcPkcs11LoginWrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -100px 0 0 -170px;
+  padding-bottom: 10px;
+  width: 340px;
+  border: 1px #777 solid;
+  background: #fff; }
+
+.wcPwLayoutWrap .wcSection, .wcPkcs11LoginWrap .wcSection {
+  padding: 5px 0; }
+
+.wcPwLayoutCont, .wcPkcs11LoginCont {
+  margin: 5px 10px 0; }
+
+/* 인증서 정보 팝업 */
+.wcCretDetailWrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -225px 0 0 -200px;
+  padding-bottom: 10px;
+  width: 400px;
+  border: 1px #777 solid;
+  background: #fff; }
+
+.wcCretDetailCont {
+  padding: 10px; }
+  .wcCretDetailCont ul {
+    position: relative;
+    overflow: hidden;
+    width: 380px;
+    height: 360px; }
+  .wcCretDetailCont li {
+    position: absolute;
+    top: 0;
+    left: 0; }
+
+/* z-index 넣으면 다른쪽 탭을 선택(클릭)할 수 없음 */
+/*
+.wcTap01,
+.wcTap02 {
+  z-index: 1;
+  width: 100%;
+}
+.wcTap01.wcSelcOn,
+.wcTap02.wcSelcOn {
+  z-index: 2;
+}
+*/
+.wcTap01 .wcTapCont, .wcTap02 .wcTapCont {
+  display: none; }
+
+.wcTap01.wcSelcOn .wcTapCont, .wcTap02.wcSelcOn .wcTapCont {
+  display: block; }
+
+/*
+.wcTapTit {
+  position: absolute;
+  top: 3px;
+  display: inline-block;
+  padding: 7px 10px 5px;
+  width: 50px;
+  height: 14px;
+  border: 1px #ddd solid;
+  border-bottom: none;
+  background: #f4f4f4;
+  z-index: 5;
+  cursor: pointer;
+}
+*/
+.wcTapTit {
+  position: absolute;
+  top: 3px;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  padding: 7px 10px 5px;
+  width: 50px;
+  height: 14px;
+  border: 1px #ddd solid;
+  border-bottom: none;
+  background: #f4f4f4;
+  z-index: 5;
+  cursor: pointer; }
+
+.wcTap01 .wcTapTit {
+  left: 10px; }
+
+.wcTap02 .wcTapTit {
+  left: 82px;
+  width: 60px; }
+
+.wcTap01.wcSelcOn .wcTapTit, .wcTap02.wcSelcOn .wcTapTit {
+  top: 1px;
+  padding: 9px 10px 7px;
+  border: 1px #bbb solid;
+  border-bottom: none;
+  background: #fff; }
+
+.wcTapCont {
+  margin-top: 30px;
+  padding: 10px 0;
+  width: 100%;
+  height: 313px;
+  border-top: 2px #bbb solid;
+  background: #fff; }
+
+/* 인증서 정보 일반 */
+.wcBaseInfo {
+  overflow: auto;
+  width: 358px;
+  height: 314px; }
+  .wcBaseInfo .wcBaseInfoTit {
+    padding: 20px 0; }
+  .wcBaseInfo .wcBaseInfoCont dt {
+    padding-bottom: 3px; }
+  .wcBaseInfo .wcBaseInfoCont dd {
+    padding-bottom: 20px;
+    word-break: break-all; }
+
+/* 인증서 정보 자세히 */
+.wcDetailInfo {
+  position: relative;
+  background: #fff;
+  height: 250px;
+  border: 1px #ddd solid; }
+
+.wcDetailInfo02 {
+  overflow-y: auto;
+  margin-top: 10px;
+  padding: 5px;
+  height: 40px;
+  /* 380px - padding(5*2) + border(1*2) */
+  width: 368px;
+  border: 1px #ddd solid;
+  word-break: break-all; }
+
+.wcDetailInfo table thead th {
+  table-layout: auto;
+  padding: 5px;
+  text-align: center;
+  border-bottom: 1px #ddd solid;
+  background: #efefef; }
+  .wcDetailInfo table thead th .wcDetailTit {
+    position: relative; }
+  .wcDetailInfo table thead th .wcMoveBar {
+    position: absolute;
+    top: -5px;
+    left: 100%;
+    width: 3px;
+    height: 24px;
+    cursor: w-resize;
+    background: transparent; }
+.wcDetailInfo table tbody td {
+  table-layout: auto;
+  border-top: 1px #e4e4e4 solid; }
+  .wcDetailInfo table tbody td .wcDetailConts {
+    overflow: hidden;
+    padding: 3px 3px;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    cursor: pointer; }
+.wcDetailInfo table tbody tr.wcSelcOn td {
+  background: #6aa2ff;
+  color: #fff; }
+
+/* 인증서 가져오기 */
+.wcImportCertificateWrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -210px 0 0 -170px;
+  padding-bottom: 10px;
+  width: 340px;
+  border: 1px #777 solid;
+  background: #fff; }
+  .wcImportCertificateWrap .wcSection {
+    padding: 5px 0; }
+
+.wcImportCertificateCont {
+  margin: 5px 10px 0; }
+
+/* 중계서버 인증서 가져오기 */
+.wcImportCertRelayWrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -210px 0 0 -235px;
+  padding-bottom: 10px;
+  width: 470px;
+  border: 1px #777 solid;
+  background: #fff; }
+
+/* 인증서 복사 */
+.wcCertCopyWrap {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin: -210px 0 0 -235px;
+  padding-bottom: 10px;
+  width: 470px;
+  border: 1px #777 solid;
+  background: #fff; }
+
+/*# sourceMappingURL=certificate_ui.css.map */

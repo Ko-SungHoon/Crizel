@@ -1,0 +1,22 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="x-ua-compatible" content="IE=edge" charset="UTF-8">
+</head>
+<body>
+
+<form id="form-send" th:action="${returnUrl}" method="post">
+    <input type="hidden" id="resultCode" name="resultCode" th:value="${resultCode}">
+    <input type="hidden" id="resultMessage" name="resultMessage" th:value="${resultMessage}">
+    <input type="hidden" id="secureToken" name="secureToken" th:value="${secureToken}">
+    <input type="hidden" id="secureSessionId" name="secureSessionId" th:value="${secureSessionId}">
+    <input type="hidden" id="userId" name="userId" th:value="${userId}">
+    <input type="hidden" id="agentId" name="agentId" th:value="${agentId}">
+    <input type="hidden" id="returnUrl" name="returnUrl" th:value="${returnUrl}">
+</form>
+
+<div th:replace="include/jslib :: jslibs"></div>
+<script th:src="@{/resources/js/authentication/send.js}"></script>
+<input type="hidden" id="externalPasswordChangePageUrl" th:value="${externalPasswordChangePageUrl}">
+</body>
+</html>

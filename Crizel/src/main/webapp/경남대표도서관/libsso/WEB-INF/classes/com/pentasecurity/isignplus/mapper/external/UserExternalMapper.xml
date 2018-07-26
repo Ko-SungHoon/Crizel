@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pentasecurity.isignplus.user.external.UserExternalMapper">
+
+    <select id="findUserById" parameterType="String" resultType="com.pentasecurity.isignplus.user.model.UserVO">
+        SELECT
+            USER_ID as id,
+            PASSWORD as pwd,
+            NAME as nameKor,
+            E_MAIL as email,
+            '1' as employmentStatus <!-- ISign+에서는 재직상태가 필수입니다. 외부DB에는 재직상태가 없는것을 가정하고 외부DB에서 검색되는 사용자는 재직중이라고 판단하였습니다. 외부DB에서 재직상태를 사용하고 있다면 커스터 마이징에 대해서 개발팀과 의논 바랍니다. 1 : 재직중-->
+        FROM
+            CO_LOAN_USER_TBL
+        WHERE
+            USER_ID = #{id}
+    </select>
+    
+    
+    <select id="findUserByPkiDn" parameterType="String" resultType="com.pentasecurity.isignplus.user.model.UserVO">
+        SELECT
+            USER_ID as id,   <!-- 외부DB의 PKI 정보를 기준으로 사용자 정보를 가져올때, 사용자의 ID는 필수로 존재해야 합니다. 사용자의 ID를 기준으로 isign_user에 자동으로 사용자를 추가합니다. -->
+            PASSWORD as pwd,
+            NAME as nameKor,
+            '1' as employmentStatus, <!-- ISign+에서는 재직상태가 필수입니다. 외부DB에는 재직상태가 없는것을 가정하고 외부DB에서 검색되는 사용자는 재직중이라고 판단하였습니다. 외부DB에서 재직상태를 사용하고 있다면 커스터 마이징에 대해서 개발팀과 의논 바랍니다. 1 : 재직중-->
+            userPkiSn as pkiSn,
+            userPkiDn as pkiDn,
+            motpKey as motpKey
+        FROM
+            CO_LOAN_USER_TBL
+        WHERE
+            userPkiDn = #{pkiDn}
+    </select>
+    
+    <select id="getUserInfo" parameterType="hashMap" resultType="hashMap">
+        SELECT
+            USER_ID as id,
+            PASSWORD as pwd,
+            NAME as nameKor,
+            E_MAIL as email,
+            '1' as employmentStatus <!-- ISign+에서는 재직상태가 필수입니다. 외부DB에는 재직상태가 없는것을 가정하고 외부DB에서 검색되는 사용자는 재직중이라고 판단하였습니다. 외부DB에서 재직상태를 사용하고 있다면 커스터 마이징에 대해서 개발팀과 의논 바랍니다. 1 : 재직중-->
+        FROM
+            CO_LOAN_USER_TBL
+        WHERE
+            USER_ID = #{userId}
+    </select>
+</mapper>

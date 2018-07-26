@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pentasecurity.isignplus.authentication.fido.internal.UafMapper">
+
+	<insert id="insertTransaction" parameterType="com.pentasecurity.isignplus.authentication.fido.model.TransactionVO">
+        INSERT INTO ISIGN_UAF_TRANSACTION
+        (
+        	TID, 
+        	UID, 
+        	TYPE, 
+        	START_TIME
+        )
+        values 
+        (
+        	#{tid},
+        	#{uid},
+        	#{type},
+        	now()
+        )
+    </insert>
+    
+    <select id="selectTransaction" parameterType="com.pentasecurity.isignplus.authentication.fido.model.TransactionVO" resultType="string">
+        SELECT
+            uid
+        FROM 
+        	ISIGN_UAF_TRANSACTION
+        WHERE 
+        	TID = #{tid} AND UID = #{uid} AND TYPE = #{type} AND STATUS = 0
+	</select>
+	    
+    <select id="selectTransactionStatus" parameterType="com.pentasecurity.isignplus.authentication.fido.model.TransactionVO" resultType="int">
+        SELECT
+            status
+        FROM 
+        	ISIGN_UAF_TRANSACTION
+        WHERE 
+        	TID = #{tid} AND UID = #{uid}
+	</select>
+		    
+	<update id="updateTransaction" parameterType="com.pentasecurity.isignplus.authentication.fido.model.TransactionVO">
+        UPDATE ISIGN_UAF_TRANSACTION 
+        SET
+        	<if test="deviceid != null">
+	        	DEVICEID = #{deviceid},	        	
+        	</if>
+        	<if test="result != null">
+        		END_TIME = now(),
+        		RESULT = #{result},
+        	</if>
+            STATUS = #{status}
+        WHERE
+            TID = #{tid}   
+	</update>   
+		 
+		 
+	<insert id="insertDeviceInformation" parameterType="com.pentasecurity.isignplus.authentication.fido.model.DeviceVO">
+        INSERT INTO ISIGN_UAF_DEVICE
+        (
+        	UID, 
+        	DEVICEID,
+        	TYPE, 
+        	PUSHID,
+        	CREATE_TIME
+        )
+        values 
+        (
+        	#{uid},
+        	#{deviceid},
+        	#{type},
+        	#{pushid},
+        	now()
+        )
+    </insert>	
+    	    
+    <select id="selectDeviceInformation" parameterType="string" resultType="string">
+        SELECT
+            pushid
+        FROM 
+        	ISIGN_UAF_DEVICE
+        WHERE 
+        	UID = #{uid}
+	</select>
+	    	
+	<update id="updateDeviceInformation" parameterType="com.pentasecurity.isignplus.authentication.fido.model.DeviceVO">
+        UPDATE ISIGN_UAF_DEVICE 
+        SET
+			PUSHID = #{pushid},
+			UPDATE_TIME = now()
+        WHERE
+            DEVICEID = #{deviceid} 
+	</update>   
+		    
+    <select id="selectKeyInformation" parameterType="string" resultType="string">
+        SELECT
+            keyid
+        FROM 
+        	ISIGN_UAF_KEYS
+        WHERE 
+        	username = #{uid}
+        LIMIT 1
+	</select>
+			    	    
+</mapper>

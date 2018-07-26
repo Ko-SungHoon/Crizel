@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pentasecurity.isignplus.authentication.saml.internal.SamlMapper">
+
+	<select id="selectIdpIdpInfo" resultType="com.pentasecurity.isignplus.authentication.saml.model.SamlIdpIdpVO">
+		SELECT
+			SID as sid,
+			ENTITY_ID as entityId,
+			DOMAIN_NAME as domainName,
+			FACTOR as factor,
+			AUTHENTICATION_TYPE1 as authType,
+			AUTHENTICATION_TYPE2 as authType2,
+			SP_LOGOUT_BATCH_USE as spLogoutBatchUse,
+			SP_LOGOUT_BATCH_DELAY_TIME as spLogoutBatchDelayTime,
+			PRIVATE_KEY_VALUE as privateKeyValue,
+			PUBLIC_KEY_VALUE as publicKeyValue,
+			KEY_ALGORITHM as keyAlgorithm
+		FROM
+			isign_saml_idp_idp_info
+		ORDER BY SID
+		LIMIT 1
+	</select>
+	
+	<select id="selectIdpSpInfoList" resultType="com.pentasecurity.isignplus.authentication.saml.model.SamlIdpSpVO">
+		SELECT
+			SID as sid,
+			ENTITY_ID as entityId,
+			PROVIDER_NAME as providerName,
+			ASSERTION_CONSUMER_SERVICE as assertionConsumerService,
+			LOGOUT_SERVICE as logoutService,
+			DESCRIPTION as description,
+			DOMAIN_NAME as domainName
+		FROM
+			isign_saml_idp_sp_info
+	</select>		
+	
+	<select id="selectIdpSpInfo" parameterType="long" resultType="com.pentasecurity.isignplus.authentication.saml.model.SamlIdpSpVO">
+		SELECT
+			SID as sid,
+			ENTITY_ID as entityId,
+			PROVIDER_NAME as providerName,
+			ASSERTION_CONSUMER_SERVICE as assertionConsumerService,
+			LOGOUT_SERVICE as logoutService,
+			DESCRIPTION as description,
+			DOMAIN_NAME as domainName
+		FROM
+			isign_saml_idp_sp_info
+		WHERE
+			sid = #{sid}
+	</select>
+	
+	<select id="selectSpSpInfo" resultType="com.pentasecurity.isignplus.authentication.saml.model.SamlSpSpVO">
+		SELECT
+			SID as sid,
+			ENTITY_ID as entityId,
+			DOMAIN_NAME as domainName,
+			ASSERTION_CONSUMER_SERVICE as assertionConsumerService,
+			PROVIDER_NAME as providerName,
+			RELAYSTATE_URL as relayStateUrl
+		FROM
+			isign_saml_sp_sp_info
+		ORDER BY SID
+		LIMIT 1	
+	</select>
+	
+	<select id="selectSpIdpInfo" resultType="com.pentasecurity.isignplus.authentication.saml.model.SamlSpIdpVO">
+		SELECT
+			SID as sid,
+			ENTITY_ID as entityId,
+			LOGIN_SERVICE as loginService,
+			LOGOUT_SERVICE as logoutService,
+			USE_IDPW as useIdpw,
+			USE_PKI as usePki,
+			USE_OTP as useOtp,
+			PUBLIC_KEY_VALUE as publicKeyValue
+		FROM
+			isign_saml_sp_idp_info
+		ORDER BY SID
+		LIMIT 1
+	</select>
+	    	    
+</mapper>

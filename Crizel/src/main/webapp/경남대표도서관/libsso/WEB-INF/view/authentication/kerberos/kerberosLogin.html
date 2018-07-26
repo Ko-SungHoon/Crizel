@@ -1,0 +1,17 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="x-ua-compatible" content="IE=edge" charset="UTF-8">
+    <title>ISign+</title>
+</head>
+<body>
+
+<form id="form-login">
+    <input type="hidden" id="agentId" name="agentId" th:value="${agentId}">
+</form>
+
+<div th:replace="include/jslib :: jslibs"></div>
+<script th:src="@{/resources/js/authentication/kerberos/kerberosLogin.js}"></script>
+
+</body>
+</html>

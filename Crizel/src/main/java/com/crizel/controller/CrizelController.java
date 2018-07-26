@@ -183,6 +183,7 @@ public class CrizelController {
 							,	@RequestParam(value="addrA", required=false, defaultValue="") String addrA
 							,	@RequestParam(value="addrB", required=false, defaultValue="") String addrB
 							,	@RequestParam(value="addrC", required=false, defaultValue="") String addrC
+							,	@RequestParam(value="title", required=false, defaultValue="") String title
 			) throws Exception {
 		ModelAndView mav = new ModelAndView();
 		Maru mr = new Maru();
@@ -195,6 +196,12 @@ public class CrizelController {
 			mav.addObject("viewList", mr.getComic("http://marumaru.in/" + addrB));
 			mav.addObject("comicViewList", service.comicViewList(addrB));	// viewCount 목록
 			mav.addObject("addrB", addrB);									// 만화 viewCount 업데이트 시 where절에 쓸 주소
+			
+			//	읽은 화수 표시
+			Map<String,Object> map = new HashMap<String,Object>();
+			map.put("title", URLEncoder.encode(title,"UTF-8"));
+			map.put("addr", addrB);
+			service.comicViewCheck(map);
 		}else if("C".equals(type)){
 			// 만화 이미지 리스트
 			mav.addObject("imgList", mr.getView(addrC));

@@ -86,14 +86,6 @@ $(function(){
 					</td>
 					<td colspan="5">
 						<a href="/listDetail.do?keyword=${ob.keyword}&type=${type}&site=${ob.site}&mode=${mode}" class="ani_title">${ob.title}</a>
-						<%-- <c:choose>
-							<c:when test="${ob.site eq 'ohys'}">
-								<a href="/listDetail.do?keyword=${ob.keyword}&type=video&site=${ob.site}" class="ani_title">${ob.title}</a>
-							</c:when>
-							<c:otherwise>
-								<a href="http://leopard-raws.org/?search=${ob.keyword}" class="ani_title">${ob.title}</a>							
-							</c:otherwise>
-						</c:choose> --%>
 					</td>
 					<td>
 						<a href="/aniDelete.do?ani_id=${ob.ani_id}&day=${ob.day}&mode=${mode}" class="ani_del">삭제</a>	
@@ -104,9 +96,22 @@ $(function(){
 		<c:if test="${listDetail ne null}">
 			<c:forEach items="${listDetail}" var="ob">
 				<tr>
-					<td colspan="9">	
-						<a href="${ob.link}"> ${ob.title} </a>
-					</td>
+					<c:choose>
+						<c:when test="${mode eq 'nyaa'}">
+							<td colspan="6">	
+								<a href="${ob.link}"> ${ob.title} </a>
+							</td>
+							<td colspan="3">
+								${ob.pubDate}
+							</td>
+						</c:when>
+						<c:otherwise>
+							<td colspan="9">	
+								<a href="${ob.link}"> ${ob.title} </a>
+							</td>
+						</c:otherwise>
+					</c:choose>
+					
 				</tr>
 			</c:forEach>
 		</c:if>

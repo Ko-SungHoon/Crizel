@@ -1,186 +1,804 @@
-<%@ page import="egovframework.rfc3.board.web.BoardManager" %>
-<%@ page import="javax.servlet.http.HttpSession" %>
-<%@ page import="egovframework.rfc3.common.util.*" %>
-<%@ page import="java.util.HashMap" %>
-<%@ page import="egovframework.rfc3.common.util.DateUtils" %>
-<%@ page import="java.util.*" %>
+<%@page import="egovframework.rfc3.menu.web.CmsManager, egovframework.rfc3.common.util.EgovStringUtil"%>
+<%@ page import="java.sql.*,java.util.*,java.text.*"%>
+<%@ page import="java.util.*, egovframework.rfc3.board.vo.*, java.text.SimpleDateFormat" %>
+<%@ page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper" %>
+<%@ page import="egovframework.rfc3.common.util.*"%>
+<%@ page import="java.lang.reflect.Method, org.springframework.jdbc.support.*"%>
 <%@ page import="java.net.*" %>
+
+<%@ page import = "org.springframework.web.context.support.WebApplicationContextUtils" %>
+<%@ page import = "org.springframework.web.context.WebApplicationContext" %>
+<%@ page import = "com.ibatis.sqlmap.client.SqlMapClient,java.sql.Connection" %>
+<%@ page import = "javax.sql.DataSource, egovframework.ubitec.common.vo.Rfc_comtnmember"%>
+<%@ page import = "org.springframework.context.ApplicationContext"%>
+<%@ page import = "org.springframework.context.support.ClassPathXmlApplicationContext"%>
+
+<%@ page import="egovframework.rfc3.user.vo.*"%>
+
+<script src="//code.jquery.com/jquery.min.js"></script>
+
+<c:set value="${returnUrl}" var="retunUrl2" />
 <%
+	/*
+	BoardManager bm = new BoardManager(request);
+	CmsManager cm = new CmsManager(request);
+	SessionManager sm = new SessionManager(request);
+	/**/
 
-try {
-response.setHeader("Pragma", "no-cache" );
-response.setDateHeader("Expires", 0);
-response.setHeader("Pragma", "no-store");
-response.setHeader("Cache-Control", "no-cache" );
-
-String dt = DateUtils.getDate(new Date(),"yyyyMMddHHmmss");
-Random ran = new Random();
-//랜덤 문자 길이
-int numLength = 6;
-String randomStr = "";
-
-for (int i = 0; i < numLength; i++) {
-	randomStr += ran.nextInt(10);
-}
-String id       = "SGNE001";												// 본인실명확인 회원사 아이디
-String srvNo    = "001002";													// 본인실명확인 서비스번호
-String reqNum   = dt + randomStr;											// 본인실명확인 요청번호
-String exVar    = "0000000000000000";                                       // 복호화용 임시필드
-String retUrl   = "32https://www.gne.go.kr/index.gne?contentsSid=826";	//request.getParameter("retUrl");// 본인실명확인 결과수신 URL
+	String loginUserName = bm.isManager() ? bm.getSUserName() : !"".equals( sm.getId() ) ? sm.getName() : "";
+	String url = "/board/view."+cm.getUrlExt()+"?boardId=BBS_0000434&menuCd=DOM_000000105008000000&startPage=1&contentsSid=2950&dataSid=" + bm.getDataSid();
+	String rurl = url;
+	String returnUrl = EgovStringUtil.isNullToString(pageContext.getAttribute("retunUrl2"));
+	url = URLEncoder.encode( url, "UTF-8" );
+	returnUrl = URLEncoder.encode( returnUrl, "UTF-8" );
 
 
-String certDate	= dt;									                    // 본인실명확인 요청시간
-String certGb	= "H";														// 본인실명확인 본인확인 인증수단
-String addVar	= request.getParameter("forwardUrl");				// 본인실명확인 추가 파라메터
-//String boardReturnUrl2 = request.getParameter("boardReturnUrl");
-//out.print("addVar=["+addVar+"]<br/>");
-//if(addVar != null && addVar.equals("http://part13.gne.go.kr/setsession.sko")){
-//	if(boardReturnUrl2 != null && !boardReturnUrl2.equals("")){
-//		addVar = addVar + "?boardReturnUrl=" + java.net.URLEncoder.encode(boardReturnUrl2,"UTF-8");
-//	}
-//}
-//out.print("addVar2=["+java.net.URLDecoder.decode(addVar,"UTF-8")+"]<br/>");
-session.setAttribute("reqNum", reqNum);
-session.setAttribute("addVar", addVar);
-//session.setAttribute("addVar", addVar);
+	WebApplicationContext context  = WebApplicationContextUtils.getWebApplicationContext(request.getSession().getServletContext());
+	SqlMapClient sqlMapUbitec = (SqlMapClient)context.getBean("sqlMapUbitec");
+	String ihIdNum = "";
+
+	try {
+		Rfc_comtnmember param = new Rfc_comtnmember();
+		param.setUniq_id( sm.getUniqId() );
+		Rfc_comtnmember result = (Rfc_comtnmember) sqlMapUbitec.queryForObject("rfcMemberApp.getRfcMember", param);
+		if( result != null ) {
+			ihIdNum = result.getIhid_num();
+		}
+	} catch( Exception ex) { out.print( ex.getMessage() ); }
 
 
-//01. 암호화 모듈 선언
-com.sci.v2.pcc.secu.SciSecuManager seed  = new com.sci.v2.pcc.secu.SciSecuManager();
+	// 회원로그인 정보 ( 연락처 )
+	MberManageVO userVO = null;
 
-//02. 1차 암호화
-String encStr  = "";
-String reqInfo = id+"^"+srvNo+"^"+reqNum+"^"+certDate+"^"+certGb+"^"+addVar+"^"+exVar;  // 데이터 암호화
-encStr         = seed.getEncPublic(reqInfo);
-//out.println(encStr);out.println("|||||||||||||||||||||");
-//03. 위변조 검증 값 생성
-com.sci.v2.pcc.secu.hmac.SciHmac hmac = new com.sci.v2.pcc.secu.hmac.SciHmac();
-String hmacMsg = hmac.HMacEncriptPublic(encStr);
-//out.println(hmacMsg);
-//03. 2차 암호화
-reqInfo  = seed.getEncPublic(encStr + "^" + hmacMsg + "^" + "0000000000000000");  //2차암호화
-//String returnMenuCd=(request.getParameter("returnMenuCd"));
-//if(returnMenuCd ==null) returnMenuCd="";
+	// 회원정보 불려오기
+	if(sm.getUserSe().equals("GNR")){
+	userVO = (MberManageVO)cm.getUserInfo();
+	}
 
-//String personnel = "";
-//if(request.getParameter("personnel") == null || request.getParameter("personnel") == ""){
-//  personnel = "";
-//}else{
-//  personnel = "y";
-//}
+	if(userVO == null) userVO = new MberManageVO();
+%>
 
-//HashMap events = CommonUtil.wssIsUse("");
-//String isUseSSo = (String)events.get("constant.SSO_IS_USE");
-//if(isUseSSo==null) isUseSSo="";
+<%
+	String user_id = sm.getId();
+	String comment_sid = request.getParameter( "comment_sid" ) == null ? "" : request.getParameter( "comment_sid" ).toString();
+	String comment_title = request.getParameter( "comment_title" ) == null ? "" : request.getParameter( "comment_title" ).toString();
 
-HttpSession m_Session = request.getSession();
-String sessionID = m_Session.getId();
-String boardReturnUrl=(request.getParameter("boardReturnUrl"));
-session.setAttribute("boardReturnUrl",boardReturnUrl);
+	Connection conn = null;
+	PreparedStatement pstmt = null;
+	ResultSet rs = null;
+	StringBuffer sql = new StringBuffer();
+	if (!"".equals(comment_sid)){
+		try{
+			sqlMapUbitec.startTransaction();
 
-String strServerCert = "";
-String returnUrl  = request.getParameter("forwardUrl")==null?"":request.getParameter("forwardUrl");
-//returnUrl=java.net.URLEncoder.encode(returnUrl.replaceAll("setsession.sko","index.gne"),"UTF-8");
-session.setAttribute("SSO_RETURN_URL",returnUrl);
-//로그인되어 있다면 메인페이지로 이동하기
-//if(!sm.getUserId().equals("")) {
-//	out.println("<script>");
-//	out.println(" location.href='/'");
-//	out.println("</script>");
-//	return;
-//}
+			try {
+				conn = sqlMapUbitec.getCurrentConnection();
+			} catch(SQLException ex){}
+
+			sql.append( "UPDATE RFC_COMTNBBSCOMMENT " );
+			sql.append( "SET comment_title ='" + comment_title + "'" );
+			sql.append( "WHERE COMMENT_SID = '" + comment_sid + "'" );
+			if(!bm.isManager() ) {
+				sql.append( " AND USER_ID = '" + user_id + "'" );
+			}
+			pstmt = conn.prepareStatement( sql.toString() );
+			pstmt.executeUpdate();
+
+			sqlMapUbitec.commitTransaction();
+		} catch ( Exception ex ){
+			out.print(ex.getMessage());
+		} finally {
+			try{ if(rs != null) rs.close();} catch ( SQLException se ) { se.printStackTrace(); }
+			try{ if(pstmt != null) pstmt.close();} catch ( SQLException se ) { se.printStackTrace(); }
+			try{ if(conn != null) conn.close();} catch ( SQLException se ) { se.printStackTrace(); }
+
+			sqlMapUbitec.endTransaction();
+			response.sendRedirect(rurl);
+		}
+	}
 %>
 <script type="text/javascript">
 
-<!--
+	$(function(){
+ 	$('.tBtn > a').each(function(index) {
+ 	 //console.log($(this).attr('href'));
+ 	 var href = $(this).attr('href');
+	  if(href.indexOf('extendedTreatment')>-1) {
+	   $(this).hide();
+ 	 }
+	 });
+	});
 
-console.log("<%=session.getAttribute("SSO_RETURN_URL")%>");
+	$( document ).ready( function() {
+		$( "#commentTitle" ).on( "focus", function() {
+			// 로그인을 안했을때 로그인페이지로
 
-function alreadyIn(){
-	<%if(!sm.getId().equals("")) {
-		out.print("return true;");
-	}else{
-		out.print("return false;");
-	}%>
-}
+			<%
+			if( "".equals(loginUserName) ) {
+				%>
+				location.href="/index.gyeong?menuCd=DOM_000000106007007000&returnUrl=<%=returnUrl%>";
+				<%
+			}
+			%>
 
-    var PCC_window;
-    function openPCCWindow(){
-		if(alreadyIn()){
-			alert("이미 로그인된 상태 입니다. 로그아웃 하십시오.");
-			return false;
-		}
-        var PCC_window = window.open('', 'PCCV3Windows', 'width=430, height=560, resizable=1, scrollbars=no, status=0, titlebar=0, toolbar=0, left=300, top=200' );
 
-        if(PCC_window == null){
-			 alert(" ※ 윈도우 XP SP2 또는 인터넷 익스플로러 7 사용자일 경우에는 \n    화면 상단에 있는 팝업 차단 알림줄을 클릭하여 팝업을 허용해 주시기 바랍니다. \n\n※ MSN,야후,구글 팝업 차단 툴바가 설치된 경우 팝업허용을 해주시기 바랍니다.");
-        }
+		} );
+	} );
 
-        document.reqPCCForm.action = 'https://pcc.siren24.com/pcc_V3/jsp/pcc_V3_j10.jsp';
-        document.reqPCCForm.target = 'PCCV3Windows';
-		document.reqPCCForm.submit();
-		return true;
-    }
-//-->
+
 </script>
-<section>
+<div class="subCnt">
+<!-- ********************************************************************************************-->
 
+<!-- s : BOARD -->
+<div class="board">
+	<div class="basicView"><!-- basicView -->
+		<div class="titleField">
+			<h4><%=bm.getDataTitle()%></h4>
+			<ul>
+				<li class="t-1"><strong>조회 : </strong><span><%=bm.getViewCount()%></span></li>
+				<li class="t-2"><strong>등록일 : </strong><span><%=bm.getRegister_dt()%></span></li>
+				<li class="t-3"><strong>작성자 : </strong>
+					<span>
+						<%=bm.getUserNick() %><%if(!"0".equals(EgovStringUtil.isNullToString(bm.getDataRef()))){ %> <%=EgovStringUtil.isNullToString( bm.getTmpField3() )%><%} %>
+					</span>
+				</li>
+			</ul>
+		</div>
+		<div class="conField">
+			<ul>
+				<%if(!"0".equals(EgovStringUtil.isNullToString(bm.getDataRef()))){ %>
+						<li class="w100">
+							<span>부서 연락처</span>
+							<p><%=EgovStringUtil.isNullToString( bm.getTmpField4() )%></p>
+						</li>
+				<%}%>
+				<%
+					if( bm.isManager() || bm.getSUserId().equals(bm.getUserId())) {
+						%>
+						<%if("0".equals(EgovStringUtil.isNullToString(bm.getDataRef()))){ %>
+						<li class="w100">
+							<span>연락처</span>
+							<p><%=EgovStringUtil.isNullToString( bm.getUserTel() )%></p>
+						</li>
+						<li class="w100">
+							<span>거주 시&middot;도</span>
+							<p><%=EgovStringUtil.isNullToString( bm.getUserAddress() )%></p>
+						</li>
+						<%}%>
 
-			<form id="reqPCCForm" name="reqPCCForm" method="post" onsubmit="return openPCCWindow()">
-				<input type="hidden" name="reqInfo" value = "<%=reqInfo%>" />
-				<input type="hidden" name="retUrl"  value = "<%=retUrl%>" />
+            <!-- 180702 추가항목 -->
+            <%if(bm.isManager()){ %>
+            <%if("0".equals(EgovStringUtil.isNullToString(bm.getDataRef()))){ %>
+            <li class="w100">
+              <span>생년월일/성별</span>
+              <%
+              String tmpField2 = EgovStringUtil.isNullToString( bm.getTmpField2() );
+              if("M".equals(tmpField2)){
+            	  tmpField2 = "남";
+              }else if("F".equals(tmpField2)){
+            	  tmpField2 = "여";
+              }else{
+            	  tmpField2 = "";
+              }
 
-            </form>
+              %>
+              <p><%=EgovStringUtil.isNullToString( bm.getTmpField1() )%> / <%=tmpField2%></p>
+              <!-- <p>1998.01.01 / 남 </p> -->
+            </li>
+            <%} %>
+            <%} %>
+						<%
+					}
+					try{
+					BoardVO vo = new BoardVO();
+					vo = bm.getBoardVO();
+					String item = vo.getItemView();
 
-				<div class="login">
-					<ul class="type01">
-						<li>본인확인(휴대폰인증 또는 공공아이핀인증)을 거친 후 해당 서비스를 이용하실 수 있으며 아래 본인확인 절차를 거치시면 해당 서비스 화면으로 자동으로 이동합니다.</li>
-					</ul>
-				</div>
+					if( item != null && !item.equals("") ) {
 
-				<div class="ppt">
-					<div class="personnal pleft">
-						<dl>
-							<dt>휴대폰인증</dt>
-							<dd>휴대폰인증을 위해 SCI서울신용평가정보(주)를 통하여 입력하신 성명, 전화번호는 본인확인 목적으로만 사용되며, 경상남도교육청홈페이지에는 저장되지 않습니다.<br />
-							<a href="#phoneLogin" class="button bblue" onclick="return openPCCWindow();" title="새창으로 열립니다.">휴대폰 인증하기</a></dd>
-						</dl>
-					</div>
+						String[] items = item.split(",");
+						List<String> convertItems = new ArrayList<>();
 
-					<div class="personnal pright">
-						<dl>
-							<dt>공공아이핀인증</dt>
-							<dd>공공아이핀이란 인터넷상에서 주민등록번호를 대체할 수 있는 개인식별번호로 본인확인 기관으로부터 발급 받은 개인식별 아이디를 이용하여 본인확인을 하는 서비스입니다. 개인식별 아이디가 없으신 분은 본인요청 버튼을 클릭 후 신규발급을 받으시기 바랍니다.
+						for ( int index = 0 ; index < items.length ; index++ ) {
+							if ( items[index].indexOf( "FILE_ICON" ) < 0 && items[index].indexOf( "DATA_CONTENT" ) < 0 && items[index].indexOf( "DATA_TITLE" ) < 0 ) {
+								convertItems.add( items[index] );
+							}
+						}
+
+						for ( int index = 0 ; index < convertItems.size() ; index++ ) {
+							String[] innerItems = convertItems.get(index).split( ":" );
+
+							String getterName = innerItems[2];
+							%>
+							<li<%=convertItems.size() % 2 <= 0 ? "" : index == convertItems.size() - 1 ? " class=\"w100\"" : ""%>>
+								<span>
+									<%
+										if ( "카테고리1".equals( innerItems[0] ) ) {
+											out.print( "진행여부" );
+										} else if ( "사용자 아이콘".equals( innerItems[0] ) ) {
+											out.print( "공개여부" );
+										} else if ( "임시필드1".equals( innerItems[0] ) ) {
+											out.print( "기간" );
+										} else {
+											out.print( innerItems[0] );
+										}
+									%>
+								</span>
+								<%
+									try {
+										Class classType = BoardManager.class;
+										Method methodGetter;
+
+										if(innerItems[1].equals( "DATA_TITLE") ) {
+											methodGetter = classType.getMethod( "getDataTitle" );
+										} else {
+											methodGetter = classType.getMethod( getterName );
+										}
+
+										Object result = methodGetter.invoke( bm, null );
+
+										/*
+										임시필드1 항목선택시 기간표출..
+										tmpField1 : 시작기간
+										tmpField2 : 마감기간
+										 */
+										if( innerItems[1].equals( "TMP_FIELD1" ) ) {
+											%>
+											<p><%=bm.getTmpField1() %> ~ <%=bm.getTmpField2() %></p>
+											<%
+										} else {
+											%>
+											<p><%=result == null ? "" : result%></p>
+											<%
+										}
+
+									} catch( Throwable e ) {
+										out.println("오류2 : " + e.getMessage());
+									}
+									%>
+							</li>
 							<%
-					            String returnCtnSid="/index.gne?contentsSid=855";
-					            %>
-							<!--  <a href="http://www.gne.go.kr/G-PIN/Sample-AuthRequest.jsp?returnCtnSid=<%=returnCtnSid%>&amp;returnUrl=<%=returnUrl%>&amp;boardReturnUrl=<s:property value="boardReturnUrl" />" onclick="window.open(this.href, 'gpinWindow', 'width=500,height=500,scrollbars=yes'); return false;" title="새창으로 열립니다." target="_blank" class="button bblue">공공아이핀 인증하기</a>-->
-							<a href="http://www.gne.go.kr/G-PIN3/Sample-AuthRequest.jsp?returnCtnSid=<%=returnCtnSid%>&amp;returnUrl=<%=returnUrl%>" onclick="window.open(this.href, 'gpinWindow', 'width=500,height=500,scrollbars=yes'); return false;" title="새창으로 열립니다." target="_blank" class="button bblue">공공아이핀 인증하기</a>
-							</dd>
+						}
+					}
 
-						</dl>
+					if ( bm.getFileCount() > 0 ) {
+				%>
+				<li class="w100"><!-- width:100% -->
+					<span>첨부파일</span>
+					<p>
+						<span class="attach">
 
+<%
+		                    String userAgent = request.getHeader("user-agent");
+		                    for(int fcnt = 0;fcnt<bm.getFileCount();fcnt++){
+		                        boolean isMobile = false;
+		                        boolean isHtml5 = !(userAgent.toLowerCase().indexOf("msie 6.0")>-1||userAgent.toLowerCase().indexOf("msie 7.0")>-1||userAgent.toLowerCase().indexOf("msie 8.0")>-1);
+		                        if(userAgent.toLowerCase().indexOf("mobile") >=0){
+		                            isMobile = true;
+		                        }
+		                        if(fcnt > 0){
+		                            out.println("<br />");
+		                        }
+		                        if(bm.getBoardFileVO(fcnt) != null){
+		                            out.print(bm.getFileList(bm.getBoardFileVO(fcnt),"<a href=\"{fileDown}\" title=\"{fileName} 다운받기\" class=\"file\">{fileName} ({fileSize})</a> ").replace("<br/>","").replace("(null  kb)",""));
+
+		                            if(bm.getBoardFileVO(fcnt).getFileId()!=null && !bm.getBoardFileVO(fcnt).getFileId().equals("")){
+										out.print(bm.getHtmlViewerIcon(bm.getBoardFileVO(fcnt),"",isMobile).replaceAll("전용뷰어","바로보기"));
+									}else{
+										out.print(bm.getConvertIcon(bm.getBoardFileVO(fcnt),null).replaceAll("전용뷰어","바로보기"));
+									}
+		                        }
+		                    }
+		                %>
+						</span>
+				<%
+					}
+				%>
+					</p><!-- attach -->
+				</li>
+			</ul>
+		</div>
+		<div class="conText">
+			<!-- 입력 예시 -->
+			<p class="img">
+				<%
+				int [] ext = bm.searchFileNameExt( "jpg|bmp|png" );
+
+				if( ext.length != 0) {
+					if ( ext.length > 0 ) {
+						String fileAlt = cm.getMenuVO().getMenuNm() + "의 파일 이미지";
+					%>
+					<img src="<%=bm.getFilePath( ext[0] )%>" alt="<%=bm.getFileText( ext[0] ) == null ? fileAlt : bm.getFileText( ext[0] )%>" />
+					<%
+					} else {
+					%>
+					<img src="<%=request.getContextPath()%>/images/egovframework/rfc3/board/images/skin/bbs_list_type2/no_images.gif" alt="no images" />
+					<%
+					}
+				}
+			}catch(Exception ex){
+				out.println("오류1 : " + ex.getMessage());
+			}
+				%>
+			</p><!-- img -->
+			<%-- 내용 --%>
+			<%
+				String content = EgovStringUtil.isNullToString(bm.getDataContent());
+			%>
+			<%
+				//if(!bm.isBoardEditor())
+				if(!content.contains("</p>"))
+				{
+					content = content.replace( "&lt;", "<" ).replace( "&gt;", ">" );
+				}
+			%>
+			<%=content%><br/>
+		</div>
+		<%if(bm.isCclViewFl()) {  //공공누리 수정1---------------------------------------------start  %>
+		<%if(!bm.isCclIsWriter()) {//000%>
+		<div class="cclBox view">
+			<div class="codeView">
+				<img src="http://www.kogl.or.kr/open/web/images/images_2014/codetype/new_img_opencode0.jpg" alt="<%=bm.getDataTitle()%> 저작물은 자유이용을 불가합니다."/>
+				<p><%=bm.getDataTitle()%> 저작물은 자유이용을 불가합니다.</p>
+			</div>
+		</div>
+		<%} else {%>
+			<%if(!bm.isCclIsPay()) {%>
+				<%if(!bm.isCclIsModify()) {//100%>
+					<div class="cclBox view">
+						<div class="codeView">
+							<img src="http://www.kogl.or.kr/open/web/images/images_2014/codetype/new_img_opencode1.jpg" alt="<%=bm.getDataTitle()%> 저작물은 공공누리 출처표시 조건에 따라 이용할 수 있습니다."/>
+							<p><%=bm.getDataTitle()%> 저작물은 공공누리 "출처표시" 조건에 따라 이용할 수 있습니다.</p>
+						</div>
 					</div>
-					<div class="clr"></div>
-
-
-					<div class="personnal01">
-						<dl>
-							<dt>경상남도교육청통합로그인</dt>
-							<dd> 학교홈페이지, 경상남도교육청 홈페이지, 경남사이버학습, 경남교수학습지원센터, 경남사이버영재교육원, 경남진로진학지원센터, 독도사랑나라사랑, 경남교육사이버도서관, 경상남도교육연구정보원을 하나의 아이디로 이용할 수 있는 통합로그인 서비스입니다.<a href="/sso/business.jsp" class="button bblue" style="text-align: center">경상남도교육청통합로그인</a>
-							</dd>
-						</dl>
+				<%
+				} else {//101
+					%>
+					<div class="cclBox view">
+						<div class="codeView">
+							<img src="http://www.kogl.or.kr/open/web/images/images_2014/codetype/new_img_opencode3.jpg" alt="<%=bm.getDataTitle()%> 저작물은 공공누리 출처표시+변경금지 조건에 따라 이용할 수 있습니다."/>
+							<p><%=bm.getDataTitle()%> 저작물은 공공누리 “출처표시+변경금지” 조건에 따라 이용할 수 있습니다.</p>
+						</div>
 					</div>
+					<%
+					}
+				%>
+				<%
+				} else {
+				%>
+				<%
+					if (!bm.isCclIsModify()) {//110
+					%>
+					<div class="cclBox view">
+						<div class="codeView">
+							<img src="http://www.kogl.or.kr/open/web/images/images_2014/codetype/new_img_opencode2.jpg" alt="<%=bm.getDataTitle()%> 저작물은 공공누리 '출처표시+상업적이용금지' 조건에 따라 이용할 수 있습니다."/>
+							<p><%=bm.getDataTitle()%> 저작물은 공공누리 “출처표시+상업적이용금지” 조건에 따라 이용할 수 있습니다.</p>
+						</div>
+					</div>
+					<%
+				} else {//111
+					%>
+					<div class="cclBox view">
+						<div class="codeView">
+							<img src="http://www.kogl.or.kr/open/web/images/images_2014/codetype/new_img_opencode4.jpg" alt="<%=bm.getDataTitle()%> 저작물은 공공누리 “출처표시+상업적이용금지+변경금지” 조건에 따라 이용할 수 있습니다."/>
+							<p><%=bm.getDataTitle()%> 저작물은 공공누리 “출처표시+상업적이용금지+변경금지” 조건에 따라 이용할 수 있습니다.</p>
+						</div>
+					</div>
+					<%}%>
+				<%}%>
+			<%}%>
+		<%}  //공공누리 수정1---------------------------------------------end  %>
+	</div>
+</div>
+<!-- e : BOARD -->
+
+<!-- s : 게시판버튼 -->
+<div class="tBtn tac">
+	<%=bm.getViewIcons()%>
+</div>
+<!-- e : 게시판버튼 -->
+<%if("0".equals(EgovStringUtil.isNullToString(bm.getDataRef()))){ %>
+<!-- s : 코멘트 쓰기 -->
+	<script type="text/javascript">
+		function formCommentSubmit( f ) {
+
+			if( f.commentTitle.value == null || f.commentTitle.value == '' ) {
+				alert("참여의견을 작성해주세요.");
+				f.commentTitle.focus();
+				return false;
+			} else {
+				if($('#commentTitle').val().length > 950) {
+					$('#commentTitle').val( $('#commentTitle').val().substring(0, 950) );
+					alert("참여의견은 950자를 초과 입력 할 수 없습니다.");
+					return false;
+				}
+			}
+
+			var regExp = /^\d{3}-\d{3,4}-\d{4}$/;
+
+			if( !f.pCheck1.checked && f.giftTel.value != '' ) {
+				alert('개인정보수집에 동의해주세요.');
+				f.pCheck1.focus();
+				return false;
+			} else if( f.pCheck1.checked && f.giftTel.value == '' ) {
+				alert('연락처를 입력해주세요.');
+				f.giftTel.focus();
+				return false;
+			} else if( f.pCheck1.checked && f.giftTel.value != '' ) {
+				if ( !regExp.test( f.giftTel.value ) ) {
+					alert( '연락처는 -를 포함해서 입력해주세요.' );
+					f.giftTel.focus();
+					return false;
+				} else {
+					var gift = f.commentTitle.value + '§' + f.giftTel.value;
+					f.commentTitle.value = gift;
+				}
+			}
+		}
+		function formCommentUpdate(t, s) {
+			var result = confirm("수정하시겠습니까?");
+	    		if(result){
+				f = document.getElementById("comment_action");
+				t = Number(t);
+				var c_title;
+				var fileValue = $("textarea[name='c_title']").length;
+				var fileData = new Array(fileValue);
+		    		for(var i=0; i<fileValue; i++){
+					if (i == t){
+		         		if ($("input[name='telupt']")[i].value != ''){
+		         			c_title = $("textarea[name='c_title']")[i].value + '§' + $("input[name='telupt']")[i].value;
+		         		} else {
+		         			c_title = $("textarea[name='c_title']")[i].value;
+		         		}
+					}
+			   	}
+			    	if(c_title.length > 950){
+		    			alert("참여 의견은 950자를 초과입력 할 수 없습니다.")
+		    			return;
+		    		}
+			 	f.comment_title.value = c_title;
+				f.comment_sid.value = s;
+				f.action = "<%=rurl%>";
+				f.submit();
+	    		} else {
+	    			return;
+	    		}
+		}
+		function likeAction( sid ) {
+		<%
+			if( "".equals(loginUserName) ) {
+		%>
+			location.href="/index.gyeong?menuCd=DOM_000000106007007000&returnUrl=<%=returnUrl%>";
+		<%
+			} else {
+		%>
+			var frm = document.likeForm;
+			frm.commentSid.value = sid;
+			frm.submit();
+		<%
+			}
+		%>
+		}
+	</script>
+	<div class="agree mt20">
+	<%
+		String sGetId = EgovStringUtil.isNullToString(sm.getId());
+
+		// 핸드폰 번호
+		String getUserTel = "";
+		String mUserTel = "";
+
+		String userTel1 = "";
+		String userTel2 = "";
+		String userTel3 = "";
+
+		// mUserTel = EgovStringUtil.isNullToString(bm.getUserTel()); // 사용자 폰번호
+
+		//폰번호
+		if(mUserTel.equals("")){
+
+			if( sGetId.length() < 40 ) {
+				// 회원로그인
+				getUserTel = EgovStringUtil.isNullToString(userVO.getMoblfristNo())+EgovStringUtil.isNullToString(userVO.getMoblmiddleNo())+EgovStringUtil.isNullToString(userVO.getMoblendNo());
+			} else {
+				// 폰 본인인증 연락처
+				getUserTel = (String)session.getAttribute("cellNo");
+			}
+
+		}
+
+		// 연락처 체크
+		if( !EgovStringUtil.isNullToString( getUserTel ).equals("") ) {
+
+			if(getUserTel.length() == 11){
+
+				userTel1 = getUserTel.substring(0, 3);
+				userTel2 = getUserTel.substring(3, 7);
+				userTel3 = getUserTel.substring(7, 11);
+
+			 }
+
+			 if(getUserTel.length() == 10){
 
 
-				</div>
-			</section>
+				 userTel1 = getUserTel.substring(0, 3);
+				 userTel2 = getUserTel.substring(3, 6);
+				 userTel3 = getUserTel.substring(6, 10);
+			 }
 
- <% } catch(Exception eee) {
-	 
-	 out.println("<script>");
-	 out.println("alert('처리중 오류가 발생하였습니다.');");
-	 out.println("history.go(-1);");
-	 out.println("</script>");
-	 
- } %>
+			 if( !userTel1.equals("") ) {
+				getUserTel = userTel1 + "-" + userTel2 + "-" + userTel3;
+			 } else {
+				 getUserTel = "";
+			 }
+
+
+		}
+
+		%>
+
+		<%
+		try{
+				%>
+				<form name="comment" onsubmit="return formCommentSubmit(this);" id="comment" method="post" action="/board/writeComment.gyeong" enctype="multipart/form-data">
+					<!-- s :개인정보 수집동의 -->
+					<h5 class="h5 mb20">개인정보 수집 동의</h5>
+					<div class="brdbox v2">
+						<ol class="ol-v1">
+							<li><strong>1. 개인정보의 수집&middot;이용 목적</strong>
+								<ul>
+									<li>- 경상남도 홈페이지시스템에 입력된 개인정보는 게시자의 의견 확인 및 답변을 위해 수집&middot;활용됩니다.</li>
+								</ul>
+							</li>
+							<li><strong>2. 수집하는 개인정보의 항목</strong>
+								<ul>
+									<li>- 수집항목 : 성명 , 연락처, 가상실명인증키
+										<p>※ 각 게시판 별 수집항목은 차이가 있을 수 있습니다.</p>
+									</li>
+								</ul>
+							</li>
+							<li><strong>3. 보유&middot;이용기간</strong>
+								<ul>
+									<li>- 법령에 따른 개인정보 보유&middot;이용기간내에서 개인정보를 처리 및 보유합니다.</li>
+								</ul>
+							</li>
+							<li><strong>4. 이용자는 해당 개인정보 수집 및 이용 동의에 대한 거부 권리가 있습니다.</strong>
+								<p>※ 단, 개인정보 수집 및 이용 동의를 하지 않으실 경우 의견 접수 및 답변이 불가할 수 있습니다.</p>
+							</li>
+						</ol>
+					</div>
+					<div class="privacyCheck">
+						<input type="checkbox" id="pCheck1" value="Y" name="pCheck1" /><label for="pCheck1">개인정보수집에 동의합니다.</label>
+					</div>
+					<!-- e :개인정보 수집동의 -->
+					<input type="hidden" name="dataSid" value="<%=bm.getDataSid()%>" />
+					<input type="hidden" name="boardId" value="<%=bm.getBoardId()%>" />
+					<input type="hidden" name="boardSid" value="<%=bm.getBoardSid()%>" />
+					<input type="hidden" name="userId" value="<%=sm.getId()%>" />
+					<%-- <input type="hidden" name="userNick" value="<%=loginUserName%>" /> --%>
+					<input type="hidden" name="menuCd" value="<%=cm.getMenuVO().getMenuCd()%>" />
+					<fieldset>
+						<legend>참여의견 쓰기</legend>
+						<div class="sns_login">
+							<h3>참여의견 등록하기 <span class="re_span">※ 950자 이내로 작성해 주세요.</span></h3>
+						</div>
+
+						<div class="sns_write">
+							<p class="telArea">
+								<label for="giftTel">연락처</label>
+								<input type="text" name="giftTel" class="input" id="giftTel" title="연락처" value="<%=EgovStringUtil.isNullToString( getUserTel )%>">
+								<label for="userNick">이름</label>
+								<input type="text" name="userNick" class="input" id="userNick" title="이름" value="<%=EgovStringUtil.isNullToString( loginUserName )%>" <%if(!bm.isManager()){out.println("readonly");} %>>
+							</p>
+							<label for="commentTitle" class="blind">댓글쓰기</label>
+							<textarea rows="10" cols="30" id="commentTitle" name="commentTitle" title="댓글쓰기" style="width:90%; float: left; heigth: 75px; padding: 10px; border: 1px solid #e4e4e4; background: #f9f9f9; resize: none; color: #666;" placeholder="950자 이내로 작성해 주세요."></textarea>
+							<label for="commentSubmit" class="blind">등록</label>
+							<input type="submit" id="commentSubmit" value="등록" title="등록">
+						</div>
+					</fieldset>
+				</form>
+				<%
+		}catch(Exception ex){
+			out.println("오류4 : " + ex.getMessage());
+		}
+		try{
+		%>
+		<!-- s : 코멘트 리스트 -->
+		<%
+			List<CommentVO> commentList = bm.getCommentList( bm.getDataSid() );
+			SimpleDateFormat sdf = new SimpleDateFormat( "yyyy.MM.dd" );
+		%>
+
+		<div class="replyList replyInput">
+			<form name="comment_action" id="comment_action" method="post">
+			<input type="hidden" name="comment_title" value="" />
+			<input type="hidden" name="comment_sid" value="" />
+			</form>
+			<ul>
+				<%
+				for ( int index = 0 ; index < commentList.size() ; index++ ) {
+
+					CommentVO comment = commentList.get( index );
+
+
+					String date = sdf.format( comment.getRegister_dt() );
+					String title = "";
+					String tel = "";
+
+					if( comment.getCommentTitle().contains("§") ) {
+						String[] splitTitle = comment.getCommentTitle().split("§");
+
+						title = splitTitle[0];
+						tel = splitTitle[1];
+					} else {
+						title = comment.getCommentTitle();
+					}
+					%>
+					<li>
+						<strong>
+							<%
+							if( bm.isManager() ) {
+								%>
+								<%=comment.getUserNick()%>
+								<%
+							} else {
+								String userNick = EgovStringUtil.isNullToString(comment.getUserNick());
+
+								if( !userNick.equals("") ) {
+									userNick = userNick.substring(0, 1);
+								}
+								%>
+								<%=userNick %>**
+								<%
+							}
+							%>
+
+
+						</strong>
+						<%
+						if( bm.isManager() ) {
+						%>
+							<span class="mr20"><%=EgovStringUtil.isNullToString(tel)%></span>
+
+							<div class="btn">
+								<%=bm.getCommentDelete(request.getContextPath()+"/images/egovframework/rfc3/board/images/skin/common/btn_del1.gif",comment.getCommentSid(),"") %>
+								<a href="javascript:formCommentUpdate('<%=index%>', '<%=comment.getCommentSid()%>');"><img alt="수정버튼" src="/images/egovframework/rfc3/board/images/skin/common/btn_modify1.gif"/></a>
+							</div>
+
+						<%
+						} else {
+							if( !EgovStringUtil.isNullToString(comment.getUserId()).equals("") ) {
+								if( comment.getUserId().equals( sm.getId() ) || ihIdNum.equals( comment.getUserId() ) ) {
+								%>
+										<div class="btn">
+											<%=bm.getCommentDelete(request.getContextPath()+"/images/egovframework/rfc3/board/images/skin/common/btn_del1.gif",comment.getCommentSid(),"") %>
+											<a href="javascript:formCommentUpdate('<%=index%>', '<%=comment.getCommentSid()%>');"><img alt="수정버튼" src="/images/egovframework/rfc3/board/images/skin/common/btn_modify1.gif"/></a>
+										</div>
+								<%
+								}
+							}
+						}
+						%>
+						<div class="sns_write">
+							<textarea rows="10" cols="30" id="c_title" name="c_title" style="width:100%; float: left; heigth: 75px; padding: 10px; border: 1px solid #e4e4e4; background: #f9f9f9; resize: none; color: #666;"><%=title.replaceAll( "<br>", "&#10;" )%></textarea>
+							<%
+							if( bm.isManager() ) {
+							%>
+							<input type="hidden" name="telupt" value="<%=EgovStringUtil.isNullToString(tel)%>">
+							<%
+							}else{
+								if( !EgovStringUtil.isNullToString(comment.getUserId()).equals("") ) {
+									if( comment.getUserId().equals( sm.getId() ) || ihIdNum.equals( comment.getUserId() ) ) {
+									%>
+										<input type="hidden" name="telupt" value="<%=EgovStringUtil.isNullToString(tel)%>">
+									<%
+									}
+								}
+							}
+							%>
+						</div>
+
+						<button class="comment_recomm btn_g btn_recomm" onclick="likeAction('<%=comment.getCommentSid()%>');">
+							<span class="num_txt"><%=bm.getBoardCommentLikeCount( "G", comment.getCommentSid() )%></span>
+						</button>
+						<span class="sns_date"><%=date%></span>
+
+					</li>
+					<%
+				}
+		}catch(Exception ex){
+			out.println("오류5 : " + ex.getMessage());
+		}
+				%>
+			</ul>
+		</div>
+		<form action="/board/util/commentLikeAction.gyeong" id='likeForm' name="likeForm"  method="post">
+			<input type="hidden" name="dataSid" value="<%=bm.getDataSid()%>" />
+			<input type="hidden" name="boardId" value="<%=bm.getBoardId()%>" />
+			<input type="hidden" name="boardSid" value="<%=bm.getBoardSid()%>" />
+			<input type="hidden" name="userId" value="<%=sm.getId()%>" />
+			<input type="hidden" name="userNick" value="<%=loginUserName%>" />
+			<input type="hidden" name="userName" value="<%=loginUserName%>" />
+			<input type="hidden" name="menuCd" value="<%=cm.getMenuVO().getMenuCd()%>" />
+			<input type="hidden" name="checkType" value="G" />
+			<input type="hidden" name="countType" value="G" />
+			<input type="hidden" name="commentSid" value="" />
+		</form>
+		<!-- e : 코멘트 리스트 -->
+	</div>
+
+<!-- e : 코멘트 쓰기 -->
+<%} %>
+
+<%
+	if( bm.getCategoryCode1().equals( "01" ) ) {
+		%>
+		<!-- s : 코멘트 목록 밑 게시판버튼 -->
+		<div class="tBtn tac">
+			<%=bm.getViewIcons()%>
+		</div>
+		<!-- e : 코멘트 목록 밑 게시판버튼 -->
+		<%
+	}
+%>
+
+<!-- s : 이전/다음글 -->
+<%
+	int dataIdx = bm.getDataIdx();
+	int prev = dataIdx - 5;
+	int next = dataIdx + 5;
+
+	//다음글
+	List<BoardDataVO> nextList;
+	nextList = bm.getBoardDataUserList(bm.getBoardId(), " and DATA_IDX > " + dataIdx + " and DATA_IDX < " + next, "data_idx:asc", 1);
+
+	//이전글
+	List<BoardDataVO> beforeList = new ArrayList<BoardDataVO>();
+	beforeList = bm.getBoardDataUserList(bm.getBoardId(), " and DATA_IDX < " + dataIdx + " and DATA_IDX > " + prev, "data_idx:desc", 1);
+
+%>
+
+<div class="viewPager">
+	<ul>
+		<li class="prev">
+			<span>이전글</span>
+			<p>
+				<%
+					if( beforeList.size() == 0 ) {
+				%>
+						이전 게시물이 없습니다.
+				<%
+					} else {
+						BoardDataVO beforeVO = beforeList.get(0);
+				        bm.setDataVO(beforeVO);
+				%>
+						<a href="/board/view.gyeong?boardId=<%=bm.getBoardId()%><%=bm.getToViewParam()%>"><%=bm.getDataTitle()%></a>
+				<%
+					}
+				%>
+			</p>
+		</li>
+		<li class="next">
+			<span>다음글</span>
+			<p>
+				<%
+					if( nextList.size() == 0 ) {
+				%>
+						다음 게시물이 없습니다.
+				<%
+					} else {
+						BoardDataVO nextVO = nextList.get(0);
+				        bm.setDataVO(nextVO);
+				%>
+						<a href="/board/view.gyeong?boardId=<%=bm.getBoardId()%><%=bm.getToViewParam()%>"><%=bm.getDataTitle()%></a>
+				<%
+					}
+				%>
+			</p>
+		</li>
+	</ul>
+</div>
+<!-- e : 이전/다음글 -->
+</div>
+                         

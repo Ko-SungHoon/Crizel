@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pentasecurity.isignplus.agentservice.internal.AgentServiceMapper">
+
+	<select id="findAgentService" parameterType="long"
+            resultType="com.pentasecurity.isignplus.agentservice.model.AgentServiceVO">
+		select 
+			SID as sid,
+			NAME as name,
+			DESCR as descr,
+			SERVICE_TYPE as serviceType,
+			SVCGROUPSID as svcGroupSid,
+			IP as ip,
+			PORT as port,
+			SERVERTYPE as serverType,
+			SERVERTYPE2 as serverType2,
+			ACSTIMEFROM as acsTimeFrom,
+			ACSTIMETO as acsTimeTo,
+			ISENCRYPT as isEncrypt,
+			AUTHMETHOD as authType,
+			AUTHMETHOD2 as authType2,
+			ISMUTUAL as isMutual,
+			REQUESTAGENT as requestAgent,
+			ACCESS_CONTROL_POLICY as accessControlPolicy,
+			CRTADMINSID as crtAdminSid,
+			CRTDATE as crtDate,
+			MDFADMINSID as mdfAdminSid,
+			MDFDATE as mdfDate,
+			DN as dn,
+			NOTIFY as notify,
+			USEISIGNPAGE as useIsignPage,
+			USEISIGNPAGE2 as useIsignPage2,
+			AUTHORIZATION_URL as authorizationUrl,
+			RETURNURL as returnUrl,
+			AUTHURL as authUrl,
+			AUTHURL2 as authUrl2,
+			LOGOUTURL as logoutUrl,
+			USE_IP_CONTROL as useIpControl,
+			DEFAULT_SERVICE as defaultService
+		from 
+	      	isign_service 
+	    where 
+	    	sid = #{sid}
+	</select>
+	
+	<select id="findDefaultAgentService"
+            resultType="com.pentasecurity.isignplus.agentservice.model.AgentServiceVO">
+		select 
+			SID as sid,
+			NAME as name,
+			DESCR as descr,
+			SERVICE_TYPE as serviceType,
+			SVCGROUPSID as svcGroupSid,
+			IP as ip,
+			PORT as port,
+			SERVERTYPE as serverType,
+			SERVERTYPE2 as serverType2,
+			ACSTIMEFROM as acsTimeFrom,
+			ACSTIMETO as acsTimeTo,
+			ISENCRYPT as isEncrypt,
+			AUTHMETHOD as authType,
+			AUTHMETHOD2 as authType2,
+			ISMUTUAL as isMutual,
+			REQUESTAGENT as requestAgent,
+			ACCESS_CONTROL_POLICY as accessControlPolicy,
+			CRTADMINSID as crtAdminSid,
+			CRTDATE as crtDate,
+			MDFADMINSID as mdfAdminSid,
+			MDFDATE as mdfDate,
+			DN as dn,
+			NOTIFY as notify,
+			USEISIGNPAGE as useIsignPage,
+			USEISIGNPAGE2 as useIsignPage2,
+			AUTHORIZATION_URL as authorizationUrl,
+			RETURNURL as returnUrl,
+			AUTHURL as authUrl,
+			AUTHURL2 as authUrl2,
+			LOGOUTURL as logoutUrl,
+			USE_IP_CONTROL as useIpControl,
+			DEFAULT_SERVICE as defaultService
+		from 
+	      	isign_service 
+	    where 
+	    	DEFAULT_SERVICE = '1'
+	    order by
+	    	sid desc
+		limit 1
+	</select>
+	
+	<select id="findAgentServiceList"
+            resultType="com.pentasecurity.isignplus.agentservice.model.AgentServiceVO">
+		select 
+			SID as sid,
+			NAME as name,
+			DESCR as descr,
+			SERVICE_TYPE as serviceType,
+			SVCGROUPSID as svcGroupSid,
+			IP as ip,
+			PORT as port,
+			SERVERTYPE as serverType,
+			SERVERTYPE2 as serverType2,
+			ACSTIMEFROM as acsTimeFrom,
+			ACSTIMETO as acsTimeTo,
+			ISENCRYPT as isEncrypt,
+			AUTHMETHOD as authType,
+			AUTHMETHOD2 as authType2,
+			ISMUTUAL as isMutual,
+			REQUESTAGENT as requestAgent,
+			ACCESS_CONTROL_POLICY as accessControlPolicy,
+			CRTADMINSID as crtAdminSid,
+			CRTDATE as crtDate,
+			MDFADMINSID as mdfAdminSid,
+			MDFDATE as mdfDate,
+			DN as dn,
+			NOTIFY as notify,
+			USEISIGNPAGE as useIsignPage,
+			USEISIGNPAGE2 as useIsignPage2,
+			SHORT_CUT_URL as shortCutUrl,
+			AUTHORIZATION_URL as authorizationUrl,
+			RETURNURL as returnUrl,
+			AUTHURL as authUrl,
+			AUTHURL2 as authUrl2,
+			LOGOUTURL as logoutUrl,
+			USE_IP_CONTROL as useIpControl,
+			DEFAULT_SERVICE as defaultService
+		from 
+	      	isign_service
+	    order by 
+	    	sid 
+	</select>
+	
+	<select id="findAuthorizedAgentServiceListByUserSid" parameterType="long"
+            resultType="com.pentasecurity.isignplus.agentservice.model.AgentServiceVO">
+		select 
+			SID as sid,
+			NAME as name,
+			DESCR as descr,
+			SERVICE_TYPE as serviceType,
+			SVCGROUPSID as svcGroupSid,
+			IP as ip,
+			PORT as port,
+			SERVERTYPE as serverType,
+			SERVERTYPE2 as serverType2,
+			ACSTIMEFROM as acsTimeFrom,
+			ACSTIMETO as acsTimeTo,
+			ISENCRYPT as isEncrypt,
+			AUTHMETHOD as authType,
+			AUTHMETHOD2 as authType2,
+			ISMUTUAL as isMutual,
+			REQUESTAGENT as requestAgent,
+			ACCESS_CONTROL_POLICY as accessControlPolicy,
+			CRTADMINSID as crtAdminSid,
+			CRTDATE as crtDate,
+			MDFADMINSID as mdfAdminSid,
+			MDFDATE as mdfDate,
+			DN as dn,
+			NOTIFY as notify,
+			USEISIGNPAGE as useIsignPage,
+			USEISIGNPAGE2 as useIsignPage2,
+			SHORT_CUT_URL as shortCutUrl,
+			AUTHORIZATION_URL as authorizationUrl,
+			RETURNURL as returnUrl,
+			AUTHURL as authUrl,
+			AUTHURL2 as authUrl2,
+			LOGOUTURL as logoutUrl,
+			USE_IP_CONTROL as useIpControl,
+			DEFAULT_SERVICE as defaultService
+		from 
+	      	isign_service
+	    where
+	    	sid in (
+		    	select DISTINCT ssid 
+				from isign_roleservicemap s, isign_roleusermap u
+				where s.RSID = u.RSID
+				and u.USID = #{sid}
+	    	)
+	    order by 
+	    	sid 
+	</select>
+	
+	<select id="findLogoutUrlList" resultType="String">
+		select 
+			LOGOUTURL
+		from 
+	      	isign_service 
+	    where
+	      	LOGOUTURL is not null 
+	   	and 
+	   		LOGOUTURL != '' 
+	</select>
+	
+	<select id="findAgentServiceAccessIpList" 
+			parameterType="com.pentasecurity.isignplus.agentservice.model.AgentServiceAccessIpVO"
+            resultType="com.pentasecurity.isignplus.agentservice.model.AgentServiceAccessIpVO">
+        select
+			SSID as ssid,
+			IP as ip,
+			SATYPE as type
+		from 
+	    	isign_serviceaccessip s,
+	      	isign_registerip r
+	    where 
+	    	s.IPSID = r.IPSID
+	    and
+	    	SSID = #{ssid}
+	</select>
+	
+</mapper>

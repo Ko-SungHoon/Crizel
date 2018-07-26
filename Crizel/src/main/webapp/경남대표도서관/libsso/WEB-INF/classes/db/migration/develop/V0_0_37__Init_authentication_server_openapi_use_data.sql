@@ -1,0 +1,1 @@
+INSERT INTO isign_config(`config_key`, `config_value`) VALUES ('AUTHENTICATION_SERVER_OPENAPI_CONFIG_B', 'false');

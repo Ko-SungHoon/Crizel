@@ -1,0 +1,452 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:th="http://www.thymeleaf.org">
+<head>
+<div th:include="authentication/pki/pkiHeader :: head_script"></div>
+<div th:replace="include/head :: head"></div>
+<title>ISign+</title>
+</head>
+<body class="hold-transition skin-blue layout-top-nav">
+	<div class="wrapper">
+
+		<header class="main-header">
+			<nav class="navbar navbar-static-top">
+				<div class="container">
+					<div class="navbar-header">
+						<a href="/user/userPortal.html" class="navbar-brand"><font
+							size="5" face="tahoma">ISign<b>+</b></font></a>
+					</div>
+
+					<!-- Navbar Right Menu -->
+					<div class="navbar-custom-menu">
+						<ul class="nav navbar-nav">
+							<!-- User Account Menu -->
+							<li class="dropdown user user-menu">
+								<a href="#" id="link-logout"><span class="hidden-xs" th:utext="#{사용자포털_로그아웃}">로그아웃</span></a>
+							</li>
+						</ul>
+					</div>
+					<!-- /.navbar-custom-menu -->
+				</div>
+			</nav>
+		</header>
+
+		<div class="content-wrapper" style="min-height: 900px">
+			<div class="container">
+				<!-- Content Header (Page header) -->
+				<section class="content-header">
+					<h1 th:utext="#{사용자포털_타이틀}">사용자 포털</h1>
+				</section>
+
+				<!-- Main content -->
+				<section class="content">
+					<div class="box box-default">
+						<div class="box-header with-border">
+							<h3 class="box-title" th:utext="#{사용자포털_내정보}">내 정보</h3>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								<label class="col-sm-2 control-label" style="width: 9%; padding-top: 6px;" th:utext="#{사용자포털_성명}"></label>
+								<div class="col-sm-4">
+									<input type="text" class="form-control" th:value="${userVO?.nameKor}" disabled="disabled">
+								</div>
+								<label class="col-sm-2 control-label" style="width: 9%; padding-top: 6px;" th:utext="#{사용자포털_ID}"></label>
+								<div class="col-sm-4">
+									<input type="text" class="form-control" th:value="${userVO?.id}" disabled="disabled">
+									<input type="hidden" th:value="${userVO?.sid}" id="sid">
+									<input type="hidden" th:value="${userVO?.id}" id="userId">
+									<input type="hidden" th:value="${passwordQA}" id="passwordQA">
+									<input type="hidden" th:value="${agentId}" id="agentId">
+								</div>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								<label class="col-sm-2 control-label" style="width: 9%; padding-top: 6px;" th:utext="#{사용자포털_부서_직급}"></label>
+								<div class="col-sm-4">
+									<input type="text" class="form-control" th:value="${userVO?.departNameAndPosition}" disabled="disabled">
+								</div>
+								<label class="col-sm-2 control-label" style="width: 9%; padding-top: 6px;" th:utext="#{사용자포털_이메일}"></label>
+								<div class="col-sm-4">
+									<input type="text" class="form-control" th:value="${userVO?.email}" disabled="disabled">
+									<input type="hidden" id="email" th:value="${userVO?.email}">
+								</div>
+							</div>
+						</div>
+						<div class="box-body">
+							<div class="form-group">
+								<label class="col-sm-2 control-label" style="width: 9%; padding-top: 6px;" th:utext="#{사용자포털_회사전화}"></label>
+								<div class="col-sm-4">
+									<input type="text" class="form-control" th:value="${userVO?.officephone}" disabled="disabled">
+								</div>
+								<label class="col-sm-2 control-label" style="width: 9%; padding-top: 6px;" th:utext="#{사용자포털_휴대폰}"></label>
+								<div class="col-sm-4">
+									<input type="text" class="form-control" th:value="${userVO?.mobile}" disabled="disabled">
+								</div>
+							</div>
+						</div>
+						<!-- /.box-body -->
+					</div>
+
+
+					<div class="box box-default">
+						<div class="box-header with-border">
+							<h3 class="box-title" th:utext="#{사용자포털_인증수단관리}">인증 수단 관리</h3>
+						</div>
+						<div class="box-body">
+							<div class="row">
+								<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="info-box" style="height: 100px;">
+										<span class="info-box-icon" style="background-color: #ffffff !important;">
+											<img src="/resources/img/icon_id_pw.png" alt="ID/PW" style="">
+										</span>
+
+										<div class="info-box-content">
+											<button type="button" class="btn btn-default ad-click-event" id="btn-change-password"><span th:utext="#{사용자포털_비밀번호변경}">비밀번호 변경</span></button>
+										</div>
+										<div class="info-box-content" th:if="${passwordQA} == false">
+											<button type="button" class="btn btn-default ad-click-event" id="btn-insert-password-qa"><span th:utext="#{사용자포털_질문답변등록}">질문/답변 등록</span></button>
+										</div>
+										<div class="info-box-content" th:if="${passwordQA} == true">
+											<button type="button" class="btn btn-default ad-click-event" id="btn-update-password-qa"><span th:utext="#{사용자포털_질문답변변경}">질문/답변 변경</span></button>
+										</div>
+										<!-- /.info-box-content -->
+									</div>
+									<!-- /.info-box -->
+								</div>
+								<!-- /.col -->
+								<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="info-box" style="height: 100px;">
+										<span class="info-box-icon" style="background-color: #ffffff !important;">
+											<img src="/resources/img/icon_otp.png" alt="OTP">
+										</span>
+										<input type="hidden" th:value="${otpHistoryVO?.getIsDefaultOtp()}" id="isDefaultOtp" name="isDefaultOtp">
+										<input type="hidden" th:value="${countValidOtpTemporaryNumber}" id="tempOtpCount" name="tempOtpCount">
+										<div class="info-box-content" th:if="${otpHistoryVO.getIsDefaultOtp()} == 1">
+											<button type="button" class="btn btn-default ad-click-event" id="btn-change-otp"><span th:utext="#{사용자포털_OTP등록}">OTP 등록</span></button>
+										</div>
+										<div class="info-box-content" th:if="${otpHistoryVO.getIsDefaultOtp()} == 0">
+											<button type="button" class="btn btn-default ad-click-event" id="btn-change-otp"><span th:utext="#{사용자포털_OTP변경}">OTP 변경</span></button>
+										</div>
+										<div class="info-box-content" th:if="${otpHistoryVO.getIsDefaultOtp()} == 0">
+            								<button type="button" class="btn btn-default ad-click-event" id="btn-temp-otp" th:disabled="${countValidOtpTemporaryNumber} == 0">
+           										<span th:utext="#{사용자포털_임시OTP}">임시</span>
+           										<span class="badge bg-red" th:utext="${countValidOtpTemporaryNumber}" id="count-temp-otp"></span>
+           									</button>
+           									<button type="button" class="btn btn-default ad-click-event" id="btn-reset-temp-otp"><span th:utext="#{사용자포털_임시OTP_재발급}">재발급</span></button>
+										</div>
+										<!-- /.info-box-content -->
+									</div>
+									<!-- /.info-box -->
+								</div>
+								<!-- /.col -->
+								<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="info-box" style="height: 100px;">
+										<span class="info-box-icon" style="background-color: #ffffff !important;">
+											<img src="/resources/img/icon_cert.png" alt="PKI">
+										</span>
+										<div class="info-box-content" th:if="${userVO.getPkiDn()} == null or ${userVO.getPkiDn()} == ''">
+											<button type="button" class="btn btn-default ad-click-event" id="btn-insert-pki"><span th:utext="#{사용자포털_PKI등록}">PKI 등록</span></button>
+										</div>
+										<div class="info-box-content" th:if="${userVO.getPkiDn()} != null and ${userVO.getPkiDn()} != ''">
+											<button type="button" class="btn btn-default ad-click-event" id="btn-update-pki"><span th:utext="#{사용자포털_PKI변경}">PKI 변경</span></button>
+										</div>
+										<!-- /.info-box-content -->
+									</div>
+									<!-- /.info-box -->
+								</div>
+								<!-- /.col -->
+								<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="info-box" style="height: 100px;">
+										<span class="info-box-icon" style="background-color: #ffffff !important;">
+											<img src="/resources/img/icon_fido_UAF.png" alt="FIDO UAF">
+										</span>
+
+										<div class="info-box-content">
+											<button type="button" class="btn btn-default ad-click-event" disabled="disabled"><span th:utext="#{사용자포털_FIDO_UAF_등록}">FIDO UAF 등록</span></button>
+										</div>
+										<!-- /.info-box-content -->
+									</div>
+									<!-- /.info-box -->
+								</div>
+								<!-- /.col -->
+								<div class="col-md-4 col-sm-6 col-xs-12">
+									<div class="info-box" style="height: 100px;">
+										<span class="info-box-icon" style="background-color: #ffffff !important;">
+											<img src="/resources/img/icon_fido_U2F.png" alt="FIDO U2F">
+										</span>
+
+										<div class="info-box-content">
+											<button type="button" class="btn btn-default ad-click-event" disabled="disabled"><span th:utext="#{사용자포털_FIDO_U2F_등록}">FIDO U2F 등록</span></button>
+										</div>
+										<!-- /.info-box-content -->
+									</div>
+									<!-- /.info-box -->
+								</div>
+								<!-- /.col -->
+							</div>
+							<!-- /.row -->
+						</div>
+						<!-- /.box-body -->
+					</div>
+					
+					<div class="box box-default">
+						<div class="box-header with-border">
+							<h3 class="box-title" th:utext="#{사용자포털_내업무목록}">내 업무 목록</h3>
+						</div>
+						<div class="box-body">
+							<div style="height:210px;overflow:auto">					
+								<table class="table table-bordered table-hover dataTable" id="service-list-table">
+									<thead>
+										<tr>
+											<th th:utext="#{사용자포털_서비스명}"></th>
+											<th th:utext="#{사용자포털_인증타입}"></th>
+											<th th:utext="#{사용자포털_서비스유형}"></th>
+											<th th:utext="#{사용자포털_바로가기}"></th>
+										</tr>
+									</thead>
+			                        <tbody>
+			                        </tbody>
+								</table>
+							</div>
+						</div>
+						
+						<!-- /.box-body -->
+					</div>
+					<!-- /.box -->
+				</section>
+				<!-- /.content -->
+			</div>
+			<!-- /.container -->
+		</div>
+		<!-- /.content-wrapper -->
+
+		<footer class="main-footer" th:fragment="nav-footer">
+			<strong>Copyright © 2016 <span style="color: #0087FF;">Penta
+					Security Systems Inc.</span></strong> <strong style="float: right;"> </strong>
+		</footer>
+	</div>
+	
+	<!-- reset temp otp modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="reset-temp-otp-modal">
+        <div class="modal-dialog" style="width:400px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="temp-otp-modal-small-close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" data-role="title" th:utext="#{사용자포털_임시OTP재발급_타이틀}"></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label" th:utext="#{사용자포털_임시OTP재발급_임시OTP번호}">임시 OTP 번호</label>
+                                <div id="reset_temp_otp">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="btn-reset-temp-otp-send" th:title="#{사용자포털_임시OTP_이메일송신_설명}"><i class="fa fa-envelope"></i>&nbsp;<span th:utext="#{사용자포털_임시OTP_이메일송신}">이메일 송신</span></button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="reset-temp-otp-modal-close"><span th:utext="#{사용자포털_임시OTP재발급_닫기}">Close</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- temp otp modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="temp-otp-modal">
+        <div class="modal-dialog" style="width:400px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="temp-otp-modal-small-close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" data-role="title" th:utext="#{사용자포털_임시OTP재발급_임시OTP번호}"></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                            <div class="form-group">
+                                <label class="control-label" th:utext="#{사용자포털_임시OTP재발급_임시OTP번호}">임시 OTP 번호</label>
+                                <div id="temp_otp">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" id="btn-temp-otp-send" th:title="#{사용자포털_임시OTP_이메일송신_설명}"><i class="fa fa-envelope"></i>&nbsp;<span th:utext="#{사용자포털_임시OTP_이메일송신}">이메일 송신</span></button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal" id="temp-otp-modal-close"><span th:utext="#{사용자포털_임시OTP재발급_닫기}">Close</span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- change otp modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="change-otp-modal">
+        <div class="modal-dialog" style="width:400px">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="temp-otp-modal-small-close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" data-role="title" id="change-otp-modal-title" th:utext="#{사용자포털_OTP등록}"></h4>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-xs-12">
+                        	<div class="form-group">
+                               	<label class="control-label text-red" id="regist-otp-step"></label>
+							</div>
+                            <div class="form-group has-feedback">
+				                <input type="text" class="form-control" th:placeholder="#{OTP등록_일련번호}" id="serverKey" name="serverKey" disabled="disabled">
+								<input type="hidden" id="otpTestFlag" name="otpTestFlag">
+				                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+				            </div>
+				            <div class="form-group has-feedback">
+				                <input type="text" class="form-control" th:placeholder="#{OTP등록_모바일등록번호}" id="clientKey" name="clientKey" maxlength="6">
+				                <span class="glyphicon glyphicon-user form-control-feedback"></span>
+				            </div>
+				            
+				            <div class="form-group has-feedback" id="div-otp-test">
+				                <input type="password" class="form-control" th:placeholder="#{OTP등록_OTP번호}" id="testOtpNumber" name="testOtpNumber" maxlength="8">
+				                <span class="glyphicon glyphicon-lock form-control-feedback"></span>
+				            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                	<button type="button" class="btn btn-default" data-dismiss="modal" th:utext="#{사용자포털_취소}">취소</button>
+                	<button type="button" class="btn btn-info" id="btn-verify-otp"><span th:utext="#{OTP등록_테스트}"></span></button>
+                	<button type="button" class="btn btn-primary" id="btn-regist-otp"><span th:utext="#{OTP등록_등록}"></span></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- change password modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="change-password-modal">
+		<div class="modal-dialog" style="width:400px">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" data-role="title" th:utext="#{사용자포털_비밀번호변경_타이틀}">비밀번호 변경</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" th:utext="#{사용자포털_비밀번호변경_현재비밀번호}">현재 비밀번호</label>
+								<div>
+									<input type="password" class="form-control" name="pw" id="pw">	
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label" th:utext="#{사용자포털_비밀번호변경_새비밀번호}">새 비밀번호</label>
+								<div>
+									<input type="password" class="form-control" name="newPw" id="newPw">	
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label" th:utext="#{사용자포털_비밀번호변경_비밀번호확인}">비밀번호 확인</label>
+								<div>
+									<input type="password" class="form-control" name="rePw" id="rePw">	
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" th:utext="#{사용자포털_취소}">취소</button>
+					<button type="button" class="btn btn-primary" id="btn-save-password" th:utext="#{사용자포털_비밀번호변경_저장}">저장</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- change password q/a modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="change-password-qa-modal">
+		<div class="modal-dialog" style="width:400px">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" data-role="title" th:utext="#{사용자포털_비밀번호찾기_타이틀_등록}" id="change-password-qa-modal-title">비밀번호 찾기 질문/답변 등록</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" th:utext="#{사용자포털_비밀번호찾기_비밀번호}">비밀번호</label>
+								<div>
+									<input type="password" class="form-control" name="qaPw" id="qaPw">	
+									<input type="hidden"  name="qaMode" id="qaMode">	
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label" th:utext="#{사용자포털_비밀번호찾기_질문}">질문</label>
+								<div>
+									<select id="question" name="question" style="width:100%;">
+                                        <option value="Q1" th:utext="#{사용자포털_비밀번호찾기_Q1}"></option>
+                                        <option value="Q2" th:utext="#{사용자포털_비밀번호찾기_Q2}"></option>
+                                        <option value="Q3" th:utext="#{사용자포털_비밀번호찾기_Q3}"></option>
+                                        <option value="Q4" th:utext="#{사용자포털_비밀번호찾기_Q4}"></option>
+                                        <option value="Q5" th:utext="#{사용자포털_비밀번호찾기_Q5}"></option>
+                                        <option value="Q6" th:utext="#{사용자포털_비밀번호찾기_Q6}"></option>
+                                        <option value="Q7" th:utext="#{사용자포털_비밀번호찾기_Q7}"></option>
+                                        <option value="Q8" th:utext="#{사용자포털_비밀번호찾기_Q8}"></option>
+                                        <option value="Q9" th:utext="#{사용자포털_비밀번호찾기_Q9}"></option>
+                                        <option value="Q10" th:utext="#{사용자포털_비밀번호찾기_Q10}"></option>
+                                    </select>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="control-label" th:utext="#{사용자포털_비밀번호찾기_답변}">답변</label>
+								<div>
+									<input type="text" class="form-control" name="answer" id="answer" maxlength="20">	
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" th:utext="#{사용자포털_취소}">취소</button>
+					<button type="button" class="btn btn-primary" id="btn-save-password-qa" th:utext="#{사용자포털_비밀번호변경_저장}">저장</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<!-- change pki modal -->
+    <div class="modal fade" tabindex="-1" role="dialog" id="change-pki-modal">
+		<div class="modal-dialog" style="width:400px">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+					<h4 class="modal-title" data-role="title" th:utext="#{사용자포털_PKI등록_타이틀_등록}" id="change-pki-modal-title">PKI 등록</h4>
+				</div>
+				<div class="modal-body">
+					<div class="row">
+						<div class="col-xs-12">
+							<div class="form-group">
+								<label class="control-label" th:utext="#{사용자포털_PKI등록_비밀번호}">비밀번호</label>
+								<div>
+									<input type="password" class="form-control" name="pkiPw" id="pkiPw">
+						            <input type="hidden" id="challenge" name="challenge">
+						            <input type="hidden" id="response" name="response" >
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-default" data-dismiss="modal" id="btn-close-pki" th:utext="#{사용자포털_취소}">취소</button>
+					<button type="button" class="btn btn-primary" id="btn-save-pki" th:utext="#{사용자포털_PKI등록_등록버튼}">등록</button>
+				</div>
+			</div>
+		</div>
+	</div>
+    
+<div th:replace="include/jslib :: jslibs"></div>
+<script th:src="@{/resources/js/user/userPortal.js}"></script>
+
+<div th:include="authentication/pki/pkiPopup :: pkiPopup"></div>
+<input type="hidden" id="whiteList" th:value="${whiteList}">
+</body>
+</html>

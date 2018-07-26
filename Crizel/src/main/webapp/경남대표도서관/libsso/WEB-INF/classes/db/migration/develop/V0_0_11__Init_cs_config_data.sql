@@ -1,0 +1,1 @@
+INSERT INTO isign_config(`config_key`, `config_value`) VALUES ('CS_CONFIG_B', 'false');

@@ -1,0 +1,25 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+		<title>ISign+</title>
+	</head>
+	<body>
+		<form name="sendForm" method="post">
+			<input type="hidden" name="SAMLResponse" th:value="${responseResult.samlResponse}" />
+			<input type="hidden" name="RelayState" th:value="${responseResult.relayState}" />
+		</form>
+		<script type="text/javascript" th:inline="javascript">
+			var resultCode = [[${responseResult.resultCode}]];		
+			var resultMessage = [[${responseResult.resultMessage}]];
+			if (resultCode == '000000') {	// '000000' : 성공
+				var sendUrl = [[${responseResult.acsUrl}]];
+				var sendForm = document.sendForm;
+				sendForm.action = sendUrl;
+				sendForm.submit();
+			} else {
+				alert(resultMessage);
+			}
+		</script>
+	</body>
+</html>

@@ -1,0 +1,1 @@
+ALTER TABLE `isign_log_manager` DROP COLUMN `target_information`;

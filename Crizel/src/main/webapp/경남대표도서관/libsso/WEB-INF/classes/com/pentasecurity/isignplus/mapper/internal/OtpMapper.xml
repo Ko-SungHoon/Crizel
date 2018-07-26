@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pentasecurity.isignplus.otp.internal.OtpMapper">
+
+	<select id="findOtpHistoryBySid" parameterType="java.lang.Long" resultType="com.pentasecurity.isignplus.otp.model.OtpHistoryVO">
+		SELECT
+			SID as sid,
+			INCORRECTTIME as inCorrectTime,
+			INCORRECTNUM as inCorrectNum,
+			LASTVERIFIED as lastVerified,
+			ISDEFAULTOTP as isDefaultOtp
+		FROM
+			isign_motp_history
+		WHERE
+			sid = #{sid}
+	</select>
+	
+	<select id="findOtpHistoryById" parameterType="String" resultType="com.pentasecurity.isignplus.otp.model.OtpHistoryVO">
+		SELECT
+			h.SID as sid,
+			h.INCORRECTTIME as inCorrectTime,
+			h.INCORRECTNUM as inCorrectNum,
+			h.LASTVERIFIED as lastVerified,
+			h.ISDEFAULTOTP as isDefaultOtp
+		FROM
+			isign_motp_history h,
+			isign_user u
+		WHERE
+			h.SID = u.SID
+		and
+			id = #{id}
+	</select>
+	
+	<update id="updateIsDefaultOtpById" parameterType="com.pentasecurity.isignplus.otp.model.OtpHistoryVO">
+        UPDATE 
+            isign_motp_history
+        SET
+            ISDEFAULTOTP = #{isDefaultOtp}
+        WHERE
+            sid = (select sid from isign_user where id = #{id})
+	</update>
+	
+	<update id="updateIncorrectNum" parameterType="com.pentasecurity.isignplus.otp.model.OtpHistoryVO">
+        UPDATE 
+            isign_motp_history
+        SET
+            INCORRECTNUM = #{inCorrectNum}
+            , INCORRECTTIME = now()
+    	<if test='lastVerified > 0'>
+            , LASTVERIFIED = #{lastVerified}
+    	</if>        
+        WHERE
+            sid = #{sid}
+	</update>
+	
+    <insert id="insertOtpTemporaryNumber" parameterType="com.pentasecurity.isignplus.otp.model.OtpTemporaryNumberVO">
+        insert into isign_motp_temporary_number (
+            sid,
+            temporary_motp_number,
+            used,
+            no
+        ) values (
+            #{sid},
+            #{temporaryMotpNumber},
+            #{used},
+            #{no}
+        )
+    </insert>
+    
+    <insert id="updateOtpTemporaryNumberUsed" parameterType="com.pentasecurity.isignplus.otp.model.OtpTemporaryNumberVO">
+        UPDATE 
+            isign_motp_temporary_number
+        SET
+            used = 1      
+        WHERE
+            sid = #{sid}
+        AND
+        	temporary_motp_number = #{temporaryMotpNumber};
+    </insert>
+    
+    <delete id="deleteOtpTemporaryNumber" parameterType="long">
+        delete from isign_motp_temporary_number
+        where sid = #{sid}
+    </delete>
+    
+    <select id="countValidOtpTemporaryNumberListBySid" parameterType="long" resultType="int">
+        select 
+        	count(no)
+        from isign_motp_temporary_number
+        where sid = #{sid}
+        and used = 0
+    </select>
+    
+    <select id="findValidOtpTemporaryNumberListBySid" parameterType="long" resultType="com.pentasecurity.isignplus.otp.model.OtpTemporaryNumberVO">
+        select 
+        	sid,
+            temporary_motp_number as temporaryMotpNumber,
+            used,
+            no
+        from isign_motp_temporary_number
+        where sid = #{sid}
+        and used = 0
+        order by no
+    </select>
+    
+    <select id="findValidOtpTemporaryNumberListById" parameterType="String" resultType="com.pentasecurity.isignplus.otp.model.OtpTemporaryNumberVO">
+        select 
+        	t.sid,
+            t.temporary_motp_number as temporaryMotpNumber,
+            t.used,
+            t.no
+        from isign_motp_temporary_number t, isign_user u 
+        where t.sid = u.sid
+        and u.id = #{userId}
+        and t.used = 0
+        order by t.no
+    </select>
+    
+    <select id="findValidOtpTemporaryNumberBySid" parameterType="long" resultType="com.pentasecurity.isignplus.otp.model.OtpTemporaryNumberVO">
+        select 
+        	sid,
+            temporary_motp_number as temporaryMotpNumber,
+            used,
+            no
+        from isign_motp_temporary_number
+        where sid = #{sid}
+        and used = 0
+        order by no
+        limit 1
+    </select>
+    
+    <select id="findValidOtpTemporaryNumberById" parameterType="String" resultType="com.pentasecurity.isignplus.otp.model.OtpTemporaryNumberVO">
+        select 
+        	t.sid,
+            t.temporary_motp_number as temporaryMotpNumber,
+            t.used,
+            t.no
+        from isign_motp_temporary_number t, isign_user u 
+        where t.sid = u.sid
+        and u.id = #{userId}
+        and t.used = 0
+        order by t.no
+        limit 1
+    </select>
+</mapper>

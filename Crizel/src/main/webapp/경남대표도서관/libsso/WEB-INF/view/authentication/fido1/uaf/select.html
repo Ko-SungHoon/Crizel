@@ -1,0 +1,68 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>ISign+</title>    
+    <style>
+		h1 {
+			text-align: center;
+		}
+			    
+    	div {
+    		display:block;    		
+    		margin: 0 auto;
+    		width:800px;
+    	}
+    </style>
+   
+    <script>
+		// radio button event
+		function showInputPassword() {
+			document.getElementById('input_pw').style.display = 'block';
+		}
+		
+		function hideInputPassword() {
+			document.getElementById('input_pw').style.display = 'none';
+		}
+	</script>     
+</head>
+<body>
+
+	<div id="header">
+		<h1>ISign+ FIDO UAF Input Form Page</h1>
+		<hr />
+	</div> 
+	
+	<div id="content">
+		<form id="login_form" action="/authentication/fido1/uaf/reqregister" method="get">
+			<div id="input_id">
+		    	User ID : <input type="text" name="uid" />
+		    </div>
+		    <br />
+		    <div id="input_pw">
+		    	User PW : <input type="text" name="pwd" />
+		    </div>		
+		    <br />    
+			<input type="radio" name="operation" onchange="showInputPassword();" onclick="document.getElementById('login_form').action='/authentication/fido1/uaf/reqregister';" checked="checked" />등록
+			<input type="radio" name="operation" onchange="hideInputPassword();" onclick="document.getElementById('login_form').action='/authentication/fido1/uaf/reqauthenticate';" />인증
+			<input type="radio" name="operation" onchange="showInputPassword();" onclick="document.getElementById('login_form').action='/authentication/fido1/uaf/reqderegister';" />해지
+			<br /><br />		    
+		    <button type="submit">요청</button>
+		</form>
+		<hr />
+	</div>
+ 
+ 	<div id="footer">
+ 		<p>ⓒ2017 Penta Security Systems Inc. All rights reserved.</p>
+ 	</div>
+ 	
+    <script th:inline="javascript">  
+		// check error message		
+		var resultCode = [[${responseResult.resultCode}]];		
+		var resultMessage = [[${responseResult.resultMessage}]];
+		if (resultCode != '000000') {	// '000000' : 성공
+			alert(resultCode + ', ' + resultMessage);
+		}
+	</script> 	 	
+</body>
+</html>

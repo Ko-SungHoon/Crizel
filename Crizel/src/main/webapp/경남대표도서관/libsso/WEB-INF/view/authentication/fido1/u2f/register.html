@@ -1,0 +1,89 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <title>ISign+</title>
+        
+        <style>
+            h1 {
+                text-align: center;
+            }
+                    
+            div {
+                display:block;            
+                margin: 0 auto;
+                width:800px;
+            }
+                
+            img, form {
+                margin-left: 20px;
+            }                                
+        </style>    
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+         <script th:src="@{/resources/js/authentication/fido1/u2f-api.js}"></script>
+         <script th:inline="javascript">
+             var accountName = [[${responseResult.userId}]];
+             var registerRequests = JSON.parse([[${responseResult.message}]]);
+            var appId = registerRequests.appId;
+                                   
+            u2f.register(appId, [registerRequests], [], function (result) {
+                if (result.errorCode) {
+                    /*
+                    interface ErrorCode {
+                        const short OK = 0;
+                        const short OTHER_ERROR = 1;
+                        const short BAD_REQUEST = 2;
+                        const short CONFIGURATION_UNSUPPORTED = 3;
+                        const short DEVICE_INELIGIBLE = 4;
+                        const short TIMEOUT = 5;
+                    };                        
+                    */                            
+                    alert("Failed. Error code: " + result.errorCode);
+                    return;
+                  }
+              
+                document.getElementById("uid").value = accountName;
+                document.getElementById("appid").value = appId;    //window.location.protocol + "//" + window.location.host
+                
+                $.post("/authentication/fido1/u2f/register", {clientData:result.clientData, registrationData:result.registrationData,
+                    sessionId:registerRequests.sessionId})
+                    .done(function(responseResult, status){
+                        if (status == 'success' && responseResult.resultCode == '000000') {                        
+                                alert("등록이 완료되었습니다.");
+                        } else {
+                            alert(responseResult.resultMessage);
+                        }
+                    })
+                    .fail(function() {
+                        alert("error");    
+                    })                    
+                }, 1000
+            )         
+         </script>        
+    </head>
+    <body>
+        <div id="header">
+            <h1>ISign+ FIDO U2F Registration</h1>
+            <hr />
+        </div>
+        
+        <div id="content">
+            <ol>    
+                <li>인증 장치 준비 및 PC 연결 확인한 후 '등록'을 누룹니다.</li>
+                <li>인증 장치 클릭/터치 등를 통해 등록 절차를 진행합니다.</li>
+            </ol>
+            <br />
+            <form action="/authentication/fido1/u2f/preauthenticate" method="get">
+                <input type="hidden" name="uid" id="uid" />
+                <input type="hidden" name="appid" id="appid" />
+                <button type="submit">인증 테스트</button>
+            </form>            
+            <hr />
+        </div>
+        
+         <div id="footer">
+             <p>ⓒ2017 Penta Security Systems Inc. All rights reserved.</p>
+         </div>                 
+    </body>
+</html>

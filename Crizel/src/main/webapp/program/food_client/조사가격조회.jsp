@@ -367,7 +367,7 @@ if(viewYN == 1){
 
 		$("#rschDwExcel").click(function (){
 			var sendForm	=	$("#foodSrch");
-			sendForm.attr("action", "/program/food/research/food_research_val_excel2.jsp");
+			sendForm.attr("action", "/program/food_client/food_research_val_excel2.jsp");
 			sendForm.submit();
 			sendForm.attr("action", "/index.gne?menuCd=DOM_000002101003000000");
 		});

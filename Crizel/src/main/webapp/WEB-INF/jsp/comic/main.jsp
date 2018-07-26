@@ -140,7 +140,8 @@ function goView(addr, title, addrB ){
 			<c:forEach items="${viewList}" var="ob">
 				<tr>
 					<td>
-						<a href="javascript:goView('${ob.addr}', '${ob.title}', '${addrB}')">${ob.title}</a>
+						<a href="/comic.do?type=C&addrC=${ob.addr}&addrB=${ob.addrB}&title=${ob.title}">${ob.title}</a>
+						<%-- <a href="javascript:goView('${ob.addr}', '${ob.title}', '${addrB}')">${ob.title}</a> --%>
 						<%-- <a href="/comic.do?type=C&addr=${ob.addr}">${ob.title}</a> --%>
 					</td>
 					<td>

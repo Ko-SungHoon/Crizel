@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pentasecurity.isignplus.user.internal.UserMapper">
+	<select id="findUserBySid" parameterType="java.lang.Long" resultType="com.pentasecurity.isignplus.user.model.UserVO">
+		SELECT
+			SID as sid,
+			ID as id,
+			PWD as pwd,
+			NAME_KOR as nameKor,
+			NAME_ENG as nameEng,
+			NAME_CHN as nameChn,
+			RESID as resid,
+			EMPID as empid,
+			EMAIL as email,
+			OFFICEPHONE as officephone,
+			MOBILE as mobile,
+			DEPARTCODE as departcode,
+			TITLECODE as titlecode,
+			POSITIONCODE as positioncode,
+			PRIMARYDUTYCODE as primarydutycode,
+			SUBDUTYCODE as subdutycode,
+			EMPGROUPCODE as empgroupcode,
+			ADDITIONALTITLECODE as additionaltitlecode,
+			EMPTYPE as emptype,
+			CRTADMINSID as crtadminsid,
+			CRTDATE as crtdate,
+			MDFADMINSID as mdfadminsid,
+			MDFDATE as mdfdate,
+			MDFREASON as mdfreason,
+			PROVINCE as province,
+			COUNTY as county,
+			STREET as street,
+			POB as pob,
+			ZIPCODE as zipCode,
+			ADDR as addr,
+			HOMEADDR as homeAddr,
+			HOMEPHONE as homePhone,
+			FAX as fax,
+			PKIDN as pkiDn,
+			PKISN as pkiSn,
+			EMPLOYMENT_STATUS as employmentStatus,
+			SAML_NAM_ID as samlNamId,
+			NOTES_ID as notesId,
+			MOTP_KEY as motpKey,
+			USE_IP_CONTROL as useIpControl
+		FROM
+			isign_user
+		WHERE
+			sid = #{sid}
+	</select>
+
+	<select id="findUserById" parameterType="java.lang.String" resultType="com.pentasecurity.isignplus.user.model.UserVO">
+		SELECT
+			user.SID as sid,
+			ID as id,
+			PWD as pwd,
+			user.NAME_KOR as nameKor,
+			user.NAME_ENG as nameEng,
+			NAME_CHN as nameChn,
+			RESID as resid,
+			EMPID as empid,
+			EMAIL as email,
+			OFFICEPHONE as officephone,
+			MOBILE as mobile,
+			DEPARTCODE as departcode,
+			TITLECODE as titlecode,
+			POSITIONCODE as positioncode,
+			PRIMARYDUTYCODE as primarydutycode,
+			SUBDUTYCODE as subdutycode,
+			EMPGROUPCODE as empgroupcode,
+			ADDITIONALTITLECODE as additionaltitlecode,
+			EMPTYPE as emptype,
+			CRTADMINSID as crtadminsid,
+			CRTDATE as crtdate,
+			MDFADMINSID as mdfadminsid,
+			MDFDATE as mdfdate,
+			MDFREASON as mdfreason,
+			PROVINCE as province,
+			COUNTY as county,
+			STREET as street,
+			POB as pob,
+			ZIPCODE as zipCode,
+			ADDR as addr,
+			HOMEADDR as homeAddr,
+			HOMEPHONE as homePhone,
+			FAX as fax,
+			PKIDN as pkiDn,
+			PKISN as pkiSn,
+			EMPLOYMENT_STATUS as employmentStatus,
+			SAML_NAM_ID as samlNamId,
+			NOTES_ID as notesId,
+			MOTP_KEY as motpKey,
+			USE_IP_CONTROL as useIpControl,
+			LAST_LOGIN_DATE as lastLoginDate,
+			LAST_PREVIOUS_LOGIN_DATE as lastPreviousLoginDate,
+            dept.NAME_KOR AS departName,
+            isign_position.NAME_KOR AS position
+		FROM
+			isign_user user
+            left outer join (
+                select sid, name_kor, parentsid from ISIGN_DEPT
+                union all
+                select -1, '미지정', 0
+            ) dept on user.DEPARTCODE = dept.SID
+            left outer join isign_position isign_position on user.POSITIONCODE = isign_position.SID
+		WHERE
+			id = #{id}
+	</select>
+	
+	<select id="findUserBySamlNamId" parameterType="java.lang.String" resultType="com.pentasecurity.isignplus.user.model.UserVO">
+		SELECT
+			SID as sid,
+			ID as id,
+			PWD as pwd,
+			NAME_KOR as nameKor,
+			NAME_ENG as nameEng,
+			NAME_CHN as nameChn,
+			RESID as resid,
+			EMPID as empid,
+			EMAIL as email,
+			OFFICEPHONE as officephone,
+			MOBILE as mobile,
+			DEPARTCODE as departcode,
+			TITLECODE as titlecode,
+			POSITIONCODE as positioncode,
+			PRIMARYDUTYCODE as primarydutycode,
+			SUBDUTYCODE as subdutycode,
+			EMPGROUPCODE as empgroupcode,
+			ADDITIONALTITLECODE as additionaltitlecode,
+			EMPTYPE as emptype,
+			CRTADMINSID as crtadminsid,
+			CRTDATE as crtdate,
+			MDFADMINSID as mdfadminsid,
+			MDFDATE as mdfdate,
+			MDFREASON as mdfreason,
+			PROVINCE as province,
+			COUNTY as county,
+			STREET as street,
+			POB as pob,
+			ZIPCODE as zipCode,
+			ADDR as addr,
+			HOMEADDR as homeAddr,
+			HOMEPHONE as homePhone,
+			FAX as fax,
+			PKIDN as pkiDn,
+			PKISN as pkiSn,
+			EMPLOYMENT_STATUS as employmentStatus,
+			SAML_NAM_ID as samlNamId,
+			NOTES_ID as notesId,
+			MOTP_KEY as motpKey,
+			USE_IP_CONTROL as useIpControl,
+			LAST_LOGIN_DATE as lastLoginDate,
+			LAST_PREVIOUS_LOGIN_DATE as lastPreviousLoginDate
+		FROM
+			isign_user
+		WHERE
+			SAML_NAM_ID = #{id}
+	</select>
+	
+	<select id="findUserAccessIpListById" 
+			parameterType="String"
+            resultType="com.pentasecurity.isignplus.user.model.UserAccessIpVO">
+        select
+			u.SID as sid,
+			r.IP as ip
+		from 
+			isign_user u,
+	    	isign_useraccessip a,
+	      	isign_registerip r
+	    where 
+	    	u.SID = a.USID
+	    and
+	    	a.IPSID = r.IPSID
+	    and
+	    	u.id = #{id}
+	</select>
+	
+
+	<select id="findUserByPkiDn" parameterType="java.lang.String" 
+			resultType="com.pentasecurity.isignplus.user.model.UserVO">
+		SELECT
+			SID as sid,
+			ID as id,
+			PWD as pwd,
+			NAME_KOR as nameKor,
+			NAME_ENG as nameEng,
+			NAME_CHN as nameChn,
+			RESID as resid,
+			EMPID as empid,
+			EMAIL as email,
+			OFFICEPHONE as officephone,
+			MOBILE as mobile,
+			DEPARTCODE as departcode,
+			TITLECODE as titlecode,
+			POSITIONCODE as positioncode,
+			PRIMARYDUTYCODE as primarydutycode,
+			SUBDUTYCODE as subdutycode,
+			EMPGROUPCODE as empgroupcode,
+			ADDITIONALTITLECODE as additionaltitlecode,
+			EMPTYPE as emptype,
+			CRTADMINSID as crtadminsid,
+			CRTDATE as crtdate,
+			MDFADMINSID as mdfadminsid,
+			MDFDATE as mdfdate,
+			MDFREASON as mdfreason,
+			PROVINCE as province,
+			COUNTY as county,
+			STREET as street,
+			POB as pob,
+			ZIPCODE as zipCode,
+			ADDR as addr,
+			HOMEADDR as homeAddr,
+			HOMEPHONE as homePhone,
+			FAX as fax,
+			PKIDN as pkiDn,
+			PKISN as pkiSn,
+			EMPLOYMENT_STATUS as employmentStatus,
+			SAML_NAM_ID as samlNamId,
+			NOTES_ID as notesId,
+			MOTP_KEY as motpKey,
+			USE_IP_CONTROL as useIpControl
+		FROM
+			isign_user
+		WHERE
+			pkidn = #{pkiDn}
+	</select>
+	
+	<update id="registerPkiInfo" parameterType="com.pentasecurity.isignplus.user.model.UserVO">
+        UPDATE 
+            isign_user
+        SET
+            PKIDN = #{pkiDn},
+            PKISN = #{pkiSn}
+        WHERE
+            id = #{id}
+	</update>
+	
+	<update id="updateOtpKey" parameterType="com.pentasecurity.isignplus.user.model.UserVO">
+        UPDATE 
+            isign_user
+        SET
+            MOTP_KEY = #{motpKey}
+        WHERE
+            id = #{id}
+	</update>
+	
+	<update id="updatePassword" parameterType="com.pentasecurity.isignplus.user.model.UserVO">
+        UPDATE 
+            isign_user
+        SET
+            PWD = #{pwd}
+        WHERE
+            sid = #{sid}
+	</update>
+	
+	<update id="updateLastLoginDate" parameterType="com.pentasecurity.isignplus.user.model.UserVO">
+        UPDATE 
+            isign_user
+        SET
+        	LAST_PREVIOUS_LOGIN_DATE = #{lastPreviousLoginDate},
+            LAST_LOGIN_DATE = now()
+        WHERE
+            ID = #{id}
+	</update>
+    
+    <insert id="insertUserForExternalDb" parameterType="com.pentasecurity.isignplus.user.model.UserVO">
+        INSERT INTO ISIGN_USER(
+            ID,
+            NAME_KOR,
+            EMPID,
+            EMAIL,
+            OFFICEPHonE,
+            MOBILE,
+            DEPARTCODE,
+            TITLECODE,
+            CRTADMINSID,
+            CRTDATE,
+            EMPLOYMENT_STATUS,
+            SAML_NAM_ID,
+            USE_IP_ConTROL
+        ) VALUES(
+            #{id},
+            #{nameKor},
+            #{empid},
+            #{email},
+            '',
+            '',
+            -1,
+            0,
+            1,
+            now(),
+            1,
+            '',
+            0
+        )
+        <selectKey keyProperty="sid" resultType="long" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+    
+    <select id="getSidById" resultType="long" parameterType="String">
+        SELECT IFNULL(SUM(sid), -1) as sid FROM isign_user WHERE id = #{id}
+    </select>
+    
+    <insert id="insertOtpHistoryForExternalDb" parameterType="long">
+        INSERT INTO ISIGN_MOTP_HISTORY (SID, ISDEFAULTOTP)
+        VALUES (#{sid}, 1)
+    </insert>
+
+    <select id="getUserInfo" resultType="hashMap" parameterType="hashMap">
+        SELECT
+            user.SID as sid,
+            ID as id,
+            user.NAME_KOR as nameKor,
+            user.NAME_ENG as nameEng,
+            NAME_CHN as nameChn,
+            RESID as resid,
+            EMPID as empid,
+            EMAIL as email,
+            OFFICEPHONE as officephone,
+            MOBILE as mobile,
+            DEPARTCODE as departcode,
+            TITLECODE as titlecode,
+            POSITIONCODE as positioncode,
+            PRIMARYDUTYCODE as primarydutycode,
+            SUBDUTYCODE as subdutycode,
+            EMPGROUPCODE as empgroupcode,
+            ADDITIONALTITLECODE as additionaltitlecode,
+            EMPTYPE as emptype,
+            CRTADMINSID as crtadminsid,
+            CRTDATE as crtdate,
+            MDFADMINSID as mdfadminsid,
+            MDFDATE as mdfdate,
+            MDFREASON as mdfreason,
+            PROVINCE as province,
+            COUNTY as county,
+            STREET as street,
+            POB as pob,
+            ZIPCODE as zipCode,
+            ADDR as addr,
+            HOMEADDR as homeAddr,
+            HOMEPHONE as homePhone,
+            FAX as fax,
+            PKIDN as pkiDn,
+            PKISN as pkiSn,
+            EMPLOYMENT_STATUS as employmentStatus,
+            SAML_NAM_ID as samlNamId,
+            NOTES_ID as notesId,
+            MOTP_KEY as motpKey,
+            USE_IP_CONTROL as useIpControl,
+            LAST_LOGIN_DATE as lastLoginDate,
+            LAST_PREVIOUS_LOGIN_DATE as lastPreviousLoginDate,
+            dept.NAME_KOR AS departName,
+            isign_position.NAME_KOR AS position
+        FROM
+            isign_user user
+            left outer join (
+                select sid, name_kor, parentsid from ISIGN_DEPT
+                union all
+                select -1, '미지정', 0
+            ) dept on user.DEPARTCODE = dept.SID
+            left outer join isign_position isign_position on user.POSITIONCODE = isign_position.SID
+        WHERE
+            id = #{userId}
+    </select>
+
+	<insert id="insertUpdateOtpHistory" parameterType="long">
+		INSERT INTO ISIGN_MOTP_HISTORY (SID, ISDEFAULTOTP)
+		VALUES (#{sid}, 1)
+		ON DUPLICATE KEY
+		UPDATE
+		INCORRECTNUM = 0
+	</insert>
+
+</mapper>

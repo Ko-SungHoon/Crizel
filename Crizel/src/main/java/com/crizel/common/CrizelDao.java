@@ -35,7 +35,7 @@ public class CrizelDao {
 		String addr					= "";
 		
 		if("nyaa".equals(mode)){
-			a = nyaa.nyaaList(type, keyword);
+			a = nyaa.NyaaList(type, keyword);
 		}else{
 			if("ohys".equals(site)){
 				if("video".equals(type)){

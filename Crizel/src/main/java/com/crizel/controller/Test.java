@@ -61,4 +61,9 @@ public class Test {
 			bis.close();
 		}
 	}
+	
+	@RequestMapping("test2.do")
+	public String test2(){
+		return "../../index";
+	}
 }

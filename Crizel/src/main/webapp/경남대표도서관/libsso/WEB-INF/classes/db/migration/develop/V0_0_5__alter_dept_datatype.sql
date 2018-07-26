@@ -1,0 +1,1 @@
+ALTER TABLE isign_dept MODIFY SID BIGINT(8);

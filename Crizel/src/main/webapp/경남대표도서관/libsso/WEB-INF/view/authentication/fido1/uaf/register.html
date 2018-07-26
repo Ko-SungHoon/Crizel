@@ -1,0 +1,54 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<title>ISign+</title>
+		
+		<style>
+			h1 {
+				text-align: center;
+			}
+					
+	    	div {
+	    		display:block;    		
+	    		margin: 0 auto;
+	    		width:800px;
+	    	}
+    			
+			img, form {
+				margin-left: 20px;
+			}			
+		</style>
+	</head>
+	<body>
+		<div id="header">
+			<h1>ISign+ FIDO UAF Registration</h1>
+			<hr />
+		</div>
+		
+		<div id="content">
+			<p><img border="1px" th:src="${'data:image/png;base64,' + responseResult.qrCode}"/></p>
+			<ol>
+				<li>단말에 ISign+ FIDO UAF App을 설치한다.</li>
+				<li>App 내 등록 버튼을 클릭하여 QR을 스캔한다.</li>
+				<li>등록이 완료되면 인증 테스트 버튼을 클릭하여 정상적으로 인증이 되는지 확인한다.</li>
+			</ol>
+			<br />
+			<form action="/authentication/fido1/uaf/reqauthenticate" method="get">
+			    <input type="hidden" name="uid" th:value="${responseResult.userId}">
+			    <button type="submit">인증 테스트</button>
+			</form>
+			
+			<form th:action="${responseResult.returnUrl}" method="get">
+			    <input type="hidden" name="userId" th:value="${responseResult.userId}">
+			    <input type="hidden" name="secureToken" th:value="${responseResult.secureToken}">
+			    <input type="hidden" name="secureSessionId" th:value="${responseResult.secureSessionId}">
+			    <button type="submit">업무 페이지 이동</button>
+			</form>			
+		</div>
+		
+	 	<div id="footer">
+	 		<p>ⓒ2017 Penta Security Systems Inc. All rights reserved.</p>
+	 	</div>		
+	</body>
+</html>

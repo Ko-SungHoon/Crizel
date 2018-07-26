@@ -1,0 +1,1 @@
+INSERT INTO isign_config(`config_key`, `config_value`) VALUES ('AUTHENTICATION_TYPE_BY_SERVICE_USE_B', 'true');
