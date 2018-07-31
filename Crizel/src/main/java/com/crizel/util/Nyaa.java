@@ -3,6 +3,7 @@ package com.crizel.util;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -58,7 +59,7 @@ public class Nyaa {
 		 * https://nyaa.si/?f=0&c=5_0&q=idol			사진
 		 */
 		
-    	URL url = new URL("https://nyaa.si/?page=rss&q=" + keyword + "&c=" + type + "&f=0");
+    	URL url = new URL("https://nyaa.si/?page=rss&q=" + URLEncoder.encode(keyword, "UTF-8") + "&c=" + type + "&f=0");
         URLConnection connection = url.openConnection(); 
         Document doc = parseXML(connection.getInputStream());
 		NodeList descNodes = doc.getElementsByTagName("item");

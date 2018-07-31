@@ -15,7 +15,7 @@ public class NyaaService {
 
 	public List<Map<String, Object>> nyaaList(String type, String keyword) throws Exception {
 		Nyaa nyaa = new Nyaa();
-		return nyaa.nyaaList(type, keyword);
+		return nyaa.NyaaList(type, keyword);
 	}
 	
 }
