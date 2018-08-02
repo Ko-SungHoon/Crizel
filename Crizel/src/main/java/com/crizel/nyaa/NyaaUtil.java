@@ -1,4 +1,4 @@
-package com.crizel.util;
+package com.crizel.nyaa;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -19,7 +19,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-public class Nyaa {
+public class NyaaUtil {
 
 	/*public static void main(String[] args) throws Exception {
 		Nyaa nyaa = new Nyaa();
@@ -53,7 +53,7 @@ public class Nyaa {
 		List<Map<String,Object>> list 	= new ArrayList<Map<String,Object>>();
 		
 		/*
-		 * https://nyaa.si/?f=0&c=1_0&q=idol			비디오
+		 * https://nyaa.si/?f=0&c=1_4&q=idol			비디오
 		 * https://nyaa.si/?f=0&c=2_0&q=idol			오디오
 		 * https://nyaa.si/?f=0&c=4_0&q=idol			라이브
 		 * https://nyaa.si/?f=0&c=5_0&q=idol			사진

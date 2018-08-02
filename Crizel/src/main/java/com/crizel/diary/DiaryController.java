@@ -1,4 +1,4 @@
-package com.crizel.controller;
+package com.crizel.diary;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -14,9 +14,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.crizel.diary.DiaryService;
-import com.crizel.diary.DiaryVO;
 
 @Controller
 public class DiaryController {

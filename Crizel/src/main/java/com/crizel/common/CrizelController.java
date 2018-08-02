@@ -1,4 +1,4 @@
-package com.crizel.controller;
+package com.crizel.common;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,15 +28,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.xml.sax.SAXException;
-
-import com.crizel.common.CrizelService;
-import com.crizel.common.CrizelVo;
-import com.crizel.util.Mars;
-import com.crizel.util.Maru;
-import com.crizel.util.Music;
-import com.crizel.util.OneJav;
-import com.crizel.util.Saramin;
-import com.crizel.util.Torrent;
 
 @Controller
 public class CrizelController {

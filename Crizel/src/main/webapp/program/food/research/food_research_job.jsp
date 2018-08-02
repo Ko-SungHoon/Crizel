@@ -312,7 +312,9 @@ try{
 	sql.append("  , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL										");
 	sql.append("  , CASE																														");
 	sql.append("      WHEN (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO)								");
-	sql.append("       <= (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO AND STS_FLAG NOT IN('N', 'RT', 'RR')) THEN 'Y'	");
+	sql.append("       <= (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO AND STS_FLAG IN('RS')) THEN 'A'	");
+	sql.append("      WHEN (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO)								");
+	sql.append("       <= (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO AND STS_FLAG IN('RC', 'SR', 'SS')) THEN 'B'	");
 	sql.append("      ELSE 'N'																													");
 	sql.append("    END RCH_BACK 																												");
 	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
@@ -508,7 +510,9 @@ try{
 	sql.append("  , (SELECT ITEM_COMP_VAL FROM FOOD_ITEM_PRE WHERE ITEM_NO = B.ITEM_NO) AS ITEM_COMP_VAL										");
 	sql.append("  , CASE																														");
 	sql.append("      WHEN (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO)								");
-	sql.append("       <= (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO AND STS_FLAG NOT IN('N', 'RT', 'RR')) THEN 'Y'	");
+	sql.append("       <= (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO AND STS_FLAG IN('RS')) THEN 'A'	");
+	sql.append("      WHEN (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO)								");
+	sql.append("       <= (SELECT COUNT(*) FROM FOOD_RSCH_VAL WHERE ITEM_NO = B.ITEM_NO AND RSCH_NO = B.RSCH_NO AND STS_FLAG IN('RC', 'SR', 'SS')) THEN 'B'	");
 	sql.append("      ELSE 'N'																													");
 	sql.append("    END RCH_BACK 																												");
 	sql.append("FROM FOOD_RSCH_TB A LEFT JOIN FOOD_RSCH_VAL B ON A.RSCH_NO = B.RSCH_NO															");
@@ -1106,7 +1110,7 @@ try{
 		if(rschList!=null && rschList.size()>0){
 			for(FoodVO ob : rschList){
 		%>
-			<tr <%if("Y".equals(ob.rch_back)){out.println("class=\"bak-yellow\"");} %>>
+			<tr <%if("A".equals(ob.rch_back)){out.println("class=\"bak-yellow\"");}else if("B".equals(ob.rch_back)){out.println("class=\"bak-yellow\"");} %>>
 				<%//일괄승인 체크 박스 추가	20180517_thur	JI
 				%>
 				<td>
@@ -1409,7 +1413,7 @@ try{
 		if(rschHisViewList!=null && rschHisViewList.size()>0){
 			for(FoodVO ob : rschHisViewList){
 		%>
-			<tr <%if("Y".equals(ob.rch_back)){out.println("class=\"bak-yellow\"");} %>>
+			<tr <%if("A".equals(ob.rch_back)){out.println("class=\"bak-yellow\"");}else if("B".equals(ob.rch_back)){out.println("class=\"bak-yellow\"");} %>>
 				<td><%=ob.rsch_val_no %></td>
 				<td><%=ob.cat_nm%></td>
 				<td><%=ob.food_code %></td>

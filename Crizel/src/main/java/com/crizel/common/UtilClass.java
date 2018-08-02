@@ -1,4 +1,4 @@
-package com.crizel.util;
+package com.crizel.common;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

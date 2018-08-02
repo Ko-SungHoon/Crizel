@@ -1,4 +1,4 @@
-package com.crizel.controller;
+package com.crizel.directory;
 
 import java.net.URLEncoder;
 import java.util.List;
@@ -11,11 +11,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.crizel.directory.DirectoryService;
-import com.crizel.directory.DirectoryView;
-import com.crizel.directory.ImageView;
-import com.crizel.directory.VideoView;
 
 @Controller
 public class DirectoryController {

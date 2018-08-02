@@ -1,221 +1,247 @@
-<%@ page import="java.io.ByteArrayInputStream,java.io.ByteArrayOutputStream,java.net.*,java.io.*,java.util.*,javax.servlet.http.Cookie" %>
-<%@page import="org.apache.commons.lang.StringUtils"%>
-<%@page import="egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper"%>
-<%@ page import="javax.servlet.http.Cookie"%>
-<%@ page import="java.io.ByteArrayInputStream,java.io.ByteArrayOutputStream,egovframework.rfc3.common.util.*,java.net.*,java.io.*,java.util.*,org.springframework.security.core.userdetails.memory.UserAttribute" %>
-<%@ page import="org.springframework.security.core.GrantedAuthority,org.springframework.security.core.authority.GrantedAuthorityImpl" %>
-<%@ page import="egovframework.rfc3.login.vo.LoginVO,egovframework.rfc3.iam.security.userdetails.EgovUserDetails" %>
-<%@ page import="org.springframework.security.authentication.AuthenticationDetailsSource,org.springframework.security.web.authentication.session.SessionAuthenticationStrategy" %>
-<%@ page import="org.springframework.security.web.authentication.WebAuthenticationDetailsSource,org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy" %>
-<%@ page import="egovframework.rfc3.iam.security.authentication.rlauth.RealNameAuthenticationToken,org.springframework.context.ApplicationEventPublisher" %>
-<%@ page import="org.springframework.security.authentication.event.InteractiveAuthenticationSuccessEvent,org.springframework.security.core.Authentication" %>
-<%@ page import="org.springframework.web.context.WebApplicationContext,org.springframework.web.context.support.WebApplicationContextUtils"%>
-<%@ page import="org.springframework.security.authentication.AuthenticationManager,egovframework.rfc3.iam.security.authentication.rememberme.PersistentTokenBasedRememberMeServices"%>
-<%@ page import="org.springframework.security.core.context.SecurityContext,org.springframework.security.core.context.SecurityContextHolder" %>
-<%@ page import="org.springframework.security.core.context.SecurityContextImpl,org.springframework.security.web.context.HttpSessionSecurityContextRepository"%>
-<%@ page import="java.sql.*" %>
-<%@ page import="javax.sql.DataSource"%>
-<%@ page import="egovframework.rfc3.common.filter.HTMLTagFilterRequestWrapper"%>
+<%@ page import="java.util.*" %>
+<%@ page import="egovframework.rfc3.menu.vo.MenuVO" %>
+<%@ page import="egovframework.rfc3.contents.vo.ContentsVO" %>
 <%
-    // 변수 --------------------------------------------------------------------------------
-    String retInfo		= "";		// 결과정보
-	String name			= "";       // 성명
-	String sex			= "";		// 성별
-	String birYMD		= "";		// 생년월일
-	String fgnGbn		= "";		// 내외국인 구분값
-    String di			= "";		// DI
-    String ci1			= "";		// CI
-    String ci2			= "";		// CI
-    String civersion    = "";       // CI Version
-    String reqNum		= "";       // 본인확인 요청번호
-    String result		= "";       // 본인확인결과 (Y/N)
-    String certDate		= "";       // 검증시간
-    String certGb		= "";       // 인증수단
-	String cellNo		= "";		// 핸드폰 번호
-	String cellCorp		= "";		// 이동통신사
-	String addVar		= "";		// 회원사 추가 파라미터
-
-	//복화화용 변수
-	String encPara		= "";
-	String encMsg		= "";
-	String msgChk       = "N";  
-	String returnUrl	= "";
-    //--------------------------------------------------------------------------------------
-
-    try{
-        // Parameter 수신
-        retInfo  = request.getParameter("retInfo").trim();
-	 String sreqNum = (String) session.getAttribute("reqNum");
-	//out.println(sreqNum+"|||");
-	//out.println("     ||||||||||||||||||||");
-	//out.println(retInfo);
-
-
-
-		// 1. 암호화 모듈 (jar) Loading
-        com.sci.v2.pcc.secu.SciSecuManager sciSecuMg = new com.sci.v2.pcc.secu.SciSecuManager();
-        //쿠키에서 생성한 값을 Key로 생성 한다.
-        retInfo  = sciSecuMg.getDec(retInfo, sreqNum);
-      
-        // 2.1차 파싱---------------------------------------------------------------
-        String[] aRetInfo1 = retInfo.split("\\^");
-		encPara  = aRetInfo1[0];    //암호화된 통합 파라미터
-        encMsg   = aRetInfo1[1];    //암호화된 통합 파라미터의 Hash값
-		
-		String  encMsg2   = sciSecuMg.getMsg(encPara);
-		// 3.위/변조 검증 ---------------------------------------------------------------
-		 if(encMsg2.equals(encMsg)){
-            msgChk="Y";
-        }
-
-		if(msgChk.equals("N")){
-			%>
-		    <script language=javascript>
-            alert("비정상적인 접근입니다.!!<%=msgChk%>");
-		    </script>
-			<%
-			return;
-		}
-
-        // 복호화 및 위/변조 검증
-		retInfo  = sciSecuMg.getDec(encPara, sreqNum);
-        String[] aRetInfo = retInfo.split("\\^");
-
-        name		= aRetInfo[0];
-		birYMD		= aRetInfo[1];
-        sex			= aRetInfo[2];        
-        fgnGbn		= aRetInfo[3];
-        di			= aRetInfo[4];
-        ci1			= aRetInfo[5];
-        ci2			= aRetInfo[6];
-        civersion	= aRetInfo[7];
-        reqNum		= aRetInfo[8];
-        result		= aRetInfo[9];
-        certGb		= aRetInfo[10];
-		cellNo		= aRetInfo[11];
-		cellCorp	= aRetInfo[12];
-        certDate	= aRetInfo[13];
-		addVar		= aRetInfo[14];
-		
-		//String realName = request.getParameter("realName");
-		//String virtualNo = request.getParameter("virtualNo");
-		//returnUrl = URLEncoder.encode(addVar, "UTF-8");
-		//returnUrl = URLEncoder.encode(returnUrl, "UTF-8");
-		if(!result.equals("Y")){
-			%>
-		    <script language=javascript>
-            alert("본인확인에 실패 하엿습니다.");
-			window.close();
-		    </script>
-			<%
-			return;
-		}		
-					
-		//session.setAttribute("UID", di);
-		//session.setAttribute("UNAME", name);
-		//session.setAttribute("ULEVEL", 1);
-		//session.setAttribute("UTYPE", "sil");
-        //            	out.println("<script>");		
-        //        	out.println("opener.document.location.href='/ssoUser/ssoRealUserProxy.sko?returnUrl="+returnUrl+"'");
-		//out.println("window.close();");
-        //        	out.println("</script>");
-        
-         
-        
-        	HTMLTagFilterRequestWrapper htmlReq = new HTMLTagFilterRequestWrapper(request);
-		 WebApplicationContext context  = WebApplicationContextUtils.getWebApplicationContext(request.getSession().getServletContext());
-
-		 
-		 	session.setAttribute("phoneDi", di);
-			session.setAttribute("phoneCi1", ci1);
-			session.setAttribute("phoneCi2", ci2);
-		    String userSe = "";
-		    String Uid = di;
-		    String Uname = name;
-		    //String UreturnUrl = StringUtils.isEmpty(htmlReq.getParameter("returnUrl")) ? "" : htmlReq.getParameter("returnUrl");
-			returnUrl = addVar==null||"".equals(addVar)||"null".equals(addVar) ? "/" : URLDecoder.decode(addVar, "utf-8"); 
-
-		    pageContext.setAttribute("returnUrl", returnUrl);
-		    UserAttribute userAttribute = new UserAttribute();
-		    List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-		        
-			/*
-			UID 또는 userId를 통하여 CMS의 회원 데이터를 검색, 데이터가  있는경우 필요하 필드값들을 참조하여 변수에 저장
-			CMS에 회원정보가 존재하는경우 해당 ID를 통하여 권한정보를 가져옴
-			*/
-
-		    if (authorities.size() == 0) {
-		        userSe = "GNR";
-		        authorities = new ArrayList<GrantedAuthority>();
-		        authorities.add(new GrantedAuthorityImpl("ROLE_ANONYMOUS"));
-		        authorities.add(new GrantedAuthorityImpl("ROLE_AUTHENTICATED_ANONYMOUSLY"));
-		    } else {
-		        userSe = "GNR"; 
-		    }
-
-		    userAttribute.setAuthorities(authorities);
-		    userAttribute.setPassword(Uid);
-		    String key = "tkfkdgo";
-
-		    LoginVO loginVO = new LoginVO();
-		    loginVO.setId(Uid);
-		    loginVO.setPassword(Uid);
-		    loginVO.setName(name);
-		    loginVO.setUserSe(userSe);
-                    loginVO.setUserHomepage(cellNo);
-
-
-		    EgovUserDetails egovUserDetails = new EgovUserDetails(loginVO.getId(), loginVO.getId(), true, loginVO);
-		    AuthenticationDetailsSource authenticationDetailsSource = new WebAuthenticationDetailsSource();
-		    SessionAuthenticationStrategy sessionStrategy = new NullAuthenticatedSessionStrategy();
-
-		    /**
-		     * 인증토큰 만들기
-		     */
-		    RealNameAuthenticationToken realAuthToken = new RealNameAuthenticationToken(key, egovUserDetails,userAttribute.getAuthorities());
-		    realAuthToken.setDetails(authenticationDetailsSource.buildDetails(request));
-
-		    /**
-		     * 세션접속 상태에 토큰을 임시 저장
-		     */
-		    sessionStrategy.onAuthentication(realAuthToken, request, response);
-
-		    /**
-		     * 이벤트 등록
-		     */
-		        /*
-		        ApplicationEventPublisher eventPublisher;
-		       if (eventPublisher != null) {
-		           eventPublisher.publishEvent(new InteractiveAuthenticationSuccessEvent(realAuthToken, this.getClass()));
-		       }*/
-
-		    /**
-		     * securityContext 에 저장
-		     */
-		    AuthenticationManager authenticationManager = (AuthenticationManager)context.getBean("authenticationManager");
-		    Authentication authentication = authenticationManager.authenticate(realAuthToken);
-
-		    SecurityContext securityContext = new SecurityContextImpl();
-		    securityContext.setAuthentication(authentication);
-		    SecurityContextHolder.setContext(securityContext);
-		    session.setAttribute(HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY, securityContext);
-		    PersistentTokenBasedRememberMeServices rememberMeServices= (PersistentTokenBasedRememberMeServices)context.getBean("rememberMeServices");
-
-		    /**
-		     * 자동 로그인 등록[rememberme services]
-		     */
-		    rememberMeServices.loginSuccess(request, response, realAuthToken);
-		    session.setAttribute("loinType", "gnr");
-		    
-        	%>
-        	<script language=javascript>
-            opener.location.href="<%=returnUrl%>";
-            window.close();
-		    </script>
-        	
-        	<%	
-
-
-	} catch(Exception ex) {
-	}
+	ArrayList topMenuList = (ArrayList) cm.getMenuList(cm.getDomainId(request.getServerName(),"80"),1);
 %>
+<header id="header">
+    <div id="gnb">
+        <div class="dv_wrap">
+            <div class="gnb_top">
+                <h1>
+                    <a href="http://lib.gyeongnam.go.kr/index.lib">
+                        <img src="/images/common/logo_top.png" alt="경남대표도서관" />
+                    </a>
+                </h1>
+                <div class="all_sear">
+                    <form id="search_form" action="/index.lib" method="GET">
+                        <input type="hidden" name="menuCd" value="DOM_000000201001000000">
+                        <fieldset class="searchbg">
+                            <legend>자료검색</legend>
+                            <div class="top-select-wrap">
+                                <label for="category" class="blind">자료검색</label>
+                                <select name="search_select" id="category" class="select small select-category" title="검색구분 선택">
+                                    <option value="search_title" selected>통합검색</option>
+                                    <option value="search_title">서명</option>
+                                    <option value="search_author">저자</option>
+                                    <option value="search_publisher">출판사</option>
+                                </select>
+                            </div>
+                            <label for="tkeyword" class="blind">검색어 입력</label>
+                            <input name="search_text" type="text" id="tkeyword" class="sword" title="검색어를 입력하세요" placeholder="검색어를 입력하세요">
+                            <a href="javascript:{}" onclick="document.getElementById('search_form').submit();" class="all_sear_btn">
+                                <img src="/images/common/ico_search.png" alt="검색">
+                            </a>
+                        </fieldset>
+                    </form>
+                </div>
+                <% if (request.getUserPrincipal() != null ) { %>
+               	<% if (session.getAttribute("loanStopDate") != null && !"".equals(session.getAttribute("loanStopDate"))) { %>
+               	<div class="id_name" style="right:100px !important;">대출정지기간:<%= session.getAttribute("loanStopDate") %></div>
+               	<%} %>
+                <div class="id_name"><%= egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper.getName() %>님</div>
+                <% } %>
+                <ul>
+                    <% if (request.getUserPrincipal() == null ) { %>
+                    <li class="gnb_btn2"><a href="/index.lib?menuCd=DOM_000000217001000000">로그인</a></li>
+                    <li class="gnb_btn2"><a href="http://bs.gyeongnam.go.kr:9090/kcms/Membership/step_01/MA" target="blank" title="새창 열림">회원가입</a></li>
+                    <% } else { %>
+                    <li class="gnb_btn2"><a href="<%= request.getContextPath() %>/j_spring_security_logout?returnUrl=/" style="border-right:none;">로그아웃</a></li>
+                    <li><a href="/index.lib?menuCd=DOM_000000206001001000" class="gnb_btn3 bg_b1">내도서관</a></li>
+                    <% } %>
+                    <li><a href="/index.lib?menuCd=DOM_000000210000000000" class="gnb_btn3 bg_b2">ENGLISH</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="lnb_container clearfix">
+        <nav id="lnb">
+            <div class="lnb_list">
+                <ul class="depth1">
+                    <%
+                    for (int i=0; i
+                    <topMenuList.size(); i++)
+                                         {
+                                         MenuVO topMenuVO=(MenuVO) topMenuList.get(i);
+                                         ArrayList topMenuList2=(ArrayList) cm.getMenuList(topMenuVO.getMenuCd(), 2);
+                                         %>
+                        <li class="m<%=i+1%>">
+                            <a href="/index.<%=cm.getUrlExt()%>?menuCd=<%=topMenuVO.getMenuCd()%>"<%if("_blank".equals(topMenuVO.getMenuTg())){%> target="_blank" title="새창으로 열립니다."<%}%>><%=topMenuVO.getMenuNm()%>
+					<%if("_blank".equals(topMenuVO.getMenuTg())){%><img src="/images/common/open_new.png" alt="새창 열림"/><%}%>
+					</a>
+                            <div class="depth2">
+                                <ul class="litype_cir">
+                                    <%
+                                    for (int j=0; j
+                                    <topMenuList2.size(); j++)
+                                                          {
+                                                          MenuVO topMenuVO2=(MenuVO) topMenuList2.get(j);
+                                                          ArrayList topMenuList3=(ArrayList) cm.getMenuList(topMenuVO2.getMenuCd(), 3);
+                                                          %>
+                                        <li>
+                                            <a href="/index.<%=cm.getUrlExt()%>?menuCd=<%=topMenuVO2.getMenuCd()%>"<%if("_blank".equals(topMenuVO2.getMenuTg())){%> target="_blank" title="새창으로 열립니다."<%}%>><%=topMenuVO2.getMenuNm()%>
+									<%if("_blank".equals(topMenuVO2.getMenuTg())){%><img src="/images/common/open_new2.png" alt="새창 열림"/><%}%>
+									</a>
+                                        </li>
+                                        <%
+                                        }
+                                        %>
+                                </ul>
+                            </div>
+                        </li>
+
+
+                        <%
+                        }
+                        %>
+                        <!-- <li class="m1">
+                            <a href="../sub1/1_1.jsp">자료검색</a>
+                            <div class="depth2">
+                                <ul class="litype_cir">
+                                    <li><a href="../sub1/1_1.jsp">통합검색</a></li>
+                                    <li><a href="../sub1/1_2.jsp">신착도서</a></li>
+                                    <li><a href="../sub1/1_3.jsp">사서추천도서</a></li>
+                                    <li><a href="../sub1/1_4.jsp">인기대출도서</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="m2">
+                            <a href="../sub2/2_1.jsp">이용안내 </a>
+                            <div class="depth2">
+                                <ul class="litype_cir">
+                                    <li><a href="../sub2/2_1.jsp">이용시간 및 절차</a></li>
+                                    <li><a href="../sub2/2_2.jsp">본관 이용안내</a></li>
+                                    <li><a href="../sub2/2_3.jsp">어린이관 이용안내</a></li>
+                                    <li><a href="../sub2/2_4.jsp">청소년관 이용안내</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="m3">
+                            <a href="../sub3/3_1.jsp">신청·예약</a>
+                            <div class="depth2">
+                                <ul class="litype_cir">
+                                    <li><a href="../sub3/3_1.jsp">강좌 수강신청</a></li>
+                                    <li><a href="../sub3/3_2.jsp">도서관 견학신청</a></li>
+                                    <li><a href="../sub3/3_2.jsp">자원봉사신청</a></li>
+                                    <li><a href="../sub3/3_2.jsp">디지털자료실 좌석예약</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="m4">
+                            <a href="../sub4/4_1.jsp">열린마당</a>
+                            <div class="depth2">
+                                <ul class="litype_cir">
+                                    <li><a href="../sub4/4_1.jsp">공지사항</a></li>
+                                    <li><a href="../sub4/4_2.jsp">도서관일정</a></li>
+                                    <li><a href="../sub4/4_3.jsp">설문조사</a></li>
+                                    <li><a href="../sub4/4_4.jsp">도서관에 바란다</a></li>
+                                    <li><a href="../sub4/4_5.jsp">사서에게 물어보세요</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="m5">
+                            <a href="../sub5/5_1.jsp">도서관소개</a>
+                            <div class="depth2">
+                                <ul class="litype_cir">
+                                    <li><a href="../sub5/5_1.jsp">인사말</a></li>
+                                    <li><a href="../sub5/5_2.jsp">연혁</a></li>
+                                    <li><a href="../sub5/5_3.jsp">조직 및 업무</a></li>
+                                    <li><a href="../sub5/5_4.jsp">로고</a></li>
+                                    <li><a href="../sub5/5_5.jsp">경상남도 도서관</a></li>
+                                </ul>
+                            </div>
+                        </li> -->
+                        <!--
+                        <li class="m6">
+                            <a href="../sub6/6_1.jsp">내도서관</a>
+                            <div class="depth2">
+                                <ul class="litype_cir">
+                                    <li><a href="../sub6/6_1.jsp">도서 현황</a></li>
+                                    <li><a href="../sub6/6_2.jsp">신청 현황</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <li class="m7">
+                            <a href="../sub7/7_1.jsp">사이트 이용안내</a>
+                            <div class="depth2">
+                                <ul class="litype_cir">
+                                    <li><a href="../sub7/7_1.jsp">개인정보처리방침</a></li>
+                                    <li><a href="../sub7/7_2.jsp">이메일주소 무단수집거부</a></li>
+                                    <li><a href="../sub7/7_3.jsp">뷰어프로그램</a></li>
+                                    <li><a href="../sub7/7_4.jsp">사이트맵</a></li>
+                                    <li><a href="../sub7/7_5.jsp">로그인</a></li>
+                                </ul>
+                            </div>
+                        </li>-->
+
+                        <% if (request.getUserPrincipal() != null ) { %>
+                        <li class="m7 lnb_mo">
+                            <a href="#">내도서관</a>
+                            <div class="depth2">
+                                <ul class="litype_cir">
+                                    <li>
+                                        <a href="/index.lib?menuCd=DOM_000000206001001000">도서이용내역</a>
+                                        <ul>
+                                            <li><a href="/index.lib?menuCd=DOM_000000206001001000">대출중도서</a></li>
+                                            <li><a href="/index.lib?menuCd=DOM_000000206001002000">대출이력</a></li>
+                                            <li><a href="/index.lib?menuCd=DOM_000000206001003000">대출예약도서</a></li>
+                                        </ul>
+                                    </li>
+                                    <li>
+                                        <a href="/index.lib?menuCd=DOM_000000206002001000">신청내역</a>
+                                        <ul>
+                                            <li><a href="/index.lib?menuCd=DOM_000000206002001000">수강신청</a></li>
+                                            <!--<li><a href="/index.lib?menuCd=DOM_000000206002002000">자원봉사</a></li>-->
+                                            <li><a href="/index.lib?menuCd=DOM_000000206002003000">희망도서신청내역</a></li>
+                                        </ul>
+                                    </li>
+				    <li><a href="/index.lib?menuCd=DOM_000000206003000000">체험형 동화구연</a></li>
+				    <li><a href="/index.lib?menuCd=DOM_000000206004000000">회원 정보 수정</a></li>
+                                </ul>
+                            </div>
+                        </li>
+                        <% } %>
+                </ul>
+
+                <div id="lnb_btn1">
+                    <a href="/index.lib?menuCd=DOM_000000207001000000"><img src="/images/common/btn_menuall.png" alt="사이트맵 바로가기"></a>
+                </div>
+                <div id="lnb_bg"></div>
+            </div>
+            <div class="close_area">
+                <% if (request.getUserPrincipal() != null ) { %>
+                <p class="home_btn"><%= egovframework.rfc3.iam.security.userdetails.util.EgovUserDetailsHelper.getName() %>님 안녕하세요.</p>
+                <% } else { %>
+                <p class="home_btn no">로그인을 해주세요.</p>
+                <% } %>
+                <p class="close"></p><span class="blind">닫기</span>
+            </div>
+            <ul class="lnb_btn_area lnb_btn_mo">
+                <li>
+                    <% if (request.getUserPrincipal() == null ) { %>
+                    <a href="/index.lib?menuCd=DOM_000000217001000000">로그인</a>
+                    <!--<a href="http://27.101.166.44:9090/kcms/Membership/step_01/MA" target="blank" title="새창 열림">회원가입</a>-->
+                    <% } else { %>
+                    <a href="<%= request.getContextPath() %>/j_spring_security_logout?returnUrl=/">로그아웃</a>
+                    <!--<a href="/index.lib?menuCd=DOM_000000206001001000">내도서관</a>-->
+                    <% } %>
+                    
+                    <a href="/index.lib?menuCd=DOM_000000210000000000">ENGLISH</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+    <div id="lnb_btn2" class="lnb_btn_mo"><img src="/images/common/btn_menuall_1.png" alt="전체메뉴보기"></div>
+    <% if (request.getUserPrincipal() == null ) { %>
+    <div id="lnb_btn3" class="lnb_btn_mo"><a href="/index.lib?menuCd=DOM_000000217001000000"><img src="/images/common/btn_login.png" alt="로그인"></a></div>
+    <% } else { %>
+    <div id="lnb_btn3" class="lnb_btn_mo"><a href="<%= request.getContextPath() %>/j_spring_security_logout?returnUrl=/"><img src="/images/common/btn_logout.png" alt="로그아웃"></a></div>
+    <% } %>
+    <div id="lnb_mask"></div>
+</header>
+<script>
+function printNew()
+        {
+
+	 var w = window.open('/index.lib?menuCd=DOM_000000209000000000','메뉴 인쇄', 'width=780, height=1230, toolbar=no, menubar=no, scrollbars=yes, resizable=no, top=10');
+        }</script>                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  

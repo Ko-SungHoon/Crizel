@@ -13,9 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.xml.sax.SAXException;
 
-import com.crizel.util.Leopard;
-import com.crizel.util.Nyaa;
-import com.crizel.util.Ohys;
+import com.crizel.nyaa.NyaaUtil;
 
 @Repository("dao")
 public class CrizelDao {
@@ -30,7 +28,7 @@ public class CrizelDao {
 	public List<Map<String,Object>> listDetail(String keyword, String type, String site, String mode) throws Exception {
 		Ohys ohys 					= new Ohys();
 		Leopard lp 					= new Leopard();
-		Nyaa nyaa					= new Nyaa();
+		NyaaUtil nyaa					= new NyaaUtil();
 		List<Map<String,Object>> a 	= new ArrayList<Map<String,Object>>();
 		String addr					= "";
 		

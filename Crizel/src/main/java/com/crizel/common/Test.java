@@ -1,4 +1,4 @@
-package com.crizel.controller;
+package com.crizel.common;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedWriter;

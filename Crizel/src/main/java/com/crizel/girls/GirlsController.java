@@ -1,4 +1,4 @@
-package com.crizel.controller;
+package com.crizel.girls;
 
 import java.util.List;
 
@@ -14,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.crizel.admin.AdminService;
-import com.crizel.girls.GirlsService;
-import com.crizel.girls.GirlsVO;
 
 @Controller
 public class GirlsController {

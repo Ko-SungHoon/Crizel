@@ -1,4 +1,4 @@
-package com.crizel.util;
+package com.crizel.common;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;

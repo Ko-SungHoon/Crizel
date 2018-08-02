@@ -98,7 +98,16 @@ Vue.component('singlePlacementInfo', {
       }
       xhr.send()
       if (self.resultData.RESULT_INFO == "ERROR") {
-        alert('도서예약에 실패하였습니다.')
+    	  if(self.resultData.RESULT_CODE == "K0171001"){
+    		  alert("로그인후 비치희망도서를 신청하실수 있습니다");  
+    	  }else if(self.resultData.RESULT_CODE == "K0173008"){
+    		  alert("대출정지기간에는 비치희망도서를 신청하실 수 없습니다");
+    	  }else{
+    		  alert('도서예약에 실패하였습니다.')
+    		  //alert(self.resultData.RESULT_MESSAGE);  
+    	  }
+    			
+        //alert('도서예약에 실패하였습니다.')
       } else {
         alert('선택한 도서가 예약되었습니다. 내도서관 메뉴에서 확인하세요.')
       }

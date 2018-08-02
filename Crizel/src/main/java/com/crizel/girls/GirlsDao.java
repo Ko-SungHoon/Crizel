@@ -10,9 +10,6 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import com.crizel.util.Instagram;
-import com.crizel.util.Twitter;
-
 @Repository("girlsDao")
 public class GirlsDao {
 	@Autowired

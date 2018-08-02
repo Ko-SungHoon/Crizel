@@ -1,4 +1,4 @@
-package com.crizel.util;
+package com.crizel.common;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;

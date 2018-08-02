@@ -1,4 +1,4 @@
-package com.crizel.controller;
+package com.crizel.board;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -23,9 +23,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.crizel.board.BoardService;
-import com.crizel.board.BoardVO;
 
 @Controller
 public class BoardController {

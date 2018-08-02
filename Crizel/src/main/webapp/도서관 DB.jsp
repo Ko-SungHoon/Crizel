@@ -15,7 +15,7 @@
 <%
 String ip = request.getRemoteAddr();
 
-if("112.163.77.52".equals(ip)){
+if("58.239.232.167".equals(ip)){
 %>
 <!DOCTYPE html>
 <html>

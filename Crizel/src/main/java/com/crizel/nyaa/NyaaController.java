@@ -1,4 +1,4 @@
-package com.crizel.controller;
+package com.crizel.nyaa;
 
 import java.util.List;
 import java.util.Map;
@@ -8,8 +8,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
-
-import com.crizel.nyaa.NyaaService;
 
 @Controller
 public class NyaaController {
@@ -23,7 +21,7 @@ public class NyaaController {
 
 	@RequestMapping("nyaa.do")
 	public ModelAndView wiki(
-			@RequestParam(value="type", required=false, defaultValue="1_0") String type,
+			@RequestParam(value="type", required=false, defaultValue="1_4") String type,
 			@RequestParam(value="keyword", required=false, defaultValue="") String keyword) throws Exception {
 		ModelAndView mav = new ModelAndView();	
 		List<Map<String,Object>> nyaaList = service.nyaaList(type, keyword);

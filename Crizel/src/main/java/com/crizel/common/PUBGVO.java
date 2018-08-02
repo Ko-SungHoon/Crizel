@@ -1,4 +1,4 @@
-package com.crizel.util;
+package com.crizel.common;
 
 public class PUBGVO {
 	private String KillDeathRatio ;

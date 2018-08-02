@@ -1,732 +1,1502 @@
+<%@ page import="java.util.Collections"%>
+<%@ page import="java.util.Arrays"%>
+<%@ page import="org.json.simple.JSONObject"%>
+<%@ page import="egovframework.rfc3.user.web.SessionManager"%>
+<%@ include file="/program/class/UtilClass.jsp"%>
+<%@ include file="/program/food/food_util.jsp"%>
+<%@ include file="/program/food/foodVO.jsp"%>
 <%
 /**
-*   PURPOSE :   <상시> 프로그램 신청 and 달력
-*   CREATE  :   20180207_wed    JI
-*   MODIFY  :   퍼블리싱 보다 조금 더 먼저 작업  20180207_wed    JI
-*   MODIFY  :   20180222 LJH 모달윈도우, 데이터피커 css작업
-*   MODIFY  :   20180305 JI 학교계정이 아닐 경우 alert 창으로 대처하기
-*   MODIFY  :   20180412 JI 시작 기준일 7일로 변경 todayAft = 7
-*   MODIFY  :   20180508 JI 신청 차단 날짜 추가(20180517, 20180518, 20180529 오후, 20180626, 20180711, 20180717 오후, 20180726, 20180727)
-*   MODIFY  :   20180607 KO 프로그램 개편(오전2개 오후2개, 전일 폐지)
-*   MODIFY  :   20180612 KO 오전,오후 각각 200명만 신청 가능하게 수정
-*   MODIFY  :   20180612 LEE 알림문구 수정
-**/
+* PURPOSE : 조사가격입력 액션 page
+*	MODIFY	:	20180425	KO		최저가 기능 제거
+*/
 %>
-
-<%@ include file="/program/class/UtilClass.jsp"%>
-<%@ include file="/program/class/PagingClass.jsp"%>
-
-<%/*************************************** 프로그램 ****************************************/%>
-
-<%!
-/** Class Part **/
-    private class ArtCalData {
-        //calendar
-        public String callDate;         //날짜
-        public String callDateWeek;     //요일 한글
-        public String hlyDateFlag;      //요일 구분 SA,SU = 토,일 D = 평일, H = 휴일
-        public String hlyDateName;      //휴일 이름, NULL
-
-        //프로그램 변수
-        public String pro_name;
-        public int max_per;
-        public int curr_per;
-
-        //신청 변수
-        public int req_no;
-        public int pro_no;
-        public String req_sch_id;
-        public String sch_mng_nm;
-        public String sch_mng_tel;
-        public String sch_mng_mail;
-        public String reg_date;
-        public String reg_ip;
-        public String apply_flag;
-        public int req_cnt;
-        public String req_date;
-        public String req_aft_flag;
-        public String req_sch_nm;
-        public String req_sch_grade;
-        public String req_sch_group;
-        public String apply_date;
-
-        //신청 불가 확인 변수
-        public String able_sch_flag;
-        public String my_request;
-        public int my_req_no;
-        public int hold_cnt;
-        public String mor_sch_flag;
-        public String aft_sch_flag;
-        
-        public String pro_cat;
-        public String pro_cat_nm;
-        public String pro_memo;
-        public String pro_year;
-        public String reg_id;
-        public String mod_date;
-        public String show_flag;
-        public String del_flag;
-        public String aft_flag;
-        public String pro_tch_nm;
-        public String pro_type;
-        
-        public String mor_cnt_flag;
-        public String aft_cnt_flag;
-    }
-
-    private class ArtCalList implements RowMapper<ArtCalData> {
-        public ArtCalData mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ArtCalData calData   =   new ArtCalData();
-            //date values
-            calData.callDate        =   rs.getString("MON_DTE");
-            calData.callDateWeek    =   rs.getString("WEEK_DTE");
-            calData.hlyDateFlag     =   rs.getString("HLY_DTE");
-            calData.hlyDateName     =   rs.getString("HLY_NAME");
-            //program tb data values
-            calData.pro_name        =   rs.getString("PRO_NAME");
-            calData.max_per         =   rs.getInt("MAX_PER");
-            calData.curr_per        =   rs.getInt("CURR_PER");
-            //request tb data values
-            calData.req_no          =   rs.getInt("REQ_NO");
-            calData.pro_no          =   rs.getInt("PRO_NO");
-            calData.req_sch_id      =   rs.getString("REQ_SCH_ID");
-            calData.sch_mng_nm      =   rs.getString("SCH_MNG_NM");
-            calData.sch_mng_tel     =   rs.getString("SCH_MNG_TEL");
-            calData.sch_mng_mail    =   rs.getString("SCH_MNG_MAIL");
-            calData.reg_date        =   rs.getString("REG_DATE");
-            calData.reg_ip          =   rs.getString("REG_IP");
-            calData.apply_flag      =   rs.getString("APPLY_FLAG");
-            calData.req_cnt         =   rs.getInt("REQ_CNT");
-            calData.req_date        =   rs.getString("REQ_DATE");
-            calData.req_aft_flag    =   rs.getString("REQ_AFT_FLAG");
-            calData.req_sch_nm      =   rs.getString("REQ_SCH_NM");
-            calData.req_sch_grade   =   rs.getString("REQ_SCH_GRADE");
-            calData.req_sch_group   =   rs.getString("REQ_SCH_GROUP");
-            calData.apply_date      =   rs.getString("APPLY_DATE");
-            //block able request variables
-            calData.able_sch_flag   =   rs.getString("ABLE_SCH_FLAG");
-            calData.my_request      =   rs.getString("MY_REQUEST");
-            calData.my_req_no       =   rs.getInt("MY_REQ_NO");
-            calData.hold_cnt        =   rs.getInt("HOLD_CNT");
-            calData.mor_sch_flag    =   rs.getString("MOR_SCH_FLAG");
-            calData.aft_sch_flag    =   rs.getString("AFT_SCH_FLAG");
-            
-            calData.mor_cnt_flag	= 	rs.getString("MOR_CNT_FLAG");
-            calData.aft_cnt_flag	= 	rs.getString("AFT_CNT_FLAG");
-            return calData;
-        }
-    }
-    
-    private class ArtProList implements RowMapper<ArtCalData> {
-        public ArtCalData mapRow(ResultSet rs, int rowNum) throws SQLException {
-            ArtCalData vo   =   new ArtCalData();
-            vo.pro_no		=   rs.getInt("PRO_NO");
-            vo.pro_cat		=   rs.getString("PRO_CAT");
-            vo.pro_cat_nm	=   rs.getString("PRO_CAT_NM");
-            vo.pro_name		=   rs.getString("PRO_NAME");
-            vo.pro_memo		=   rs.getString("PRO_MEMO");
-            vo.pro_year		=   rs.getString("PRO_YEAR");
-            vo.reg_id		=   rs.getString("REG_ID");
-            vo.reg_ip		=   rs.getString("REG_IP");
-            vo.reg_date		=   rs.getString("REG_DATE");
-            vo.mod_date		=   rs.getString("MOD_DATE");
-            vo.show_flag	=   rs.getString("SHOW_FLAG");
-            vo.del_flag		=   rs.getString("DEL_FLAG");
-            vo.max_per		=   rs.getInt("MAX_PER");
-            vo.aft_flag		=   rs.getString("AFT_FLAG");
-            vo.pro_tch_nm	=   rs.getString("PRO_TCH_NM");
-            vo.pro_type		=   rs.getString("PRO_TYPE");
-            return vo;
-        }
-    }
-%>
-
-<%
-try{
-	
-
-String listPage		=	"DOM_000002001002003002";	// 실서버 : DOM_000002001002003002 , 테스트 : DOM_000000126002003005
-String insertPage 	= 	"DOM_000002001002003003";	// 실서버 : DOM_000002001002003003 , 테스트 : DOM_000000126002003007
-String confirmPage	=	"DOM_000002001002003004";	// 실서버 : DOM_000002001002003004 , 테스트 : DOM_000000126002003008
-	
-SessionManager sessionManager   =   new SessionManager(request);
-
-String outHtml      =   "";
-String tmpDate      =   "";
-
-//request year / month value
-Calendar cal            =   Calendar.getInstance();
-SimpleDateFormat sdf    =   new SimpleDateFormat("yyyy")
-                , sdf2  =   new SimpleDateFormat("MM")
-                , sdf3  =   new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                , sdf4  =   new SimpleDateFormat("dd")
-                , adfToday  =   new SimpleDateFormat("yyyyMMdd");
-
-String toDay        =   adfToday.format(cal.getTime());
-
-/**/
-String strDate      =   "20180316";
-String requestDate  =   "20180402";
-/**/
-
-int todayAft        =   7;  //오늘 기준 이후 예약가능 날짜
-
-String callYear     =   parseNull(request.getParameter("callYear"), sdf.format(cal.getTime()));     //기본은 이번년
-String callMonth    =   parseNull(request.getParameter("callMonth"), sdf2.format(cal.getTime()));   //기본은 이번달
-
-/** SQL Data Part **/
-StringBuffer sql                =   null;
-String sql_str                  =   "";
-List<ArtCalData> calDateList    =   null;
-List<ArtCalData> artProListM	=	null;
-List<ArtCalData> artProListF	=	null;
-
-int totalDate   =   0;
-int cnt         =   0;
-int num         =   0;
-
-    sql     =   new StringBuffer();
-    sql_str =   "SELECT STANDARD_MONTH.* ";
-    sql_str +=  "	, (SELECT MAX(PRO_NO) FROM ART_REQ_ALWAY_CNT WHERE REQ_NO = COMPARE_DATE.REQ_NO) AS PRO_NO		";
-    sql_str +=  ", CASE ";
-    sql_str +=  "   WHEN (SELECT COUNT(BANNO) FROM ART_BAN_TABLE WHERE BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) > 0 ";
-    sql_str +=  "   THEN 'H' ";
-    sql_str +=  "   WHEN TO_CHAR(STANDARD_MONTH.MON_DTE, 'd') = '1' THEN 'SU' ";
-    sql_str +=  "   WHEN TO_CHAR(STANDARD_MONTH.MON_DTE, 'd') = '7' THEN 'SA' ";
-    sql_str +=  "   ELSE 'D' ";
-    sql_str +=  "  END AS HLY_DTE ";
-    sql_str +=  ", CASE (SELECT COUNT(BANNO) FROM ART_BAN_TABLE WHERE BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) ";
-    sql_str +=  "   WHEN 1 THEN (SELECT BAN_NM FROM ART_BAN_TABLE WHERE BAN_DATE = TO_DATE(TO_CHAR(STANDARD_MONTH.MON_DTE, 'YYYYMMDD'), 'YYYY-MM-DD')) ";
-    sql_str +=  "   ELSE NULL ";
-    sql_str +=  "  END AS HLY_NAME ";
-    sql_str +=  "  , (SELECT PRO_NAME FROM ART_PRO_ALWAY WHERE PRO_NO = COMPARE_DATE.PRO_NO) AS PRO_NAME ";
-    sql_str +=  "  , (SELECT MAX_PER FROM ART_PRO_ALWAY WHERE PRO_NO = COMPARE_DATE.PRO_NO) AS MAX_PER ";
-    sql_str +=  "  , (SELECT SUM(REQ_CNT) FROM ART_REQ_ALWAY WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND PRO_NO = COMPARE_DATE.PRO_NO AND APPLY_FLAG IN ('Y', 'N')) AS CURR_PER ";
-    sql_str +=  "  , COMPARE_DATE.* ";
-/* 날짜 신청 여부 flag value 호출 */
-    sql_str +=  "  , (CASE ";
-    sql_str +=  "  WHEN (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM ART_REQ_ALWAY WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND APPLY_FLAG IN ('Y', 'N')) >= 4 THEN 'N' ";
-    sql_str +=  "  WHEN /*정원 확인*/ ";
-    sql_str +=  "       (SELECT SUM(MAX_PER) FROM ART_PRO_ALWAY WHERE DEL_FLAG != 'Y' AND SHOW_FLAG = 'Y') ";
-    sql_str +=  "       <= (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG IN ('Y', 'N') AND REQ_AFT_FLAG = 'D') A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE) THEN 'N' ";
-    sql_str +=  "       WHEN /*내가 신청한 건지 확인*/ (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM ART_REQ_ALWAY WHERE (REQ_DATE = STANDARD_MONTH.MON_DTE) AND APPLY_FLAG IN ('Y', 'N') AND REQ_SCH_ID = '"+sessionManager.getId()+"') > 0 THEN 'N' ";
-    sql_str +=  "       ELSE 'Y' ";
-    sql_str +=  "  END) AS ABLE_SCH_FLAG ";
-	
-	// 오전 프로그램에 2개 학교가 신청하거나 신청인원이 200명이면 막기
-    sql_str +=  ", (CASE				";
-    sql_str +=  "      WHEN  (SELECT COUNT(*)				";
-    sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
-    sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'M') >= 2 THEN 'N'				";
-    sql_str +=  "      WHEN  (SELECT SUM(REQ_PER)				";
-    sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
-    sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'M') >= 200 THEN 'N'				";
-    sql_str +=  "      ELSE 'Y'				";
-    sql_str +=  "     END				";
-    sql_str +=  "  ) AS MOR_CNT_FLAG				";
-  	 
- 	// 오후 프로그램에 2개 학교가 신청하거나 신청인원이 200명이면 막기
-    sql_str +=  "  , (CASE				";
-    sql_str +=  "      WHEN  (SELECT COUNT(*)				";
-    sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
-    sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'F') >= 2 THEN 'N'				";
-    sql_str +=  "      WHEN  (SELECT SUM(REQ_PER)				";
-    sql_str +=  "             FROM ART_REQ_ALWAY A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO				";
-    sql_str +=  "             WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE AND A.APPLY_FLAG IN ('Y', 'N') AND (SELECT AFT_FLAG FROM ART_PRO_ALWAY WHERE PRO_NO = B.PRO_NO) = 'F') >= 200 THEN 'N'				";
-    sql_str +=  "      ELSE 'Y'				";
-    sql_str +=  "     END				";
-    sql_str +=  "  ) AS AFT_CNT_FLAG  					";
-
-    sql_str +=  "  , (CASE ";
-    sql_str +=  "  WHEN /*내가 신청 승인완료*/ ";
-    sql_str +=  "  (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG = 'Y') WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_SCH_ID = '"+sessionManager.getId()+"') > 0 ";
-    sql_str +=  "  THEN 'Y' ";
-    sql_str +=  "  WHEN /*내가 신청 승인대기*/ ";
-    sql_str +=  "  (SELECT NVL(COUNT(REQ_SCH_ID), 0) FROM (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG = 'N') WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_SCH_ID = '"+sessionManager.getId()+"') > 0 ";
-    sql_str +=  "  THEN 'H' ";
-    sql_str +=  "  END) AS MY_REQUEST ";
-
-    sql_str +=  "  , (SELECT REQ_NO FROM ART_REQ_ALWAY WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_SCH_ID = '"+sessionManager.getId()+"' AND APPLY_FLAG IN ('Y', 'N')) AS MY_REQ_NO ";
-
-    sql_str +=  "  , (SELECT NVL(COUNT(REQ_NO), 0) FROM ART_REQ_ALWAY ";
-    sql_str +=  "  WHERE REQ_DATE = STANDARD_MONTH.MON_DTE AND REQ_SCH_ID NOT IN ('"+sessionManager.getId()+"') AND APPLY_FLAG IN ('N') ";
-    sql_str +=  "  ) AS HOLD_CNT ";
-
-    sql_str +=  "  , (CASE ";
-    sql_str +=  "  WHEN ";
-    sql_str +=  "  (SELECT SUM(MAX_PER) FROM ART_PRO_ALWAY WHERE DEL_FLAG != 'Y' AND SHOW_FLAG = 'Y') ";
-    sql_str +=  "    <= (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG IN ('Y', 'N') AND REQ_AFT_FLAG IN ('M', 'D')) A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE) THEN 'N' ";
-    sql_str +=  "  ELSE 'Y' ";
-    sql_str +=  "  END) AS MOR_SCH_FLAG ";
-    sql_str +=  "  , (CASE ";
-    sql_str +=  "  WHEN ";
-    sql_str +=  "  (SELECT SUM(MAX_PER) FROM ART_PRO_ALWAY WHERE DEL_FLAG != 'Y' AND SHOW_FLAG = 'Y') ";
-    sql_str +=  "    <= (SELECT NVL(SUM(REQ_PER), 0) FROM (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG IN ('Y', 'N') AND REQ_AFT_FLAG IN ('F', 'D')) A LEFT JOIN ART_REQ_ALWAY_CNT B ON A.REQ_NO = B.REQ_NO WHERE A.REQ_DATE = STANDARD_MONTH.MON_DTE) THEN 'N' ";
-    sql_str +=  "  ELSE 'Y' ";
-    sql_str +=  "  END) AS AFT_SCH_FLAG ";
-/* 날짜 테이블 생성 및 프로그램 테이블 JOIN */
-    sql_str +=  "   ";
-    sql_str +=  "  FROM ";
-    sql_str +=  "   (SELECT ";
-    sql_str +=  "       (START_DTE + LEVEL) AS MON_DTE ";
-    sql_str +=  "       , TO_CHAR(START_DTE + LEVEL, 'DY') AS WEEK_DTE ";
-    sql_str +=  "   FROM ";
-    sql_str +=  "       ( ";
-    sql_str +=  "       SELECT ";
-    sql_str +=  "           ( ";
-    sql_str +=  "           CASE TO_CHAR(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD'), 'D') ";
-    sql_str +=  "               WHEN '1' THEN TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD') -1 ";
-    sql_str +=  "               ELSE TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD') - TO_NUMBER(TO_CHAR(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD'), 'D')) ";
-    sql_str +=  "           END ";
-    sql_str +=  "           ) AS START_DTE ";
-    sql_str +=  "           , ( ";
-    sql_str +=  "           CASE TO_CHAR(ADD_MONTHS(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD'), 1), 'D') ";
-    sql_str +=  "               WHEN '7' THEN ADD_MONTHS(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD'), 1) -1 ";
-    sql_str +=  "               ELSE ADD_MONTHS(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD') -1, 1) + (7 - TO_NUMBER(TO_CHAR(ADD_MONTHS(TO_DATE( '" + callYear + "' || '" + callMonth + "' || '01', 'YYYY-MM-DD') -1, 1), 'D' ))) ";
-    sql_str +=  "           END ";
-    sql_str +=  "           ) AS END_DTE ";
-    sql_str +=  "       FROM DUAL ";
-    sql_str +=  "       ) ";
-    sql_str +=  "   CONNECT BY LEVEL <= END_DTE - START_DTE ";
-    sql_str +=  "   ) STANDARD_MONTH LEFT JOIN (SELECT * FROM ART_REQ_ALWAY WHERE APPLY_FLAG = 'Y') COMPARE_DATE ON STANDARD_MONTH.MON_DTE = COMPARE_DATE.REQ_DATE ";
-    sql_str +=  "ORDER BY STANDARD_MONTH.MON_DTE ";
-    sql.append(sql_str);
-
-    calDateList =   jdbcTemplate.query(sql.toString(), new ArtCalList());
-    
-    
-    
-    sql_str = new String();
-    sql_str += "SELECT * FROM ART_PRO_ALWAY WHERE PRO_TYPE = 'NEW' AND AFT_FLAG = 'M' ORDER BY PRO_NO		";
-    artProListM = jdbcTemplate.query(sql_str, new ArtProList());
-    
-    sql_str = new String();
-    sql_str += "SELECT * FROM ART_PRO_ALWAY WHERE PRO_TYPE = 'NEW' AND AFT_FLAG = 'F' ORDER BY PRO_NO		";
-    artProListF = jdbcTemplate.query(sql_str, new ArtProList());
-
-%>
-
-<link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/themes/humanity/jquery-ui.css" type="text/css" media="all" />
-
-<%/*************************************** STR Modal part ****************************************/%>
-<div id="slide" style="display:none;">
-  <div class="topbar">
-    <h3>신청일 및 분류선택</h3>
-  </div>
-  <div class="inner">
-    <form name="validate" id="validate" action="./index.gne?menuCd=<%=insertPage %>" onsubmit="return validateForm()" method="post" enctype="multipart/form-data">
-        <table class="bbs_list2 td-l th-c fsize_80">
-          <caption>신청일 및 분류선택 : 학교명, 선택일자, 분류 입력란입니다.</caption>
-            <colgroup>
-                <col style="width:30%">
-                <col />
-            </colgroup>
-            <tr>
-                <th scope="row">학교명</th>
-                <td>
-                    <label for="school_name" class="blind">학교명</label>
-                    <input type="text" id="school_name" value="<%=sessionManager.getName() %>" readonly required>
-                </td>
-            </tr>
-            <tr>
-                <th scope="row">선택일자</th>
-                <td><label for="req_date" class="blind">선택일자</label><input type="text" name="req_date" id="req_date" required readonly></td>
-            </tr>
-            <tr>
-            	<th scope="row">프로그램</th>
-            	<td>	
-            		<input type="hidden" id="pro_no" name="pro_no">
-            		<input type="hidden" id="aft_flag" name="aft_flag">
-            		<ul id="artProList">
-            		</ul>
-            	</td>
-            </tr>
-            <!-- <tr>
-                <th scope="row">분류</th>
-                <td>
-                  <label for="aft_flag" class="blind">분류</label>
-                  <input type="hidden" id="aft_flag" name="aft_flag" value="D" readonly required>
-                  <input type="text" id="aft_flag_text" title="분류" name="aft_flag_text" value="전일반(09:00 ~ 16:00)" readonly required>
-                </td>
-            </tr> -->
-        </table>
-        <!-- <div class="btn_area c mg_b5">
-            <input type="submit" class="btn medium edge darkMblue" value="신청하기">
-        </div> -->
-    </form>
-    <a href="javascript:;" class="btn_cancel popup_close slide_close" id="modalClose" title="창닫기"><img src="/img/art/layer_close.png" alt="창닫기"></a>
-  </div>
-</div>
-
-<%/*************************************** END Modal part ****************************************/%>
-
-<div class="box_02">
-<strong class="blue">&#8251; 알림</strong>
-  <ul class="type01 ">
-    <li><span class="fsize_90">2학기부터 상시프로그램의 내용 및 신청 방법이 변경 되었습니다.</span>
-      <ul>
-        <li><strong>(방법) 오전, 오후 선택 → A, B타입 중 선택하여 신청</strong> <span class="red">※ 중복신청 불가</span></li>
-      </ul>
-    </li>
-<li><span class="fsize_90">프로그램 신청 학교 수는 오전반 총 2개교, 오후반 총 2개교로 제한합니다.</span>
-<ul>
-<li>오전반&middot;오후반 최대 신청 인원은 각각 200명이며, 두 번째로 신청 학교의 경우 첫 번째 학교 신청 인원 잔여 신청 인원 내에서만 신청 가능합니다.</li>
-<li>2개교 신청의 경우 프로그램 첫 번째 신청한 학교에 반 편성 우선권이 있습니다.</li>
-</ul>
-</li>
-     <li><span class="fsize_90">홈페이지 정비 관계로 1학기 상시 프로그램 신청은 유선으로만 가능합니다.</span></li>
-  </ul>
-</div>
-
-<div class="box_02">
-	<ul class="badge-guide">
-		<li><i class="badge bg-am">오전</i> 오전반(신청가능)</li>
-		<li><i class="badge bg-pm">오후</i> 오후반(신청가능)</li>
-		<%-- <li><i class="badge bg-day">전일</i> 전일제반(신청가능)</li> --%>
-		<li><i class="badge finish">grey</i> 마감(신청불가)</li>
-	</ul>
-</div>
-
-<div class="cal magT30">
-	<div class="calbtn">
-		<a href="javascript:;" class="prem" onclick="move('pre')" title="이전 달">&lt; <span class="blind">이전달</span></a> <span><%=callYear %>.<%=callMonth %></span> <a href="javascript:;" class="nextm" onclick="move('next')" title="다음 달"><span class="blind">다음달</span> &gt;</a>
-	</div>
-	<%--<div class="booking">
-		<a href="javascript:;" class="btn small edge mako initialism slide_open openLayer" id="pro_request">프로그램 신청하기 &gt;</a>
-	</div>--%>
-	<table class="table_skin01 td-l wps_100">
-		<caption>상시프로그램 신청 현황을 보여주는 달력으로 오전,오후,전일로 구분하여 신청할 수 있습니다.</caption>
-		<colgroup>
-			<col style="width:14.285%">
-			<col style="width:14.285%">
-			<col style="width:14.285%">
-			<col style="width:14.285%">
-			<col style="width:14.285%">
-			<col style="width:14.285%">
-			<col style="width:14.285%">
-		</colgroup>
-		<thead>
-			<tr>
-				<th scope="col" class="sun">일</th>
-				<th scope="col">월</th>
-				<th scope="col">화</th>
-				<th scope="col">수</th>
-				<th scope="col">목</th>
-				<th scope="col">금</th>
-				<th scope="col" class="sat">토</th>
-			</tr>
-		</thead>
-		<tbody>
-<%/***************달력 STR*******************/%>
-            <%
-                for(ArtCalData data : calDateList){
-
-                    String compareDay   =   "";
-                    long diff           =   0;
-                    int diffDate        =   0;
-
-                    if (!tmpDate.equals(data.callDate)) {
-                        //날짜 비교
-                        compareDay  =   adfToday.format(sdf3.parse(data.callDate));
-                        //4월 2일 보다 이후 인지 확인 (나중 삭제)
-                        if (Integer.parseInt(compareDay) < 20180402) {
-                            diff        =   0;
-                        } else {
-                            diff        =   adfToday.parse(compareDay).getTime() - adfToday.parse(toDay).getTime();
-                            diff        =   diff / (24 * 60 * 60 * 1000);
-                            diffDate    =   (int) diff;
-                            tmpDate     =   data.callDate;
-
-                        }
-
-                        if (data.hlyDateFlag.equals("SU")) {
-                            outHtml =   "<td class=\"sun\">";
-                            outHtml +=  "<span class=\"date\">" + sdf4.format(sdf3.parse(data.callDate)) + "</span>";
-                        } else if (data.hlyDateFlag.equals("SA")) {
-                            outHtml =   "<td class=\"sat\">";
-                            outHtml +=  "<span class=\"date\">" + sdf4.format(sdf3.parse(data.callDate)) + "</span>";
-                        } else if (data.hlyDateFlag.equals("H")) {
-                            outHtml =   "<td class=\"holiday\">";
-                            outHtml +=  "<span class=\"date\">" + sdf4.format(sdf3.parse(data.callDate)) /*+ data.hlyDateName*/ + "</span>";
-                        } else {
-                            outHtml =   "<td class=\"\">";
-                            outHtml +=  "<span class=\"date\">" + sdf4.format(sdf3.parse(data.callDate)) + "</span>";
-
-                            outHtml +=  "<span class=\"badge-group\">";
-
-                            //오늘 과 이전 날짜 확인
-                            if (
-                            	//(diffDate <= todayAft || diffDate > 130) || 
-								(Integer.parseInt(compareDay) < 20180903)
-                                || (Integer.parseInt(compareDay) == 20180430) || (Integer.parseInt(compareDay) == 20180517)
-                                || (Integer.parseInt(compareDay) == 20180518) || (Integer.parseInt(compareDay) == 20180521)
-                                || (Integer.parseInt(compareDay) == 20180626) || (Integer.parseInt(compareDay) == 20180627)
-                                || (Integer.parseInt(compareDay) == 20180711) || (Integer.parseInt(compareDay) == 20180723) 
-                                || (Integer.parseInt(compareDay) == 20180724) || (Integer.parseInt(compareDay) == 20180725) 
-                                || (Integer.parseInt(compareDay) == 20180726) || (Integer.parseInt(compareDay) == 20180727)
-                                || (Integer.parseInt(compareDay) == 20180927) || (Integer.parseInt(compareDay) == 20180928)
-                                || (Integer.parseInt(compareDay) == 20181008) || (Integer.parseInt(compareDay) >= 20181221)
-                                
-                                //2018.06.28. 요청
-                                || (Integer.parseInt(compareDay) == 20180920) || (Integer.parseInt(compareDay) == 20180921)
-                                || (Integer.parseInt(compareDay) == 20181016) || (Integer.parseInt(compareDay) == 20181031)
-                                || (Integer.parseInt(compareDay) == 20181101) || (Integer.parseInt(compareDay) == 20181203)
-                                || (Integer.parseInt(compareDay) == 20181204)
-                                
-                                //2018.07.04. 요청
-                                || (Integer.parseInt(compareDay) == 20180918)
-                                
-                            	) {
-                                outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-am finish\">오전</span>";
-                                outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
-                                //outHtml +=  "<span title=\"전일반 신청 불가\" class=\"badge bg-day finish\">전일</span>";
-                                outHtml +=  "</span>";
-                            } else {
-                                //차단 조건 1(쿼리에서 제어) => 한날짜 아이디 2개 or 자신의 아이디로 승인 받은 신청 존재 or 정원이 없을 경우
-                                if ("Y".equals(data.able_sch_flag)) {
-                                    //차단 조건 2(쿼리에서 제어) 오전반 정원 확인(승인된 전일 + 오전이 정원을 넘었을 경우)
-                                    /*20180508_tue 20180717 오후와 전일 막기*/
-                                    if (((Integer.parseInt(compareDay) == 20180717) || (Integer.parseInt(compareDay) == 20180611)
-                                        || (Integer.parseInt(compareDay) == 20180612) || (Integer.parseInt(compareDay) == 20180613)
-                                        || (Integer.parseInt(compareDay) == 20180614) || (Integer.parseInt(compareDay) == 20180615)
-                                        || (Integer.parseInt(compareDay) == 20180608) || (Integer.parseInt(compareDay) == 20180621)
-                                        
-                                        //2018.06.28. 요청
-                                        || (Integer.parseInt(compareDay) == 20181018) || (Integer.parseInt(compareDay) == 20181026)
-                                        || (Integer.parseInt(compareDay) == 20181106)
-                                        
-                                        //2018.07.04. 요청
-                                		|| (Integer.parseInt(compareDay) == 20180905) || (Integer.parseInt(compareDay) == 20180906)
-                                		|| (Integer.parseInt(compareDay) == 20180911)
-                                    		) 
-                                        && ("Y".equals(data.mor_sch_flag) && "Y".equals(data.aft_sch_flag))) {
-                                        outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
-                                        outHtml +=  "<span title=\"오후반 신청 불가\" class=\"badge bg-pm finish\">오후</span>";
-                                        //outHtml +=  "<span title=\"전일반 신청 불가\" class=\"badge bg-day finish\">전일</span>";
-                                    /*END 20180508_tue 20180717 오후와 전일 막기*/
-                                    }
-                                    /*20180628  오전과 전일 막기*/
-                                    else if (((Integer.parseInt(compareDay) == 20180904) || (Integer.parseInt(compareDay) == 20181024)
-                                            	|| (Integer.parseInt(compareDay) == 20181025) || (Integer.parseInt(compareDay) == 20181105)
-                                            	|| (Integer.parseInt(compareDay) == 20181129) || (Integer.parseInt(compareDay) == 20181205)
-                                            	|| (Integer.parseInt(compareDay) == 20181212) || (Integer.parseInt(compareDay) == 20181214)
-                                            	|| (Integer.parseInt(compareDay) == 20181217)
-                                            	
-                                            	//2018.07.04. 요청
-                                				|| (Integer.parseInt(compareDay) == 20180907) || (Integer.parseInt(compareDay) == 20180912)
-                                            		) 
-                                                && ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_sch_flag))) {
-                                                outHtml +=  "<span title=\"오전반 신청 불가\" class=\"badge bg-pm finish\">오전</span>";
-                                                outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
-                                    }/*END 20180628 오전과 전일 막기*/
-                                    else if (("Y".equals(data.mor_sch_flag) && "Y".equals(data.mor_cnt_flag)) && ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_cnt_flag))
-                                    		) {
-                                        outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
-                                        outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
-                                        //outHtml +=  "<a href=\"javascript:;\" title=\"전일제반 신청\" class=\"badge bg-day initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">전일</a>";
-                                    } else if ("Y".equals(data.mor_sch_flag) && "Y".equals(data.mor_cnt_flag)) {
-                                        outHtml +=  "<a href=\"javascript:;\" title=\"오전반 신청\" class=\"badge bg-am initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오전</a>";
-                                        outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
-                                        //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
-                                    } else if ("Y".equals(data.aft_sch_flag) && "Y".equals(data.aft_cnt_flag)) {
-                                        outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
-                                        outHtml +=  "<a href=\"javascript:;\" title=\"오후반 신청\" class=\"badge bg-pm initialism slide_open openLayer\" data-value=\""+ data.callDate.substring(0, 10) +"\">오후</a>";
-                                        //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
-                                    } else {
-                                        outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
-                                        outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
-                                        //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
-                                    }
-                                    outHtml +=  "</span>";
-
-                                } else {
-                                    outHtml +=  "<span title=\"오전반 마감\" class=\"badge bg-am finish\">오전</span>";
-                                    outHtml +=  "<span title=\"오후반 마감\" class=\"badge bg-pm finish\">오후</span>";
-                                    //outHtml +=  "<span title=\"전일제반 마감\" class=\"badge bg-day finish\">전일</span>";
-                                    outHtml +=  "</span>";
-                                }
-                            }/* END ELSE */
-                            //대기자 count
-                            if (/*"Y".equals(data.able_sch_flag) && */(diffDate > 1)) {
-                                if (data.hold_cnt > 0) {outHtml +=  "<p class=\"state waiting\">승인대기자 : "+ data.hold_cnt +"</p>";}
-                            }
-
-                            //임시 테스트
-                            for(ArtCalData pro : calDateList){
-                                if (pro.callDate.equals(data.callDate)) {
-                                    //승인완료 학교명 노출 && 자기 아이디는 제외
-                                    if (pro.req_sch_id != null && pro.req_sch_id.length() > 0 && (sessionManager.getId() != null && !pro.req_sch_id.equals(sessionManager.getId()))) {
-                                        outHtml +=  "<p class=\"state\">" + pro.req_sch_nm + "("+ pro.req_cnt +")</p>";
-                                    } else if ("Y".equals(pro.my_request) && (diffDate > 1)) {
-                                        outHtml +=  "<p class=\"state red\"><a href=\"/index.gne?menuCd="+confirmPage+"&req_no="+pro.my_req_no+"&req_date="+pro.callDate.substring(0, 10)+"&pro_no="+pro.pro_no+"\">승인완료</a></p>";
-                                    } else if ("H".equals(pro.my_request) && (diffDate > 1)) {
-                                        outHtml +=  "<p class=\"state\"><a href=\"/index.gne?menuCd="+confirmPage+"&req_no="+pro.my_req_no+"&req_date="+pro.callDate.substring(0, 10)+"&pro_no="+pro.pro_no+"\">승인대기 중</a></p>";
-                                    }
-                                }/*END IF*/
-                            }/*END FOR*/
-                        }
-                        outHtml +=  "</td>";
-                        //sunday
-                        if (data.callDateWeek.equals("일")) {
-                            out.println("<tr>");
-                            out.println(outHtml);
-                        //saturday
-                        } else if (data.callDateWeek.equals("토")) {
-                            out.println(outHtml);
-                            out.println("</tr>");
-                        } else {
-                            out.println(outHtml);
-                        }
-                    }
-                }
-            %>
-
-            </tbody>
-        </table>
-    </div>
-
- <div class="btn_area c magT25 magB50">
-       <a class="btn white medium" href="/board/download.gne?boardId=DUMY001&startPage=1&dataSid=975819&command=update&fileSid=1439657" title="오리엔테이션 및 반편성표 다운로드">
-       <i class="ico-hwp"></i> 오리엔테이션  및 반편성표 다운로드</a>
-    </div>
-
-<script>
-	function proNoSelect(pro_no, aft_flag){
-		$("#pro_no").val(pro_no);
-		$("#aft_flag").val(aft_flag);
-		$("#validate").submit();
+<%!//순서코드 비교를 위해 알파벳을 숫자로 변환
+	public int codeToNumber(String code) {
+		int number = 0;
+		if ("A".equals(code)) {
+			number = 1;
+		} else if ("B".equals(code)) {
+			number = 2;
+		} else if ("C".equals(code)) {
+			number = 3;
+		} else if ("D".equals(code)) {
+			number = 4;
+		} else if ("E".equals(code)) {
+			number = 5;
+		} else if ("F".equals(code)) {
+			number = 6;
+		} else if ("G".equals(code)) {
+			number = 7;
+		} else if ("H".equals(code)) {
+			number = 8;
+		} else if ("I".equals(code)) {
+			number = 9;
+		} else if ("J".equals(code)) {
+			number = 10;
+		} else if ("K".equals(code)) {
+			number = 11;
+		} else if ("L".equals(code)) {
+			number = 12;
+		} else if ("M".equals(code)) {
+			number = 13;
+		} else if ("N".equals(code)) {
+			number = 14;
+		} else if ("O".equals(code)) {
+			number = 15;
+		} else if ("P".equals(code)) {
+			number = 16;
+		} else if ("Q".equals(code)) {
+			number = 17;
+		} else if ("R".equals(code)) {
+			number = 18;
+		} else if ("S".equals(code)) {
+			number = 19;
+		} else if ("T".equals(code)) {
+			number = 20;
+		} else if ("U".equals(code)) {
+			number = 21;
+		} else if ("V".equals(code)) {
+			number = 22;
+		} else if ("W".equals(code)) {
+			number = 23;
+		} else if ("X".equals(code)) {
+			number = 24;
+		} else if ("Y".equals(code)) {
+			number = 25;
+		} else if ("Z".equals(code)) {
+			number = 26;
+		} else {
+			number = 0;
+		}
+		return number;
 	}
 
+	//text가 빈값이 아닐 경우, ','를 붙이고 + value 한다.
+	public String appendComma(String text, String value) {
+		if (text.length() > 0) {
+			text += ",";
+		}
+		text += value;
+		return text;
+	}%>
 
-    var apply_submit=false;
-    function validateForm(){
-        var req_date=$("#req_date").val();
-        var school_name=$("#school_name").val();
-        if(req_date==null||req_date==""||req_date.trim().length<1||school_name==null||school_name==""||school_name.trim().length<1){
-            alert("신청가능한 선택일자와 학교이름을 입력하세요.");
-            $("#req_date").focus();
-            return false;
-        }else{
-            if(apply_submit){
-                return true;
-            }else{
-                alert("신청가능한 선택일자와 학교이름을 입력하세요");
-                $("#req_date").focus();
-                return false;
-            }
-        }
-    }
 
-    $("#req_date").change(function(){apply_submit=false;var set_req_date=$(this).val();
-        var set_aft_flag=$("#aft_flag").val();
-        if($.inArray(set_req_date,banDate)==-1){
-            req_date_chk(set_req_date,set_aft_flag);
-        }else{
-            alert("신청가능한 날짜를 선택하세요.");
-            $(this).val("");return;
-        }
-    });
-
-    function req_date_chk(req_date,aft_flag){if(!req_date||!aft_flag){alert("날짜가 없거나 올바르지 않은 값입니다.");return}
-        $.ajax({
-            type:"POST",
-            url:"/program/art/client/programAlwaysAjaxAction.jsp?",
-            data:{"req_date":req_date,"aft_flag":aft_flag},dataType:"text",
-            async:false,
-            success:function(data){
-            if(data.trim()=="1"){
-                apply_submit=true;return}else{$(this).val("");
-            if(data="s_f"){
-                alert("학교계정으로 로그인 해야 합니다.")
-            }else if(data="f"){
-                alert("신청가능한 날짜가 아닙니다.");
-            }return}
-            },error:function(request,status,error){
-                alert("code:"+request.status+"\n"+"message:"+request.responseText.trim()+"\n"+"error:"+error)
-            }
-        });
-    }
-
-        $.datepicker.regional['ko']={closeText:'닫기',prevText:'',nextText:'',currentText:'오늘',monthNames:['1월(JAN)','2월(FEB)','3월(MAR)','4월(APR)','5월(MAY)','6월(JUN)','7월(JUL)','8월(AUG)','9월(SEP)','10월(OCT)','11월(NOV)','12월(DEC)'],monthNamesShort:['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'],dayNames:['일','월','화','수','목','금','토'],dayNamesShort:['일','월','화','수','목','금','토'],dayNamesMin:['일','월','화','수','목','금','토'],beforeShowDay:disableAllTheseDays};$.datepicker.setDefaults($.datepicker.regional['ko']);/*$("#req_date").datepicker({minDate:1,maxDate:90,dateFormat:'yy-mm-dd',changeMonth:false,changeYear:false,showOtherMonths:false,selectOtherMonths:true,showButtonPanel:false}).click(function(){$(".ui-datepicker-calendar").prepend("<caption>프로그램 신청 및 달력</caption>")});*/
-
-        var banDate=new Array;
-
-        <%for(ArtCalData data:calDateList){if("SU".equals(data.hlyDateFlag)||"SA".equals(data.hlyDateFlag)||"H".equals(data.hlyDateFlag)||"N".equals(data.able_sch_flag)){%>
-        banDate.push("<%=data.callDate.substring(0, 10) %>");<%}}%>
-
-        function disableAllTheseDays(date){
-            var m=date.getMonth(),d=date.getDate(),y=date.getFullYear();
-            for(i=0;i<banDate.length;i++){
-                if($.inArray(y+'-'+(m+1)+'-'+d,banDate)!=-1){return[false]}
-            }return[true]}
-
-        $(function(){
-            $(".bg-am").click(function(){
-                $("#req_date").val($(this).data("value"));
-                modal_open("M");
-            });
-            $(".bg-pm").click(function(){
-                $("#req_date").val($(this).data("value"));
-                modal_open("F");
-            });
-            $(".bg-day").click(function(){
-                $("#req_date").val($(this).data("value"));
-                modal_open("D")
-            });
-            $("#pro_request").click(function(){modal_open("D")});
-        });
-
-        function modal_open(aft_flag){
-        	var reg_date = $("#req_date").val();
-            var reg_name="<%=parseNull(sessionManager.getName(), "") %>";
-            
-            if(parseInt(reg_date.replace(/-/g,"")) < parseInt(20180903)){
-            	alert("2018년 9월 3일 이후에 신청 가능합니다.");
-            	return;
-            }else{
-            	if(reg_name==""&&reg_name.length<1){
-                    alert("로그인한 회원만 신청가능 합니다.");
-                    return;
-                }
-                
-                apply_submit=true;
-                if (aft_flag == "M") {
-                	$("#artProListM").css("display", "block");
-                	$("#artProListF").css("display", "none");
-                }
-                else if (aft_flag == "F") {
-                	$("#artProListM").css("display", "none");
-                	$("#artProListF").css("display", "block");
-                }
-                
-                $.ajax({
-        			type : "POST",
-        			url : "/program/art/client/programAlwaysProAjax.jsp",
-        			contentType : "application/x-www-form-urlencoded; charset=utf-8",
-        			data : {
-        				aft_flag 	: aft_flag
-        				, req_date	: reg_date
-        			},
-        			datatype : "html",
-        			success : function(data) {
-        				$("#artProList").html(data.trim());
-        			},
-        			error:function(request,status,error){
-        				alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
-        			}
-        		});
-                
-
-                //$("#aft_flag").val(aft_flag).prop("selected",true);
-                $('#slide').popup({focusdelay:400,outline:true,vertical:'middle',});
-            }
-            
-            
-        }
-            function move(arrow){var presentYear="<%=callYear %>";var presentMonth="<%=callMonth %>";presentYear*=1;presentMonth*=1;if(arrow=="pre"){if((presentMonth-1)<1){presentYear-=1;presentMonth=12}else{presentMonth=addZero(presentMonth-1)}}else if(arrow=="next"){if((presentMonth+1)>12){presentYear+=1;presentMonth="01"}else{presentMonth=addZero(presentMonth+1)}}location.href="/index.gne?menuCd=<%=listPage%>&callYear="+presentYear+"&callMonth="+presentMonth;function addZero(value){if(value<10){return"0"+value}else{return value}}}
-</script>
 <%
-}catch(Exception aaa){
-	out.println(aaa.toString());
+/**
+*	CREATE	:	20180411 JMG
+*	MODIFY	:	
+*/
+
+request.setCharacterEncoding("UTF-8");
+response.setContentType("text/html; charset=UTF-8");
+SessionManager sManager =	new SessionManager(request); 
+
+int viewYN			=	0;		//1일경우 페이지 정상 작동
+String moveUrl		=	"";		//이동페이지
+String moveUrlMain	=	"";		//메인페이지
+
+//2차 로그인 여부
+if("Y".equals(session.getAttribute("foodLoginChk"))){
+	viewYN	=	1;
+}else{
+	out.print("<script> 						\n");
+	out.print("alert('2차 로그인 후 이용하실 수 있습니다.');	\n");
+	out.print("window.close(); 					\n");
+	out.print("</script> 						\n");
 }
+
+if(viewYN == 1){
+	JSONObject	obj		=	new JSONObject();
+	Connection conn 			= null;
+	PreparedStatement pstmt 	= null;
+	int key						= 0;
+	StringBuffer sql 	= 	null;
+	String sqlWhere		=	"";
+	String resultMsg	=	"";
+	String returnType	=	"";			//사유입력 타입
+	int resultCnt 		=	0;
+	int cnt				= 	0;
+	
+	//parameter
+	List<Object[]> batchList	=	null;
+	int[] batchSuccess			=	null;
+	
+	List<FoodVO> cList	=	null;	
+	List<FoodVO> rList	=	null;
+	FoodVO foodVO		=	new FoodVO();
+	FoodVO dataVO		=	new FoodVO();
+	FoodVO preDataVO	=	new FoodVO();
+	FoodVO inputChkVO	=	new FoodVO();
+	
+	int actType			=	Integer.parseInt(parseNull(request.getParameter("actType"), "0"));	//0 : 제출(마감), 1 : 검증(검토), 2 : 재검증(재검토), 3 : 사유제출(반려), 4 : 이력
+	boolean actChk		=	true;		//검증 boolean
+	
+	foodVO.rsch_val_no	=	parseNull(request.getParameter("number"));
+	String[] rschValArr	=	request.getParameterValues("rschVal");				//조사가
+	String[] rschLocArr	=	request.getParameterValues("rschLoc");				//조사처
+	String[] rschComArr	=	request.getParameterValues("rschCom");				//조사업체
+	
+	foodVO.sch_no		=	parseNull(request.getParameter("schNo"));			//학교번호
+	foodVO.non_season	=	parseNull(request.getParameter("offSeason"), "N");	//비계절
+	foodVO.non_distri	=	parseNull(request.getParameter("offDist"), "N");	//비유통
+	foodVO.nu_no		=	parseNull(request.getParameter("rschSel"));			//조사자
+	foodVO.rsch_year	=	parseNull(request.getParameter("rschYear"));		//현재 조사의 년도
+	foodVO.rsch_month	=	parseNull(request.getParameter("rschMonth"));		//현재 조사의 월
+	foodVO.rsch_reason	=	parseNull(request.getParameter("reason"));			//사유
+	foodVO.zone_no		=	parseNull(request.getParameter("zoneNo"));			//권역
+	foodVO.team_no		=	parseNull(request.getParameter("teamNo"));			//팀
+	foodVO.sch_grade	=	parseNull(request.getParameter("userType"));		//R : 조사자, T : 조사팀장
+	foodVO.t_rj_reason	=	parseNull(request.getParameter("returnWrite"));		//반려사유
+	String rCondition	=	parseNull(request.getParameter("rCondition"));		//사유입력 발생조건
+	
+	foodVO.rsch_no		=	parseNull(request.getParameter("rschNo"));		// 조사번호
+	String preRschNo	=	"";												// 이전조사
+	
+	int avgVal			=	0;		//최저값, 최고값을 제외한 나머지 3개중 평균값
+	int minVal			=	0;		//최저값, 최고값을 제외한 나머지 3개중 최저값
+	int maxVal			=	0;		//최저값, 최고값을 제외한 나머지 3개중 최고값
+	int midVal			=	0;		//중앙값
+	
+	int highNLowMin		=	0;		//전월 최저값 * 최저가비율%
+	int highNLowAvr		=	0;		//전월 평균값 * 평균가비율%
+	int highNLow		=	0;		//최고값과 최저값 차이
+	
+	String rt_ip		= 	parseNull(request.getParameter("rt_ip"));	//반려 아이피
+		
+	//최저값, 최고값, 평균값 구하기 start
+	List<Integer> vals	=	new ArrayList<Integer>();	//조사가를 담을 리스트
+	List<Integer> valsF	=	new ArrayList<Integer>();	//조사가에서 최고, 최저값을 빼고 담을 리스트
+	
+	if(rschValArr != null && rschValArr.length > 0){
+		for(int i=0; i<rschValArr.length; i++){
+			if(/* !"0".equals(rschValArr[i]) &&  */!"".equals(rschValArr[i])){
+				vals.add(Integer.parseInt(rschValArr[i]));
+			}
+		}
+		
+		if(vals.size() > 0){
+			
+			Collections.sort(vals);		//리스트 오름차순 정렬
+			
+			//조사가가 3개 이상일 경우
+			if(vals.size() >= 3){
+				for(int i =0; i<vals.size(); i++){
+					//조사가가 5개 이상일 경우
+					if(vals.size() >= 5){
+						//최저가, 최고가를 제외
+						if(i != 0 && i != vals.size()-1){
+							valsF.add(vals.get(i));
+							avgVal	+=	vals.get(i);
+						}
+					}
+					//조사가가 3개 이상일 경우
+					else if(vals.size() >= 3){
+						valsF.add(vals.get(i));
+						avgVal	+=	vals.get(i);
+					}
+				}
+				minVal	=	valsF.get(0);			//최저값
+				midVal	=	valsF.get(1);			//중앙값
+				maxVal	=	valsF.get(2);			//최고값
+				avgVal	=	avgVal / valsF.size();	//평균값
+			}
+			//조사가가 1개일 경우
+			else{
+				minVal	=	vals.get(0);			//최저값
+				midVal	=	vals.get(0);			//중앙값
+				maxVal	=	vals.get(0);			//최고값
+				avgVal	=	vals.get(0);			//평균값
+			}
+		}else{
+			minVal	=	0;
+			midVal	=	0;
+			maxVal	=	0;
+			minVal	=	0;
+		}
+	}
+	//최저값, 최고값, 평균값 구하기 end
+	
+	//현재 개시된 조사와 비교할 이전조사 년, 월 구하기 start
+	String preYear		=	"";
+	String preMonth		=	"";
+	
+	SimpleDateFormat sdf	=	new SimpleDateFormat("yyyyMM");
+	Calendar cal			=	Calendar.getInstance();
+	Date date				=	sdf.parse(foodVO.rsch_year + foodVO.rsch_month);
+	cal.setTime(date);
+	cal.add(Calendar.MONTH, -1);
+	
+	preYear		=	Integer.toString(cal.get(Calendar.YEAR));
+	if(Integer.toString(cal.get(Calendar.MONTH)).length() == 1){
+		preMonth	=	"0" + Integer.toString(cal.get(Calendar.MONTH)+1);
+	}
+	else{
+		preMonth	=	Integer.toString(cal.get(Calendar.MONTH)+1);
+	}
+	//현재 개시된 조사와 비교할 이전조사 년, 월 구하기 end
+	
+	try{
+		sqlMapClient.startTransaction();
+		conn	=	sqlMapClient.getCurrentConnection();
+		
+		sql		=	new StringBuffer();
+		sql.append(" SELECT 					\n");
+		sql.append(" VAL.ITEM_NO,				\n");
+		sql.append(" VAL.STS_FLAG, 				\n");
+		sql.append(" PRE.ITEM_GRP_NO,			\n");
+		sql.append(" PRE.ITEM_GRP_ORDER,		\n");
+		sql.append(" PRE.ITEM_COMP_NO,			\n");
+		sql.append(" PRE.ITEM_COMP_VAL,			\n");
+		sql.append(" PRE.LOW_RATIO,				\n");
+		sql.append(" PRE.AVR_RATIO,				\n");
+		sql.append(" PRE.LB_RATIO				\n");
+		sql.append(" FROM FOOD_RSCH_VAL VAL		\n");
+		sql.append(" LEFT JOIN 			 		\n");
+		sql.append(" FOOD_ITEM_PRE PRE ON 		\n");
+		sql.append(" VAL.ITEM_NO = PRE.ITEM_NO	\n");
+		sql.append(" WHERE VAL.RSCH_VAL_NO = ? 	\n");
+		sql.append(" AND PRE.SHOW_FLAG = 'Y'	\n");
+				
+		try{
+			dataVO	=	jdbcTemplate.queryForObject(sql.toString(), new FoodList(), new Object[]{foodVO.rsch_val_no});
+		}catch(Exception e){
+			dataVO	=	new FoodVO();
+		}
+		
+		//조사자 start
+		if("R".equals(foodVO.sch_grade)){	
+			
+			//제출 start
+			if(actType == 0){
+				
+				//검증(RS)이 된 상태일 때 작동 start
+				if("RS".equals(dataVO.sts_flag)){
+					
+					//비계절 start
+					if("Y".equals(foodVO.non_season)){			
+						
+						sql		=	new StringBuffer();
+						sql.append(" UPDATE FOOD_RSCH_VAL SET 		\n");
+						sql.append(" NU_NO	= ?,		 			\n");
+						sql.append(" NON_SEASON	= 'Y', 				\n");
+						sql.append(" NON_DISTRI	= 'N', 				\n");
+						sql.append(" STS_FLAG	= 'SR', 			\n");
+						sql.append(" RSCH_REASON = '비계절 식품입니다',	\n");
+						sql.append(" T_RJ_REASON = '',				\n");
+						sql.append(" RJ_REASON = '',				\n");
+						sql.append(" RSCH_VAL1 = '',				\n");
+						sql.append(" RSCH_VAL2 = '',				\n");
+						sql.append(" RSCH_VAL3 = '',				\n");
+						sql.append(" RSCH_VAL4 = '',				\n");
+						sql.append(" RSCH_VAL5 = '',				\n");
+						sql.append(" RSCH_LOC1 = '',				\n");
+						sql.append(" RSCH_LOC2 = '',				\n");
+						sql.append(" RSCH_LOC3 = '',				\n");
+						sql.append(" RSCH_LOC4 = '',				\n");
+						sql.append(" RSCH_LOC5 = '',				\n");
+						sql.append(" RSCH_COM1 = '',				\n");
+						sql.append(" RSCH_COM2 = '',				\n");
+						sql.append(" RSCH_COM3 = '',				\n");
+						sql.append(" RSCH_COM4 = '',				\n");
+						sql.append(" RSCH_COM5 = '',				\n");
+						//sql.append(" LOW_VAL = '', 					\n");
+						sql.append(" AVR_VAL = '', 					\n");
+						sql.append(" CENTER_VAL = '',				\n");
+						sql.append(" RSCH_DATE = SYSDATE			\n");
+						sql.append(" WHERE RSCH_VAL_NO = ? 			\n");
+						
+						resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+								foodVO.nu_no, foodVO.rsch_val_no
+						});
+
+					}//비계절 end
+					
+					//비유통 start
+					else if("Y".equals(foodVO.non_distri)){	
+						
+						sql		=	new StringBuffer();
+						sql.append(" UPDATE FOOD_RSCH_VAL SET 		\n");
+						sql.append(" NU_NO	= ?,		 			\n");
+						sql.append(" NON_DISTRI	= 'Y',		 		\n");
+						sql.append(" NON_SEASON	= 'N',		 		\n");
+						sql.append(" STS_FLAG	= 'SR',		 		\n");
+						sql.append(" RSCH_REASON = '비유통 식품입니다',	\n");
+						sql.append(" T_RJ_REASON = '',		 		\n");
+						sql.append(" RJ_REASON = '',		 		\n");
+						sql.append(" RSCH_VAL1 = '',				\n");
+						sql.append(" RSCH_VAL2 = '',				\n");
+						sql.append(" RSCH_VAL3 = '',				\n");
+						sql.append(" RSCH_VAL4 = '',				\n");
+						sql.append(" RSCH_VAL5 = '',				\n");
+						sql.append(" RSCH_LOC1 = '',				\n");
+						sql.append(" RSCH_LOC2 = '',				\n");
+						sql.append(" RSCH_LOC3 = '',				\n");
+						sql.append(" RSCH_LOC4 = '',				\n");
+						sql.append(" RSCH_LOC5 = '',				\n");
+						sql.append(" RSCH_COM1 = '',				\n");
+						sql.append(" RSCH_COM2 = '',				\n");
+						sql.append(" RSCH_COM3 = '',				\n");
+						sql.append(" RSCH_COM4 = '',				\n");
+						sql.append(" RSCH_COM5 = '',				\n");
+						//sql.append(" LOW_VAL = '', 					\n");
+						sql.append(" AVR_VAL = '', 					\n");
+						sql.append(" CENTER_VAL = '',				\n");
+						sql.append(" RSCH_DATE = SYSDATE			\n");
+						sql.append(" WHERE RSCH_VAL_NO = ?	 		\n");
+						
+						resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+								foodVO.nu_no, foodVO.rsch_val_no
+						});
+
+					}//비유통 end
+					//그 외
+					else{
+						sql		=	new StringBuffer();
+						sql.append(" UPDATE FOOD_RSCH_VAL 		\n");
+						sql.append(" SET 						\n");
+						sql.append(" NU_NO = ?,					\n");	
+						sql.append(" NON_SEASON = 'N',			\n");			
+						sql.append(" NON_DISTRI = 'N',			\n");			
+						sql.append(" RSCH_REASON = '',			\n");			
+						sql.append(" T_RJ_REASON = '',			\n");			
+						sql.append(" RJ_REASON = '',			\n");			
+						sql.append(" STS_FLAG = 'SR',			\n");			
+						sql.append(" RSCH_VAL1 = ?, 			\n");
+						sql.append(" RSCH_VAL2 = ?, 			\n");
+						sql.append(" RSCH_VAL3 = ?, 			\n");
+						sql.append(" RSCH_VAL4 = ?, 			\n");
+						sql.append(" RSCH_VAL5 = ?, 			\n");
+						sql.append(" RSCH_LOC1 = ?, 			\n");
+						sql.append(" RSCH_LOC2 = ?, 			\n");
+						sql.append(" RSCH_LOC3 = ?, 			\n");
+						sql.append(" RSCH_LOC4 = ?, 			\n");
+						sql.append(" RSCH_LOC5 = ?, 			\n");
+						sql.append(" RSCH_COM1 = ?, 			\n");
+						sql.append(" RSCH_COM2 = ?, 			\n");
+						sql.append(" RSCH_COM3 = ?, 			\n");
+						sql.append(" RSCH_COM4 = ?, 			\n");
+						sql.append(" RSCH_COM5 = ?,				\n");
+						//sql.append(" LOW_VAL = ?, 				\n");
+						sql.append(" AVR_VAL = ?, 				\n");
+						sql.append(" CENTER_VAL = ?,			\n");
+						sql.append(" RSCH_DATE = SYSDATE		\n");
+						sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+						
+						resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+								foodVO.nu_no,
+								rschValArr[0], rschValArr[1], rschValArr[2], rschValArr[3], rschValArr[4],
+								rschLocArr[0], rschLocArr[1], rschLocArr[2], rschLocArr[3], rschLocArr[4],
+								rschComArr[0], rschComArr[1], rschComArr[2], rschComArr[3], rschComArr[4],
+								/* minVal, */ avgVal, midVal,
+								foodVO.rsch_val_no
+						});
+	
+						//이력 저장
+						
+						//이력 저장
+					}
+					
+					if(resultCnt > 0){
+						obj.put("resultMsg", "정상적으로 제출되었습니다.");
+						obj.put("chkCode", "");
+					}
+					
+				}//검증이 된 상태일 때 작동 end
+				
+				else{
+					obj.put("resultMsg", "검증 후 제출가능합니다.");
+					obj.put("chkCode", "");
+				}
+			}
+			//조사 검증
+			else if(actType == 1){
+				
+				//비교그룹이 빈값이 아닐 때
+				if(!"".equals(dataVO.item_comp_no) && !"".equals(dataVO.item_comp_val)){
+					
+					//비교그룹순서 A의 데이터가 들어가있는지 확인한다.
+					sql		=	new StringBuffer();
+					sql.append(" SELECT 						\n");
+					sql.append(" (SELECT 					 	\n");
+					sql.append(" CAT_NM 					 	\n");
+					sql.append(" FROM FOOD_ST_CAT			 	\n");
+					sql.append(" WHERE CAT_NO = ITEM.CAT_NO) 	\n");
+					sql.append(" AS CAT_NM,						\n");
+					sql.append(" ITEM.FOOD_CAT_INDEX,		 	\n");
+					sql.append(" PRE.ITEM_COMP_VAL,				\n");
+					sql.append(" VAL.STS_FLAG, 					\n");
+					sql.append(" VAL.AVR_VAL, 					\n");
+					sql.append(" PRE.ITEM_NM 					\n");
+					sql.append(" FROM FOOD_ITEM_PRE PRE 		\n");
+					sql.append(" LEFT JOIN 						\n");
+					sql.append(" FOOD_RSCH_VAL VAL 				\n");
+					sql.append(" ON PRE.ITEM_NO = VAL.ITEM_NO 	\n");
+					sql.append(" LEFT JOIN 						\n");
+					sql.append(" FOOD_ST_ITEM ITEM 				\n");		
+					sql.append(" ON ITEM.ITEM_NO = VAL.ITEM_NO	\n");		
+					sql.append(" WHERE PRE.ITEM_COMP_NO = ?		\n");
+					sql.append(" AND VAL.RSCH_NO = ?			\n");
+					sql.append(" AND VAL.SCH_NO = (				\n");
+					sql.append(" 	SELECT SCH_NO FROM			\n");
+					sql.append(" 	FOOD_RSCH_VAL WHERE			\n");
+					sql.append(" 	RSCH_VAL_NO = ?)			\n");
+					sql.append(" ORDER BY PRE.ITEM_COMP_VAL 	\n");	
+						
+					cList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{dataVO.item_comp_no, foodVO.rsch_no, foodVO.rsch_val_no});
+				
+					if(cList != null && cList.size() > 0){
+						for(int i=0; i<cList.size(); i++){
+							//비교그룹순서가 자기보다 낮은 알파뱃이 제출되었는지 확인
+							if(!"Y".equals(cList.get(i).sts_flag) && !"SS".equals(cList.get(i).sts_flag) && !"RC".equals(cList.get(i).sts_flag) && !"SR".equals(cList.get(i).sts_flag)){
+								if(codeToNumber(dataVO.item_comp_val) > codeToNumber(cList.get(i).item_comp_val)){
+									obj.put("resultMsg", cList.get(i).cat_nm + "-" + cList.get(i).food_cat_index + "부터 입력해주세요.");
+									obj.put("chkCode", "");
+									actChk	=	false;
+									break;
+								}
+							}
+							
+							//비교그룹순서 대비 조사가 평균 비교
+							else{
+								//비교할 대상의 평균값이 빈값이 아닐 때
+								if(!"".equals(cList.get(i).avr_val) && avgVal != 0){
+									if(codeToNumber(dataVO.item_comp_val) > codeToNumber(cList.get(i).item_comp_val)){
+										if(avgVal < Integer.parseInt(cList.get(i).avr_val)){
+											obj.put("resultMsg", cList.get(i).cat_nm + "-" + cList.get(i).food_cat_index + " "+ cList.get(i).item_nm +"보다 조사가가 낮습니다.");
+											obj.put("chkCode", "1");
+											actChk	=	false;
+											break;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+				
+				if(actChk	==	true){
+					//비유통, 비계절 둘다 아닐 때 start
+					if(!"Y".equals(foodVO.non_season) && !"Y".equals(foodVO.non_distri)){
+						
+						sql		=	new StringBuffer();
+						sql.append(" SELECT 						\n");
+						sql.append(" RSCH_NO 						\n");
+						sql.append(" FROM FOOD_RSCH_TB				\n");
+						sql.append(" WHERE RSCH_YEAR = ?			\n");
+						sql.append(" AND RSCH_MONTH = ?				\n");
+						sql.append(" AND STS_FLAG = 'Y'				\n");
+						sql.append(" AND SHOW_FLAG = 'Y'			\n");
+						sql.append(" AND ROWNUM = 1 				\n");						
+						sql.append(" ORDER BY END_DATE DESC, 		\n");	
+						sql.append(" RSCH_NO DESC					\n");
+			
+						try{
+							preRschNo	=	jdbcTemplate.queryForObject(sql.toString(), String.class, new Object[]{
+									preYear, preMonth
+							});
+						}catch(Exception e){
+							preRschNo	=	"";
+						}
+						
+						if(!"".equals(preRschNo)){
+							sql		=	new StringBuffer();
+							sql.append(" SELECT 														\n");
+							sql.append(" VAL.AVR_VAL,													\n");
+							sql.append(" VAL.RSCH_VAL_NO												\n");
+							sql.append(" FROM FOOD_RSCH_VAL VAL 										\n");
+							sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
+							sql.append(" WHERE TB.RSCH_NO = ? AND VAL.ITEM_NO = ?						\n");
+							sql.append(" ORDER BY END_DATE DESC											\n");
+							
+							try{
+								preDataVO	=	jdbcTemplate.queryForObject(sql.toString(), new FoodList(), new Object[]{
+										preRschNo, dataVO.item_no
+								});
+								
+							}catch(Exception e){
+								preDataVO	=	new FoodVO();
+							}
+						}
+						
+						//전월 데이터가 있을 경우
+						if(preDataVO != null && preDataVO.avr_val != null && !"".equals(preDataVO.avr_val)){
+							/* 
+							//전월 최저가와 비교
+							highNLowMin	=	(int)(Integer.parseInt(preDataVO.low_val) * (Integer.parseInt(dataVO.low_ratio) / 100.0));
+							
+							if((Integer.parseInt(preDataVO.low_val) + highNLow) > minVal || 
+									((Integer.parseInt(preDataVO.low_val) - highNLow) < minVal )){
+								resultMsg	=	appendComma(resultMsg, "전월 최저가 비율보다 " + Integer.parseInt(dataVO.low_ratio) + "% 미만 또는 초과입니다.");
+								returnType	=	appendComma(returnType, "1");
+								obj.put("resultMsg", resultMsg);
+								obj.put("chkCode", returnType);
+								actChk		=	false;	
+							}
+													
+							//전월 평균가와 비교
+							else if((Integer.parseInt(preDataVO.avr_val) + highNLow) > avgVal ||
+									((Integer.parseInt(preDataVO.avr_val) - highNLow) < avgVal)){
+								resultMsg	=	appendComma(resultMsg, "전월 평균가 비율보다 " + Integer.parseInt(dataVO.avr_ratio) + "% 미만 또는 초과입니다.");
+								returnType	=	appendComma(returnType, "2");
+								obj.put("resultMsg", resultMsg);
+								obj.put("chkCode", returnType);
+								actChk		=	false;
+							}
+							 */
+							//전월 평균가와 비교
+							highNLowAvr	=	(int)(Integer.parseInt(preDataVO.avr_val) * (Integer.parseInt(dataVO.avr_ratio) / 100.0));
+							if((Integer.parseInt(preDataVO.avr_val) + highNLowAvr) <= avgVal ||
+									((Integer.parseInt(preDataVO.avr_val) - highNLowAvr) >= avgVal)){
+								resultMsg	=	appendComma(resultMsg, "전월대비 조사가(평균가) 차이가 " + Integer.parseInt(dataVO.avr_ratio) + "% 이상입니다.");
+								returnType	=	appendComma(returnType, "2");
+								obj.put("resultMsg", resultMsg);
+								obj.put("chkCode", returnType);
+								actChk		=	false;
+							}
+						}
+						
+						//최저,최고값 비율
+						highNLow	=	(int)(maxVal * (Integer.parseInt(dataVO.lb_ratio) / 100.0));
+						if((maxVal - highNLow) >= minVal){
+							resultMsg	=	appendComma(resultMsg, "최저값이 최고값의 " + Integer.parseInt(dataVO.lb_ratio) + "% 보다 낮습니다.");
+							returnType	=	appendComma(returnType, "3");
+							obj.put("resultMsg", resultMsg);
+							obj.put("chkCode", returnType);
+							actChk		=	false;
+						}
+					}//비유통, 비계절 둘다 아닐 때 end
+				}
+				
+				if(actChk){
+					
+					//비계절일 때
+					if("Y".equals(foodVO.non_season)){
+						sql		=	new StringBuffer();
+						sql.append(" UPDATE FOOD_RSCH_VAL SET 	\n");
+						sql.append(" STS_FLAG = 'RS', 			\n");
+						sql.append(" NON_SEASON = 'Y', 			\n");
+						sql.append(" NON_DISTRI = 'N', 			\n");
+						sql.append(" RSCH_VAL1 = '', 			\n");
+						sql.append(" RSCH_VAL2 = '', 			\n");
+						sql.append(" RSCH_VAL3 = '', 			\n");
+						sql.append(" RSCH_VAL4 = '', 			\n");
+						sql.append(" RSCH_VAL5 = '', 			\n");
+						sql.append(" RSCH_LOC1 = '', 			\n");
+						sql.append(" RSCH_LOC2 = '', 			\n");
+						sql.append(" RSCH_LOC3 = '', 			\n");
+						sql.append(" RSCH_LOC4 = '', 			\n");
+						sql.append(" RSCH_LOC5 = '', 			\n");
+						sql.append(" RSCH_COM1 = '', 			\n");
+						sql.append(" RSCH_COM2 = '', 			\n");
+						sql.append(" RSCH_COM3 = '', 			\n");
+						sql.append(" RSCH_COM4 = '', 			\n");
+						sql.append(" RSCH_COM5 = '', 			\n");
+						sql.append(" NU_NO	 = ?,	 			\n");
+						sql.append(" RSCH_DATE = SYSDATE		\n");
+						sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+						
+						resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+								foodVO.nu_no, foodVO.rsch_val_no
+						}); 
+					}
+					
+					//비유통일 때
+					else if("Y".equals(foodVO.non_distri)){
+						
+						sql		=	new StringBuffer();
+						sql.append(" UPDATE FOOD_RSCH_VAL SET 	\n");
+						sql.append(" STS_FLAG = 'RS', 			\n");
+						sql.append(" NON_SEASON = 'N', 			\n");
+						sql.append(" NON_DISTRI = 'Y', 			\n");
+						sql.append(" RSCH_VAL1 = '', 			\n");
+						sql.append(" RSCH_VAL2 = '', 			\n");
+						sql.append(" RSCH_VAL3 = '', 			\n");
+						sql.append(" RSCH_VAL4 = '', 			\n");
+						sql.append(" RSCH_VAL5 = '', 			\n");
+						sql.append(" RSCH_LOC1 = '', 			\n");
+						sql.append(" RSCH_LOC2 = '', 			\n");
+						sql.append(" RSCH_LOC3 = '', 			\n");
+						sql.append(" RSCH_LOC4 = '', 			\n");
+						sql.append(" RSCH_LOC5 = '', 			\n");
+						sql.append(" RSCH_COM1 = '', 			\n");
+						sql.append(" RSCH_COM2 = '', 			\n");
+						sql.append(" RSCH_COM3 = '', 			\n");
+						sql.append(" RSCH_COM4 = '', 			\n");
+						sql.append(" RSCH_COM5 = '', 			\n");
+						sql.append(" NU_NO	 = ?,	 			\n");
+						sql.append(" RSCH_DATE = SYSDATE		\n");
+						sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+						
+						resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+								foodVO.nu_no, foodVO.rsch_val_no
+						}); 
+					}
+						
+					//비유통, 비계절 둘다 아닐 때 start
+					else{
+						//조사가가 비어있지 않고, 3개 이상일 때
+						if(vals != null && vals.size() >= 3){
+							sql		=	new StringBuffer();
+							sql.append(" UPDATE FOOD_RSCH_VAL SET 	\n");
+							sql.append(" STS_FLAG = 'RS', 			\n");
+							sql.append(" NON_SEASON = 'N', 			\n");
+							sql.append(" NON_DISTRI = 'N', 			\n");
+							sql.append(" RSCH_VAL1 = ?, 			\n");
+							sql.append(" RSCH_VAL2 = ?, 			\n");
+							sql.append(" RSCH_VAL3 = ?, 			\n");
+							sql.append(" RSCH_VAL4 = ?, 			\n");
+							sql.append(" RSCH_VAL5 = ?, 			\n");
+							sql.append(" RSCH_LOC1 = ?, 			\n");
+							sql.append(" RSCH_LOC2 = ?, 			\n");
+							sql.append(" RSCH_LOC3 = ?, 			\n");
+							sql.append(" RSCH_LOC4 = ?, 			\n");
+							sql.append(" RSCH_LOC5 = ?, 			\n");
+							sql.append(" RSCH_COM1 = ?, 			\n");
+							sql.append(" RSCH_COM2 = ?, 			\n");
+							sql.append(" RSCH_COM3 = ?, 			\n");
+							sql.append(" RSCH_COM4 = ?, 			\n");
+							sql.append(" RSCH_COM5 = ?,	 			\n");
+							sql.append(" NU_NO	 = ?,	 			\n");
+							sql.append(" RSCH_DATE = SYSDATE		\n");
+							sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+							
+							resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+									rschValArr[0], rschValArr[1], rschValArr[2], rschValArr[3], rschValArr[4],
+									rschLocArr[0], rschLocArr[1], rschLocArr[2], rschLocArr[3], rschLocArr[4],
+									rschComArr[0], rschComArr[1], rschComArr[2], rschComArr[3], rschComArr[4],
+									foodVO.nu_no, foodVO.rsch_val_no
+							}); 
+						}
+					}
+					
+					if(resultCnt > 0){
+						obj.put("resultMsg", "검증 완료되었습니다. 제출버튼을 클릭해주세요.");
+						obj.put("chkCode", "");
+					}else{
+						if(vals != null && vals.size() == 1){
+							resultMsg	=	appendComma(resultMsg, "조사가 정보가 하나입니다.");
+							returnType	=	appendComma(returnType, "0");
+							obj.put("resultMsg", resultMsg);
+							obj.put("chkCode", returnType);
+						}else{
+							obj.put("resultMsg", resultCnt);
+							obj.put("resultMsg", "검증에 오류가 발생하였습니다. 관리자게에 문의해주세요.");
+							obj.put("chkCode", "");
+						}
+						
+					}
+				}
+			}
+			
+			//재검증 (검증당시의 데이터와 제출당시의 데이터 일치여부)
+			else if(actType == 2){
+			
+				sql		=	new StringBuffer();
+				sql.append(" SELECT 									\n");
+				sql.append(" COUNT(RSCH_VAL_NO) 						\n");
+				sql.append(" FROM FOOD_RSCH_VAL 						\n");
+				sql.append(" WHERE 										\n");
+				
+				if("".equals(rschValArr[0])){
+					sql.append(" (RSCH_VAL1 = ? OR RSCH_VAL1 IS NULL)		\n");
+				}
+				else{
+					sql.append(" RSCH_VAL1 = ? 							\n");
+				}
+				
+				if("".equals(rschValArr[1])){
+					sql.append(" AND (RSCH_VAL2 = ? OR RSCH_VAL2 IS NULL)	\n");
+				}
+				else{
+					sql.append(" AND RSCH_VAL2 = ? 						\n");
+				}
+				
+				if("".equals(rschValArr[2])){
+					sql.append(" AND (RSCH_VAL3 = ? OR RSCH_VAL3 IS NULL)	\n");
+				}		
+				else{
+					sql.append(" AND RSCH_VAL3 = ? 						\n");
+				}
+				
+				if("".equals(rschValArr[3])){
+					sql.append(" AND (RSCH_VAL4 = ? OR RSCH_VAL4 IS NULL)	\n");
+				}
+				else{
+					sql.append(" AND RSCH_VAL4 = ? 						\n");
+				}
+				
+				if("".equals(rschValArr[4])){
+					sql.append(" AND (RSCH_VAL5 = ? OR RSCH_VAL5 IS NULL)	\n");
+				}
+				else{
+					sql.append(" AND RSCH_VAL5 = ? 						\n");
+				}
+				
+				sql.append(" AND RSCH_VAL_NO = ?						\n");
+				sql.append(" AND STS_FLAG = 'RS'						\n");
+				
+				cnt		=	jdbcTemplate.queryForInt(sql.toString(), new Object[]{
+						rschValArr[0], rschValArr[1], rschValArr[2], rschValArr[3], rschValArr[4], 
+						foodVO.rsch_val_no
+				});
+				
+				if(cnt == 0){
+					obj.put("resultMsg", "검증 당시의 데이터와 일치하지 않습니다. 재검증 해주시기 바랍니다.");
+				}
+			}
+			
+			//사유제출
+			else if(actType == 3){
+				sql		=	new StringBuffer();
+				sql.append(" UPDATE FOOD_RSCH_VAL SET 	\n");
+				sql.append(" STS_FLAG = 'SR', 			\n");
+				sql.append(" NON_SEASON = 'N', 			\n");
+				sql.append(" NON_DISTRI = 'N', 			\n");
+				sql.append(" T_RJ_REASON = '', 			\n");
+				sql.append(" RJ_REASON = '', 			\n");
+				sql.append(" RSCH_VAL1 = ?, 			\n");
+				sql.append(" RSCH_VAL2 = ?, 			\n");
+				sql.append(" RSCH_VAL3 = ?, 			\n");
+				sql.append(" RSCH_VAL4 = ?, 			\n");
+				sql.append(" RSCH_VAL5 = ?, 			\n");
+				sql.append(" RSCH_LOC1 = ?, 			\n");
+				sql.append(" RSCH_LOC2 = ?, 			\n");
+				sql.append(" RSCH_LOC3 = ?, 			\n");
+				sql.append(" RSCH_LOC4 = ?, 			\n");
+				sql.append(" RSCH_LOC5 = ?, 			\n");
+				sql.append(" RSCH_COM1 = ?, 			\n");
+				sql.append(" RSCH_COM2 = ?, 			\n");
+				sql.append(" RSCH_COM3 = ?, 			\n");
+				sql.append(" RSCH_COM4 = ?, 			\n");
+				sql.append(" RSCH_COM5 = ?,				\n");
+				//sql.append(" LOW_VAL = ?,				\n");
+				sql.append(" AVR_VAL = ?, 				\n");
+				sql.append(" CENTER_VAL = ?,			\n");
+				sql.append(" RSCH_REASON = ?, 			\n");
+				sql.append(" NU_NO = ?, 				\n");
+				sql.append(" RSCH_DATE = SYSDATE		\n");
+				sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+				
+				resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+						rschValArr[0], rschValArr[1], rschValArr[2], rschValArr[3], rschValArr[4],
+						rschLocArr[0], rschLocArr[1], rschLocArr[2], rschLocArr[3], rschLocArr[4],
+						rschComArr[0], rschComArr[1], rschComArr[2], rschComArr[3], rschComArr[4],
+						/* minVal, */ avgVal, midVal, rCondition + "|" +  foodVO.rsch_reason,
+						foodVO.nu_no, foodVO.rsch_val_no
+				}); 
+				
+				if(resultCnt > 0){
+					obj.put("resultMsg", "정상적으로 제출되었습니다.");
+					obj.put("chkCode", "");
+				}
+			}
+		}//조사자 end
+		
+		//조사팀장
+		else if("T".equals(foodVO.sch_grade)){
+		
+			//마감 start
+			if(actType == 0){
+				
+				//검토(RC)가 된 상태일 때 작동 start
+				if("RC".equals(dataVO.sts_flag)){
+					
+					//비계절 start
+					if("Y".equals(foodVO.non_season)){			
+						
+						sql		=	new StringBuffer();
+						sql.append(" UPDATE FOOD_RSCH_VAL SET 	\n");
+						sql.append(" NU_NO	= ?,		 		\n");
+						sql.append(" NON_SEASON	= 'Y', 			\n");
+						sql.append(" NON_DISTRI	= 'N', 			\n");
+						sql.append(" STS_FLAG	= 'SS', 		\n");
+						sql.append(" T_RJ_REASON = '',			\n");
+						sql.append(" RJ_REASON = '',			\n");
+						sql.append(" RSCH_VAL1 = '',			\n");
+						sql.append(" RSCH_VAL2 = '',			\n");
+						sql.append(" RSCH_VAL3 = '',			\n");
+						sql.append(" RSCH_VAL4 = '',			\n");
+						sql.append(" RSCH_VAL5 = '',			\n");
+						sql.append(" RSCH_LOC1 = '',			\n");
+						sql.append(" RSCH_LOC2 = '',			\n");
+						sql.append(" RSCH_LOC3 = '',			\n");
+						sql.append(" RSCH_LOC4 = '',			\n");
+						sql.append(" RSCH_LOC5 = '',			\n");
+						sql.append(" RSCH_COM1 = '',			\n");
+						sql.append(" RSCH_COM2 = '',			\n");
+						sql.append(" RSCH_COM3 = '',			\n");
+						sql.append(" RSCH_COM4 = '',			\n");
+						sql.append(" RSCH_COM5 = '',			\n");
+						//sql.append(" LOW_VAL = '', 				\n");
+						sql.append(" AVR_VAL = '', 				\n");
+						sql.append(" CENTER_VAL = '',			\n");
+						sql.append(" RSCH_T_DATE = SYSDATE		\n");
+						sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+						
+						resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+								foodVO.nu_no, foodVO.rsch_val_no
+						});
+
+					}//비계절 end
+					
+					//비유통 start
+					else if("Y".equals(foodVO.non_distri)){	
+						
+						sql		=	new StringBuffer();
+						sql.append(" UPDATE FOOD_RSCH_VAL SET 	\n");
+						sql.append(" NU_NO	= ?,		 		\n");
+						sql.append(" NON_DISTRI	= 'Y',		 	\n");
+						sql.append(" NON_SEASON	= 'N',		 	\n");
+						sql.append(" STS_FLAG	= 'SS',		 	\n");
+						sql.append(" T_RJ_REASON = '', 			\n");
+						sql.append(" RJ_REASON = '', 			\n");
+						sql.append(" RSCH_VAL1 = '',			\n");
+						sql.append(" RSCH_VAL2 = '',			\n");
+						sql.append(" RSCH_VAL3 = '',			\n");
+						sql.append(" RSCH_VAL4 = '',			\n");
+						sql.append(" RSCH_VAL5 = '',			\n");
+						sql.append(" RSCH_LOC1 = '',			\n");
+						sql.append(" RSCH_LOC2 = '',			\n");
+						sql.append(" RSCH_LOC3 = '',			\n");
+						sql.append(" RSCH_LOC4 = '',			\n");
+						sql.append(" RSCH_LOC5 = '',			\n");
+						sql.append(" RSCH_COM1 = '',			\n");
+						sql.append(" RSCH_COM2 = '',			\n");
+						sql.append(" RSCH_COM3 = '',			\n");
+						sql.append(" RSCH_COM4 = '',			\n");
+						sql.append(" RSCH_COM5 = '',			\n");
+						//sql.append(" LOW_VAL = '', 				\n");
+						sql.append(" AVR_VAL = '', 				\n");
+						sql.append(" CENTER_VAL = '',			\n");
+						sql.append(" RSCH_T_DATE = SYSDATE		\n");
+						sql.append(" WHERE RSCH_VAL_NO = ?	 	\n");
+						
+						resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+								foodVO.nu_no, foodVO.rsch_val_no
+						});
+
+					}//비유통 end
+					//그 외
+					else{
+						sql		=	new StringBuffer();
+						sql.append(" UPDATE FOOD_RSCH_VAL 		\n");
+						sql.append(" SET 						\n");
+						sql.append(" NU_NO = ?,					\n");	
+						sql.append(" NON_SEASON = 'N',			\n");			
+						sql.append(" NON_DISTRI = 'N',			\n");			
+						sql.append(" T_RJ_REASON = '',			\n");			
+						sql.append(" RJ_REASON = '',			\n");			
+						sql.append(" STS_FLAG = 'SS',			\n");			
+						sql.append(" RSCH_VAL1 = ?, 			\n");
+						sql.append(" RSCH_VAL2 = ?, 			\n");
+						sql.append(" RSCH_VAL3 = ?, 			\n");
+						sql.append(" RSCH_VAL4 = ?, 			\n");
+						sql.append(" RSCH_VAL5 = ?, 			\n");
+						sql.append(" RSCH_LOC1 = ?, 			\n");
+						sql.append(" RSCH_LOC2 = ?, 			\n");
+						sql.append(" RSCH_LOC3 = ?, 			\n");
+						sql.append(" RSCH_LOC4 = ?, 			\n");
+						sql.append(" RSCH_LOC5 = ?, 			\n");
+						sql.append(" RSCH_COM1 = ?, 			\n");
+						sql.append(" RSCH_COM2 = ?, 			\n");
+						sql.append(" RSCH_COM3 = ?, 			\n");
+						sql.append(" RSCH_COM4 = ?, 			\n");
+						sql.append(" RSCH_COM5 = ?,				\n");
+						//sql.append(" LOW_VAL = ?, 				\n");
+						sql.append(" AVR_VAL = ?, 				\n");
+						sql.append(" CENTER_VAL = ?,			\n");
+						sql.append(" RSCH_T_DATE = SYSDATE		\n");
+						sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+						
+						resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+								foodVO.nu_no,
+								rschValArr[0], rschValArr[1], rschValArr[2], rschValArr[3], rschValArr[4],
+								rschLocArr[0], rschLocArr[1], rschLocArr[2], rschLocArr[3], rschLocArr[4],
+								rschComArr[0], rschComArr[1], rschComArr[2], rschComArr[3], rschComArr[4],
+								/* minVal, */ avgVal, midVal,
+								foodVO.rsch_val_no
+						});
+	
+						//이력 저장
+						
+						//이력 저장
+					}
+					
+					if(resultCnt > 0){
+						obj.put("resultMsg", "정상적으로 마감되었습니다.");
+						obj.put("chkCode", "");
+					}
+					
+				}//검토가 된 상태일 때 작동 end
+				
+				else{
+					obj.put("resultMsg", "검토 후 마감가능합니다.");
+					obj.put("chkCode", "");
+				}
+			}
+			//검토
+			else if(actType == 1){
+				
+				//조사자가 제출했을 당시의 데이터와 일치여부 확인
+				sql		=	new StringBuffer();
+				sql.append(" SELECT 									\n");
+				sql.append(" COUNT(RSCH_VAL_NO) 						\n");
+				sql.append(" FROM FOOD_RSCH_VAL 						\n");
+				sql.append(" WHERE 										\n");
+				
+				if("".equals(rschValArr[0])){
+					sql.append(" (RSCH_VAL1 = ? OR RSCH_VAL1 IS NULL)		\n");
+				}
+				else{
+					sql.append(" RSCH_VAL1 = ? 							\n");
+				}
+				
+				if("".equals(rschValArr[1])){
+					sql.append(" AND (RSCH_VAL2 = ? OR RSCH_VAL2 IS NULL)	\n");
+				}
+				else{
+					sql.append(" AND RSCH_VAL2 = ? 						\n");
+				}
+				
+				if("".equals(rschValArr[2])){
+					sql.append(" AND (RSCH_VAL3 = ? OR RSCH_VAL3 IS NULL)	\n");
+				}		
+				else{
+					sql.append(" AND RSCH_VAL3 = ? 						\n");
+				}
+				
+				if("".equals(rschValArr[3])){
+					sql.append(" AND (RSCH_VAL4 = ? OR RSCH_VAL4 IS NULL)	\n");
+				}
+				else{
+					sql.append(" AND RSCH_VAL4 = ? 						\n");
+				}
+				
+				if("".equals(rschValArr[4])){
+					sql.append(" AND (RSCH_VAL5 = ? OR RSCH_VAL5 IS NULL)	\n");
+				}
+				else{
+					sql.append(" AND RSCH_VAL5 = ? 						\n");
+				}
+				
+				sql.append(" AND RSCH_VAL_NO = ?						\n");
+				sql.append(" AND (STS_FLAG = 'SR' OR STS_FLAG = 'RC')	\n");
+				
+				cnt		=	jdbcTemplate.queryForInt(sql.toString(), new Object[]{
+						rschValArr[0], rschValArr[1], rschValArr[2], rschValArr[3], rschValArr[4], 
+						foodVO.rsch_val_no
+				});
+				
+				//제출당시의 데이터와 불일치 할 경우 최고/최저가 비율 등 재확인
+				if(cnt == 0){
+					//비교그룹이 빈값이 아닐 때
+					if(!"".equals(dataVO.item_comp_no) && !"".equals(dataVO.item_comp_val)){
+						
+						//비교그룹순서 A의 데이터가 들어가있는지 확인한다.
+						sql		=	new StringBuffer();
+						sql.append(" SELECT 						\n");
+						sql.append(" (SELECT 					 	\n");
+						sql.append(" CAT_NM 					 	\n");
+						sql.append(" FROM FOOD_ST_CAT			 	\n");
+						sql.append(" WHERE CAT_NO = ITEM.CAT_NO) 	\n");
+						sql.append(" AS CAT_NM,						\n");
+						sql.append(" ITEM.FOOD_CAT_INDEX,		 	\n");
+						sql.append(" PRE.ITEM_COMP_VAL,				\n");
+						sql.append(" VAL.STS_FLAG, 					\n");
+						sql.append(" VAL.AVR_VAL, 					\n");
+						sql.append(" PRE.ITEM_NM 					\n");
+						sql.append(" FROM FOOD_ITEM_PRE PRE 		\n");
+						sql.append(" LEFT JOIN 						\n");
+						sql.append(" FOOD_RSCH_VAL VAL 				\n");
+						sql.append(" ON PRE.ITEM_NO = VAL.ITEM_NO 	\n");
+						sql.append(" LEFT JOIN 						\n");
+						sql.append(" FOOD_ST_ITEM ITEM 				\n");		
+						sql.append(" ON ITEM.ITEM_NO = VAL.ITEM_NO	\n");		
+						sql.append(" WHERE PRE.ITEM_COMP_NO = ?		\n");
+						sql.append(" AND VAL.RSCH_NO = ?			\n");
+						sql.append(" AND VAL.SCH_NO = (				\n");
+						sql.append(" 	SELECT SCH_NO FROM			\n");
+						sql.append(" 	FOOD_RSCH_VAL WHERE			\n");
+						sql.append(" 	RSCH_VAL_NO = ?)			\n");
+						sql.append(" ORDER BY PRE.ITEM_COMP_VAL 	\n");
+							
+						cList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{dataVO.item_comp_no, foodVO.rsch_no, foodVO.rsch_val_no});
+					
+						if(cList != null && cList.size() > 0){
+							for(int i=0; i<cList.size(); i++){
+								
+								//비교그룹순서가 자기보다 낮은 알파뱃이 마감되었는지 확인
+								if("SR".equals(cList.get(i).sts_flag) || "RC".equals(cList.get(i).sts_flag)){
+									if(codeToNumber(dataVO.item_comp_val) > codeToNumber(cList.get(i).item_comp_val)){
+										obj.put("resultMsg", cList.get(i).cat_nm + "-" + cList.get(i).food_cat_index + "부터 마감해주세요.");
+										obj.put("chkCode", "");
+										actChk	=	false;
+										break;
+									}
+								}
+								//비교그룹순서 대비 조사가 평균 비교
+								else{
+									if(!"".equals(cList.get(i).avr_val) && avgVal != 0){
+										if(codeToNumber(dataVO.item_comp_val) > codeToNumber(cList.get(i).item_comp_val)){
+											if(avgVal < Integer.parseInt(cList.get(i).avr_val)){
+												obj.put("resultMsg", cList.get(i).cat_nm + "-" + cList.get(i).food_cat_index + " " + cList.get(i).item_nm + "의 보다 조사가가 낮습니다.");
+												obj.put("chkCode", "");
+												actChk	=	false;
+												break;
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+					
+					if(actChk	==	true){
+						//비유통, 비계절 둘다 아닐 때 start
+						if(!"Y".equals(foodVO.non_season) && !"Y".equals(foodVO.non_distri)){
+							
+							//전월데이터 확인
+							sql		=	new StringBuffer();
+							sql.append(" SELECT 						\n");
+							sql.append(" RSCH_NO 						\n");
+							sql.append(" FROM FOOD_RSCH_TB				\n");
+							sql.append(" WHERE RSCH_YEAR = ?			\n");
+							sql.append(" AND RSCH_MONTH = ?				\n");
+							sql.append(" AND STS_FLAG = 'Y'				\n");
+							sql.append(" AND SHOW_FLAG = 'Y'			\n");
+							sql.append(" AND ROWNUM = 1 				\n");						
+							sql.append(" ORDER BY END_DATE DESC, 		\n");	
+							sql.append(" RSCH_NO DESC					\n");
+				
+							try{
+								preRschNo	=	jdbcTemplate.queryForObject(sql.toString(), String.class, new Object[]{
+									preYear, preMonth
+								});
+							}catch(Exception e){
+								preRschNo	=	"";
+							}
+							
+							if(!"".equals(preRschNo)){
+							
+								sql		=	new StringBuffer();
+								sql.append(" SELECT 														\n");
+								sql.append(" VAL.AVR_VAL,													\n");
+								sql.append(" VAL.RSCH_VAL_NO												\n");
+								sql.append(" FROM FOOD_RSCH_VAL VAL 										\n");
+								sql.append(" LEFT JOIN FOOD_RSCH_TB TB ON VAL.RSCH_NO = TB.RSCH_NO			\n");
+								sql.append(" WHERE TB.RSCH_NO = ? AND VAL.ITEM_NO = ?						\n");
+								sql.append(" ORDER BY END_DATE DESC											\n");
+								try{
+									preDataVO	=	jdbcTemplate.queryForObject(sql.toString(), new FoodList(), new Object[]{
+											preRschNo, dataVO.item_no
+									});
+									
+								}catch(Exception e){
+									preDataVO	=	new FoodVO();
+								}
+							}
+							//전월 데이터가 있을 경우
+							if(preDataVO != null && preDataVO.avr_val != null && !"".equals(preDataVO.avr_val)){
+								//전월 평균가와 비교
+								
+								highNLowAvr	=	(int)(Integer.parseInt(preDataVO.avr_val) * (Integer.parseInt(dataVO.avr_ratio) / 100.0));
+								if((Integer.parseInt(preDataVO.avr_val) + highNLowAvr) <= avgVal ||
+										((Integer.parseInt(preDataVO.avr_val) - highNLowAvr) >= avgVal)){
+									resultMsg	=	appendComma(resultMsg, "전월대비 조사가(평균가) 차이가 " + Integer.parseInt(dataVO.avr_ratio) + "% 이상입니다." + (Integer.parseInt(preDataVO.avr_val) + highNLowAvr));
+									returnType	=	appendComma(returnType, "2");
+									obj.put("resultMsg", resultMsg);
+									obj.put("chkCode", returnType);
+									actChk		=	false;
+								}
+								/* 
+								//전월 최저가와 비교
+								highNLowMin	=	(int)(Integer.parseInt(preDataVO.low_val) * (Integer.parseInt(dataVO.low_ratio) / 100.0));
+								highNLowAvr	=	(int)(Integer.parseInt(preDataVO.avr_val) * (Integer.parseInt(dataVO.avr_ratio) / 100.0));
+								
+								if((Integer.parseInt(preDataVO.low_val) + highNLow) > minVal || 
+										((Integer.parseInt(preDataVO.low_val) - highNLow) < minVal )){
+									resultMsg	=	appendComma(resultMsg, "전월 최저가 비율보다 " + Integer.parseInt(dataVO.low_ratio) + "% 미만 또는 초과입니다.");
+									returnType	=	appendComma(returnType, "1");
+									obj.put("resultMsg", resultMsg);
+									obj.put("chkCode", returnType);
+									actChk		=	false;	
+								}
+														
+								//전월 평균가와 비교
+								else if((Integer.parseInt(preDataVO.avr_val) + highNLow) > avgVal ||
+										((Integer.parseInt(preDataVO.avr_val) - highNLow) < avgVal)){
+									resultMsg	=	appendComma(resultMsg, "전월 평균가 비율보다 " + Integer.parseInt(dataVO.avr_ratio) + "% 미만 또는 초과입니다.");
+									returnType	=	appendComma(returnType, "2");
+									obj.put("resultMsg", resultMsg);
+									obj.put("chkCode", returnType);
+									actChk		=	false;
+								}
+								 */
+							}
+							
+							//최저,최고값 비율
+							highNLow	=	(int)(maxVal * (Integer.parseInt(dataVO.lb_ratio) / 100.0));
+							if((maxVal - highNLow) >= minVal){
+								resultMsg	=	appendComma(resultMsg, "최저값이 최고값의 " + Integer.parseInt(dataVO.lb_ratio) + "% 보다 낮습니다.");
+								returnType	=	appendComma(returnType, "3");
+								obj.put("resultMsg", resultMsg);
+								obj.put("chkCode", returnType);
+								actChk		=	false;
+							}
+						}//비유통, 비계절 둘다 아닐 때 end
+					}
+					
+					if(actChk){
+						
+						//비계절일 때
+						if("Y".equals(foodVO.non_season)){
+							sql		=	new StringBuffer();
+							sql.append(" UPDATE FOOD_RSCH_VAL SET 	\n");
+							sql.append(" STS_FLAG = 'RC', 			\n");
+							sql.append(" NON_SEASON = 'Y', 			\n");
+							sql.append(" NON_DISTRI = 'N', 			\n");
+							sql.append(" RSCH_VAL1 = '', 			\n");
+							sql.append(" RSCH_VAL2 = '', 			\n");
+							sql.append(" RSCH_VAL3 = '', 			\n");
+							sql.append(" RSCH_VAL4 = '', 			\n");
+							sql.append(" RSCH_VAL5 = '', 			\n");
+							sql.append(" RSCH_LOC1 = '', 			\n");
+							sql.append(" RSCH_LOC2 = '', 			\n");
+							sql.append(" RSCH_LOC3 = '', 			\n");
+							sql.append(" RSCH_LOC4 = '', 			\n");
+							sql.append(" RSCH_LOC5 = '', 			\n");
+							sql.append(" RSCH_COM1 = '', 			\n");
+							sql.append(" RSCH_COM2 = '', 			\n");
+							sql.append(" RSCH_COM3 = '', 			\n");
+							sql.append(" RSCH_COM4 = '', 			\n");
+							sql.append(" RSCH_COM5 = '', 			\n");
+							sql.append(" NU_NO	 = ?,	 			\n");
+							sql.append(" RSCH_T_DATE = SYSDATE		\n");
+							sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+							
+							resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+									foodVO.nu_no, foodVO.rsch_val_no
+							}); 
+						}
+						
+						//비유통일 때
+						else if("Y".equals(foodVO.non_distri)){
+							
+							sql		=	new StringBuffer();
+							sql.append(" UPDATE FOOD_RSCH_VAL SET 	\n");
+							sql.append(" STS_FLAG = 'RC', 			\n");
+							sql.append(" NON_SEASON = 'N', 			\n");
+							sql.append(" NON_DISTRI = 'Y', 			\n");
+							sql.append(" RSCH_VAL1 = '', 			\n");
+							sql.append(" RSCH_VAL2 = '', 			\n");
+							sql.append(" RSCH_VAL3 = '', 			\n");
+							sql.append(" RSCH_VAL4 = '', 			\n");
+							sql.append(" RSCH_VAL5 = '', 			\n");
+							sql.append(" RSCH_LOC1 = '', 			\n");
+							sql.append(" RSCH_LOC2 = '', 			\n");
+							sql.append(" RSCH_LOC3 = '', 			\n");
+							sql.append(" RSCH_LOC4 = '', 			\n");
+							sql.append(" RSCH_LOC5 = '', 			\n");
+							sql.append(" RSCH_COM1 = '', 			\n");
+							sql.append(" RSCH_COM2 = '', 			\n");
+							sql.append(" RSCH_COM3 = '', 			\n");
+							sql.append(" RSCH_COM4 = '', 			\n");
+							sql.append(" RSCH_COM5 = '', 			\n");
+							sql.append(" NU_NO	 = ?,	 			\n");
+							sql.append(" RSCH_T_DATE = SYSDATE		\n");
+							sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+							
+							resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+									foodVO.nu_no, foodVO.rsch_val_no
+							}); 
+						}
+							
+						//비유통, 비계절 둘다 아닐 때 start
+						else{
+							sql		=	new StringBuffer();
+							sql.append(" UPDATE FOOD_RSCH_VAL SET 	\n");
+							sql.append(" STS_FLAG = 'RC', 			\n");
+							sql.append(" NON_SEASON = 'N', 			\n");
+							sql.append(" NON_DISTRI = 'N', 			\n");
+							sql.append(" RSCH_VAL1 = ?, 			\n");
+							sql.append(" RSCH_VAL2 = ?, 			\n");
+							sql.append(" RSCH_VAL3 = ?, 			\n");
+							sql.append(" RSCH_VAL4 = ?, 			\n");
+							sql.append(" RSCH_VAL5 = ?, 			\n");
+							sql.append(" RSCH_LOC1 = ?, 			\n");
+							sql.append(" RSCH_LOC2 = ?, 			\n");
+							sql.append(" RSCH_LOC3 = ?, 			\n");
+							sql.append(" RSCH_LOC4 = ?, 			\n");
+							sql.append(" RSCH_LOC5 = ?, 			\n");
+							sql.append(" RSCH_COM1 = ?, 			\n");
+							sql.append(" RSCH_COM2 = ?, 			\n");
+							sql.append(" RSCH_COM3 = ?, 			\n");
+							sql.append(" RSCH_COM4 = ?, 			\n");
+							sql.append(" RSCH_COM5 = ?,	 			\n");
+							sql.append(" NU_NO	 = ?,	 			\n");
+							sql.append(" RSCH_T_DATE = SYSDATE		\n");
+							sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+							
+							resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+									rschValArr[0], rschValArr[1], rschValArr[2], rschValArr[3], rschValArr[4],
+									rschLocArr[0], rschLocArr[1], rschLocArr[2], rschLocArr[3], rschLocArr[4],
+									rschComArr[0], rschComArr[1], rschComArr[2], rschComArr[3], rschComArr[4],
+									foodVO.nu_no, foodVO.rsch_val_no
+							}); 
+						}
+						
+						if(resultCnt > 0){
+							obj.put("resultMsg", "검토 완료되었습니다. 마감버튼을 클릭해주세요.");
+							obj.put("chkCode", "");
+						}else{
+							obj.put("resultMsg", "검토에 오류가 발생하였습니다. 관리자게에 문의해주세요.");
+							obj.put("chkCode", "");
+						}
+					}
+				}
+				
+				//제출당시와 값의 변화가 없을시 바로 검토
+				else{
+					
+					//비교그룹이 빈값이 아닐 때
+					if(!"".equals(dataVO.item_comp_no) && !"".equals(dataVO.item_comp_val)){
+						
+						//비교그룹순서 A의 데이터가 들어가있는지 확인한다.
+						sql		=	new StringBuffer();
+						sql.append(" SELECT 						\n");
+						sql.append(" (SELECT 					 	\n");
+						sql.append(" CAT_NM 					 	\n");
+						sql.append(" FROM FOOD_ST_CAT			 	\n");
+						sql.append(" WHERE CAT_NO = ITEM.CAT_NO) 	\n");
+						sql.append(" AS CAT_NM,						\n");
+						sql.append(" ITEM.FOOD_CAT_INDEX,		 	\n");
+						sql.append(" PRE.ITEM_COMP_VAL,				\n");
+						sql.append(" VAL.STS_FLAG, 					\n");
+						sql.append(" VAL.AVR_VAL 					\n");
+						sql.append(" FROM FOOD_ITEM_PRE PRE 		\n");
+						sql.append(" LEFT JOIN 						\n");
+						sql.append(" FOOD_RSCH_VAL VAL 				\n");
+						sql.append(" ON PRE.ITEM_NO = VAL.ITEM_NO 	\n");
+						sql.append(" LEFT JOIN 						\n");
+						sql.append(" FOOD_ST_ITEM ITEM 				\n");		
+						sql.append(" ON ITEM.ITEM_NO = VAL.ITEM_NO	\n");		
+						sql.append(" WHERE PRE.ITEM_COMP_NO = ?		\n");
+						sql.append(" AND VAL.RSCH_NO = ?			\n");
+						sql.append(" AND VAL.SCH_NO = ?				\n");
+						sql.append(" ORDER BY PRE.ITEM_COMP_VAL 	\n");	
+							
+						cList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{dataVO.item_comp_no, foodVO.rsch_no, foodVO.sch_no});
+					
+						if(cList != null && cList.size() > 0){
+							for(int i=0; i<cList.size(); i++){
+								
+								//비교그룹순서가 자기보다 낮은 알파뱃이 마감되었는지 확인
+								if("SR".equals(cList.get(i).sts_flag) || "RC".equals(cList.get(i).sts_flag)){
+									if(codeToNumber(dataVO.item_comp_val) > codeToNumber(cList.get(i).item_comp_val)){
+										obj.put("resultMsg", cList.get(i).cat_nm + "-" + cList.get(i).food_cat_index + "부터 마감해주세요.");
+										obj.put("chkCode", "");
+										actChk	=	false;
+										break;
+									}
+								}
+							}
+						}
+					}
+					
+					if(actChk == true){
+						sql		=	new StringBuffer();
+						sql.append(" UPDATE FOOD_RSCH_VAL SET 	\n");
+						sql.append(" STS_FLAG = 'RC', 			\n");
+						sql.append(" RSCH_T_DATE = SYSDATE 		\n");
+						sql.append(" WHERE RSCH_VAL_NO = ? 		\n");
+						
+						resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+								foodVO.rsch_val_no	
+						});
+						
+						obj.put("resultMsg", "검토 완료되었습니다. 마감버튼을 클릭해주세요.");
+						obj.put("chkCode", "");
+					}
+				}
+			}
+			
+			//재검토 (검토당시의 데이터와 제출시의 데이터 일치 여부)
+			else if(actType == 2){
+			
+				sql		=	new StringBuffer();
+				sql.append(" SELECT 									\n");
+				sql.append(" COUNT(RSCH_VAL_NO) 						\n");
+				sql.append(" FROM FOOD_RSCH_VAL 						\n");
+				sql.append(" WHERE 										\n");
+				
+				if("".equals(rschValArr[0])){
+					sql.append(" (RSCH_VAL1 = ? OR RSCH_VAL1 IS NULL)		\n");
+				}
+				else{
+					sql.append(" RSCH_VAL1 = ? 							\n");
+				}
+				
+				if("".equals(rschValArr[1])){
+					sql.append(" AND (RSCH_VAL2 = ? OR RSCH_VAL2 IS NULL)	\n");
+				}
+				else{
+					sql.append(" AND RSCH_VAL2 = ? 						\n");
+				}
+				
+				if("".equals(rschValArr[2])){
+					sql.append(" AND (RSCH_VAL3 = ? OR RSCH_VAL3 IS NULL)	\n");
+				}		
+				else{
+					sql.append(" AND RSCH_VAL3 = ? 						\n");
+				}
+				
+				if("".equals(rschValArr[3])){
+					sql.append(" AND (RSCH_VAL4 = ? OR RSCH_VAL4 IS NULL)	\n");
+				}
+				else{
+					sql.append(" AND RSCH_VAL4 = ? 						\n");
+				}
+				
+				if("".equals(rschValArr[4])){
+					sql.append(" AND (RSCH_VAL5 = ? OR RSCH_VAL5 IS NULL)	\n");
+				}
+				else{
+					sql.append(" AND RSCH_VAL5 = ? 						\n");
+				}
+				
+				sql.append(" AND RSCH_VAL_NO = ?						\n");
+				sql.append(" AND STS_FLAG = 'RC'						\n");
+				
+				cnt		=	jdbcTemplate.queryForInt(sql.toString(), new Object[]{
+						rschValArr[0], rschValArr[1], rschValArr[2], rschValArr[3], rschValArr[4], 
+						foodVO.rsch_val_no
+				});
+				
+				if(cnt == 0){
+					obj.put("resultMsg", "검토 당시의 데이터와 일치하지 않습니다. 재검토 해주시기 바랍니다.");
+				}
+			}
+			
+			//반려
+			else if(actType == 3){
+				if(!"".equals(dataVO.item_comp_no) && !"".equals(dataVO.item_comp_val)){
+					sql		=	new StringBuffer();
+					sql.append(" SELECT  						\n");
+					sql.append(" VAL.RSCH_VAL_NO				\n");
+					sql.append(" FROM FOOD_RSCH_VAL VAL 		\n");
+					sql.append(" LEFT JOIN  					\n");
+					sql.append(" FOOD_ITEM_PRE PRE 				\n");
+					sql.append(" ON VAL.ITEM_NO = PRE.ITEM_NO 	\n");
+					sql.append(" WHERE PRE.ITEM_COMP_NO = ?	 	\n");
+					//sql.append(" AND (VAL.STS_FLAG = 'SR' OR	\n");
+					//sql.append(" VAL.STS_FLAG = 'RC')		 	\n");
+					
+					rList	=	jdbcTemplate.query(sql.toString(), new FoodList(), new Object[]{
+							dataVO.item_comp_no
+					});
+					
+					sql		=	new StringBuffer();
+					sql.append(" UPDATE FOOD_RSCH_VAL SET 		\n");
+					sql.append(" STS_FLAG = 'RT', 				\n");
+					sql.append(" T_RJ_REASON = ?, 				\n");
+					sql.append(" RJ_DATE = SYSDATE				\n");
+					sql.append(" , RT_IP = ?					\n");
+					sql.append(" , RT_ID = ?					\n");
+					sql.append(" WHERE RSCH_VAL_NO = ? 			\n");
+					sql.append(" AND ZONE_NO = ?				\n");
+					sql.append(" AND TEAM_NO = ?				\n");
+					sql.append(" AND RSCH_NO = ?				\n");
+					pstmt = conn.prepareStatement(sql.toString());
+					for(int i=0; i<rList.size(); i++){
+						key = 0;
+						pstmt.setString(++key,  foodVO.t_rj_reason);
+						pstmt.setString(++key,  rt_ip);
+						pstmt.setString(++key, 	sManager.getId());
+						pstmt.setString(++key,  rList.get(i).rsch_val_no);
+						pstmt.setString(++key,  foodVO.zone_no);
+						pstmt.setString(++key,  foodVO.team_no);
+						pstmt.setString(++key, foodVO.rsch_no);
+						pstmt.addBatch();
+					}
+					
+					batchSuccess	=	pstmt.executeBatch();
+					if(pstmt!=null){pstmt.close();}
+					
+					if(batchSuccess.length > 0){
+						obj.put("resultMsg", "정상적으로 반려되었습니다.");
+						obj.put("chkCode", "");
+					}else{
+						obj.put("resultMsg", "반려중 오류가 발생하였습니다. 관리자에게 문의하세요.");
+						obj.put("chkCode", "");
+					}
+
+					/* batchList	=	new ArrayList<Object[]>();
+					
+					for(int i=0; i<rList.size(); i++){
+						Object[] ob	=	new Object[]{foodVO.t_rj_reason, rList.get(i).rsch_val_no};
+						batchList.add(ob);
+					}
+					
+					batchSuccess	=	null;
+					batchSuccess	=	jdbcTemplate.batchUpdate(sql.toString(), batchList); */
+				} else {
+					sql		=	new StringBuffer();
+					sql.append(" UPDATE FOOD_RSCH_VAL SET 		\n");
+					sql.append(" STS_FLAG = 'RT', 				\n");
+					sql.append(" T_RJ_REASON = ?, 				\n");
+					sql.append(" RJ_DATE = SYSDATE				\n");
+					sql.append(" , RT_IP = ?					\n");
+					sql.append(" , RT_ID = ?					\n");
+					sql.append(" WHERE RSCH_VAL_NO = ? 			\n");
+					sql.append(" AND ZONE_NO = ?				\n");
+					sql.append(" AND TEAM_NO = ?				\n");
+					sql.append(" AND RSCH_NO = ?				\n");
+					
+					resultCnt	=	jdbcTemplate.update(sql.toString(), new Object[]{
+							foodVO.t_rj_reason
+							, rt_ip
+							, sManager.getId()
+							, foodVO.rsch_val_no
+							, foodVO.zone_no
+							, foodVO.team_no
+							, foodVO.rsch_no
+							});
+					
+					if(resultCnt > 0){
+						obj.put("resultMsg", "정상적으로 반려되었습니다.");
+						obj.put("chkCode", "");
+					}else{
+						obj.put("resultMsg", "반려중 오류가 발생하였습니다. 관리자에게 문의하세요.");
+						obj.put("chkCode", "");
+					}
+				}				
+			}
+			//그외의 actType
+			else{
+				obj.put("resultMsg", "잘못된 액션타입입니다.");
+				obj.put("chkCode", "");
+			}
+			
+		}//조사팀장 end
+
+	}catch(Exception e){
+		if(actType == 0)		obj.put("resultMsg", "0");
+		else if(actType	== 1)	obj.put("resultMsg", "1");
+		else if(actType == 2)	obj.put("resultMsg", "2");
+		else if(actType == 3)	obj.put("resultMsg", "3");
+		
+	}finally{
+		if("R".equals(foodVO.sch_grade)){		//조사자일 때
+			out.print(obj);
+			
+		}else if("T".equals(foodVO.sch_grade)){	//조사팀장일 때
+			out.print(obj);
+		}
+		if(pstmt!=null){pstmt.close();}
+		if(conn!=null){conn.close();}
+		sqlMapClient.endTransaction();
+
+	}
 %>
+<%}%>
