@@ -1,2 +1,0 @@
-ALTER TABLE `isign_pwdhistory` ADD (LASTCHANGEPW varchar(256));
-ALTER TABLE `isign_pwdhistory` CHANGE `INCORECTNUM` `INCORRECTNUM` INT(4);

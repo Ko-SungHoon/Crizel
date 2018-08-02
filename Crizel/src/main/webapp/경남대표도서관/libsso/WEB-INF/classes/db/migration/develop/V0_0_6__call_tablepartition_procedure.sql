@@ -1,1 +1,0 @@
-CALL create_partition();

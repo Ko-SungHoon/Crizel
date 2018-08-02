@@ -1,1 +1,0 @@
-INSERT INTO isign_config(`config_key`, `config_value`) VALUES ('VERIFY_CERT_USE_B', 'false');
