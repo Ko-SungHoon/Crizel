@@ -4,6 +4,7 @@ import java.io.BufferedOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.Resource;
@@ -72,6 +73,22 @@ public class GirlsService {
 		
 		String split = (urlStr.split("/")[urlStr.split("/").length-1]);
 		String ext = split.split("\\.")[split.split("\\.").length-1];
+		
+		List<String> extList = new ArrayList<String>();
+		extList.add("jpg");
+		extList.add("png");
+		extList.add("bmp");
+		extList.add("jpeg");
+		extList.add("gif");
+		extList.add("JPG");
+		extList.add("PNG");
+		extList.add("BMP");
+		extList.add("JPEG");
+		extList.add("GIF");
+		
+		if(!extList.contains(ext)){
+			ext = "jpg";
+		}
 		
 		response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(name, "UTF-8").replace("+", "%20") + "." + ext);
 		response.setHeader("Content-Type", "application/octet-stream");
