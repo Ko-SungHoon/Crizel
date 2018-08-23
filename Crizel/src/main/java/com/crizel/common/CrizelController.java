@@ -60,6 +60,7 @@ public class CrizelController {
 	@RequestMapping("listDetail.do")
 	public ModelAndView listDetail(@RequestParam String keyword, String type, String site,
 			@RequestParam(value="mode", defaultValue="") String mode,
+			@RequestParam(value="ani_id", defaultValue="") String ani_id,
 			HttpServletResponse response) throws Exception,
 			SAXException, IOException {
 		ModelAndView mav = new ModelAndView();
@@ -67,8 +68,22 @@ public class CrizelController {
 		mav.addObject("mode", mode);
 		mav.addObject("type", type);
 		mav.addObject("keyword", keyword);
+		mav.addObject("ani_id", ani_id);
+		mav.addObject("last_title", service.lastTitle(ani_id));
 		mav.setViewName("/list/list");
 		return mav;
+	}
+	
+	@RequestMapping("lastTitleInsert.do")
+	public void lastTitleInsert(@RequestParam(value="title", defaultValue="") String title
+								, @RequestParam(value="ani_id", defaultValue="") String ani_id
+								, HttpServletResponse response) throws IOException{
+		Map<String,Object> map = new HashMap<String,Object>();
+		map.put("title", title);
+		map.put("ani_id", ani_id);
+		service.lastTitleInsert(map);
+		response.setContentType("application/x-www-form-urlencoded; charset=utf-8");
+		response.getWriter().print("Y");
 	}
 	
 	@RequestMapping("aniDelete.do")
@@ -80,8 +95,11 @@ public class CrizelController {
 
 		
 	@RequestMapping("listInsertPage.do")
-	public ModelAndView listInsertPage() {
-		ModelAndView mav = new ModelAndView();		
+	public ModelAndView listInsertPage(@RequestParam(value="mode", defaultValue="insert") String mode
+			                         , @RequestParam(value="ani_id", defaultValue="") String ani_id) {
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("ani_info", service.aniInfo(ani_id));
+		mav.addObject("mode", mode);
 		mav.setViewName("/list/listInsertPage");
 		return mav;
 	}
@@ -90,6 +108,12 @@ public class CrizelController {
 	public String listInsert(@ModelAttribute CrizelVo vo, @RequestParam(value="mode", defaultValue="") String mode) throws UnsupportedEncodingException {
 		service.listInsert(vo);
 		return "redirect:listInsertPage.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8")+"&mode="+mode;
+	}
+	
+	@RequestMapping("listUpdate.do")
+	public String listUpdate(@ModelAttribute CrizelVo vo, @RequestParam(value="mode", defaultValue="") String mode) throws UnsupportedEncodingException {
+		service.listUpdate(vo);
+		return "redirect:list.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8")+"&mode=nyaa";
 	}
 	
 	@RequestMapping("loginPage.do")

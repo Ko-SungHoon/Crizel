@@ -97,6 +97,22 @@ public class CrizelDao {
 	public List<Map<String, Object>> comicViewList(String addr) {
 		return sqlSession.selectList("crizel.comicViewList", addr);
 	}
+
+	public String lastTitle(String ani_id) {
+		return sqlSession.selectOne("crizel.lastTitle", ani_id);
+	}
+
+	public void lastTitleInsert(Map<String, Object> map) {
+		sqlSession.update("crizel.lastTitleInsert", map);
+	}
+
+	public CrizelVo aniInfo(String ani_id) {
+		return sqlSession.selectOne("crizel.aniInfo", ani_id);
+	}
+
+	public void listUpdate(CrizelVo vo) {
+		sqlSession.update("crizel.listUpdate", vo);
+	}
 	
 
 }

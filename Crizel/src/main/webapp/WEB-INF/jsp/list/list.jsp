@@ -25,6 +25,26 @@ $(function(){
 		$(".sun").addClass("on");
 	}
 });
+
+function goLink(link, title, ani_id){
+	$.ajax({
+		type : "POST",
+		url : "/lastTitleInsert.do",
+		contentType : "application/x-www-form-urlencoded; charset=utf-8",
+		data : {
+			title : title 
+			, ani_id : ani_id
+		},
+		success : function(data) {
+			console.log("성공");
+			$("#list_title").text(title);
+		},
+		error:function(request,status,error){
+			console.log("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+		}
+	});
+	location.href=link;
+}
 </script>
 </head>
 <body>
@@ -82,10 +102,10 @@ $(function(){
 			<c:forEach items="${list}" var="ob">
 				<tr>
 					<td>
-						<span class="ani_time">${ob.ani_time}</span>
+						<a href="/listInsertPage.do?mode=update&ani_id=${ob.ani_id}">${ob.ani_time}</a>
 					</td>
 					<td colspan="5">
-						<a href="/listDetail.do?keyword=${ob.keyword}&type=${type}&site=${ob.site}&mode=${mode}" class="ani_title">${ob.title}</a>
+						<a href="/listDetail.do?keyword=${ob.keyword}&type=${type}&site=${ob.site}&mode=${mode}&ani_id=${ob.ani_id}" class="ani_title">${ob.title}</a>
 					</td>
 					<td>
 						<a href="/aniDelete.do?ani_id=${ob.ani_id}&day=${ob.day}&mode=${mode}" class="ani_del">삭제</a>	
@@ -94,19 +114,22 @@ $(function(){
 			</c:forEach>
 		</c:if>
 		<c:if test="${listDetail ne null}">
+				<tr>
+					<th colspan="7"><span id="list_title">${last_title}</span></th>
+				</tr>
 			<c:forEach items="${listDetail}" var="ob">
 				<tr>
 					<c:choose>
 						<c:when test="${mode eq 'nyaa'}">
 							<td colspan="6">	
-								<a href="${ob.link}"> ${ob.title} </a>
+								<a href="javascript:goLink('${ob.link}', '${ob.title}', ${ani_id});"> ${ob.title} </a>
 							</td>
-							<td colspan="3">
+							<td colspan="1">
 								${ob.pubDate}
 							</td>
 						</c:when>
 						<c:otherwise>
-							<td colspan="9">	
+							<td colspan="7">	
 								<a href="${ob.link}"> ${ob.title} </a>
 							</td>
 						</c:otherwise>

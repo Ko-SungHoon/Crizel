@@ -508,4 +508,20 @@ public class CrizelService {
 		return dao.comicViewList(addr);
 	}
 
+	public String lastTitle(String ani_id) {
+		return dao.lastTitle(ani_id);
+	}
+
+	public void lastTitleInsert(Map<String, Object> map) {
+		dao.lastTitleInsert(map);
+	}
+
+	public CrizelVo aniInfo(String ani_id) {
+		return dao.aniInfo(ani_id);
+	}
+
+	public void listUpdate(CrizelVo vo) {
+		dao.listUpdate(vo);
+	}
+
 }

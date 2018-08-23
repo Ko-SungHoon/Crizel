@@ -81,7 +81,7 @@
 	</select>
 
 	<insert id="listInsert" parameterType="com.crizel.common.CrizelVo">
-		insert into ani
+		insert into ani(ani_id, title, ani_time, day, keyword, site)
 		values((select nvl(max(ani_id)+1,1) from ani), #{title}, #{ani_time}, #{day},
 		#{keyword}, #{site})
 	</insert>
@@ -89,6 +89,34 @@
 	<select id="listInsertDetail" resultType="com.crizel.common.CrizelVo">
 		select * from ani;
 	</select>
+	
+	<update id="lastTitleInsert" parameterType="HashMap">
+		UPDATE ANI SET LAST_TITLE = #{title} 
+		WHERE ANI_ID = #{ani_id}
+	</update>
+	
+	<select id="lastTitle" parameterType="String" resultType="String">
+		SELECT LAST_TITLE
+		FROM ANI
+		WHERE ANI_ID = #{ani_id}
+	</select>
+	
+	<select id="aniInfo" parameterType="String" resultType="com.crizel.common.CrizelVo">
+		SELECT *
+		FROM ANI
+		WHERE ANI_ID = #{ani_id}
+	</select>
+	
+	<update id="listUpdate" parameterType="com.crizel.common.CrizelVo">
+		UPDATE ANI SET
+			TITLE = #{title}
+			, ANI_TIME = #{ani_time}
+			, DAY = #{day}
+			, KEYWORD = #{keyword}
+			, SITE = #{site}
+		WHERE ANI_ID = #{ani_id}
+	</update>
+	
 
 	<delete id="listDelete" parameterType="com.crizel.common.CrizelVo">
 		delete from ani where
