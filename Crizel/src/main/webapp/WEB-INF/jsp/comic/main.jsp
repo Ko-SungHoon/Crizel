@@ -134,13 +134,12 @@ function goView(addr, title, addrB ){
 				</td>
 			</tr>
 		</c:if>
-		
 		<!-- 상세 목록 --------------------------------------------------------------------------->
 		<c:if test="${viewList ne null }">
 			<c:forEach items="${viewList}" var="ob">
 				<tr>
 					<td>
-						<a href="/comic.do?type=C&addrC=${ob.addr}&addrB=${ob.addrB}&title=${ob.title}">${ob.title}</a>
+						<a href="/comic.do?type=C&addrC=${ob.addr}&addrB=${addrB}&title=${ob.title}">${ob.title}</a>
 						<%-- <a href="javascript:goView('${ob.addr}', '${ob.title}', '${addrB}')">${ob.title}</a> --%>
 						<%-- <a href="/comic.do?type=C&addr=${ob.addr}">${ob.title}</a> --%>
 					</td>

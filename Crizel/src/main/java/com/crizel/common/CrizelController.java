@@ -225,6 +225,12 @@ public class CrizelController {
 			mav.addObject("viewList", mr.getComic("http://marumaru.in/" + addrB));
 			mav.addObject("comicViewList", service.comicViewList(addrB));	// viewCount 목록
 			mav.addObject("addrB", addrB);									// 만화 viewCount 업데이트 시 where절에 쓸 주소
+			
+			Map<String,Object> map = new HashMap<String,Object>();
+			map.put("title", title);
+			map.put("addr", addrB);
+			service.comicViewCheck(map);
+			
 		}else{
 			mav.addObject("comicList", service.comicList());
 		}
