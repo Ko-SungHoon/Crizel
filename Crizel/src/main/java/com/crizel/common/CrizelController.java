@@ -29,6 +29,13 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 import org.xml.sax.SAXException;
 
+import com.crizel.common.util.Mars;
+import com.crizel.common.util.Maru;
+import com.crizel.common.util.Music;
+import com.crizel.common.util.OneJav;
+import com.crizel.common.util.Saramin;
+import com.crizel.common.util.Torrent;
+
 @Controller
 public class CrizelController {
 	CrizelService service;
@@ -120,37 +127,27 @@ public class CrizelController {
 	public String loginPage() {
 		return "login";
 	}
-
-	/*@SuppressWarnings("unchecked")
-	@RequestMapping("login.do")
-	public void login(@ModelAttribute CrizelVo vo, HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		CrizelVo vo2 = service.login(vo);
-		JSONObject obj = new JSONObject();
-		if (vo2 != null) {
-			HttpSession session = request.getSession();
-			session.setAttribute("login", vo2);
-
-			obj.put("result", "success");
-			response.setContentType("application/x-json; charset=UTF-8");
-			response.getWriter().print(obj);
-		} else {
-			obj.put("result", "fail");
-			response.setContentType("application/x-json; charset=UTF-8");
-			response.getWriter().print(obj);
-		}
-	}*/
 	
 	@RequestMapping("login.do")
-	public void login(@ModelAttribute CrizelVo vo, HttpServletRequest request,
+	public ModelAndView login(@ModelAttribute CrizelVo vo, HttpServletRequest request,
 			HttpServletResponse response) throws ServletException, IOException {
+		ModelAndView mav = new ModelAndView();
+		String referer = request.getParameter("referer")==null?"/":request.getParameter("referer");
+		
 		CrizelVo vo2 = service.login(vo);
 		
 		HttpSession session = request.getSession();
 		session.setAttribute("login", vo2);
 		
-		RequestDispatcher rd = request.getRequestDispatcher("/");
-		rd.forward(request, response);
+		if(vo2==null){
+			mav.addObject("message", "계정을 확인하여 주시기 바랍니다.");
+			mav.setViewName("/util/alertPage");
+		}else{
+			mav.addObject("referer", referer);
+			mav.setViewName("/util/returnPage");
+		}
+		
+		return mav;
 	}
 
 	@RequestMapping("logout.do")

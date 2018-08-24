@@ -15,6 +15,7 @@
 
 	<div class="content">
 		<form action="/login.do" method="post">
+			<input type="hidden" id="referer" name="referer" value="<%=request.getHeader("referer")%>">
 			<table class="tbl_type02">
 				<tr>
 					<td>아이디</td>

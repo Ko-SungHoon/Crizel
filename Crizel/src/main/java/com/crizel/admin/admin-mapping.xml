@@ -5,20 +5,18 @@
 <mapper namespace="admin">
 	<select id="menuList" resultType="com.crizel.admin.AdminVO">
 		SELECT 
-		    MENU_ID
-		  , MENU_TITLE
-		  , MENU_CD
-		  , PARENT_MENU_CD
-		  , MENU_LEVEL
-		  , MENU_ORDER
-		  , TO_CHAR(REGISTER_DATE, 'YYYY-MM-DD') AS REGISTER_DATE
-		  , TO_CHAR(MODIFY_DATE, 'YYYY-MM-DD') AS MODIFY_DATE
-		  , VIEW_YN
-		  , MENU_TYPE
-		  , CONTENT
+		    MENU_NO
+			, MENU_TITLE
+			, PARENT_MENU_NO
+			, MENU_LEVEL 
+			, MENU_ORDER 
+			, CONTENT_NO 
+			, VIEW_YN 
+			, REGISTER_DATE 
+			, MODIFY_DATE 
 		FROM MENU
 		WHERE VIEW_YN = 'Y'		
-		CONNECT BY PARENT_MENU_CD = MENU_CD
-		ORDER BY MENU_ORDER, MENU_CD
+		CONNECT BY PARENT_MENU_NO = MENU_NO
+		ORDER BY MENU_ORDER, MENU_NO
 	</select>
 </mapper>

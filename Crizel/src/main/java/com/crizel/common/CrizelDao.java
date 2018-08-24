@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.xml.sax.SAXException;
 
+import com.crizel.common.util.Leopard;
+import com.crizel.common.util.Ohys;
 import com.crizel.nyaa.NyaaUtil;
 
 @Repository("dao")

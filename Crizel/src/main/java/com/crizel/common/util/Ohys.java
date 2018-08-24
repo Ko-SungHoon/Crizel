@@ -1,4 +1,4 @@
-package com.crizel.common;
+package com.crizel.common.util;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;

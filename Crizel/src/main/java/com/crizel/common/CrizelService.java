@@ -33,6 +33,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
+import com.crizel.common.util.Nico;
+
 
 @Service("service")
 public class CrizelService {

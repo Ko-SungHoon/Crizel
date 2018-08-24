@@ -4,50 +4,95 @@ import org.springframework.stereotype.Repository;
 
 @Repository("adminVO")
 public class AdminVO {
-	private int g_id;
-	private String name;
-	private String addr;
-	private String type;
-	private String tag1;
-	private String tag2;
+	private int menu_no;
+	private String menu_title;
+	private int parent_menu_no;
+	private int menu_level;
+	private int menu_order;
+	private int content_no;
+	private String view_yn;
+	private String register_date;
+	private String modify_date;
 	
-	public int getG_id() {
-		return g_id;
-	}
-	public void setG_id(int g_id) {
-		this.g_id = g_id;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
-	}
-	public String getAddr() {
-		return addr;
-	}
-	public void setAddr(String addr) {
-		this.addr = addr;
-	}
-	public String getType() {
-		return type;
-	}
-	public void setType(String type) {
-		this.type = type;
-	}
-	public String getTag1() {
-		return tag1;
-	}
-	public void setTag1(String tag1) {
-		this.tag1 = tag1;
-	}
-	public String getTag2() {
-		return tag2;
-	}
-	public void setTag2(String tag2) {
-		this.tag2 = tag2;
-	}
+	//private int content_no;
+	private String content_title;
+	private String content_type;
+	private String content_link;
+	//private String register_date;
+	//private String modify_date;
 	
+	public int getMenu_no() {
+		return menu_no;
+	}
+	public void setMenu_no(int menu_no) {
+		this.menu_no = menu_no;
+	}
+	public String getMenu_title() {
+		return menu_title;
+	}
+	public void setMenu_title(String menu_title) {
+		this.menu_title = menu_title;
+	}
+	public int getParent_menu_no() {
+		return parent_menu_no;
+	}
+	public void setParent_menu_no(int parent_menu_no) {
+		this.parent_menu_no = parent_menu_no;
+	}
+	public int getMenu_level() {
+		return menu_level;
+	}
+	public void setMenu_level(int menu_level) {
+		this.menu_level = menu_level;
+	}
+	public int getMenu_order() {
+		return menu_order;
+	}
+	public void setMenu_order(int menu_order) {
+		this.menu_order = menu_order;
+	}
+	public int getContent_no() {
+		return content_no;
+	}
+	public void setContent_no(int content_no) {
+		this.content_no = content_no;
+	}
+	public String getView_yn() {
+		return view_yn;
+	}
+	public void setView_yn(String view_yn) {
+		this.view_yn = view_yn;
+	}
+	public String getRegister_date() {
+		return register_date;
+	}
+	public void setRegister_date(String register_date) {
+		this.register_date = register_date;
+	}
+	public String getContent_title() {
+		return content_title;
+	}
+	public void setContent_title(String content_title) {
+		this.content_title = content_title;
+	}
+	public String getContent_type() {
+		return content_type;
+	}
+	public void setContent_type(String content_type) {
+		this.content_type = content_type;
+	}
+	public String getContent_link() {
+		return content_link;
+	}
+	public void setContent_link(String content_link) {
+		this.content_link = content_link;
+	}
+	public String getModify_date() {
+		return modify_date;
+	}
+	public void setModify_date(String modify_date) {
+		this.modify_date = modify_date;
+	}
 	
 	
 	

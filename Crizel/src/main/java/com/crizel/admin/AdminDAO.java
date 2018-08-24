@@ -6,8 +6,8 @@ import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-@Repository("adminDao")
-public class AdminDao {
+@Repository("adminDAO")
+public class AdminDAO {
 	@Autowired
     private SqlSessionTemplate sqlSession;
 
