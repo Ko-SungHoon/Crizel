@@ -14,10 +14,17 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.crizel.common.CrizelService;
+
 @Controller
 public class AdminController {
+	AdminService adminService;
+
 	@Autowired
-	private AdminService adminService;
+	public AdminController(AdminService adminService) {
+		super();
+		this.adminService = adminService;
+	}
 
 	@RequestMapping("/admin/main")
 	public ModelAndView main(HttpServletRequest request, HttpServletResponse response, HttpSession session, AdminVO adminVO) {
