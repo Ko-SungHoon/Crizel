@@ -42,38 +42,40 @@ jQuery(document).ready(function(){
 <%@include file="/WEB-INF/jsp/menu.jsp" %>
 
 <div class="content">
-	<ul class="bookMark">
-		<li>
-			<a href="/list.do?mode=nyaa">
-				<img src="/img/video.png" />
-			</a>
-		</li>
-		<li>
-			<a href="/torrent.do">
-				<img src="/img/mans.jpg" />
-			</a>
-		</li>
-		<li>
-			<a href="/onejav.do">
-				<img src="/img/onejav.png" />
-			</a>
-		</li>
-		<li>
-			<a href="https://5siri.com/xe/index.php?mid=manko">
-				<img src="/img/mars.png" />
-			</a>
-		</li>
-		<li>
-			<a href="/girls.do">
-				<img src="/img/nana.jpg" />
-			</a>
-		</li>
-		<li>
-			<a href="/comic.do">
-				<img src="/img/liverpool.jpg" />
-			</a>
-		</li>
-	</ul>
+	<div class="bookMark">	
+		<ul>
+			<li>
+				<a href="/list.do?mode=nyaa">
+					<img src="/img/video.png" />
+				</a>
+			</li>
+			<li>
+				<a href="/torrent.do">
+					<img src="/img/mans.jpg" />
+				</a>
+			</li>
+			<li>
+				<a href="/onejav.do">
+					<img src="/img/onejav.png" />
+				</a>
+			</li>
+			<li>
+				<a href="https://5siri.com/xe/index.php?mid=manko">
+					<img src="/img/mars.png" />
+				</a>
+			</li>
+			<li>
+				<a href="/girls.do">
+					<img src="/img/nana.jpg" />
+				</a>
+			</li>
+			<li>
+				<a href="/comic.do">
+					<img src="/img/liverpool.jpg" />
+				</a>
+			</li>
+		</ul>
+	</div>
 	
 	<div id="spinner">
 		<vue-simple-spinner
