@@ -13,6 +13,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.servlet.ModelAndView;
 
 @Controller
 public class Test {
@@ -63,7 +65,8 @@ public class Test {
 	}
 	
 	@RequestMapping("test2.do")
-	public String test2(){
-		return "../../index";
+	public String test2(MultipartHttpServletRequest request){
+		System.out.println("이건?");
+		return "../../test";
 	}
 }

@@ -1,112 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@page import="java.io.IOException,java.io.InputStreamReader,java.io.UnsupportedEncodingException,java.net.URL,java.util.Calendar " %>
-<%@page import="org.json.simple.JSONArray,org.json.simple.JSONObject,org.json.simple.JSONValue " %>
-<%@page import="javax.servlet.ServletContext" %>
 <!DOCTYPE html>
 <html>
 <head>
-<%@include file="/WEB-INF/jsp/header.jsp" %>
-<style type="text/css">
-</style>
-<script src="/js/main.js"></script>
-
-<script type="text/javascript" src="/pluginfree/js/jquery-1.11.0.min.js"></script>
-<script type="text/javascript" src="/pluginfree/jsp/nppfs.script.jsp"></script>
-<script type="text/javascript" src="/pluginfree/js/nppfs-1.9.0.js" charset="utf-8"></script>
-
-<script type="text/javascript">
-jQuery(document).ready(function(){	
-	npPfsCtrl.isInstall({
-		success : function(){
-			npPfsCtrl.hideLoading();
-			//$("#nos-install").html("설치됨");
-			//alert("보안프로그램이 설치되어 있습니다.");
-		},
-		fail : function(){
-			npPfsCtrl.hideLoading();
-			//alert("보안프로그램의 설치가 필요합니다.");	
-		}
-	});
-	//npPfsStartup("", true, true, false, false, "npkencrypt", "on");
-});
-
-</script>
-
-<title>Crizel</title>
+<meta charset="UTF-8">
+<title>TEST</title>
 </head>
 <body>
-<%@include file="/WEB-INF/jsp/menu.jsp" %>
-
-<div class="content">
-	<ul class="bookMark">
-		<li>
-			<a href="/list.do?mode=nyaa">
-				<img src="/img/video.png" />
-			</a>
-		</li>
-		<li>
-			<a href="/torrent.do">
-				<img src="/img/mans.jpg" />
-			</a>
-		</li>
-		<li>
-			<a href="/onejav.do">
-				<img src="/img/onejav.png" />
-			</a>
-		</li>
-		<li>
-			<a href="https://5siri.com/xe/index.php?mid=manko">
-				<img src="/img/mars.png" />
-			</a>
-		</li>
-		<li>
-			<a href="/girls.do">
-				<img src="/img/nana.jpg" />
-			</a>
-		</li>
-		<li>
-			<a href="/comic.do">
-				<img src="/img/liverpool.jpg" />
-			</a>
-		</li>
-	</ul>
-	
-	<div id="spinner">
-		<vue-simple-spinner
-		    size="big" message="로딩중..."
-		    v-show="loading"
-		></vue-simple-spinner>
-	</div>
-	
-	<table class="tbl_main" id="mainMovie" v-if="records">
-		<colgroup>
-			<col width="15%">
-			<col width="85%">
-		</colgroup>
-		<tr>
-			<th colspan="3"><a href="http://www.cgv.co.kr/theaters/?theaterCode=0081" target="_blank"> {{ records.boxOfficeResult.boxofficeType }} </a></th>
-		</tr>
-		<tr v-for="(record, index) in records.boxOfficeResult.weeklyBoxOfficeList">
-			<td>
-				{{ record.rnum }}
-			</td>
-			<td>
-				<a :href="'http://movie.naver.com/movie/search/result.nhn?query='+record.movieNm+'&section=all&ie=utf8'" target="_blank" >
-					{{ record.movieNm }}
-				</a>
-			</td>
-		</tr>
-		<tr>
-			<td colspan="2">
-				<div id="saramin"></div>
-			</td>
-		</tr>
-	</table>
-	
-	
-</div>
+<form action="/test2.do" method="post" enctype="multipart/form-data">
+	<input type="text" id="test" name="test" required>
+	<input type="file" id="uploadFile" name="uploadFile">
+	<input type="submit" value="전송">
+</form>
 </body>
 </html>

@@ -104,10 +104,7 @@ public class BoardController {
 	}
 
 	@RequestMapping("boardInsert.do")
-	public String boardInsert(@ModelAttribute BoardVO vo,
-			MultipartHttpServletRequest request
-			) throws IllegalStateException,
-			IOException {
+	public String boardInsert(@ModelAttribute BoardVO vo, MultipartHttpServletRequest request) throws IllegalStateException, IOException {
 		String path = "/crizel/upload/"; // 경로
 		String saveFileName; // 저장되는 파일 이름
 		String genId; // 파일 중복명 처리

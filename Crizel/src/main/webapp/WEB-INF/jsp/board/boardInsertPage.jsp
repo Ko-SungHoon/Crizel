@@ -7,17 +7,6 @@
 <head>
 <jsp:include page="/WEB-INF/jsp/header.jsp" />
 <script>
-$(function(){
-	$("#boardInsertSubmit").click(function(){
-		if($.trim($("#title").val()) == ""){
-			alert("제목을 입력하여주십시오");
-		}else if($.trim($("#content").val())==""){
-			alert("내용을 입력하여주십시오");
-		}else{
-			$("#inserForm").attr("post","/boardInsert.do").submit();
-		}
-	});	
-});
 </script>
 <title>insert</title>
 </head>
@@ -34,15 +23,15 @@ $(function(){
 				<table class="tbl_type02">
 					<tr>
 						<th>제목</th>
-						<td><input type="text" id="title" name="title"></td>
+						<td><input type="text" id="title" name="title" required></td>
 					</tr>
 					<tr>
 						<th>작성자</th>
-						<td><input type="text" id="user_nick" name="user_nick" value="${login.nick}"></td>
+						<td><input type="text" id="user_nick" name="user_nick" value="${login.nick}" required></td>
 					</tr>
 					<tr>
 						<th>내용</th>
-						<td><textarea name="content" id="content" style="width: 80%; height: 150px;"></textarea></td>
+						<td><textarea name="content" id="content" style="width: 80%; height: 150px;" required></textarea></td>
 					</tr>
 					<tr>
 						<td colspan="2"><input type="file" id="file" name="file"></td>
@@ -55,7 +44,7 @@ $(function(){
 					</tr>
 				</table>
 				<div class="search">
-					<input type="button" id="boardInsertSubmit" value="글쓰기">
+					<input type="submit" id="boardInsertSubmit" value="글쓰기">
 				</div>
 			</form>
 		</div>

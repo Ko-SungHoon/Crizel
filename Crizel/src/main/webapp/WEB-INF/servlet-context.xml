@@ -24,6 +24,11 @@
 		<beans:property name="order" value="1" />
 	</beans:bean>
 	
+	<!-- MULTIPART RESOLVERS -->  
+	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<beans:property name="maxUploadSize" value="1000000000" />
+	</beans:bean>
+	
 	
 	<beans:bean id="velocityConfig" class="org.springframework.web.servlet.view.velocity.VelocityConfigurer">
 		<beans:property name="resourceLoaderPath" value="/WEB-INF/jsp/" />
