@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="football">
+	<select id="lastGame" resultType="com.crizel.football.FootballVO">
+		SELECT 
+			GAME_NO,
+			TEAM_NO,
+			OPPONENT_NO,
+			GAME_SEASON,
+			GAME_TYPE,
+			GAME_DATE,
+			HOME_YN,
+			OUR_SCORE,
+			OPPONENT_SCORE,
+			(SELECT TEAM_NAME FROM FOOTBALL_TEAM WHERE TEAM_NO = A.TEAM_NO) AS TEAM_NAME,
+			(SELECT TEAM_NAME FROM FOOTBALL_TEAM WHERE TEAM_NO = A.OPPONENT_NO) AS TEAM_NAME2
+		FROM FOOTBALL_GAME A
+		WHERE TEAM_NO = 1 
+			  AND GAME_NO = (SELECT MAX(GAME_NO) 
+						 	 FROM FOOTBALL_GAME
+						 	) 
+	</select>
+	
+	<select id="teamInfo" parameterType="com.crizel.football.FootballVO" resultType="com.crizel.football.FootballVO">
+		SELECT *
+		FROM FOOTBALL_TEAM
+		WHERE TEAM_NO = #{team_no}
+	</select>
+	
+	<insert id="teamInsertAction" parameterType="com.crizel.football.FootballVO">
+		INSERT INTO FOOTBALL_TEAM(TEAM_NO, TEAM_NAME)
+		VALUES((SELECT NVL(MAX(TEAM_NO)+1,1) FROM FOOTBALL_TEAM), #{team_name})
+	</insert>
+	
+	<update id="teamUpdateAction" parameterType="com.crizel.football.FootballVO">
+		UPDATE FOOTBALL_TEAM SET TEAM_NAME = #{team_name} WHERE TEAM_NO = #{team_no}
+	</update>
+	
+	<select id="teamList" parameterType="com.crizel.football.FootballVO" resultType="com.crizel.football.FootballVO">
+		SELECT *
+		FROM FOOTBALL_TEAM
+		ORDER BY TEAM_NO
+	</select>
+	
+	<select id="playerList" parameterType="com.crizel.football.FootballVO" resultType="com.crizel.football.FootballVO">
+		SELECT *
+		FROM FOOTBALL_PLAYER
+		ORDER BY PLAYER_NO
+	</select>
+	
+	<select id="playerInfo" parameterType="com.crizel.football.FootballVO" resultType="com.crizel.football.FootballVO">
+		SELECT *
+		FROM FOOTBALL_PLAYER
+		WHERE PLAYER_NO = #{player_no}
+	</select>
+	
+	<select id="playerInfoList" parameterType="com.crizel.football.FootballVO" resultType="com.crizel.football.FootballVO">
+		SELECT *
+		FROM FOOTBALL_PLAYER_INFO
+		WHERE PLAYER_NO = #{player_no} 
+		ORDER BY SEASON
+	</select>
+	
+	<insert id="playerInsertAction" parameterType="com.crizel.football.FootballVO">
+		INSERT INTO FOOTBALL_PLAYER(PLAYER_NO, TEAM_NO, PLAYER_NAME, PLAYER_ENG_NAME, PLAYER_BIRTHDAY, PLAYER_NUMBER)
+		VALUES((SELECT NVL(MAX(PLAYER_NO)+1,1) FROM FOOTBALL_PLAYER)
+				, #{team_no}
+				, #{player_name}
+				, #{player_eng_name}
+				, #{player_birthday}
+				, #{player_number}
+				, #{player_country}
+			  	)
+	</insert>
+	
+	<update id="playerUpdateAction" parameterType="com.crizel.football.FootballVO">
+		UPDATE FOOTBALL_PLAYER SET 
+			PLAYER_NAME 		= #{player_name} 
+			, PLAYER_ENG_NAME 	= #{player_eng_name} 
+			, PLAYER_BIRTHDAY 	= #{player_birthday} 
+			, PLAYER_NUMBER 	= #{player_number} 
+			, PLAYER_COUNTRY 	= #{player_country} 
+		WHERE PLAYER_NO = #{player_no}
+	</update>
+	
+</mapper>

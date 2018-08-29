@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -403,9 +404,16 @@ public class CrizelController {
 		}
 		
 		ModelAndView mav = new ModelAndView();
+		
+		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+		
+		for(int i=1; i<=4; i++){
+			
+		}
 
 		OneJav oj = new OneJav();
-		mav.addObject("list", oj.getList(addr));
+		addr += "?page=";
+		mav.addObject("list", oj.getList(addr, 1, oj.getPageCount(addr)));
 		mav.addObject("addr", addr);
 		mav.addObject("year", year);
 		mav.addObject("month", month);

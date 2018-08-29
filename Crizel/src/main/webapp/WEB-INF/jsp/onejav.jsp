@@ -83,22 +83,26 @@ function postFormSubmit(){
 			</select>
 			<%-- <input type="text" id="addr" name="addr" value="${addr}" placeholder="http://www.onejav.com/"> --%>
 			<button>검색</button>
-			<button type="button" onclick="allNewTap()">전체 다운</button>
+			<!-- <button type="button" onclick="allNewTap()">전체 다운</button> -->
 		</form>
 	</div>
 	<table class="tbl_type01">
 	<colgroup>
-		<col width="10%">
-		<col width="90%">
+		<col width="20%">
+		<col width="80%">
 	</colgroup>
 		<tr>
-			<th><input type="checkbox" id="allCheck" onclick="allCheck()"></th>
+			<!-- <th><input type="checkbox" id="allCheck" onclick="allCheck()"></th> -->
+			<th>이름</th>
 			<th>사진</th>
 		</tr>
 	<c:forEach items="${list}" var="ob" varStatus="status">
 		<tr>
-			<td>
+			<%-- <td>
 				<input type="checkbox" name="select" value="${ob.addr}">
+			</td> --%>
+			<td>
+				<a href="${ob.name_link}">${ob.name}</a>
 			</td>
 			<td>
 				<a href="${ob.addr}" target="_blank">
@@ -108,9 +112,9 @@ function postFormSubmit(){
 		</tr>
 	</c:forEach>
 	</table>
-	<div class="search center">
+	<!-- <div class="search center">
 		<button type="button" onclick="allNewTap()">전체 다운</button>
-	</div>
+	</div> -->
 </div>
 </body>
 </html>

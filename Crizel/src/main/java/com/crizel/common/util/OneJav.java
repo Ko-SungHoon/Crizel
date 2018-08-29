@@ -14,52 +14,78 @@ import org.jsoup.select.Elements;
 public class OneJav {
 	/*public static void main(String[] args) throws Exception {
 		OneJav oj = new OneJav();
-		String addr			= "/torrent/mudr032";
+		//String addr			= "/torrent/mudr032";
+		String addr 		= "http://www.onejav.com/2018/08/28?page=";
 		
-		oj.getList("http://www.onejav.com/2018/04/16");
+		List<Map<String,Object>> list = oj.getList(addr, 1, oj.getPageCount(addr));
 		
-		//oj.getView("http://www.onejav.com/" + addr);
+		for(Map<String,Object> ob : list){
+			System.out.println("title : " + ob.get("title"));
+			System.out.println("addr : " + ob.get("addr"));
+			System.out.println("img : " + ob.get("img"));
+			System.out.println("name : " + ob.get("name"));
+			System.out.println("name_link : " + ob.get("name_link") + "\n");
+		}
+		
+		//oj.test("http://www.onejav.com/2018/08/28?page=1");
 		
 	}*/
 	
-	public List<Map<String,Object>> getList(String addr){
-		String URL 						= addr;
+	public List<Map<String,Object>> getList(String addr, int page, int pageCount){
+		String URL 						= addr + Integer.toString(page);
         Document doc 					= null;
         List<Map<String,Object>> list 	= new ArrayList<Map<String,Object>>();
         Map<String,Object> map			= null;
-        
+
+        Elements nameElem 				= null;
         Elements imgElem 				= null;
         Elements linkElem 				= null;
         
 		try {
+			//System.out.println("===시작===");
 			doc = Jsoup.connect(URL)
-					.userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36")
-            		.header("charset", "utf-8")
-    				.header("Accept-Encoding", "gzip")
-    				.timeout(3000000)
+					.userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36")
+					.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+					.header("Accept-Encoding", "gzip, deflate, br")
+					.header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
+					.header("Cache-Control", "max-age=0")
+					.header("Connection", "keep-alive")
+					.header("Host", "onejav.com")
+					.header("Upgrade-Insecure-Requests", "1")
+            		.timeout(1000 * 60 * 60)
 					.get();
 			//System.out.println(doc);
 			
-			imgElem = doc.select(".card.mb-3 .image");
-			linkElem = doc.select(".card.mb-3 .title.is-4.is-spaced a");
+			nameElem	= doc.select(".card.mb-3 .panel .panel-block");
+			imgElem 	= doc.select(".card.mb-3 .image");
+			linkElem 	= doc.select(".card.mb-3 .title.is-4.is-spaced a");
 			
 			for(int i=0; i<imgElem.size(); i++){
 				map = new HashMap<String,Object>();
-				Element img = imgElem.get(i);
-				Element link = linkElem.get(i);
+				Element name = nameElem!=null && nameElem.size()>i?nameElem.get(i):null;
+				Element img = imgElem!=null && imgElem.size()>i?imgElem.get(i):null;
+				Element link = linkElem!=null && linkElem.size()>i?linkElem.get(i):null;
 				
-				map.put("img", img.attr("src"));
-				map.put("addr", "http://www.onejav.com/" + getView("http://www.onejav.com/" + link.attr("href")));
-				map.put("title", link.text());
+				map.put("img", img!=null?img.attr("src"):"");
+				map.put("addr", link!=null?"http://www.onejav.com/" + getView("http://www.onejav.com/" + link.attr("href")):"");
+				map.put("title", link!=null?link.text():"");
+				map.put("name", name!=null?name.text():"");
+				map.put("name_link", name!=null?"http://www.onejav.com/" + name.attr("href"):"");
 				
 				list.add(map);
 			}
+			//System.out.println("===종료===");
+			
+			if(pageCount>page){
+				//System.out.println("===다음 페이지로===");
+				//System.out.println("현재 페이지 : " + page);
+				list.addAll(getList(addr, page+1, pageCount));
+			}
+			
 		} catch (Exception e) {
 			System.out.println(e);
+			list = null;
 		}
-		
-		
-		
         return list;
 	}
 	
@@ -70,23 +96,56 @@ public class OneJav {
         
         try {
 			doc = Jsoup.connect(URL)
-					.userAgent("Mozilla/5.0 (Windows NT 6.2; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36")
-            		.header("charset", "utf-8")
-    				.header("Accept-Encoding", "gzip")
-    				.timeout(3000000)
+					.userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36")
+					.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+					.header("Accept-Encoding", "gzip, deflate, br")
+					.header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
+					.header("Cache-Control", "max-age=0")
+					.header("Connection", "keep-alive")
+					.header("Host", "onejav.com")
+					.header("Upgrade-Insecure-Requests", "1")
+            		.timeout(1000 * 60 * 60)
 					.get();
 			//System.out.println(doc);
-			
-			linkElem = doc.select(".button.is-primary.is-fullwidth");
-	        
-			Element link = linkElem.get(0);
-	        
-			addr = link.attr("href");
-		} catch (Exception e1) {
-			System.out.println(e1);
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
+        
+        linkElem = doc.select(".button.is-primary.is-fullwidth");
+        
+		Element link = linkElem.get(0);
+        
+		addr = link.attr("href");
 		
         return addr;
+	}
+
+	
+	public int getPageCount(String addr){
+		String URL 						= addr;
+        Document doc 					= null;
+		Elements pagingElem	 			= null;
+        
+		try {
+			doc = Jsoup.connect(URL)
+					.userAgent("Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3440.106 Safari/537.36")
+					.header("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8")
+					.header("Accept-Encoding", "gzip, deflate, br")
+					.header("Accept-Language", "ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7")
+					.header("Cache-Control", "max-age=0")
+					.header("Connection", "keep-alive")
+					.header("Host", "onejav.com")
+					.header("Upgrade-Insecure-Requests", "1")
+            		.timeout(1000 * 60 * 60)
+					.get();
+			//System.out.println(doc);
+			pagingElem = doc.select(".pagination-list li");
+			
+		}catch(Exception e){
+			System.out.println(e.toString());
+		}
+		
+		return pagingElem.size();
 	}
 	
 	/*public void ImageStream(String fileValue, HttpServletRequest request, HttpServletResponse response) {
