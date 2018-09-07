@@ -40,7 +40,7 @@
 				<td>
 					<ul>
 						<c:forEach items="${fileList }" var="ob">
-						<li><a href="#">${ob.real_name }</a></li>	
+						<li><a href="javascript:fileDown('${ob.f_no}')">${ob.real_name }</a><a href="javascript:fileDelete('${ob.f_no }')">[삭제]</a></li>	
 						</c:forEach>
 						<c:forEach begin="1" end="${fileSize }">
 						<li><input type="file" name="uploadFile"></li>
@@ -54,5 +54,28 @@
 		</div>
 	</form>
 </div>
+<script>
+function fileDown(f_no){
+	location.href="/download.do?f_no=" + f_no;
+}
+function fileDelete(f_no){
+	if(confirm("삭제한 파일은 복구할 수 없습니다\n삭제하시겠습니까?")){
+		$.ajax({
+			type : "POST",
+			url : "/fileDelete.do",
+			data : { 
+				"f_no" : f_no
+			},
+			dataType : "text",
+			async : false,
+			success : function(data){
+			},
+			error:function(request,status,error){
+		        $("#errorMsg").html("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+		    }
+		});
+	}
+}
+</script>
 </body>
 </html>

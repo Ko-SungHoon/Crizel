@@ -50,6 +50,10 @@ public class BoardDao {
 		return sqlSession.selectOne("board.fileInfo", boardVO);
 	}
 
+	public int fileDelete(BoardVO boardVO) {
+		return sqlSession.delete("board.fileDelete", boardVO);
+	}
+
 	
 
 }

@@ -231,4 +231,10 @@
 		FROM BOARD_FILE
 		WHERE F_NO = #{f_no}
 	</select>
+	
+	<delete id="fileDelete" parameterType="com.crizel.board.BoardVO">
+		DELETE 
+		FROM BOARD_FILE
+		WHERE F_NO = #{f_no}
+	</delete>
 </mapper>

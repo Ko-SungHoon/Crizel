@@ -54,8 +54,8 @@ function boardWritePage(){
 			<th>조회수</th>
 		</tr>
 		<c:choose>
-			<c:when test="${fn:length(boardList) > 0}">
-			<c:forEach items="${boardList}" var="ob">
+			<c:when test="${fn:length(boardMap.boardList) > 0}">
+			<c:forEach items="${boardMap.boardList}" var="ob">
 			<tr>
 				<td>${ob.rnum }</td>
 				<td><a href="/boardRead.do?b_no=${ob.b_no}">${ob.title }</a></td>
@@ -74,6 +74,24 @@ function boardWritePage(){
 	</table>
 	<div class="search">
 		<button type="button" onclick="boardWritePage();">글쓰기</button>
+	</div>
+	<div class="paging">
+		<c:if test="${boardMap.boardVO.totalCount > 0}">
+			<a href="/board.do?pageNo=1">처음</a>
+			<a href="/board.do?pageNo=${boardMap.boardVO.startPage>1?boardMap.boardVO.startPage-boardMap.boardVO.countPage:1}">이전</a>
+			<c:forEach begin="${boardMap.boardVO.startPage}" end="${boardMap.boardVO.endPage }" varStatus="i">
+				<c:choose>
+					<c:when test="${boardMap.boardVO.pageNo eq i.count}">
+						${i.count}
+					</c:when>
+					<c:otherwise>
+						<a href="/board.do?pageNo=${i.count }">${i.count }</a>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+			<a href="/board.do?pageNo=${boardMap.boardVO.endPage<boardMap.boardVO.totalPage?boardMap.boardVO.endPage+1:boardMap.boardVO.totalPage}">다음</a>
+			<a href="/board.do?pageNo=${boardMap.boardVO.totalPage}">마지막</a>
+		</c:if>
 	</div>
 </div>
 </body>

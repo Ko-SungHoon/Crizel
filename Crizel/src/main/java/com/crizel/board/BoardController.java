@@ -3,19 +3,23 @@ package com.crizel.board;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
@@ -32,9 +36,9 @@ public class BoardController {
 	public ModelAndView board(HttpServletRequest request, HttpServletResponse response, HttpSession session, BoardVO boardVO) {
 		ModelAndView mav = new ModelAndView();
 		
-		List<BoardVO> boardList = service.boardList(boardVO);
+		Map<String,Object> boardMap = service.boardList(boardVO);
 		
-		mav.addObject("boardList", boardList);
+		mav.addObject("boardMap", boardMap);
 		mav.addObject("pageNo", boardVO.getPageNo());
 		mav.setViewName("/board/list");
 		return mav;
@@ -218,6 +222,17 @@ public class BoardController {
 
 			}
 
+		}
+	}
+	
+	@RequestMapping("fileDelete.do")
+	public void fileDelete(HttpServletRequest request, HttpServletResponse response, HttpSession session, BoardVO boardVO) throws Exception {
+		int fileDelete = service.fileDelete(boardVO);
+		response.setContentType("application/text; charset=UTF-8");
+		if(fileDelete>0){
+			response.getWriter().print("1");
+		}else{
+			response.getWriter().print("0");
 		}
 	}
 

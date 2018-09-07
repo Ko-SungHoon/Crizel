@@ -1,6 +1,8 @@
 package com.crizel.board;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -11,7 +13,8 @@ public class BoardService {
 	@Resource(name="boardDao")
     private BoardDao dao;
 
-	public List<BoardVO> boardList(BoardVO boardVO) {
+	public Map<String, Object> boardList(BoardVO boardVO) {
+		Map<String,Object> map = new HashMap<String,Object>();
 		int pageNo 		= boardVO.getPageNo();
 		int totalCount 	= dao.totalCount(boardVO);
 		int countList 	= boardVO.getCountList(); 	// 한 페이지에 출력될 게시물 수
@@ -36,7 +39,10 @@ public class BoardService {
 		boardVO.setStartRow(startRow);
 		boardVO.setEndRow(endRow);
 		
-		return dao.boardList(boardVO);
+		map.put("boardList", dao.boardList(boardVO));
+		map.put("boardVO", boardVO);
+		
+		return map;
 	}
 
 	public BoardVO boardInfo(BoardVO boardVO) {
@@ -61,5 +67,9 @@ public class BoardService {
 
 	public BoardVO fileInfo(BoardVO boardVO) {
 		return dao.fileInfo(boardVO);
+	}
+
+	public int fileDelete(BoardVO boardVO) {
+		return dao.fileDelete(boardVO);
 	}
 }

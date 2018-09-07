@@ -49,11 +49,11 @@
 		</tr>
 	</table>
 	<div class="search">
-		<button type="button" onclick="location.href='${listUrl}'">목록</button>
 		<c:if test="${login.id eq boardInfo.user_id}">
 			<button type="button" onclick="boardUpdate('${boardInfo.b_no}');">수정</button>
 			<button type="button" onclick="boardDelete('${boardInfo.b_no}');">삭제</button>
 		</c:if>
+		<button type="button" onclick="location.href='${listUrl}'">목록</button>
 	</div>
 </div>
 <script>
