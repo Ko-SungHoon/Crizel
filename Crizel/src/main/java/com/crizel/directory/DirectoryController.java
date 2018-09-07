@@ -1,8 +1,14 @@
 package com.crizel.directory;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URLEncoder;
 import java.util.List;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -71,6 +77,58 @@ public class DirectoryController {
 		}else{
 			ImageView iv = new ImageView();
 			iv.ImageStream(fileValue, request, response);
+		}
+	}
+	
+	@RequestMapping("directoryDownload.do")
+	public void download(
+			@RequestParam(value="directory", required=false) String directory, 
+			@RequestParam(value="filename", required=false) String filename, 
+			@RequestParam(value="check", required=false) String check,
+			HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		String realname = filename;
+		
+		String docName = URLEncoder.encode(realname, "UTF-8").replaceAll("\\+", " ");
+		//directory = URLEncoder.encode(directory, "UTF-8").replaceAll("\\+", " ");
+
+		String filePath = directory + "/" + realname;
+		
+		try {
+			File file = new File(filePath);
+			if (!file.exists()) {
+				try {
+					throw new Exception();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+
+			response.setHeader("Content-Disposition", "attachment;filename=" + docName + ";");
+			response.setHeader("Content-Type", "application/octet-stream");
+			response.setContentLength((int) file.length());
+			response.setHeader("Content-Transfer-Encoding", "binary;");
+			response.setHeader("Pragma", "no-cache;");
+			response.setHeader("Expires", "-1;");
+			int read;
+			byte readByte[] = new byte[4096];
+
+			BufferedInputStream fin = new BufferedInputStream(new FileInputStream(file));
+			OutputStream outs = response.getOutputStream();
+
+			while ((read = fin.read(readByte, 0, 4096)) != -1) {
+				outs.write(readByte, 0, read);
+			}
+
+			outs.flush();
+			outs.close();
+			fin.close();
+
+		} catch (java.io.IOException e) {
+			if (!e.getClass().getName().equals("org.apache.catalina.connector.ClientAbortException")) {
+
+			}
+
 		}
 	}
 	

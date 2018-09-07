@@ -142,9 +142,10 @@ public class CrizelController {
 		
 		if(vo2==null){
 			mav.addObject("message", "계정을 확인하여 주시기 바랍니다.");
+			mav.addObject("returnPage", referer);
 			mav.setViewName("/util/alertPage");
 		}else{
-			mav.addObject("referer", referer);
+			mav.addObject("returnPage", referer);
 			mav.setViewName("/util/returnPage");
 		}
 		

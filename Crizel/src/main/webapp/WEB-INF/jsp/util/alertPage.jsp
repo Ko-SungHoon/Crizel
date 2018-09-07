@@ -8,7 +8,7 @@
 <script>
 $(function(){
 	alert("${message}");
-	location.href="/loginPage.do";
+	location.href="${returnPage}";
 });
 </script>
 </head>

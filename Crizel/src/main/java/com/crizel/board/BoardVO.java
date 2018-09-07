@@ -5,62 +5,193 @@ import org.springframework.stereotype.Repository;
 @Repository("boardVO")
 public class BoardVO {
 	//게시판
-	private int rnum;
-	private int b_id;
-	private int b_group;
-	private int b_level;
-	private String title;
-	private String user_nick;
-	private String content;
-	private int view_count;
-	private String notice;
-	private String secret;
-	private String password;
-	private String register_date;
-	private String modify_date;
-	private String delete_status;
-	private String tmp_field1;
-	private String tmp_field2;
-	private String tmp_field3;
-	private String tmp_field4;
-	private String tmp_field5;
-	private String tmp_field6;
-	private String tmp_field7;
-	private String tmp_field8;
-	private String tmp_field9;
-	private String tmp_field10;
+	private int rnum = 0;
+	private int b_no = 0;
+	private int parent_b_no = 0;
+	private int b_level = 0;
+	private String title = "";
+	private String user_nick = "";
+	private String user_id = "";
+	private String content = "";
+	private int view_count = 0;
+	private String notice = "";
+	private String secret = "";
+	private String password = "";
+	private String register_date = "";
+	private String modify_date = "";
+	private String delete_status = "";
+	private String tmp_field1 = "";
+	private String tmp_field2 = "";
+	private String tmp_field3 = "";
+	private String tmp_field4 = "";
+	private String tmp_field5 = "";
+	private String tmp_field6 = "";
+	private String tmp_field7 = "";
+	private String tmp_field8 = "";
+	private String tmp_field9 = "";
+	private String tmp_field10 = "";
 	
 	//첨부파일
-	private int f_id;
-	private String directory;
-	private String save_name;
-	private String real_name;
+	private int f_no = 0;
+	private String directory = "";
+	private String save_name = "";
+	private String real_name = "";
 	
 	//댓글
-	private int c_id;
-	private int c_group;
-	private int c_level;
+	private int c_no = 0;
+	private int c_group = 0;
+	private int c_level = 0;
+	
+	// 검색조건
+	private String search1 = "";
+	private String search2 = "";
+	private String search3 = "";
+	private String search4 = "";
+	private String search5 = "";
+	private String keyword = "";
+	private String order1 = "";
+	private String order2 = "";
+	private String order3 = "";
+	
+	// 페이징
+	private int pageNo = 1;
+	private int countList = 10; 	// 한 페이지에 출력될 게시물 수
+	private int countPage = 10; 	// 한 화면에 출력될 페이지 수
+	private int totalCount = 0;		// 전체 게시물 수
+	private int totalPage = 0;		// 전체 페이지
+	private int startPage = 0;		// 시작 페이지
+	private int endPage = 0;		// 마지막 페이지
+	private int startRow = 0;
+	private int endRow = 0; 
 	
 	
 	
+	public int getPageNo() {
+		return pageNo;
+	}
+	public void setPageNo(int pageNo) {
+		this.pageNo = pageNo;
+	}
 	
+	public int getCountList() {
+		return countList;
+	}
+	public void setCountList(int countList) {
+		this.countList = countList;
+	}
+	public int getCountPage() {
+		return countPage;
+	}
+	public void setCountPage(int countPage) {
+		this.countPage = countPage;
+	}
+	public int getTotalCount() {
+		return totalCount;
+	}
+	public void setTotalCount(int totalCount) {
+		this.totalCount = totalCount;
+	}
+	public int getTotalPage() {
+		return totalPage;
+	}
+	public void setTotalPage(int totalPage) {
+		this.totalPage = totalPage;
+	}
+	public int getStartPage() {
+		return startPage;
+	}
+	public void setStartPage(int startPage) {
+		this.startPage = startPage;
+	}
+	public int getEndPage() {
+		return endPage;
+	}
+	public void setEndPage(int endPage) {
+		this.endPage = endPage;
+	}
+	public int getStartRow() {
+		return startRow;
+	}
+	public void setStartRow(int startRow) {
+		this.startRow = startRow;
+	}
+	public int getEndRow() {
+		return endRow;
+	}
+	public void setEndRow(int endRow) {
+		this.endRow = endRow;
+	}
+	public String getSearch1() {
+		return search1;
+	}
+	public void setSearch1(String search1) {
+		this.search1 = search1;
+	}
+	public String getSearch2() {
+		return search2;
+	}
+	public void setSearch2(String search2) {
+		this.search2 = search2;
+	}
+	public String getSearch3() {
+		return search3;
+	}
+	public void setSearch3(String search3) {
+		this.search3 = search3;
+	}
+	public String getSearch4() {
+		return search4;
+	}
+	public void setSearch4(String search4) {
+		this.search4 = search4;
+	}
+	public String getSearch5() {
+		return search5;
+	}
+	public void setSearch5(String search5) {
+		this.search5 = search5;
+	}
+	public String getKeyword() {
+		return keyword;
+	}
+	public void setKeyword(String keyword) {
+		this.keyword = keyword;
+	}
+	public String getOrder1() {
+		return order1;
+	}
+	public void setOrder1(String order1) {
+		this.order1 = order1;
+	}
+	public String getOrder2() {
+		return order2;
+	}
+	public void setOrder2(String order2) {
+		this.order2 = order2;
+	}
+	public String getOrder3() {
+		return order3;
+	}
+	public void setOrder3(String order3) {
+		this.order3 = order3;
+	}
 	public int getRnum() {
 		return rnum;
 	}
 	public void setRnum(int rnum) {
 		this.rnum = rnum;
 	}
-	public int getB_id() {
-		return b_id;
+	public int getB_no() {
+		return b_no;
 	}
-	public void setB_id(int b_id) {
-		this.b_id = b_id;
+	public void setB_no(int b_no) {
+		this.b_no = b_no;
 	}
-	public int getB_group() {
-		return b_group;
+	public int getParent_b_no() {
+		return parent_b_no;
 	}
-	public void setB_group(int b_group) {
-		this.b_group = b_group;
+	public void setParent_b_no(int parent_b_no) {
+		this.parent_b_no = parent_b_no;
 	}
 	public int getB_level() {
 		return b_level;
@@ -79,6 +210,16 @@ public class BoardVO {
 	}
 	public void setUser_nick(String user_nick) {
 		this.user_nick = user_nick;
+	}
+	
+	public String getUser_id() {
+		return user_id;
+	}
+	public void setUser_id(String user_id) {
+		this.user_id = user_id;
+	}
+	public void setC_no(int c_no) {
+		this.c_no = c_no;
 	}
 	public String getContent() {
 		return content;
@@ -188,11 +329,11 @@ public class BoardVO {
 	public void setTmp_field10(String tmp_field10) {
 		this.tmp_field10 = tmp_field10;
 	}
-	public int getF_id() {
-		return f_id;
+	public int getF_no() {
+		return f_no;
 	}
-	public void setF_id(int f_id) {
-		this.f_id = f_id;
+	public void setF_no(int f_no) {
+		this.f_no = f_no;
 	}
 	public String getDirectory() {
 		return directory;
@@ -212,11 +353,8 @@ public class BoardVO {
 	public void setReal_name(String real_name) {
 		this.real_name = real_name;
 	}
-	public int getC_id() {
-		return c_id;
-	}
-	public void setC_id(int c_id) {
-		this.c_id = c_id;
+	public int getC_no() {
+		return c_no;
 	}
 	public int getC_group() {
 		return c_group;

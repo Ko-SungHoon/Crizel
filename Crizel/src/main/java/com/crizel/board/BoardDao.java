@@ -12,50 +12,44 @@ public class BoardDao {
 	@Autowired
     private SqlSessionTemplate sqlSession;
 
-	public int totalCount(Map<String, Object> map) {
-		return sqlSession.selectOne("board.totalCount", map);
+	public int totalCount(BoardVO boardVO) {
+		return sqlSession.selectOne("board.totalCount", boardVO);
 	}
 
-	public void boardInsert(BoardVO vo) {
-		sqlSession.insert("board.boardInsert", vo);
+	public List<BoardVO> boardList(BoardVO boardVO) {
+		return sqlSession.selectList("board.boardList", boardVO);
 	}
 
-	public List<Object> board(Map<String, Object> map) {
-		return sqlSession.selectList("board.board", map);
+	public BoardVO boardInfo(BoardVO boardVO) {
+		sqlSession.update("board.viewCountIncrease", boardVO);
+		return sqlSession.selectOne("board.boardInfo", boardVO);
 	}
 
-	public BoardVO boardContent(BoardVO vo) {
-		return sqlSession.selectOne("board.boardContent", vo);
+	public List<BoardVO> fileList(BoardVO boardVO) {
+		return sqlSession.selectList("board.fileList", boardVO);
 	}
 
-	public void boardDelete(int b_id) {
-		sqlSession.update("board.boardDelete", b_id);
-		sqlSession.delete("board.fileAllDel", b_id);
+	public int boardWriteAction(BoardVO boardVO) {
+		if(boardVO.getB_no()==0){
+			return sqlSession.insert("board.boardWriteAction", boardVO);
+		}else{
+			return sqlSession.update("board.boardUpdateAction", boardVO);
+		}
+		
 	}
 
-	public void boardUpdate(BoardVO vo) {
-		sqlSession.update("board.boardUpdate", vo);
+	public void boardFileWrite(BoardVO boardVO) {
+		sqlSession.insert("board.boardFileWrite", boardVO);
 	}
 
-	public int searchBId() {
-		return sqlSession.selectOne("board.searchBId");
+	public int boardDelete(BoardVO boardVO) {
+		return sqlSession.update("board.boardDelete", boardVO);
 	}
 
-	public void fileInsert(BoardVO vo) {
-		sqlSession.insert("board.fileInsert", vo);
+	public BoardVO fileInfo(BoardVO boardVO) {
+		return sqlSession.selectOne("board.fileInfo", boardVO);
 	}
 
-	public String realName(String filename) {
-		return sqlSession.selectOne("board.realName", filename);
-	}
-
-	public List<BoardVO> boardContentFile(BoardVO vo) {
-		return sqlSession.selectList("board.boardContentFile", vo);
-	}
-
-	public void boardFileDel(BoardVO vo) {
-		sqlSession.delete("board.boardFileDel", vo);
-	}
-
+	
 
 }

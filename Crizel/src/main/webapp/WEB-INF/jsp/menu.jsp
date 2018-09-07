@@ -44,6 +44,7 @@ $(function(){
 		<li><a href="#">링크</a>
 			<ul>
 				<li><a href="/comic.do">만화</a></li>
+				<li><a href="/mhw/main.do">몬헌</a></li>
 				<li><a href="/football/main.do">축구</a></li>
 				<li><a href="/nyaa.do">Nyaa</a></li>
 				<li><a href="/music.do">MUSIC</a></li>
@@ -58,7 +59,7 @@ $(function(){
 				<li><a href="https://hentaku.net/poombun.php">검색기</a></li>
 				<li><a href="/test.do">TEST</a></li>
 			</ul></li>
-		<li><a href="/board.do?pageParam=1">게시판</a></li>
+		<li><a href="/board.do">게시판</a></li>
 	</ul>
 	<span class="login_menu">
 		<c:if test="${login eq null}">

@@ -3,175 +3,232 @@
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="board">
-	<select id="board" parameterType="HashMap" resultType="com.crizel.board.BoardVO">
-		select *
-		from (
-			select rownum as rnum, A.*
-			from (
-					select b_id, b_group, b_level, title, user_nick, content, view_count, notice, secret, password, 
-							to_char(register_date, 'yyyy-mm-dd') register_date, to_char(modify_date, 'yyyy-mm-dd') modify_date,
-							delete_status, tmp_field1, tmp_field2, tmp_field3, tmp_field4, tmp_field5, tmp_field6, tmp_field7, tmp_field8, 
-							tmp_field9, tmp_field10 
-					from board
-					where delete_status = 'N'	
+	
+	<select id="totalCount" parameterType="com.crizel.board.BoardVO" resultType="Integer">
+		SELECT COUNT(1)
+		FROM BOARD
+		WHERE DELETE_STATUS = 'N'
+		<if test="keyword != null">
 			<choose>
-				<when test="search1 == 'titleContent' and keyword != null">
-					and ( title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%' )
+				<when test="search1 == 'TITLE'">
+					AND TITLE LIKE '%'||#{keyword}||'%'
 				</when>
-				<when test="search1 == 'title' and keyword != null">
-					and title like '%'||#{keyword}||'%'
+				<when test="search1 == 'CONTENT'">
+					AND CONTENT LIKE '%'||#{keyword}||'%'
 				</when>
-				<when test="search1 == 'user_nick' and keyword != null">
-					and user_nick like '%'||#{keyword}||'%'
+				<when test="search1 == 'TITLE+CONTENT'">
+					AND (TITLE LIKE '%'||#{keyword}||'%' OR CONTENT LIKE '%'||#{keyword}||'%')
 				</when>
-				<when test="search1 == 'content' and keyword != null">
-					and content like '%'||#{keyword}||'%'
+				<when test="search1 == 'USER_NICK'">
+					AND USER_NICK LIKE '%'||#{keyword}||'%'
 				</when>
-			</choose>				
-					order by b_group, b_id desc
-				) A
-				where rownum <![CDATA[ <= ]]> #{endRow}
-			) X
-		where rnum <![CDATA[ >= ]]> #{startRow}
-		order by rnum desc
-	</select>
-
-	<select id="totalCount" parameterType="HashMap" resultType="int">
-		select count(*) from board where delete_status = 'N'
-	<choose>
-		<when test="search1 == 'titleContent' and keyword != null">
-			and ( title like '%'||#{keyword}||'%' or content like '%'||#{keyword}||'%' )
-		</when>
-		<when test="search1 == 'title' and keyword != null">
-			and title like '%'||#{keyword}||'%'
-		</when>
-		<when test="search1 == 'user_nick' and keyword != null">
-			and user_nick like '%'||#{keyword}||'%'
-		</when>
-		<when test="search1 == 'content' and keyword != null">
-			and content like '%'||#{keyword}||'%'
-		</when>
-	</choose>
-	</select>
-
-	<insert id="boardInsert" parameterType="com.crizel.board.BoardVO">
-		insert into board(
-			b_id, 
-			b_group, 
-			b_level, 
-			title, 
-			user_nick, 
-			content, 
-			view_count, 
-			notice, 
-			secret, 
-			password, 
-			register_date, 
-			modify_date, 
-			delete_status, 
-			tmp_field1, 
-			tmp_field2, 
-			tmp_field3, 
-			tmp_field4, 
-			tmp_field5,
-			tmp_field6, 
-			tmp_field7, 
-			tmp_field8, 
-			tmp_field9, 
-			tmp_field10)
-		values(
-			(select nvl(max(b_id)+1,1) from board), 
-			<choose>
-				<when test="b_group > 0">
-					#{b_group},
-				</when>
-				<otherwise>
-					(select nvl(max(b_group)+1,1) from board),
-				</otherwise>
 			</choose>
-			#{b_level}, 
-			#{title}, 
-			#{user_nick}, 
-			#{content}, 
-			#{view_count}, 
-			#{notice},
-			#{secret}, 
-			#{password}, 
-			sysdate, 
-			sysdate, 
-			'N', 
-			#{tmp_field1}, 
-			#{tmp_field2}, 
-			#{tmp_field3}, 
-			#{tmp_field4},
-			#{tmp_field5}, 
-			#{tmp_field6}, 
-			#{tmp_field7}, 
-			#{tmp_field8}, 
-			#{tmp_field9}, 
-			#{tmp_field10}
-		)
-	</insert>
-
-	<select id="boardContent" resultType="com.crizel.board.BoardVO" parameterType="com.crizel.board.BoardVO">
-			select * 
-			from board 
-			where b_id=#{b_id}
-	</select>
-
-	<select id="realName" resultType="String" parameterType="String">
-		select real_name 
-		from board_file 
-		where save_name=#{fileName}
-	</select>
-
-	<select id="searchBId" resultType="int" parameterType="String">
-		select max(b_id) b_id 
-		from board
-	</select>
-
-	<insert id="fileInsert" parameterType="com.crizel.board.BoardVO">
-		insert into board_file
-		values(
-			(select nvl(max(f_id)+1,1) from board_file), 
-			#{b_id}, 
-			#{directory}, 
-			#{real_name}, 
-			#{save_name}
-		)
-	</insert>
-	
-	<select id="fileAllDel" parameterType="com.crizel.board.BoardVO">
-		delete 
-		from board_file 
-		where b_id=#{b_id}
+		</if>
 	</select>
 	
-	<select id="boardContentFile" resultType="com.crizel.board.BoardVO" parameterType="com.crizel.board.BoardVO">		
-		select * 
-		from board_file 
-		where b_id=#{b_id}
+	<select id="boardList" parameterType="com.crizel.board.BoardVO" resultType="com.crizel.board.BoardVO">
+		SELECT * FROM(
+		SELECT ROWNUM AS RNUM, A.* FROM(
+		SELECT 
+			B_NO
+			, PARENT_B_NO
+			, B_LEVEL
+			, TITLE
+			, USER_NICK
+			, USER_ID
+			, CONTENT
+			, VIEW_COUNT
+			, NOTICE
+			, SECRET
+			, PASSWORD
+			, TO_CHAR(REGISTER_DATE, 'YYYY-MM-DD') AS REGISTER_DATE
+			, TO_CHAR(MODIFY_DATE, 'YYYY-MM-DD') AS MODIFY_DATE
+			, DELETE_STATUS
+			, TMP_FIELD1
+			, TMP_FIELD2
+			, TMP_FIELD3
+			, TMP_FIELD4
+			, TMP_FIELD5
+			, TMP_FIELD6
+			, TMP_FIELD7
+			, TMP_FIELD8
+			, TMP_FIELD9
+			, TMP_FIELD10
+		FROM BOARD
+		WHERE 	DELETE_STATUS = 'N'
+		<if test="keyword != null">
+			<choose>
+				<when test="search1 == 'TITLE'">
+					AND TITLE LIKE '%'||#{keyword}||'%'
+				</when>
+				<when test="search1 == 'USER_NICK'">
+					AND USER_NICK LIKE '%'||#{keyword}||'%'
+				</when>
+				<when test="search1 == 'CONTENT'">
+					AND CONTENT LIKE '%'||#{keyword}||'%'
+				</when>
+			</choose>
+		</if>
+		ORDER BY B_NO DESC
+		) A WHERE ROWNUM &lt; =	#{endRow}
+		) WHERE RNUM &gt; = #{startRow}
 	</select>
-
-	<update id="boardDelete" parameterType="int">
-		update board 
-		set delete_status = 'D'
-		where b_id=#{b_id}
+	
+	<select id="boardInfo" parameterType="com.crizel.board.BoardVO" resultType="com.crizel.board.BoardVO">
+		SELECT 
+			B_NO
+			, PARENT_B_NO
+			, B_LEVEL
+			, TITLE
+			, USER_NICK
+			, USER_ID
+			, CONTENT
+			, VIEW_COUNT
+			, NOTICE
+			, SECRET
+			, PASSWORD
+			, TO_CHAR(REGISTER_DATE, 'YYYY-MM-DD') AS REGISTER_DATE
+			, TO_CHAR(MODIFY_DATE, 'YYYY-MM-DD') AS MODIFY_DATE
+			, DELETE_STATUS
+			, TMP_FIELD1
+			, TMP_FIELD2
+			, TMP_FIELD3
+			, TMP_FIELD4
+			, TMP_FIELD5
+			, TMP_FIELD6
+			, TMP_FIELD7
+			, TMP_FIELD8
+			, TMP_FIELD9
+			, TMP_FIELD10
+		FROM BOARD
+		WHERE B_NO = #{b_no} 
+	</select>
+	
+	<select id="fileList" parameterType="com.crizel.board.BoardVO" resultType="com.crizel.board.BoardVO">
+		SELECT *
+		FROM BOARD_FILE
+		WHERE B_NO = #{b_no}
+		ORDER BY F_NO
+	</select>
+	
+	<update id="viewCountIncrease" parameterType="com.crizel.board.BoardVO">
+		UPDATE BOARD SET
+			VIEW_COUNT = VIEW_COUNT + 1
+		WHERE B_NO = #{b_no}
 	</update>
 	
-	<update id="boardUpdate" parameterType="com.crizel.board.BoardVO">
-		 update board 
-		 set 
-		 	user_nick=#{user_nick}, 
-		 	title=#{title}, 
-		 	content=#{content}, 
-		 	register_date=to_char(sysdate,'yyyy-mm-dd')
-		 where b_id=#{b_id}
+	<insert id="boardWriteAction" parameterType="com.crizel.board.BoardVO">
+		<selectKey keyProperty="b_no" resultType="Integer" order="BEFORE">
+        	SELECT NVL(MAX(B_NO)+1, 1) AS B_NO FROM BOARD
+    	</selectKey>
+		INSERT INTO BOARD(
+			B_NO
+			, PARENT_B_NO
+			, B_LEVEL
+			, TITLE
+			, USER_NICK
+			, USER_ID
+			, CONTENT
+			, VIEW_COUNT
+			, NOTICE
+			, SECRET
+			, PASSWORD
+			, REGISTER_DATE
+			, MODIFY_DATE
+			, DELETE_STATUS
+			, TMP_FIELD1
+			, TMP_FIELD2
+			, TMP_FIELD3
+			, TMP_FIELD4
+			, TMP_FIELD5
+			, TMP_FIELD6
+			, TMP_FIELD7
+			, TMP_FIELD8
+			, TMP_FIELD9
+			, TMP_FIELD10
+		)
+		VALUES(
+			#{b_no}
+			, #{parent_b_no}
+			, #{b_level}
+			, #{title}
+			, #{user_nick}
+			, #{user_id}
+			, #{content}
+			, #{view_count}
+			, #{notice}
+			, #{secret}
+			, #{password}
+			, SYSDATE
+			, SYSDATE
+			, 'N'
+			, #{tmp_field1}
+			, #{tmp_field2}
+			, #{tmp_field3}
+			, #{tmp_field4}
+			, #{tmp_field5}
+			, #{tmp_field6}
+			, #{tmp_field7}
+			, #{tmp_field8}
+			, #{tmp_field9}
+			, #{tmp_field10}
+		)
+	</insert>
+	
+	<insert id="boardFileWrite" parameterType="com.crizel.board.BoardVO">
+		<selectKey keyProperty="f_no" resultType="Integer" order="BEFORE">
+        	SELECT NVL(MAX(F_NO)+1, 1) AS F_NO FROM BOARD_FILE
+    	</selectKey>
+		INSERT INTO BOARD_FILE(
+			F_NO
+			, B_NO
+			, DIRECTORY
+			, SAVE_NAME
+			, REAL_NAME
+		)
+		VALUES(
+			#{f_no}
+			, #{b_no}
+			, #{directory}
+			, #{save_name}
+			, #{real_name}
+		)
+	</insert>
+		
+	<update id="boardUpdateAction" parameterType="com.crizel.board.BoardVO">
+		UPDATE BOARD SET
+			PARENT_B_NO		=	#{parent_b_no}
+			, B_LEVEL			=	#{b_level}
+			, TITLE				=	#{title}
+			, USER_NICK			=	#{user_nick}
+			, USER_ID			=	#{user_id}
+			, CONTENT			=	#{content}
+			, NOTICE			=	#{notice}
+			, SECRET			=	#{secret}
+			, PASSWORD			=	#{password}
+			, MODIFY_DATE		=	SYSDATE
+			, TMP_FIELD1		=	#{tmp_field1}
+			, TMP_FIELD2		=	#{tmp_field2}
+			, TMP_FIELD3		=	#{tmp_field3}
+			, TMP_FIELD4		=	#{tmp_field4}
+			, TMP_FIELD5		=	#{tmp_field5}
+			, TMP_FIELD6		=	#{tmp_field6}
+			, TMP_FIELD7		=	#{tmp_field7}
+			, TMP_FIELD8		=	#{tmp_field8}
+			, TMP_FIELD9		=	#{tmp_field9}
+			, TMP_FIELD10		=	#{tmp_field10}
+		WHERE B_NO = #{b_no}
 	</update>
 	
-	<delete id="boardFileDel" parameterType="com.crizel.board.BoardVO">
-		delete 
-		from board_file 
-		where save_name=#{save_name}
-	</delete>
+	<update id="boardDelete" parameterType="com.crizel.board.BoardVO">
+		UPDATE BOARD SET
+			DELETE_STATUS = 'Y'
+		WHERE B_NO = #{b_no}	
+	</update>
+	
+	<select id="fileInfo" parameterType="com.crizel.board.BoardVO" resultType="com.crizel.board.BoardVO">
+		SELECT * 
+		FROM BOARD_FILE
+		WHERE F_NO = #{f_no}
+	</select>
 </mapper>

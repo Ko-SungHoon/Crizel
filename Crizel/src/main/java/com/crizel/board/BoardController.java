@@ -3,226 +3,185 @@ package com.crizel.board;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URLEncoder;
-import java.util.HashMap;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.crizel.common.CrizelVo;
 
 @Controller
 public class BoardController {
 	@Resource(name="boardService")
     private BoardService service;
 
-	@RequestMapping("board.do")
-	public ModelAndView board(
-			@RequestParam(value="pageParam", defaultValue="1") int pageParam,
-			@RequestParam(value="search1", required=false) String search1,
-			@RequestParam(value="keyword", required=false) String keyword) {
-		Map<String, Object> map = new HashMap<String,Object>();
-		map.put("search1", search1);
-		map.put("keyword", keyword);
-		
-		int page = pageParam; // 시작 페이지
-		int countList = 10; // 한 페이지에 출력될 게시물 수
-		int countPage = 10; // 한 화면에 출력될 페이지 수
-		int totalCount = service.totalCount(map);
-		int totalPage = totalCount / countList;
-		if (totalCount % countList > 0) {
-			totalPage++;
-		}
-		if (totalPage < page) {
-			page = totalPage;
-		}
-		int startPage = ((page - 1) / countPage) * countPage + 1;
-		int endPage = startPage + countPage - 1;
-		if (endPage > totalPage) {
-			endPage = totalPage;
-		}
-		
-		int startRow = (page - 1) * countPage + 1;
-		int endRow = page * countPage; 
-		if(startRow <= 0){
-			startRow = 1;
-		}
-		
-		map.put("startRow", startRow);
-		map.put("endRow", endRow);
-
-		List<Object> list = service.board(map);
-
-		int pre = page - countPage;
-		if (page < countPage) {
-			pre = startPage;
-		}
-
-		int next = page + countPage;
-		if (page > totalPage - countPage) {
-			next = endPage + 1;
-		}
+	@RequestMapping("/board")
+	public ModelAndView board(HttpServletRequest request, HttpServletResponse response, HttpSession session, BoardVO boardVO) {
 		ModelAndView mav = new ModelAndView();
-		mav.addObject("totalCount",totalCount);
-		mav.addObject("startPage",startPage);
-		mav.addObject("endPage",endPage);
-		mav.addObject("page",page);
-		mav.addObject("pre",pre);
-		mav.addObject("next",next);
-		mav.addObject("totalPage",totalPage);
-		mav.addObject("list",list);
-		mav.addObject("search1", search1);
-		mav.addObject("keyword", keyword);
 		
-		mav.setViewName("/board/board");
+		List<BoardVO> boardList = service.boardList(boardVO);
+		
+		mav.addObject("boardList", boardList);
+		mav.addObject("pageNo", boardVO.getPageNo());
+		mav.setViewName("/board/list");
 		return mav;
 	}
-
-	@RequestMapping("boardInsertPage.do")
-	public ModelAndView boardInsertPage(
-			@RequestParam(value="b_level", defaultValue="0")String b_level,
-			@RequestParam(value="b_group", required=false)String b_group
-			) {
-		ModelAndView mav = new ModelAndView();		
-		mav.addObject("b_level", b_level);
-		mav.addObject("b_group", b_group);
-		mav.setViewName("/board/boardInsertPage");
-		return mav;
-	}
-
-	@RequestMapping("boardInsert.do")
-	public String boardInsert(@ModelAttribute BoardVO vo, MultipartHttpServletRequest request) throws IllegalStateException, IOException {
-		String path = "/crizel/upload/"; // 경로
-		String saveFileName; // 저장되는 파일 이름
-		String genId; // 파일 중복명 처리
-		String originalfileName; // 본래 파일명
-
-		File file = new File(path);
-		if (!file.isDirectory()) {
-			file.mkdirs();
+	
+	@RequestMapping("/boardWritePage")
+	public ModelAndView boardWritePage(HttpServletRequest request, HttpServletResponse response, HttpSession session, BoardVO boardVO) {
+		ModelAndView mav = new ModelAndView();
+		String listUrl = "";
+		listUrl += "/board.do?pageNo="+boardVO.getPageNo();
+		listUrl += "&search1="+boardVO.getSearch1();
+		listUrl += "&keyword="+boardVO.getKeyword();
+		
+		BoardVO boardInfo 		= service.boardInfo(boardVO);
+		List<BoardVO> fileList	= service.fileList(boardVO);
+		
+		CrizelVo crizelVO = (CrizelVo)session.getAttribute("login");
+		
+		if(boardVO.getB_no()==0){
+			boardInfo = new BoardVO();
+			boardInfo.setUser_nick(crizelVO.getNick());
+			boardInfo.setUser_id(crizelVO.getId());
 		}
-
-		List<MultipartFile> mf = request.getFiles("file");
-		service.boardInsert(vo);
-
+		
+		mav.addObject("boardInfo", boardInfo);
+		mav.addObject("fileList", fileList);
+		mav.addObject("fileSize", 5-fileList.size());
+		mav.addObject("listUrl", listUrl);
+		mav.setViewName("/board/write");
+		return mav;
+	}
+	
+	@RequestMapping("/boardWriteAction")
+	public ModelAndView boardWriteAction(MultipartHttpServletRequest request, HttpServletResponse response, HttpSession session, BoardVO boardVO) throws Exception {
+		ModelAndView mav = new ModelAndView();
+		String message 		= 	boardVO.getB_no()==0?"글이 등록되었습니다.":"글이 수정되었습니다";
+		String returnPage	=	boardVO.getB_no()==0?"/board.do":"/boardRead.do?b_no="+boardVO.getB_no();
+		
+		int boardWriteAction = service.boardWriteAction(boardVO);
+		
+		String directory 	= "E:\\test\\";
+		String real_name 	= "";
+		String save_name 	= "";
+		
+		Calendar calendar = Calendar.getInstance();
+		SimpleDateFormat dateFormat = new SimpleDateFormat("YYMMDDhhmmssms");
+		String thistime = "";
+		
+		List<MultipartFile> mf = request.getFiles("uploadFile");
 		for (int i = 0; i < mf.size(); i++) {
-			genId = UUID.randomUUID().toString();
-			originalfileName = mf.get(i).getOriginalFilename();
-			if (!originalfileName.equals("")) {
-				saveFileName = genId + "." + originalfileName;
-				vo.setDirectory(path);
-				vo.setReal_name(originalfileName);
-				vo.setSave_name(saveFileName);
-				vo.setB_id(service.searchBId());
-				service.fileInsert(vo);
-					
-				mf.get(i).transferTo(new File(path + saveFileName));
+			if(!"".equals(mf.get(i).getOriginalFilename())){
+				thistime = dateFormat.format(calendar.getTime());		// 중복제거용 시간
+	            real_name = mf.get(i).getOriginalFilename();			// 본래 파일명
+	            save_name = thistime + "_" + real_name;					// 저장되는 파일 이름
+	            //long fileSize = mf.get(i).getSize(); 					// 파일 사이즈
+	            mf.get(i).transferTo(new File(directory + save_name)); 	// 파일 저장
+	            
+	            boardVO.setReal_name(real_name);
+	            boardVO.setSave_name(save_name);
+	            boardVO.setDirectory(directory);
+	            
+	            service.boardFileWrite(boardVO);
 			}
+        }
+		
+		if(boardWriteAction>0){
+			mav.addObject("message", message);
+			mav.addObject("returnPage", returnPage);
+			mav.setViewName("/util/alertPage");
+		}else{
+			mav.addObject("message", "처리중 오류가 발생하였습니다.");
+			mav.addObject("returnPage", returnPage);
+			mav.setViewName("/util/alertPage");
 		}
-		return "redirect:board.do?pageParam=1";
-	}
-
-	@RequestMapping("boardContent.do")
-	public ModelAndView boardContent(@ModelAttribute BoardVO vo,
-			@RequestParam(value="pageParam", defaultValue="1")String pageParam) {
-		BoardVO list = service.boardContent(vo);
-		List<BoardVO> file = service.boardContentFile(vo);
-		ModelAndView mav = new ModelAndView();
-		mav.addObject("list",list);
-		mav.addObject("file",file);
-		mav.addObject("page", pageParam);
-		
-		mav.setViewName("/board/boardContent");
-		return mav;
-	}
-
-	@RequestMapping("boardDelete.do")
-	public void boardDelete(@RequestParam int b_id,
-			HttpServletResponse response) throws IOException {
-		service.boardDelete(b_id);
-		response.sendRedirect("/board.do");
-	}
-	
-	@RequestMapping("boardUpdatePage.do")
-	public ModelAndView boardUpdatePage(@ModelAttribute BoardVO vo) {
-		BoardVO list = service.boardContent(vo);
-		List<BoardVO> file = service.boardContentFile(vo);
-		
-		ModelAndView mav = new ModelAndView();
-		mav.addObject("list",list);
-		mav.addObject("file",file);
-		
-		mav.setViewName("/board/boardUpdatePage");
 		return mav;
 	}
 	
-	@RequestMapping("boardUpdate.do")
-	public void boardUpdate(@ModelAttribute BoardVO vo, HttpServletRequest httpRequest,
-			MultipartHttpServletRequest request, HttpServletResponse response) throws IllegalStateException,
-			IOException  {
-		service.boardUpdate(vo);
+	@RequestMapping("/boardRead")
+	public ModelAndView boardRead(HttpServletRequest request, HttpServletResponse response, HttpSession session, BoardVO boardVO) {
+		ModelAndView mav = new ModelAndView();
+		String listUrl = "";
+		listUrl += "/board.do?pageNo="+boardVO.getPageNo();
+		listUrl += "&search1="+boardVO.getSearch1();
+		listUrl += "&keyword="+boardVO.getKeyword();
 		
-		String path = "\\crizel\\upload\\"; // 경로
-		String saveFileName; // 저장되는 파일 이름
-		String genId; // 파일 중복명 처리
-		String originalfileName; // 본래 파일명
-
-		File file = new File(path);
-		if (!file.isDirectory()) {
-			file.mkdirs();
-		}
+		BoardVO boardInfo = service.boardInfo(boardVO);
+		List<BoardVO> fileList	= service.fileList(boardVO);
 		
-		List<MultipartFile> mf = request.getFiles("file");
-		
-		for (int i = 0; i < mf.size(); i++) {
-			genId = UUID.randomUUID().toString();
-			originalfileName = mf.get(i).getOriginalFilename();
-			if (!originalfileName.equals("")) {
-				saveFileName = genId + "." + originalfileName;
-				vo.setDirectory(path);
-				vo.setReal_name(originalfileName);
-				vo.setSave_name(saveFileName);
-				service.fileInsert(vo);
-				mf.get(i).transferTo(new File(path + saveFileName));
-
+		List<BoardVO> imgList = null;
+		if(fileList!=null && fileList.size()>0){
+			imgList = new ArrayList<BoardVO>();
+			for(int i=0; i<fileList.size(); i++){
+				BoardVO ob = fileList.get(i);
+				if("jpg".equals(ob.getSave_name().substring(ob.getSave_name().lastIndexOf(".")+1, ob.getSave_name().length()))
+				   || "JPG".equals(ob.getSave_name().substring(ob.getSave_name().lastIndexOf(".")+1, ob.getSave_name().length()))
+				   || "png".equals(ob.getSave_name().substring(ob.getSave_name().lastIndexOf(".")+1, ob.getSave_name().length()))
+				   || "PNG".equals(ob.getSave_name().substring(ob.getSave_name().lastIndexOf(".")+1, ob.getSave_name().length()))
+				   || "gif".equals(ob.getSave_name().substring(ob.getSave_name().lastIndexOf(".")+1, ob.getSave_name().length()))
+				   || "GIF".equals(ob.getSave_name().substring(ob.getSave_name().lastIndexOf(".")+1, ob.getSave_name().length()))
+				   || "bmp".equals(ob.getSave_name().substring(ob.getSave_name().lastIndexOf(".")+1, ob.getSave_name().length()))
+				   || "BMP".equals(ob.getSave_name().substring(ob.getSave_name().lastIndexOf(".")+1, ob.getSave_name().length()))
+				   || "".equals(ob.getSave_name().substring(ob.getSave_name().lastIndexOf(".")+1, ob.getSave_name().length()))
+						){
+					imgList.add(ob);					
+				}
 			}
 		}
 		
-		response.sendRedirect("/board.do");
+		mav.addObject("boardInfo", boardInfo);
+		mav.addObject("fileList", fileList);
+		mav.addObject("imgList", imgList);
+		mav.addObject("listUrl", listUrl);
+		mav.setViewName("/board/read");
+		return mav;
 	}
 	
-	@RequestMapping("boardFileDel.do")
-	public void boardFileDel(@ModelAttribute BoardVO vo) {
-		service.boardFileDel(vo);
+	@RequestMapping("/boardDelete")
+	public ModelAndView boardDelete(HttpServletRequest request, HttpServletResponse response, HttpSession session, BoardVO boardVO) {
+		ModelAndView mav = new ModelAndView();
+		String message 		= 	"글이 삭제되었습니다";
+		String returnPage	=	"/board.do";
+		
+		int boardDelete = service.boardDelete(boardVO);
+		
+		if(boardDelete>0){
+			mav.addObject("message", message);
+			mav.addObject("returnPage", returnPage);
+			mav.setViewName("/util/alertPage");
+		}else{
+			mav.addObject("message", "처리중 오류가 발생하였습니다.");
+			mav.addObject("returnPage", returnPage);
+			mav.setViewName("/util/alertPage");
+		}
+		return mav;
 	}
-
 	
 	@RequestMapping("download.do")
-	public void download(
-			@RequestParam(value="directory", required=false) String directory, 
-			@RequestParam(value="filename", required=false) String filename, 
-			@RequestParam(value="check", required=false) String check,
-			HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		String realname = filename;
+	public void download(HttpServletRequest request, HttpServletResponse response, HttpSession session, BoardVO boardVO) throws Exception{
+		BoardVO fileInfo = service.fileInfo(boardVO);
 		
-		String docName = URLEncoder.encode(realname, "UTF-8").replaceAll("\\+", " ");
-		//directory = URLEncoder.encode(directory, "UTF-8").replaceAll("\\+", " ");
+		String real_name = fileInfo.getReal_name();
+		String save_name = fileInfo.getSave_name();	
+		String directory = fileInfo.getDirectory();
+		
+		real_name = URLEncoder.encode(real_name, "UTF-8").replaceAll("\\+", " ");
 
-		String filePath = directory + "/" + realname;
+		String filePath = directory + save_name;
 		
 		try {
 			File file = new File(filePath);
@@ -234,7 +193,7 @@ public class BoardController {
 				}
 			}
 
-			response.setHeader("Content-Disposition", "attachment;filename=" + docName + ";");
+			response.setHeader("Content-Disposition", "attachment;filename=" + real_name + ";");
 			response.setHeader("Content-Type", "application/octet-stream");
 			response.setContentLength((int) file.length());
 			response.setHeader("Content-Transfer-Encoding", "binary;");
@@ -261,12 +220,5 @@ public class BoardController {
 
 		}
 	}
-	
-	
-	public String parseNull(String value){
-		if(value == null){
-			value = "";
-		}		
-		return value;
-	}
+
 }

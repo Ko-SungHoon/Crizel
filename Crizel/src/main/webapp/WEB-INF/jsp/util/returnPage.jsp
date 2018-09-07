@@ -7,7 +7,7 @@
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <script>
 $(function(){
-	location.href="${referer}";
+	location.href="${returnPage}";
 });
 </script>
 </head>

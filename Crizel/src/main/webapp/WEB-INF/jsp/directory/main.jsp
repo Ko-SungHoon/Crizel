@@ -17,7 +17,7 @@ function changeDirectory(path){
 	location.href="/directory.do?path="+encodeURIComponent(path);
 }
 function fileDown(directory, filename){
-	location.href="/download.do?directory="+encodeURIComponent(directory)+"&filename="+encodeURIComponent(filename)+"&check=content";
+	location.href="/directoryDownload.do?directory="+encodeURIComponent(directory)+"&filename="+encodeURIComponent(filename)+"&check=content";
 }
 function viewPage(path, name, type){
 	var fileValue =  encodeURIComponent(path + "/" + name);
@@ -35,7 +35,7 @@ function selectDown(){
 	var filename;
 	$("input:checkbox[name='select']:checked").each(function(){
 		filename = $(this).val();
-		url = "/download.do?directory="+encodeURIComponent(directory)+"&filename="+encodeURIComponent(filename)+"&check=content";
+		url = "/directoryDownload.do?directory="+encodeURIComponent(directory)+"&filename="+encodeURIComponent(filename)+"&check=content";
 	    window.open(url, "_blank");
 	});
 }
@@ -54,6 +54,17 @@ function allCheck(){
 <body>
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
+	<div class="search">
+		<form action="/directory.do" method="get">
+			<select id="path" name="path">
+				<option value="C:/">C:/</option>
+				<option value="D:/">D:/</option>
+				<option value="E:/">E:/</option>
+				<option value="F:/">F:/</option>
+			</select>
+			<button>디렉토리 바로가기</button>
+		</form>
+	</div>
 	<table class="tbl_type01">
 		<tr>
 			<th>

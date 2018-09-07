@@ -1,7 +1,6 @@
 package com.crizel.board;
 
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.Resource;
 
@@ -12,48 +11,55 @@ public class BoardService {
 	@Resource(name="boardDao")
     private BoardDao dao;
 
-	public int totalCount(Map<String, Object> map) {
-		return dao.totalCount(map);
+	public List<BoardVO> boardList(BoardVO boardVO) {
+		int pageNo 		= boardVO.getPageNo();
+		int totalCount 	= dao.totalCount(boardVO);
+		int countList 	= boardVO.getCountList(); 	// 한 페이지에 출력될 게시물 수
+		int countPage 	= boardVO.getCountPage(); 	// 한 화면에 출력될 페이지 수
+		int totalPage 	= boardVO.getTotalPage();	// 전체 페이지
+		int startPage 	= boardVO.getStartPage();	// 시작 페이지
+		int endPage 	= boardVO.getEndPage();		// 마지막 페이지
+		int startRow 	= boardVO.getStartRow();
+		int endRow 		= boardVO.getEndRow(); 
+		
+		totalPage = (totalCount + (countList - 1)) / countList;
+		startPage = ((pageNo-1)/countPage) * countPage + 1;
+		endPage = startPage + countPage - 1;
+		endPage = endPage>totalPage?totalPage:endPage;
+		startRow = (pageNo-1) * countList + 1;
+		endRow = pageNo * countList;
+		
+		boardVO.setTotalCount(totalCount);
+		boardVO.setTotalPage(totalPage);
+		boardVO.setStartPage(startPage);
+		boardVO.setEndPage(endPage);
+		boardVO.setStartRow(startRow);
+		boardVO.setEndRow(endRow);
+		
+		return dao.boardList(boardVO);
 	}
 
-	public void boardInsert(BoardVO vo) {
-		dao.boardInsert(vo);
+	public BoardVO boardInfo(BoardVO boardVO) {
+		return dao.boardInfo(boardVO);
 	}
 
-	public List<Object> board(Map<String, Object> map) {
-		return dao.board(map);
+	public List<BoardVO> fileList(BoardVO boardVO) {
+		return dao.fileList(boardVO);
 	}
 
-	public BoardVO boardContent(BoardVO vo) {
-		return dao.boardContent(vo);
+	public int boardWriteAction(BoardVO boardVO) {
+		return dao.boardWriteAction(boardVO);
 	}
 
-	public void boardDelete(int b_id) {
-		dao.boardDelete(b_id);
+	public void boardFileWrite(BoardVO boardVO) {
+		dao.boardFileWrite(boardVO);
 	}
 
-	public void boardUpdate(BoardVO vo) {
-		dao.boardUpdate(vo);
+	public int boardDelete(BoardVO boardVO) {
+		return dao.boardDelete(boardVO);
 	}
 
-	public int searchBId() {
-		return dao.searchBId();
+	public BoardVO fileInfo(BoardVO boardVO) {
+		return dao.fileInfo(boardVO);
 	}
-
-	public void fileInsert(BoardVO vo) {
-		dao.fileInsert(vo);
-	}
-
-	public String realName(String filename) {
-		return dao.realName(filename);
-	}
-
-	public List<BoardVO> boardContentFile(BoardVO vo) {
-		return dao.boardContentFile(vo);
-	}
-
-	public void boardFileDel(BoardVO vo) {
-		dao.boardFileDel(vo);
-	}
-	
 }
