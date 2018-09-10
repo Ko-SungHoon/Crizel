@@ -40,73 +40,75 @@ String day = request.getParameter("day")==null?"":request.getParameter("day");
 String dayArr[] = {"월", "화", "수", "목", "금", "토", "일"};
 %>
 	<div class="content">
-			<form id="postForm" action="/listInsert.do" method="post" onsubmit="return formSubmit();">	
-				<input type="hidden" id="mode" name="mode" value="${mode}">
-				<c:if test="${mode eq 'update'}">
-					<input type="hidden" id="ani_id" name="ani_id" value="${ani_info.ani_id}">
-				</c:if>
-				<table class="tbl_type02">
-					<tr>
-						<th>사이트</th>
-						<td>
-							<select name="site" required>
-								<option value="ohys" <c:if test="${ani_info.site eq 'ohys'}"> selected </c:if>>ohys</option>
-								<option value="leopard" <c:if test="${ani_info.site eq 'leopard'}"> selected </c:if>>leopard</option>
-							</select>
-						</td>
-					</tr>
-					<%
-					CrizelVo vo = (CrizelVo)request.getAttribute("ani_info");
-					%>
-					<tr>
-						<th>날짜</th>
-						<td>
-							<select name="day" id="day" required>
+		<form id="postForm" action="/listInsert.do" method="post" onsubmit="return formSubmit();">	
+			<input type="hidden" id="mode" name="mode" value="${mode}">
+			<c:if test="${mode eq 'update'}">
+				<input type="hidden" id="ani_id" name="ani_id" value="${ani_info.ani_id}">
+			</c:if>
+			<table class="tbl_type02">
+				<tr>
+					<th>사이트</th>
+					<td>
+						<select name="site" required>
+							<option value="ohys" <c:if test="${ani_info.site eq 'ohys'}"> selected </c:if>>ohys</option>
+							<option value="leopard" <c:if test="${ani_info.site eq 'leopard'}"> selected </c:if>>leopard</option>
+						</select>
+					</td>
+				</tr>
+				<%
+				CrizelVo vo = (CrizelVo)request.getAttribute("ani_info");
+				%>
+				<tr>
+					<th>날짜</th>
+					<td>
+						<select name="day" id="day" required>
+							<%
+							for(int i=0; i<dayArr.length; i++){
+							%>
+							<option value="<%=dayArr[i]%>" 
 								<%
-								for(int i=0; i<dayArr.length; i++){
-								%>
-								<option value="<%=dayArr[i]%>" 
-									<%
-									if(vo!=null && dayArr[i].equals(vo.getDay())){
-									%> 
-										selected="selected"
-									<%	
-									}else if(dayArr[i].equals(day)){
-									%> 
-										selected="selected"
-									<%
-									}
-									%>><%=dayArr[i]%></option>
+								if(vo!=null && dayArr[i].equals(vo.getDay())){
+								%> 
+									selected="selected"
+								<%	
+								}else if(dayArr[i].equals(day)){
+								%> 
+									selected="selected"
 								<%
 								}
-								%>
-							</select>
-						</td>
-					</tr>
-					<tr>
-						<th>시간</th>
-						<td><input type="text" name="ani_time" id="ani_time" required value="${ani_info.ani_time}"></td>
-					</tr>
-					<tr>
-						<th>제목</th>
-						<td><input type="text" name="title" id="title" required value="${ani_info.title}"></td>
-					</tr>
-					<tr>
-						<th>키워드</th>
-						<td><input type="text" name="keyword" id="keyword" required value="${ani_info.keyword}"></td>
-					</tr>
-				</table>
-				<div class="btn">
-					<c:choose>
-						<c:when test="${mode eq 'insert'}">
-							<button>추가</button>
-						</c:when>
-						<c:otherwise>
-							<button>수정</button>
-						</c:otherwise>
-					</c:choose>
-				</div>
-			</form>
+								%>><%=dayArr[i]%></option>
+							<%
+							}
+							%>
+						</select>
+					</td>
+				</tr>
+				<tr>
+					<th>시간</th>
+					<td><input type="text" name="ani_time" id="ani_time" required value="${ani_info.ani_time}"></td>
+				</tr>
+				<tr>
+					<th>제목</th>
+					<td><input type="text" name="title" id="title" required value="${ani_info.title}"></td>
+				</tr>
+				<tr>
+					<th>키워드</th>
+					<td><input type="text" name="keyword" id="keyword" required value="${ani_info.keyword}"></td>
+				</tr>
+			</table>
+			<div class="btn">
+				<c:choose>
+					<c:when test="${mode eq 'insert'}">
+						<button>추가</button>
+					</c:when>
+					<c:otherwise>
+						<button>수정</button>
+					</c:otherwise>
+				</c:choose>
+			</div>
+		</form>
+		<iframe src="http://www.anissia.net/anitime/" style="width: 100%; height: 200px;"></iframe>
+		<iframe src="https://nyaa.si/?f=0&c=1_4&q=" style="width: 100%; height: 200px;"></iframe>
 	</div>
 
 
