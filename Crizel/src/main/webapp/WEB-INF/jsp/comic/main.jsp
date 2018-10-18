@@ -51,9 +51,9 @@ function goView(addr, title, addrB ){
 		contentType : "application/x-www-form-urlencoded; charset=utf-8",
 		data : {"title":title, "addr":addrB},
 		success : function(data) {
-			//location.reload();
+			location.reload();
 			//window.open(addr, '_blank');
-			location.href="/comic.do?type=C&addrC="+addr+"&addrB="+addrB;			
+			//location.href="/comic.do?type=C&addrC="+addr+"&addrB="+addrB;			
  		},
  		error : function(request,status,error) {
  			alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
@@ -139,7 +139,8 @@ function goView(addr, title, addrB ){
 			<c:forEach items="${viewList}" var="ob">
 				<tr>
 					<td>
-						<a href="/comic.do?type=C&addrC=${ob.addr}&addrB=${addrB}&title=${ob.title}">${ob.title}</a>
+						<a href="${ob.addr}" target="_blank" onclick="goView('${ob.addr}', '${ob.title}', '${addrB}');">${ob.title}</a>
+						<%-- <a href="/comic.do?type=C&addrC=${ob.addr}&addrB=${addrB}&title=${ob.title}">${ob.title}</a> --%>
 						<%-- <a href="javascript:goView('${ob.addr}', '${ob.title}', '${addrB}')">${ob.title}</a> --%>
 						<%-- <a href="/comic.do?type=C&addr=${ob.addr}">${ob.title}</a> --%>
 					</td>

@@ -52,8 +52,9 @@ function goLink(link, title, ani_id){
 <div class="content">
 	<input type="hidden" value="${day}" id="dayCheck">
 	<div class="search center">
-		<form action="/listDetail.do" method="get">
-			<c:choose>
+		<!-- <form action="/listDetail.do" method="get"> -->
+		<form action="https://nyaa.si/?f=0&c=1_4&q=" method="get">
+			<%-- <c:choose>
 				<c:when test="${mode eq 'nyaa'}">
 					<button type="button" onclick="location.href='/list.do'">ohys&leopard</button>
 					<input type="hidden" id="mode" name="mode" value="nyaa">
@@ -72,7 +73,7 @@ function goLink(link, title, ani_id){
 						<option value="leopard">leopard</option>
 					</select>
 				</c:otherwise>
-			</c:choose>
+			</c:choose> --%>
 			<input type="text" name="keyword" id="keyword" value="${keyword}">
 			<button>검색</button>
 		</form>
@@ -105,7 +106,8 @@ function goLink(link, title, ani_id){
 						<a href="/listInsertPage.do?mode=update&ani_id=${ob.ani_id}">${ob.ani_time}</a>
 					</td>
 					<td colspan="5">
-						<a href="/listDetail.do?keyword=${ob.keyword}&type=${type}&site=${ob.site}&mode=${mode}&ani_id=${ob.ani_id}" class="ani_title">${ob.title}</a>
+						<%-- <a href="/listDetail.do?keyword=${ob.keyword}&type=${type}&site=${ob.site}&mode=${mode}&ani_id=${ob.ani_id}" class="ani_title">${ob.title}</a> --%>
+						<a href="https://nyaa.si/?f=0&c=1_4&q=${ob.keyword }">${ob.title }</a>
 					</td>
 					<td>
 						<a href="/aniDelete.do?ani_id=${ob.ani_id}&day=${ob.day}&mode=${mode}" class="ani_del">삭제</a>	

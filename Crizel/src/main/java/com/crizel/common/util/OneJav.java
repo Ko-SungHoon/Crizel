@@ -145,7 +145,7 @@ public class OneJav {
 			System.out.println(e.toString());
 		}
 		
-		return pagingElem.size();
+		return pagingElem!=null?pagingElem.size():0;
 	}
 	
 	/*public void ImageStream(String fileValue, HttpServletRequest request, HttpServletResponse response) {
