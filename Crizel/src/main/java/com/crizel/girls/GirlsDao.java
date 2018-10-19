@@ -33,48 +33,34 @@ public class GirlsDao {
 
 	public List<Object> girlsImg(String name) {
 		List<Object> imgList = new ArrayList<Object>();
-		GirlsVO vo = null; 
 		List<GirlsVO> list = null;
 		Instagram ins = new Instagram();
 		Twitter twitter = new Twitter();
 		
-		int size = 0;
+		list = sqlSession.selectList("girls.girlsImg", name);
 		
-		if("all".equals(name)){
-			list = sqlSession.selectList("girls.girlsImgList");
-			size = list.size();
-		}else{
-			size = 1;
-		}
-		
-		for(int i=0; i<size; i++){
-			if("all".equals(name)){
-				vo = list.get(i);
-			}else{
-				vo = sqlSession.selectOne("girls.girlsImg", name);
-			}
-			
-			if("twitter".equals(vo.getType())){						//트위터
-				imgList.addAll(twitter.getList(vo.getAddr()));
-			}else if("insta".equals(vo.getType())){					//인스타
-				imgList.addAll(ins.getList(vo.getAddr()));
-			}else if("blog".equals(vo.getType())){					//블로그
+		for(int i=0; i<list.size(); i++){
+			if("twitter".equals(list.get(i).getType())){						//트위터
+				imgList.addAll(twitter.getList(list.get(i).getAddr()));
+			}else if("insta".equals(list.get(i).getType())){					//인스타
+				imgList.addAll(ins.getList(list.get(i).getAddr()));
+			}else if("blog".equals(list.get(i).getType())){					//블로그
 				try {
 					org.jsoup.nodes.Document doc = null;
 					try {
-						doc = Jsoup.connect(vo.getAddr()).get();
+						doc = Jsoup.connect(list.get(i).getAddr()).get();
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
-					String URL = vo.getAddr();
+					String URL = list.get(i).getAddr();
 			        doc = Jsoup.connect(URL).get();
-			        Elements elem = doc.select(vo.getTag1());
+			        Elements elem = doc.select(list.get(i).getTag1());
 			        for (org.jsoup.nodes.Element e : elem) {
-						String img = e.attr(vo.getTag2());
+						String img = e.attr(list.get(i).getTag2());
 						imgList.add(img);
 					}
 				} catch (Exception e) {
-					e.printStackTrace();
+					System.out.println(e.toString());
 				}
 			}
 		}
