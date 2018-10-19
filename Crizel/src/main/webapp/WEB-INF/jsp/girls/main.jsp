@@ -46,11 +46,6 @@ function allNewTap(){
 					<a href="javascript:allNewTap()">모두 새 탭</a>
 				</td>
 			</tr>
-			<tr>
-				<td>
-					<a href="/girls.do?name=all">전체</a>
-				</td>
-			</tr>
 		<c:forEach items="${nameList}" var="ob">
 			<tr>
 				<td>

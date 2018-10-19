@@ -8,7 +8,7 @@
 	</select>
 	
 	<select id="nameList" resultType="com.crizel.girls.GirlsVO">
-		select * from girls order by name
+		select name from girls group by name order by name
 	</select>
 	
 	<insert id="girlsInsert" parameterType="com.crizel.girls.GirlsVO">	
