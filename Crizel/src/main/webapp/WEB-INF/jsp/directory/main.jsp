@@ -70,18 +70,20 @@ function allCheck(){
 	</div>
 	<div class="directory" style="width: 100%;">
 	
-		<c:set var="addPath" value="" />
-		<c:forEach items="${pathArray}" var="ob" varStatus="status">
-			<c:choose>
-				<c:when test="${status.index eq 0 }">
-					<c:set var="addPath" value="${ob}" />
-				</c:when>
-				<c:otherwise>
-					<c:set var="addPath" value="${addPath}/${ob}" />
-				</c:otherwise>
-			</c:choose>
-			<a href="javascript:changeDirectory('${addPath}')">${ob}</a> > 
-		</c:forEach>
+		<div class="directory_location" style="margin: 10px 0 10px 0; text-align: center;">
+			<c:set var="addPath" value="" />
+			<c:forEach items="${pathArray}" var="ob" varStatus="status">
+				<c:choose>
+					<c:when test="${status.index eq 0 }">
+						<c:set var="addPath" value="${ob}" />
+					</c:when>
+					<c:otherwise>
+						<c:set var="addPath" value="${addPath}/${ob}" />
+					</c:otherwise>
+				</c:choose>
+				<a href="javascript:changeDirectory('${addPath}')">${ob}</a> > 
+			</c:forEach>
+		</div>
 		
 		<ul style="list-style: none; width: 80%; margin:auto;">
 			<c:forEach items="${directory.folder}" var="ob">
