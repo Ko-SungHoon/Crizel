@@ -44,8 +44,6 @@ $(function(){
 		<li><a href="#">링크</a>
 			<ul>
 				<li><a href="/comic.do">만화</a></li>
-				<li><a href="/mhw/main.do">몬헌</a></li>
-				<li><a href="/football/main.do">축구</a></li>
 				<li><a href="/nyaa.do">Nyaa</a></li>
 				<li><a href="/music.do">MUSIC</a></li>
 				<li><a href="/torrent.do">TORRENT</a></li>

@@ -65,10 +65,10 @@ function formSubmit(){
 					<col width="80%" />
 					<col width="20%" />
 				</colgroup>
-				<c:forEach items="${nameList}" var="ob">
+				<c:forEach items="${girlsList}" var="ob">
 					<tr>
 						<td>
-							<a href="${ob.addr}" target="blank" class="twitter_name">${ob.name}</a>
+							<a href="${ob.addr}" target="blank" class="twitter_name">[${ob.type}] ${ob.name}</a>
 						</td>
 						<td>
 							<a href="/girlsDelete.do?g_id=${ob.g_id}" class="twitter_del">[삭제]</a>

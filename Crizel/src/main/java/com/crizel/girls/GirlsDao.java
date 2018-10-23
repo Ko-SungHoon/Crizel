@@ -68,4 +68,8 @@ public class GirlsDao {
 		return imgList;
 	}
 
+	public List<Object> girlsList() {
+		return sqlSession.selectList("girls.girlsList");
+	}
+
 }

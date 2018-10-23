@@ -47,8 +47,8 @@ public class GirlsController {
 	@RequestMapping("girlsInsertPage.do")
 	public ModelAndView girlsInsertPage(HttpServletRequest request, HttpServletResponse response) {
 		ModelAndView mav = new ModelAndView();	
-		List<Object> nameList = service.nameList();
-		mav.addObject("nameList", nameList);
+		List<Object> girlsList = service.girlsList();
+		mav.addObject("girlsList", girlsList);
 		mav.setViewName("/girls/girlsInsertPage");
 		return mav;
 

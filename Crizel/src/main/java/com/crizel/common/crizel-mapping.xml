@@ -81,9 +81,9 @@
 	</select>
 
 	<insert id="listInsert" parameterType="com.crizel.common.CrizelVo">
-		insert into ani(ani_id, title, ani_time, day, keyword, site)
+		insert into ani(ani_id, title, ani_time, day, keyword, site, directory)
 		values((select nvl(max(ani_id)+1,1) from ani), #{title}, #{ani_time}, #{day},
-		#{keyword}, #{site})
+		#{keyword}, #{site}, #{directory})
 	</insert>
 	
 	<select id="listInsertDetail" resultType="com.crizel.common.CrizelVo">
@@ -114,6 +114,7 @@
 			, DAY = #{day}
 			, KEYWORD = #{keyword}
 			, SITE = #{site}
+			, DIRECTORY = #{directory}
 		WHERE ANI_ID = #{ani_id}
 	</update>
 	

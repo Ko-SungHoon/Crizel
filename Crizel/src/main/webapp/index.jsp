@@ -43,6 +43,8 @@ jQuery(document).ready(function(){
 
 <div class="content">
 	<div class="bookMark">	
+		<a href="javascript:goLink();"><img src="/img/liverpool.jpg"></a>
+		<!-- 
 		<ul>
 			<li>
 				<a href="/list.do?mode=nyaa">
@@ -75,6 +77,7 @@ jQuery(document).ready(function(){
 				</a>
 			</li>
 		</ul>
+		-->
 	</div>
 	
 	<div id="spinner">
@@ -86,16 +89,12 @@ jQuery(document).ready(function(){
 	
 	<table class="tbl_main" id="mainMovie" v-if="records">
 		<colgroup>
-			<col width="15%">
-			<col width="85%">
+			<co >
 		</colgroup>
 		<tr>
 			<th colspan="3"><a href="http://www.cgv.co.kr/theaters/?theaterCode=0081" target="_blank"> {{ records.boxOfficeResult.boxofficeType }} </a></th>
 		</tr>
 		<tr v-for="(record, index) in records.boxOfficeResult.weeklyBoxOfficeList">
-			<td>
-				{{ record.rnum }}
-			</td>
 			<td>
 				<a :href="'http://movie.naver.com/movie/search/result.nhn?query='+record.movieNm+'&section=all&ie=utf8'" target="_blank" >
 					{{ record.movieNm }}

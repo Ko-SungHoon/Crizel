@@ -24,7 +24,7 @@
 		select * from girls where name = #{name}
 	</select>
 	
-	<select id="girlsImgList" resultType="com.crizel.girls.GirlsVO">
+	<select id="girlsList" resultType="com.crizel.girls.GirlsVO">
 		select * from girls order by name
 	</select>
 </mapper>

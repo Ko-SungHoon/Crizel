@@ -30,7 +30,7 @@
 				<c:if test="${imgList ne null }">
 				<ul>
 				<c:forEach items="${imgList}" var="ob">
-					<li><img src="/videoView.do?fileValue=${ob.directory}${ob.save_name }&type=image"></li>
+					<li><img src="/videoView.do?fileValue=${ob.directory}${ob.save_name }&type=image" style="width: 80%;"></li>
 				</c:forEach>
 				</ul>
 				</c:if>
