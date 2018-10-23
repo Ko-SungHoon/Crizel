@@ -104,15 +104,16 @@ public class CrizelController {
 		
 	@RequestMapping("listInsertPage.do")
 	public ModelAndView listInsertPage(@RequestParam(value="mode", defaultValue="insert") String mode
-			                         , @RequestParam(value="ani_id", defaultValue="") String ani_id) {
+			                         , @RequestParam(value="ani_id", defaultValue="") String ani_id
+			                         , @RequestParam(value="path", defaultValue="E:/크리젤/임시폴더/") String path) {
 		ModelAndView mav = new ModelAndView();
 		CrizelVo ani_info = service.aniInfo(ani_id);
 		if("insert".equals(mode)){
 			ani_info = new CrizelVo();
-			ani_info.setDirectory("E:/크리젤/임시폴더/");
+			ani_info.setDirectory(path);
 		}else{
 			if(ani_info.getDirectory()==null){
-				ani_info.setDirectory("E:/크리젤/임시폴더/");
+				ani_info.setDirectory(path);
 			}
 		}
 		
