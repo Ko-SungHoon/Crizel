@@ -36,7 +36,7 @@ public class DirectoryController {
 	}
 
 	@RequestMapping("directory.do")
-	public ModelAndView nico(@RequestParam(value="path", required=false, defaultValue="D:/") String path){
+	public ModelAndView nico(@RequestParam(value="path", required=false, defaultValue="C:/") String path){
 		ModelAndView mav = new ModelAndView();	
 		DirectoryView directory = new DirectoryView();
 		mav.addObject("directory", directory.directory(path));
