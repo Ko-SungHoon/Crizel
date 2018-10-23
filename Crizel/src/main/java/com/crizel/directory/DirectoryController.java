@@ -41,6 +41,8 @@ public class DirectoryController {
 		DirectoryView directory = new DirectoryView();
 		mav.addObject("directory", directory.directory(path));
 		mav.addObject("path", path);
+		mav.addObject("path2", path.substring(0,1));
+		mav.addObject("pathArray", path.split("/"));
 		mav.setViewName("/directory/main");
 		return mav;
 	}

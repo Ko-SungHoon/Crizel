@@ -130,4 +130,8 @@ public class GirlsService {
 		}
 		return bool;
 	}
+
+	public List<Object> girlsList() {
+		return dao.girlsList();
+	}
 }

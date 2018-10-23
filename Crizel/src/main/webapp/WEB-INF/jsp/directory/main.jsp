@@ -55,89 +55,64 @@ function allCheck(){
 	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
 	<div class="search">
-		<form action="/directory.do" method="get">
-			<select id="path" name="path">
-				<option value="C:/">C:/</option>
-				<option value="D:/">D:/</option>
-				<option value="E:/">E:/</option>
-				<option value="F:/">F:/</option>
+		<form action="/directory.do" method="get" id="postForm">
+			<select id="path" name="path" onchange="$('#postForm').submit();">
+				<option value="C:/" <c:if test="${path2 eq 'C'}">selected</c:if>>C:/</option>
+				<option value="D:/" <c:if test="${path2 eq 'D'}">selected</c:if>>D:/</option>
+				<option value="E:/" <c:if test="${path2 eq 'E'}">selected</c:if>>E:/</option>
+				<option value="F:/" <c:if test="${path2 eq 'F'}">selected</c:if>>F:/</option>
 			</select>
-			<button>디렉토리 바로가기</button>
+			<input type="hidden" id="path" value="${path}">
+			<input type="checkbox" id="allCheck" onclick="allCheck()"><label for="allCheck">파일 전체 선택</label> 
+			<button type="button" onclick="AllViewPage('${path}')">이미지 전체 보기</button>
+			<button type="button" onclick="selectDown()">선택 다운로드</button>
 		</form>
 	</div>
-	<table class="tbl_type01">
-		<tr>
-			<th>
-				디렉토리
-			</th>
-		</tr>
-		<c:forEach items="${directory.folder}" var="ob">
-		<tr>
-			<td>
-				<a href="javascript:changeDirectory('${ob.path}')">${ob.name}</a>
-			</td>
-		</tr>
+	<div class="directory" style="width: 100%;">
+	
+		<c:set var="addPath" value="" />
+		<c:forEach items="${pathArray}" var="ob" varStatus="status">
+			<c:choose>
+				<c:when test="${status.index eq 0 }">
+					<c:set var="addPath" value="${ob}" />
+				</c:when>
+				<c:otherwise>
+					<c:set var="addPath" value="${addPath}/${ob}" />
+				</c:otherwise>
+			</c:choose>
+			<a href="javascript:changeDirectory('${addPath}')">${ob}</a> > 
 		</c:forEach>
-	</table>
-	
-	
-	<div class="search center">
-		<button type="button" onclick="AllViewPage('${path}')">이미지 전체 보기</button>
-		<button type="button" onclick="selectDown()">선택 다운로드</button>
+		
+		<ul style="list-style: none; width: 80%; margin:auto;">
+			<c:forEach items="${directory.folder}" var="ob">
+			<li style="display: inline-block; text-align: center;">
+				<a href="javascript:changeDirectory('${ob.path}')"  title="${ob.name}" alt="${ob.name}">
+					<img src="/img/folder.png" style="width:120px;"><br>
+					<span style="display:block; overflow:hidden; text-overflow:ellipsis; white-space: nowrap; width:120px;">${ob.name}</span>
+				</a>
+			</li>
+			</c:forEach>
+		</ul>
+		
+		<ul style="list-style: none; width: 80%; margin:auto;">
+			<c:forEach items="${directory.file}" var="ob">
+			<li style="display: inline-block; text-align: center;">
+				<a href="javascript:fileDown('${path}','${ob.name}')"  title="${ob.name}" alt="${ob.name}">
+					<img src="/img/${ob.type}.png" style="width:120px;">
+					<br>
+					<input type="checkbox" name="select" id="${status.index}" value="${ob.name}">
+					<span style="display:block; overflow:hidden; text-overflow:ellipsis; white-space: nowrap; width:120px;">${ob.name}</span>
+					<c:if test="${ob.type eq 'video'}">	
+						<button type="button" onclick="viewPage('${path}','${ob.name}', 'video');">보기</button>
+					</c:if>
+					<c:if test="${ob.type eq 'img'}">
+						<button type="button" onclick="viewPage('${path}','${ob.name}', 'image');">보기</button>
+					</c:if>
+				</a>
+			</li>
+			</c:forEach>	
+		</ul>
 	</div>
-	
-	<table class="tbl_type01">
-		<tr>
-			<th>
-				<input type="checkbox" id="allCheck" onclick="allCheck()">
-				<input type="hidden" id="path" value="${path}">
-			</th>
-			<th>
-				파일
-			</th>
-		</tr>
-		<c:forEach items="${directory.file}" var="ob" varStatus="status">
-		<tr>
-			<td>
-				<input type="checkbox" name="select" id="${status.index}" value="${ob}">
-			</td>
-			<td>
-				<ul>
-					<li>
-						<a href="javascript:fileDown('${path}','${ob}')">${ob}</a>
-					</li>
-					
-					<c:set var="ext" value="${fn:split(ob, '.')}" />
-					
-					<c:if test="${ext[fn:length(ext)-1] eq 'ogg'	or ext[fn:length(ext)-1] eq 'OGG'
-						or ext[fn:length(ext)-1] eq 'mp4'			or ext[fn:length(ext)-1] eq 'MP4'
-						or ext[fn:length(ext)-1] eq 'mkv'			or ext[fn:length(ext)-1] eq 'MKV'
-						or ext[fn:length(ext)-1] eq 'webm'			or ext[fn:length(ext)-1] eq 'WEBM'
-					}">	
-					<li>
-						<img src="/img/video.png" style="width:35px; vertical-align: middle"
-						onclick="viewPage('${path}','${ob}', 'video')">
-					</li>
-					</c:if>
-					
-					<c:if test="${
-									ext[fn:length(ext)-1] eq 'jpg'	or ext[fn:length(ext)-1] eq 'JPG'
-								or 	ext[fn:length(ext)-1] eq 'png' 	or ext[fn:length(ext)-1] eq 'PNG'
-								or 	ext[fn:length(ext)-1] eq 'jpeg' or ext[fn:length(ext)-1] eq 'JPEG'
-								or 	ext[fn:length(ext)-1] eq 'bmp'	or ext[fn:length(ext)-1] eq 'BMP'
-								or 	ext[fn:length(ext)-1] eq 'gif'	or ext[fn:length(ext)-1] eq 'GIF'
-								}">
-					<li>
-						<img src="/img/img.jpg" style="width:35px; vertical-align: middle"
-						onclick="javascript:viewPage('${path}','${ob}', 'image')">
-					</li>
-					</c:if>
-					
-				</ul>
-			</td>
-		</tr>
-		</c:forEach>
-	</table>
 </div>
 </body>
 </html>
