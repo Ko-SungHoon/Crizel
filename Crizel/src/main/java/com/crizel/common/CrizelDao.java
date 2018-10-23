@@ -1,5 +1,6 @@
 package com.crizel.common;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -56,8 +57,25 @@ public class CrizelDao {
 	}
 
 	public void listInsert(CrizelVo vo) {
+		File file = new File(vo.getDirectory().replaceAll("\\", " ").replaceAll("/", " ").replaceAll(":", " ").replaceAll("*", " ")
+				.replaceAll("\"", " ").replaceAll("<", " ").replaceAll(">", " ").replaceAll("|", " "));
+        if(!file.exists()){
+            file.mkdirs();
+        }
 		sqlSession.insert("crizel.listInsert", vo);
+	}
 
+	public void listUpdate(CrizelVo vo) {
+		File file = new File(vo.getDirectory().replaceAll("\\", " ").replaceAll("/", " ").replaceAll(":", " ").replaceAll("*", " ")
+				.replaceAll("\"", " ").replaceAll("<", " ").replaceAll(">", " ").replaceAll("|", " "));
+        if(!file.exists()){
+            file.mkdirs();
+        }
+		sqlSession.update("crizel.listUpdate", vo);
+	}
+
+	public CrizelVo aniInfo(String ani_id) {
+		return sqlSession.selectOne("crizel.aniInfo", ani_id);
 	}
 
 	public void aniDelete(CrizelVo vo) {
@@ -106,14 +124,6 @@ public class CrizelDao {
 
 	public void lastTitleInsert(Map<String, Object> map) {
 		sqlSession.update("crizel.lastTitleInsert", map);
-	}
-
-	public CrizelVo aniInfo(String ani_id) {
-		return sqlSession.selectOne("crizel.aniInfo", ani_id);
-	}
-
-	public void listUpdate(CrizelVo vo) {
-		sqlSession.update("crizel.listUpdate", vo);
 	}
 	
 

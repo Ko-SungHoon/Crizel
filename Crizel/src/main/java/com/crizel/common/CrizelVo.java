@@ -15,6 +15,7 @@ public class CrizelVo {
 	private String autoTitle;
 	private int chapter;
 	private String site;
+	private String directory;
 	
 	private String pw;
 	private String email;
@@ -44,6 +45,12 @@ public class CrizelVo {
 	
 	
 	
+	public String getDirectory() {
+		return directory;
+	}
+	public void setDirectory(String directory) {
+		this.directory = directory;
+	}
 	public int getCheck_id() {
 		return check_id;
 	}

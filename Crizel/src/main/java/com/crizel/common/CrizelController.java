@@ -106,7 +106,17 @@ public class CrizelController {
 	public ModelAndView listInsertPage(@RequestParam(value="mode", defaultValue="insert") String mode
 			                         , @RequestParam(value="ani_id", defaultValue="") String ani_id) {
 		ModelAndView mav = new ModelAndView();
-		mav.addObject("ani_info", service.aniInfo(ani_id));
+		CrizelVo ani_info = service.aniInfo(ani_id);
+		if("insert".equals(mode)){
+			ani_info = new CrizelVo();
+			ani_info.setDirectory("E:/크리젤/임시폴더/");
+		}else{
+			if(ani_info.getDirectory()==null){
+				ani_info.setDirectory("E:/크리젤/임시폴더/");
+			}
+		}
+		
+		mav.addObject("ani_info", ani_info);
 		mav.addObject("mode", mode);
 		mav.setViewName("/list/listInsertPage");
 		return mav;
@@ -114,12 +124,14 @@ public class CrizelController {
 	
 	@RequestMapping("listInsert.do")
 	public String listInsert(@ModelAttribute CrizelVo vo, @RequestParam(value="mode", defaultValue="") String mode) throws UnsupportedEncodingException {
+		vo.setDirectory(vo.getDirectory() + vo.getTitle());
 		service.listInsert(vo);
 		return "redirect:listInsertPage.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8")+"&mode="+mode;
 	}
 	
 	@RequestMapping("listUpdate.do")
 	public String listUpdate(@ModelAttribute CrizelVo vo, @RequestParam(value="mode", defaultValue="") String mode) throws UnsupportedEncodingException {
+		vo.setDirectory(vo.getDirectory().substring(0, vo.getDirectory().lastIndexOf("/")+1) + vo.getTitle());
 		service.listUpdate(vo);
 		return "redirect:list.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8")+"&mode=nyaa";
 	}
