@@ -48,6 +48,10 @@ function allCheck(){
 	}
 }
 
+function fileDelete(path, name){
+	document.deleteForm.path.value = path + "/" + name;
+	alert(document.deleteForm.path.value);
+}
 
 </script>
 </head>
@@ -66,6 +70,14 @@ function allCheck(){
 			<input type="checkbox" id="allCheck" onclick="allCheck()"><label for="allCheck">파일 전체 선택</label> 
 			<button type="button" onclick="AllViewPage('${path}')">이미지 전체 보기</button>
 			<button type="button" onclick="selectDown()">선택 다운로드</button>
+		</form>
+		<form action="/directoryUpload.do" method="post" enctype="multipart/form-data">
+			<input type="hidden" name="path" value="${path}">
+			<input type="file" name="file">
+			<input type="submit" value="업로드">
+		</form>
+		<form action="/directoryDelete.do" method="post" name="deleteForm">
+			<input type="hidden" name="path">
 		</form>
 	</div>
 	<div class="directory" style="width: 100%;">
@@ -102,14 +114,16 @@ function allCheck(){
 				<a href="javascript:fileDown('${path}','${ob.name}')"  title="${ob.name}" alt="${ob.name}">
 					<img src="/img/${ob.type}.png" style="width:120px;">
 					<br>
-					<input type="checkbox" name="select" id="${status.index}" value="${ob.name}">
-					<span style="display:block; overflow:hidden; text-overflow:ellipsis; white-space: nowrap; width:120px;">${ob.name}</span>
+					<button type="button" onclick="fileDelete('${path}','${ob.name}');">삭제</button>
 					<c:if test="${ob.type eq 'video'}">	
 						<button type="button" onclick="viewPage('${path}','${ob.name}', 'video');">보기</button>
 					</c:if>
 					<c:if test="${ob.type eq 'img'}">
 						<button type="button" onclick="viewPage('${path}','${ob.name}', 'image');">보기</button>
 					</c:if>
+					<br>
+					<input type="checkbox" name="select" id="${status.index}" value="${ob.name}">
+					<span style="display:block; overflow:hidden; text-overflow:ellipsis; white-space: nowrap; width:120px;">${ob.name}</span>
 				</a>
 			</li>
 			</c:forEach>	

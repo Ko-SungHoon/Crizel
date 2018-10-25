@@ -13,6 +13,11 @@
 <style type="text/css">
 </style>
 <script>
+function imageView(addr){
+	var win = window.open("", "_blank", "menubar=no, toolbar=no, status=no, scrollbars=yes, resizable=yes");
+	win.document.open("text/html", "replace");
+	win.document.write("<img src='" + addr + "'/ style='width:100%;'>");
+}
 </script>
 </head>
 <body>
@@ -31,7 +36,11 @@
 		<ul class="ul_type03">
 		<c:choose>
 			<c:when test="${imgList eq null}">
-				<li><img src="/videoView.do?fileValue=${fileValue}&type=image" style="width: 90%; margin: auto; display: block;"></li>
+				<li>
+					<a href="javascript:imageView('/videoView.do?fileValue=${fileValue}&type=image');">
+						<img src="/videoView.do?fileValue=${fileValue}&type=image" style="width: 90%; margin: auto; display: block;">
+					</a>
+				</li>
 			</c:when>
 			
 			<c:otherwise>
