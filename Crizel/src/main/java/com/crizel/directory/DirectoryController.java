@@ -163,4 +163,19 @@ public class DirectoryController {
 		}
 		return "redirect:directory.do?path="+path;
 	}
+	
+	
+	@RequestMapping("directoryDelete.do")
+	public String directoryDelete(HttpServletResponse response, HttpSession session, MultipartHttpServletRequest request
+			, @RequestParam(value="path", required=false) String path
+			, @RequestParam(value="name", required=false) String name){
+		File file = new File(path + "/" + name);
+		
+		if(file.isFile()){
+			file.delete();
+		}
+		
+		return "redirect:directory.do?path="+path;
+	}
+	
 }
