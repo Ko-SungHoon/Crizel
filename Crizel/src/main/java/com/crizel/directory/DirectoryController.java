@@ -11,11 +11,14 @@ import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 @Controller
@@ -132,6 +135,47 @@ public class DirectoryController {
 			}
 
 		}
+	}
+	
+	@RequestMapping("directoryUpload.do")
+	public String directoryUpload(HttpServletResponse response, HttpSession session, MultipartHttpServletRequest request
+			, @RequestParam(value="path", required=false) String path){
+		String saveFile = "";				// 저장파일명
+		String realFile = "";				// 실제파일명
+		int extIndex 	= 0;
+
+		File file = new File(path);
+		if (!file.isDirectory()) {file.mkdirs();}
+
+		List<MultipartFile> mf = request.getFiles("file");
+		
+		try{
+			for (int i = 0; i < mf.size(); i++) {
+				extIndex = mf.get(i).getOriginalFilename().lastIndexOf(".");												// 확장자를 구하기 위해 마지막 . 위치를 구함										
+				saveFile =  mf.get(i).getOriginalFilename().substring(0,extIndex) + "_" + System.currentTimeMillis();		// 확장자 앞 텍스트와 구분을 위한 문자열 추가
+				saveFile += mf.get(i).getOriginalFilename().substring(extIndex, mf.get(i).getOriginalFilename().length());	// 확장자 추가
+				realFile = mf.get(i).getOriginalFilename();
+				
+				mf.get(i).transferTo(new File(path + saveFile));
+			}
+		}catch(Exception e){
+			System.out.println("업로드 에러 : " + e.toString());
+		}
+		return "redirect:directory.do?path="+path;
+	}
+	
+	
+	@RequestMapping("directoryDelete.do")
+	public String directoryDelete(HttpServletResponse response, HttpSession session, MultipartHttpServletRequest request
+			, @RequestParam(value="path", required=false) String path
+			, @RequestParam(value="name", required=false) String name){
+		File file = new File(path + "/" + name);
+		
+		if(file.isFile()){
+			file.delete();
+		}
+		
+		return "redirect:directory.do?path="+path;
 	}
 	
 }
