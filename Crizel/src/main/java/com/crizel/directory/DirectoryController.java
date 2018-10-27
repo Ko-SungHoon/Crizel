@@ -166,11 +166,10 @@ public class DirectoryController {
 	
 	
 	@RequestMapping("directoryDelete.do")
-	public String directoryDelete(HttpServletResponse response, HttpSession session, MultipartHttpServletRequest request
+	public String directoryDelete(HttpServletResponse response, HttpSession session, HttpServletRequest request
 			, @RequestParam(value="path", required=false) String path
 			, @RequestParam(value="name", required=false) String name){
-		File file = new File(path + "/" + name);
-		
+		File file = new File(path + name);
 		if(file.isFile()){
 			file.delete();
 		}

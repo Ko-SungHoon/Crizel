@@ -57,8 +57,7 @@ public class CrizelDao {
 	}
 
 	public void listInsert(CrizelVo vo) {
-		File file = new File(vo.getDirectory().replaceAll("\\", " ").replaceAll("/", " ").replaceAll(":", " ").replaceAll("*", " ")
-				.replaceAll("\"", " ").replaceAll("<", " ").replaceAll(">", " ").replaceAll("|", " "));
+		File file = new File(vo.getDirectory());
         if(!file.exists()){
             file.mkdirs();
         }
@@ -66,8 +65,7 @@ public class CrizelDao {
 	}
 
 	public void listUpdate(CrizelVo vo) {
-		File file = new File(vo.getDirectory().replaceAll("\\", " ").replaceAll("/", " ").replaceAll(":", " ").replaceAll("*", " ")
-				.replaceAll("\"", " ").replaceAll("<", " ").replaceAll(">", " ").replaceAll("|", " "));
+		File file = new File(vo.getDirectory());
         if(!file.exists()){
             file.mkdirs();
         }
