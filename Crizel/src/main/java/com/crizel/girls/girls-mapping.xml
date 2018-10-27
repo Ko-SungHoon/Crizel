@@ -27,4 +27,8 @@
 	<select id="girlsList" resultType="com.crizel.girls.GirlsVO">
 		select * from girls order by name
 	</select>
+	
+	<select id="girlsInfo" resultType="com.crizel.girls.GirlsVO" parameterType="String">
+		select * from girls where name = #{name}
+	</select>
 </mapper>

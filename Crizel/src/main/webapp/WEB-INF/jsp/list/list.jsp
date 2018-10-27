@@ -45,6 +45,12 @@ function goLink(link, title, ani_id){
 	});
 	location.href=link;
 }
+
+function allLink(){
+	$("input[name=check]").each(function(){
+	    window.open($(this).val(), "_blank");
+	});
+}
 </script>
 </head>
 <body>
@@ -76,6 +82,7 @@ function goLink(link, title, ani_id){
 			</c:choose> --%>
 			<input type="text" name="keyword" id="keyword" value="${keyword}">
 			<button>검색</button>
+			<button type="button" onclick="allLink();">전체 링크</button>
 		</form>
 	</div>
 	<table class="tbl_type01">
@@ -107,6 +114,7 @@ function goLink(link, title, ani_id){
 					</td>
 					<td colspan="5">
 						<%-- <a href="/listDetail.do?keyword=${ob.keyword}&type=${type}&site=${ob.site}&mode=${mode}&ani_id=${ob.ani_id}" class="ani_title">${ob.title}</a> --%>
+						<input type="hidden" name="check" value="https://nyaa.si/?f=0&c=1_4&q=${ob.keyword }">
 						<a href="https://nyaa.si/?f=0&c=1_4&q=${ob.keyword }">${ob.title }</a>
 					</td>
 					<td>

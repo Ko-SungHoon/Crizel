@@ -24,6 +24,7 @@ public class GirlsController {
 		ModelAndView mav = new ModelAndView();	
 		List<Object> nameList = service.nameList();
 		List<Object> girlsList = null;
+		GirlsVO girlsInfo = service.girlsInfo(name);
 		
 		if(!"".equals(name)){
 			girlsList = service.girlsImg(name);
@@ -31,6 +32,7 @@ public class GirlsController {
 		}
 		mav.addObject("name", name);
 		mav.addObject("nameList", nameList);
+		mav.addObject("girlsInfo", girlsInfo);
 		mav.setViewName("/girls/main");
 		return mav;
 

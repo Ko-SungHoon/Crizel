@@ -61,6 +61,11 @@ function goView(addr, title, addrB ){
  		}
 	});
 }
+function allLink(){
+	$("input[name=check]").each(function(){
+	    window.open($(this).val(), "_blank");
+	});
+}
 </script>
 <style type="text/css" >
 .wrap-loading{ /*화면 전체를 어둡게 합니다.*/
@@ -90,6 +95,7 @@ function goView(addr, title, addrB ){
 				<input type="text" name="keyword" id="keyword" value="${keyword}">
 				<span onclick="$('#postForm').submit();">검색</span>
 				<a href="comicInsertPage.do">추가/삭제</a>
+				<button type="button" onclick="allLink();">전체 링크</button>
 			</form>
 		</div>
 		
@@ -103,6 +109,7 @@ function goView(addr, title, addrB ){
 			<c:forEach items="${comicList}" var="ob">
 				<tr>
 					<td colspan="2">
+						<input type="hidden" name="check" value="/comic.do?type=B&addrB=${ob.addr}">
 						<a href="/comic.do?type=B&addrB=${ob.addr}">${ob.title}</a>
 					</td>
 				</tr>
