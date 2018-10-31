@@ -24,7 +24,7 @@ public class GirlsController {
 		ModelAndView mav = new ModelAndView();	
 		List<Object> nameList = service.nameList();
 		List<Object> girlsList = null;
-		GirlsVO girlsInfo = service.girlsInfo(name);
+		List<GirlsVO> girlsInfo = service.girlsInfo(name);
 		
 		if(!"".equals(name)){
 			girlsList = service.girlsImg(name);

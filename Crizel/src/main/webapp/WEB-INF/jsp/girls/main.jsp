@@ -58,7 +58,9 @@ function allNewTap(){
 	
 	<c:if test="${girlsList ne null}">
 		<div style="text-align: center;">	
-			<a href="${girlsInfo.addr}" target="_blank">${girlsInfo.name}</a>
+			<c:forEach items="${girlsInfo}" var="ob">
+				<a href="${ob.addr}" target="blank">[${ob.type}] ${ob.name}</a> <br>
+			</c:forEach>
 		</div>
 		<ul class="ul_type03">
 		<c:forEach items="${girlsList}" var="ob">

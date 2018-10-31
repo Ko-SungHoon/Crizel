@@ -72,8 +72,8 @@ public class GirlsDao {
 		return sqlSession.selectList("girls.girlsList");
 	}
 
-	public GirlsVO girlsInfo(String name) {
-		return sqlSession.selectOne("girls.girlsInfo", name);
+	public List<GirlsVO> girlsInfo(String name) {
+		return sqlSession.selectList("girls.girlsInfo", name);
 	}
 
 }

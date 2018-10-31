@@ -135,7 +135,7 @@ public class GirlsService {
 		return dao.girlsList();
 	}
 
-	public GirlsVO girlsInfo(String name) {
+	public List<GirlsVO> girlsInfo(String name) {
 		return dao.girlsInfo(name);
 	}
 }
