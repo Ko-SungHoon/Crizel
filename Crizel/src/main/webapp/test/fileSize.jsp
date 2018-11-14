@@ -6,7 +6,7 @@
 <head>
 <meta charset="UTF-8">
 <title>JSP</title>
-<jsp:include page="/WEB-INF/jsp/header.jsp" />
+<jsp:include page="/WEB-INF/jsp/include/header.jsp" />
 <script>
 $(function(){
 	$("input[id=nt_img_real").change(function(){

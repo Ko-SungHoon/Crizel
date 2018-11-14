@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<%@include file="/WEB-INF/jsp/header.jsp" %>
+<%@include file="/WEB-INF/jsp/include/header.jsp" %>
 <title>키 테스트</title>
 <style type="text/css">
 </style>

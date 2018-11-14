@@ -11,7 +11,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<jsp:include page="/WEB-INF/jsp/header.jsp" />
+<jsp:include page="/WEB-INF/jsp/include/header.jsp" />
 <title>Diary</title>
 <script>
 $(function(){
@@ -32,7 +32,6 @@ $(function(){
 
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <%
 String day = request.getParameter("day")==null?"":request.getParameter("day");
 String year = "";
@@ -42,6 +41,7 @@ if(!"".equals(day)){
 	month = day.split("-")[1];
 }
 %>
+<%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
 <form id="postForm" method="post">
 <input type="hidden" name="day" id="day" value="${day}">

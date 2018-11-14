@@ -7,7 +7,7 @@
 <html>
 <head>
 <meta name="referrer" content="no-referrer" />
-<jsp:include page="/WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/include/header.jsp"/>
 <title>화성지부</title>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
 <style type="text/css">
@@ -32,8 +32,8 @@ function clipboardCopy(index){
 </script>
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
 <div class="content">
+<%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <%-- <%
 Cookie cookie = new Cookie("adult", "true");
 //cookie.setMaxAge(60*60*24*365);            					// 쿠키 유지 기간 - 1년

@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<jsp:include page="/WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/include/header.jsp"/>
 <title>VIEW
 </title>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -21,7 +21,7 @@ function imageView(addr){
 </script>
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
+<%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
 	<c:if test="${type eq 'video'}">
 		<video class="videoView" controls>

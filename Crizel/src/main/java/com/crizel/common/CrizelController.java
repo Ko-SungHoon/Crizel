@@ -2,37 +2,37 @@ package com.crizel.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
-import org.xml.sax.SAXException;
 
 import com.crizel.common.util.Mars;
 import com.crizel.common.util.Maru;
-import com.crizel.common.util.Music;
 import com.crizel.common.util.OneJav;
 import com.crizel.common.util.Saramin;
 import com.crizel.common.util.Torrent;
@@ -46,67 +46,90 @@ public class CrizelController {
 		super();
 		this.service = service;
 	}
+	@SuppressWarnings("unchecked")
+	@RequestMapping("/main.do")
+	public String main(Model model) throws Exception{
+		Calendar cal = Calendar.getInstance();
+		cal.add(Calendar.DATE, -7);
+		String key = "af6cbec63ac47906095794b914d659e7";
+		String day = Integer.toString(cal.get(Calendar.YEAR));
+		day += cal.get(Calendar.MONTH)+1<10?"0"+Integer.toString(cal.get(Calendar.MONTH)+1):Integer.toString(cal.get(Calendar.MONTH)+1);
+		day += cal.get(Calendar.DATE)<10?"0"+Integer.toString(cal.get(Calendar.DATE)):Integer.toString(cal.get(Calendar.DATE));
+		
+		URL url = new URL("http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchWeeklyBoxOfficeList.json?key="+key+"&targetDt="+day);
+		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+		InputStreamReader isr = new InputStreamReader(conn.getInputStream());
+		JSONObject object = (JSONObject) JSONValue.parse(isr);
+		JSONObject boxOfficeResult = (JSONObject) object.get("boxOfficeResult");
+		JSONArray weeklyBoxOfficeList = (JSONArray) boxOfficeResult.get("weeklyBoxOfficeList");
+		
+		model.addAttribute("movieType", boxOfficeResult);
+		model.addAttribute("movieList", weeklyBoxOfficeList);
+			
+		Saramin saram = new Saramin();
+		List<Map<String,Object>> list = saram.getList();
+		
+		JSONArray arr = new JSONArray();
+		for(Map<String,Object> ob : list){
+			JSONObject obj = new JSONObject();
+			obj.put("url", ob.get("url").toString());
+			obj.put("name", ob.get("name").toString());
+			obj.put("salary", ob.get("salary").toString());
+			obj.put("category", ob.get("job-category").toString());
+			arr.add(obj);
+		}
+		model.addAttribute("saraminList", arr);
+		
+		return "/main";
+	}
+	
 	@RequestMapping("list.do")
-	public ModelAndView list(
-			@RequestParam(value="day", required=false, defaultValue="today") String day,
-			@RequestParam(value="mode", required=false, defaultValue="") String mode,
-			@RequestParam(value="type", required=false, defaultValue="") String type) {
-		ModelAndView mav = new ModelAndView();		
+	public String list( @RequestParam(value="day", required=false, defaultValue="today") String day,
+						@RequestParam(value="mode", required=false, defaultValue="") String mode,
+						@RequestParam(value="type", required=false, defaultValue="") String type,
+						Model model) {
 		Calendar cal = Calendar.getInstance();
 		final String[] week = { "일", "월", "화", "수", "목", "금", "토" };
 		if (day.equals("today")) {
 			day = week[cal.get(Calendar.DAY_OF_WEEK) - 1];
 		}
-		mav.addObject("list", service.list(day));
-		mav.addObject("day", day);
-		mav.addObject("mode", mode);
-		mav.addObject("type", type);
-		mav.setViewName("/list/list");
-		return mav;
+		model.addAttribute("list", service.list(day));
+		model.addAttribute("day", day);
+		model.addAttribute("mode", mode);
+		model.addAttribute("type", type);
+		return "/list/list";
 	}
 
 	@RequestMapping("listDetail.do")
-	public ModelAndView listDetail(@RequestParam String keyword, String type, String site,
-			@RequestParam(value="mode", defaultValue="") String mode,
-			@RequestParam(value="ani_id", defaultValue="") String ani_id,
-			HttpServletResponse response) throws Exception,
-			SAXException, IOException {
-		ModelAndView mav = new ModelAndView();
-		mav.addObject("listDetail",service.listDetail(keyword, type, site, mode));
-		mav.addObject("mode", mode);
-		mav.addObject("type", type);
-		mav.addObject("keyword", keyword);
-		mav.addObject("ani_id", ani_id);
-		mav.addObject("last_title", service.lastTitle(ani_id));
-		mav.setViewName("/list/list");
-		return mav;
-	}
-	
-	@RequestMapping("lastTitleInsert.do")
-	public void lastTitleInsert(@RequestParam(value="title", defaultValue="") String title
-								, @RequestParam(value="ani_id", defaultValue="") String ani_id
-								, HttpServletResponse response) throws IOException{
-		Map<String,Object> map = new HashMap<String,Object>();
-		map.put("title", title);
-		map.put("ani_id", ani_id);
-		service.lastTitleInsert(map);
-		response.setContentType("application/x-www-form-urlencoded; charset=utf-8");
-		response.getWriter().print("Y");
+	public String listDetail( @RequestParam(value="keyword", defaultValue="") String keyword, 
+									@RequestParam(value="type", defaultValue="") String type, 
+									@RequestParam(value="site", defaultValue="") String site,
+									@RequestParam(value="mode", defaultValue="") String mode,
+									@RequestParam(value="ani_id", defaultValue="") String ani_id,
+									Model model,
+									HttpServletResponse response, HttpServletRequest request, HttpSession session) throws Exception{
+		model.addAttribute("listDetail",service.listDetail(keyword, type, site, mode));
+		model.addAttribute("mode", mode);
+		model.addAttribute("type", type);
+		model.addAttribute("keyword", keyword);
+		model.addAttribute("ani_id", ani_id);
+		return "/list/list";
 	}
 	
 	@RequestMapping("aniDelete.do")
 	public String aniDelete(@ModelAttribute CrizelVo vo,
-			@RequestParam(value="mode", defaultValue="") String mode){
+							@RequestParam(value="mode", defaultValue="") String mode,
+							HttpServletResponse response, HttpServletRequest request, HttpSession session){
 		service.aniDelete(vo);
 		return "redirect:list.do?day=today&mode="+mode;
 	}
 
 		
 	@RequestMapping("listInsertPage.do")
-	public ModelAndView listInsertPage(@RequestParam(value="mode", defaultValue="insert") String mode
-			                         , @RequestParam(value="ani_id", defaultValue="") String ani_id
-			                         , @RequestParam(value="path", defaultValue="E:/크리젤/임시폴더/") String path) {
-		ModelAndView mav = new ModelAndView();
+	public String listInsertPage(@RequestParam(value="mode", defaultValue="insert") String mode, 
+			             	     @RequestParam(value="ani_id", defaultValue="") String ani_id, 
+			                	 @RequestParam(value="path", defaultValue="E:/크리젤/임시폴더/") String path,
+			                	 Model model) {
 		CrizelVo ani_info = service.aniInfo(ani_id);
 		if("insert".equals(mode)){
 			ani_info = new CrizelVo();
@@ -116,22 +139,22 @@ public class CrizelController {
 				ani_info.setDirectory(path);
 			}
 		}
-		
-		mav.addObject("ani_info", ani_info);
-		mav.addObject("mode", mode);
-		mav.setViewName("/list/listInsertPage");
-		return mav;
+		model.addAttribute("ani_info", ani_info);
+		model.addAttribute("mode", mode);
+		return "/list/listInsertPage";
 	}
 	
 	@RequestMapping("listInsert.do")
-	public String listInsert(@ModelAttribute CrizelVo vo, @RequestParam(value="mode", defaultValue="") String mode) throws UnsupportedEncodingException {
+	public String listInsert(@ModelAttribute CrizelVo vo, 
+			 				 @RequestParam(value="mode", defaultValue="") String mode) throws Exception {
 		vo.setDirectory(vo.getDirectory() + vo.getTitle());
 		service.listInsert(vo);
 		return "redirect:listInsertPage.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8")+"&mode="+mode;
 	}
 	
 	@RequestMapping("listUpdate.do")
-	public String listUpdate(@ModelAttribute CrizelVo vo, @RequestParam(value="mode", defaultValue="") String mode) throws UnsupportedEncodingException {
+	public String listUpdate(@ModelAttribute CrizelVo vo, 
+							 @RequestParam(value="mode", defaultValue="") String mode) throws Exception {
 		vo.setDirectory(vo.getDirectory().substring(0, vo.getDirectory().lastIndexOf("/")+1) + vo.getTitle());
 		service.listUpdate(vo);
 		return "redirect:list.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8")+"&mode=nyaa";
@@ -139,42 +162,38 @@ public class CrizelController {
 	
 	@RequestMapping("loginPage.do")
 	public String loginPage() {
-		return "login";
+		return "/account/login";
 	}
 	
 	@RequestMapping("login.do")
-	public ModelAndView login(@ModelAttribute CrizelVo vo, HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		ModelAndView mav = new ModelAndView();
-		String referer = request.getParameter("referer")==null?"/":request.getParameter("referer");
-		
+	public String login(@ModelAttribute CrizelVo vo, 
+						@RequestParam(value="referer", defaultValue="/") String referer,
+						Model model,
+						HttpServletResponse response, HttpServletRequest request, HttpSession session) throws Exception {
+		String returnUrl = "";
 		CrizelVo vo2 = service.login(vo);
-		
-		HttpSession session = request.getSession();
 		session.setAttribute("login", vo2);
 		
 		if(vo2==null){
-			mav.addObject("message", "계정을 확인하여 주시기 바랍니다.");
-			mav.addObject("returnPage", referer);
-			mav.setViewName("/util/alertPage");
+			model.addAttribute("message", "계정을 확인하여 주시기 바랍니다.");
+			model.addAttribute("returnPage", referer);
+			returnUrl = "/util/alertPage";
 		}else{
-			mav.addObject("returnPage", referer);
-			mav.setViewName("/util/returnPage");
+			model.addAttribute("returnPage", referer);
+			returnUrl = "/util/returnPage";
 		}
-		
-		return mav;
+		return returnUrl;
 	}
 
 	@RequestMapping("logout.do")
-	public void logout(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		HttpSession session = request.getSession();
+	public void logout(HttpServletResponse response, HttpServletRequest request, HttpSession session) throws Exception {
 		session.invalidate();
 		response.sendRedirect("/");
 	}
 
 	@RequestMapping("registerPage.do")
 	public String registerPage() {
-		return "registerPage";
+		return "/account/registerPage";
 	}
 
 	@RequestMapping("register.do")
@@ -205,24 +224,24 @@ public class CrizelController {
 	}
 	
 	@RequestMapping("comic")
-	public ModelAndView comic(	@RequestParam(value="type", required=false, defaultValue="") String type
-							,	@RequestParam(value="keyword", required=false, defaultValue="") String keyword
-							,	@RequestParam(value="addrA", required=false, defaultValue="") String addrA
-							,	@RequestParam(value="addrB", required=false, defaultValue="") String addrB
-							,	@RequestParam(value="addrC", required=false, defaultValue="") String addrC
-							,	@RequestParam(value="title", required=false, defaultValue="") String title
+	public String comic(@RequestParam(value="type", required=false, defaultValue="") String type,	
+						@RequestParam(value="keyword", required=false, defaultValue="") String keyword,	
+						@RequestParam(value="addrA", required=false, defaultValue="") String addrA,	
+						@RequestParam(value="addrB", required=false, defaultValue="") String addrB,	
+						@RequestParam(value="addrC", required=false, defaultValue="") String addrC,	
+						@RequestParam(value="title", required=false, defaultValue="") String title,
+						Model model
 			) throws Exception {
-		ModelAndView mav = new ModelAndView();
 		Maru mr = new Maru();
 		
 		if("A".equals(type)){
 			// 검색했을 때 만화제목이 나오는 목록
-			mav.addObject("list", mr.getList("http://marumaru.in/?r=home&mod=search&keyword=" + URLEncoder.encode(keyword, "UTF-8")));
+			model.addAttribute("list", mr.getList("http://marumaru.in/?r=home&mod=search&keyword=" + URLEncoder.encode(keyword, "UTF-8")));
 		}else if("B".equals(type)){
 			// 만화 화수 목록
-			mav.addObject("viewList", mr.getComic("http://marumaru.in/" + addrB));
-			mav.addObject("comicViewList", service.comicViewList(addrB));	// viewCount 목록
-			mav.addObject("addrB", addrB);									// 만화 viewCount 업데이트 시 where절에 쓸 주소
+			model.addAttribute("viewList", mr.getComic("http://marumaru.in/" + addrB));
+			model.addAttribute("comicViewList", service.comicViewList(addrB));	// viewCount 목록
+			model.addAttribute("addrB", addrB);									// 만화 viewCount 업데이트 시 where절에 쓸 주소
 			
 			//	읽은 화수 표시
 			Map<String,Object> map = new HashMap<String,Object>();
@@ -231,12 +250,12 @@ public class CrizelController {
 			service.comicViewCheck(map);
 		}else if("C".equals(type)){
 			// 만화 이미지 리스트
-			mav.addObject("imgList", mr.getView(addrC));
+			model.addAttribute("imgList", mr.getView(addrC));
 			
 			// 만화 화수 목록(만화 밑에 뜨게)
-			mav.addObject("viewList", mr.getComic("http://marumaru.in/" + addrB));
-			mav.addObject("comicViewList", service.comicViewList(addrB));	// viewCount 목록
-			mav.addObject("addrB", addrB);									// 만화 viewCount 업데이트 시 where절에 쓸 주소
+			model.addAttribute("viewList", mr.getComic("http://marumaru.in/" + addrB));
+			model.addAttribute("comicViewList", service.comicViewList(addrB));	// viewCount 목록
+			model.addAttribute("addrB", addrB);									// 만화 viewCount 업데이트 시 where절에 쓸 주소
 			
 			Map<String,Object> map = new HashMap<String,Object>();
 			map.put("title", title);
@@ -244,22 +263,19 @@ public class CrizelController {
 			service.comicViewCheck(map);
 			
 		}else{
-			mav.addObject("comicList", service.comicList());
+			model.addAttribute("comicList", service.comicList());
 		}
 		
-		mav.addObject("type", type);
-		mav.addObject("keyword", keyword);
-		mav.setViewName("comic/main");
-		return mav;
+		model.addAttribute("type", type);
+		model.addAttribute("keyword", keyword);
+		return "comic/list";
 	}
 	
 	@RequestMapping("comicInsertPage")
-	public ModelAndView comicInsertPage(HttpServletRequest request, HttpServletResponse response) {
-		ModelAndView mav = new ModelAndView();	
+	public String comicInsertPage(HttpServletRequest request, HttpServletResponse response, Model model) {
 		List<Object> comicList = service.comicList();
-		mav.addObject("comicList", comicList);
-		mav.setViewName("comic/comicInsertPage");
-		return mav;
+		model.addAttribute("comicList", comicList);
+		return "comic/comicInsertPage";
 	}
 	
 	@RequestMapping("comicInsert")
@@ -302,83 +318,6 @@ public class CrizelController {
 		response.getWriter().print("1");
 	}
 	
-	
-	@RequestMapping("yes24.do")
-	public ModelAndView yes24(@RequestParam(value="keyword", required=false)String keyword ,
-							  @RequestParam(value="PageNumber", required=false, defaultValue="1")String PageNumber) throws IOException {
-		ModelAndView mav = new ModelAndView();		
-		mav.addObject("list", service.yes24(keyword, PageNumber));
-		mav.addObject("page", service.yes24Page(keyword, PageNumber));
-		mav.addObject("keyword", keyword);
-		mav.setViewName("/yes24");
-		return mav;
-	}
-	
-	@SuppressWarnings("unchecked")
-	@RequestMapping("json.do")
-	public void json(HttpServletResponse response,
-			@RequestParam(value="keyword", defaultValue="" )String keyword) throws IOException{
-		List<CrizelVo> jsonList = service.json(keyword);
-		
-		JSONArray arr = new JSONArray();
-		for(CrizelVo ob : jsonList){
-			JSONObject obj = new JSONObject();
-			obj.put("name", ob.getName());
-			obj.put("addr", ob.getAddr());
-			
-			arr.add(obj);
-		}
-		
-		response.setContentType("application/x-json; charset=UTF-8");
-		response.getWriter().print(arr);
-	}
-	
-	@RequestMapping("nico.do")
-	public ModelAndView nico(@RequestParam(value="keyword", required=false, defaultValue="佐倉としたい大西") String keyword,
-							 @RequestParam(value="type", required=false, defaultValue="A") String type,
-							 @RequestParam(value="url", required=false, defaultValue="") String url){
-		ModelAndView mav = new ModelAndView();	
-		mav.addObject("data", service.nico(keyword, type, url));
-		mav.addObject("keyword", keyword);
-		mav.addObject("type", type);
-		mav.addObject("url", url);
-		mav.setViewName("/nico");
-		return mav;
-	}
-	
-	@SuppressWarnings("unchecked")
-	@RequestMapping("saramin.do")
-	public void saramin(HttpServletResponse response) throws Exception {
-		Saramin saram = new Saramin();
-		List<Map<String,Object>> list = saram.getList();
-		
-		JSONArray arr = new JSONArray();
-		for(Map<String,Object> ob : list){
-			JSONObject obj = new JSONObject();
-			obj.put("url", ob.get("url").toString());
-			obj.put("name", ob.get("name").toString());
-			obj.put("salary", ob.get("salary").toString());
-			obj.put("category", ob.get("job-category").toString());
-			arr.add(obj);
-		}
-		
-		response.setContentType("application/x-json; charset=UTF-8");
-		response.getWriter().print(arr);
-		
-	}
-	
-	@RequestMapping("music.do")
-	public ModelAndView music(
-			@RequestParam(value="url", required=false, defaultValue="http://hikarinoakariost.info/") String url,
-			HttpServletResponse response) throws Exception {
-		ModelAndView mav = new ModelAndView();
-		Music music = new Music();
-		mav.addObject("music", music.music(url));
-		mav.setViewName("music");
-		return mav;
-		
-	}
-	
 	@RequestMapping("torrent")
 	public ModelAndView torrent() throws UnsupportedEncodingException{
 		ModelAndView mav = new ModelAndView();
@@ -405,8 +344,10 @@ public class CrizelController {
 	}
 	
 	@RequestMapping("onejav")
-	public ModelAndView onejav(	@RequestParam(value="addr", defaultValue="") String addr
-							,	@RequestParam(value="type", defaultValue="list") String type) throws Exception{
+	public String onejav(@RequestParam(value="addr", defaultValue="") String addr,	
+						 @RequestParam(value="type", defaultValue="list") String type) throws Exception{
+		ModelAndView mav = new ModelAndView();
+		
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, -1);		
 		String year 	= Integer.toString(cal.get(Calendar.YEAR));
@@ -414,15 +355,7 @@ public class CrizelController {
 		String day		= cal.get(Calendar.DATE)<10		?"0" + Integer.toString(cal.get(Calendar.DATE)) : Integer.toString(cal.get(Calendar.DATE));
 		
 		if("".equals(addr)){
-			addr = "http://www.onejav.com/" + year + "/" + month + "/" + day;
-		}
-		
-		ModelAndView mav = new ModelAndView();
-		
-		List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
-		
-		for(int i=1; i<=4; i++){
-			
+			addr = "https://www.onejav.com/" + year + "/" + month + "/" + day;
 		}
 
 		OneJav oj = new OneJav();
@@ -433,15 +366,13 @@ public class CrizelController {
 		mav.addObject("month", month);
 		mav.addObject("day", day);
 		
-		mav.setViewName("onejav");
-		return mav;
+		return "onejav";
 	}
 	
 	@RequestMapping("fileUpload.do")
 	public void fileUpload(	@RequestParam(value="directory", defaultValue="D:\\test\\") String directory
 						,	MultipartHttpServletRequest request
 			) throws Exception {
-		ModelAndView mav = new ModelAndView();
 		String path 	= directory;		// 경로
 		String saveFile = "";				// 저장파일명
 		String realFile = "";				// 실제파일명

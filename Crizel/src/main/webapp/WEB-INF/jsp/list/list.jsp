@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<jsp:include page="/WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/include/header.jsp"/>
 <title>List</title>
 <script>
 $(function(){
@@ -54,32 +54,12 @@ function allLink(){
 </script>
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
+<%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
 	<input type="hidden" value="${day}" id="dayCheck">
 	<div class="search center">
 		<!-- <form action="/listDetail.do" method="get"> -->
 		<form action="https://nyaa.si/?f=0&c=1_4&q=" method="get">
-			<%-- <c:choose>
-				<c:when test="${mode eq 'nyaa'}">
-					<button type="button" onclick="location.href='/list.do'">ohys&leopard</button>
-					<input type="hidden" id="mode" name="mode" value="nyaa">
-					<select id="type" name="type">
-						<option value="1_0" <c:if test="${type eq '1_0'}"> selected </c:if>>VIDEO</option>
-						<option value="2_0" <c:if test="${type eq '2_0'}"> selected </c:if>>AUDIO</option>
-						<option value="4_0" <c:if test="${type eq '4_0'}"> selected </c:if>>LIVE</option>
-						<option value="5_0" <c:if test="${type eq '5_0'}"> selected </c:if>>PICTURE</option>
-					</select>
-				</c:when>
-				<c:otherwise>
-					<button type="button" onclick="location.href='/list.do?mode=nyaa'">nyaa</button>
-					<input type="hidden" id="type" name="type" value="video">
-					<select id="site" name="site">
-						<option value="ohys">ohys</option>
-						<option value="leopard">leopard</option>
-					</select>
-				</c:otherwise>
-			</c:choose> --%>
 			<input type="text" name="keyword" id="keyword" value="${keyword}">
 			<button>검색</button>
 			<button type="button" onclick="allLink();">전체 링크</button>
@@ -124,9 +104,6 @@ function allLink(){
 			</c:forEach>
 		</c:if>
 		<c:if test="${listDetail ne null}">
-				<tr>
-					<th colspan="7"><span id="list_title">${last_title}</span></th>
-				</tr>
 			<c:forEach items="${listDetail}" var="ob">
 				<tr>
 					<c:choose>
@@ -144,7 +121,6 @@ function allLink(){
 							</td>
 						</c:otherwise>
 					</c:choose>
-					
 				</tr>
 			</c:forEach>
 		</c:if>

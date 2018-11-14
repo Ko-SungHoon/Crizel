@@ -6,7 +6,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<jsp:include page="/WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/include/header.jsp"/>
 <title>DIRECTORY
 </title>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
@@ -59,7 +59,7 @@ function fileDelete(path, name){
 </script>
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
+<%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
 	<div class="search">
 		<form action="/directory.do" method="get" id="postForm">

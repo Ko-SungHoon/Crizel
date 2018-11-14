@@ -33,7 +33,7 @@ public class GirlsController {
 		mav.addObject("name", name);
 		mav.addObject("nameList", nameList);
 		mav.addObject("girlsInfo", girlsInfo);
-		mav.setViewName("/girls/main");
+		mav.setViewName("/girls/list");
 		return mav;
 
 	}

@@ -90,17 +90,6 @@
 		select * from ani;
 	</select>
 	
-	<update id="lastTitleInsert" parameterType="HashMap">
-		UPDATE ANI SET LAST_TITLE = #{title} 
-		WHERE ANI_ID = #{ani_id}
-	</update>
-	
-	<select id="lastTitle" parameterType="String" resultType="String">
-		SELECT LAST_TITLE
-		FROM ANI
-		WHERE ANI_ID = #{ani_id}
-	</select>
-	
 	<select id="aniInfo" parameterType="String" resultType="com.crizel.common.CrizelVo">
 		SELECT *
 		FROM ANI
@@ -128,82 +117,6 @@
 		select * from login where id=#{id} and pw=#{pw}
 	</select>
 
-	<select id="board" parameterType="int" resultType="com.crizel.common.CrizelVo">
-		select
-		X.rnum, X.nick, X.subject, X.content, X.write_date, X.board_id
-		from (
-			select rownum as rnum, A.nick, A.subject, A.content,
-			A.write_date, A.board_id
-			from (
-					select nick, subject, content,
-					write_date, board_id
-					from board
-					order by board_id) A
-				where rownum <![CDATA[ <= ]]>
-			#{pagingCount}) X
-		where X.rnum <![CDATA[ >= ]]>
-		#{pagingCount}-9
-		order by rnum desc
-	</select>
-
-	<select id="totalCount" resultType="int">
-		select count(*) from board
-	</select>
-
-	<insert id="boardInsert" parameterType="com.crizel.common.CrizelVo">
-		insert into board
-		values((select nvl(max(board_id)+1,1) from board), #{nick}, #{subject}, #{content},
-		to_char(sysdate,'yyyy.mm.dd') )
-	</insert>
-
-	<select id="boardContent" resultType="com.crizel.common.CrizelVo"
-		parameterType="com.crizel.common.CrizelVo">
-		select * from board where board_id=#{board_id}
-	</select>
-
-	<select id="realFile" resultType="String" parameterType="String">
-		select
-		realFile from fileUpload where saveFile=#{fileName}
-	</select>
-
-	<select id="searchBoardId" resultType="int" parameterType="String">
-		select max(board_id) from board
-	</select>
-
-	<insert id="fileInsert" parameterType="com.crizel.common.CrizelVo">
-		insert into fileUpload
-		values((select * from (select ifnull(max(file_id)+1,1) from fileUpload)tmp), #{board_id}, 
-		#{file_directory}, #{realFile}, #{saveFile}	)
-	</insert>
-	
-	<select id="fileAllDel" parameterType="com.crizel.common.CrizelVo">
-		delete from fileUpload where board_id=#{board_id}
-	</select>
-	
-	<select id="boardContentFile" resultType="com.crizel.common.CrizelVo"
-		parameterType="com.crizel.common.CrizelVo">		
-		select * from fileUpload where board_id=#{board_id}
-	</select>
-
-	<delete id="boardDelete" parameterType="int">
-		delete from board where
-		board_id=#{board_id}
-	</delete>
-	
-	<delete id="boardFileAllDel" parameterType="int">
-		delete from fileUpload where
-		board_id=#{board_id}
-	</delete>
-	
-	<update id="boardUpdate" parameterType="com.crizel.common.CrizelVo">
-		 update board set nick=#{nick}, subject=#{subject}, content=#{content}, write_date=to_char(sysdate,'yyyy.mm.dd')
-		 where board_id=#{board_id}
-	</update>
-	
-	<delete id="boardFileDel" parameterType="com.crizel.common.CrizelVo">
-		delete from fileUpload where saveFile=#{saveFile}
-	</delete>
-
 	<insert id="register" parameterType="com.crizel.common.CrizelVo">
 		insert into login
 		values(#{id}, #{pw}, #{name}, #{email}, #{phone}, #{nick},
@@ -212,17 +125,6 @@
 
 	<select id="registerCheck" parameterType="String" resultType="String">
 		select id from login where id=#{re_id}
-	</select>
-	
-	<select id="json" parameterType="String" resultType="com.crizel.common.CrizelVo">
-		select * 
-		from girls 
-		where name in ('경리', '나나', '설현', '수지', '윤태진')
-		<!-- <if test="value != null and !value.equals('')">
-			where name like '%'||#{value}||'%' 
-		</if> -->
-		
-		order by name
 	</select>
 	
 	<select id="comicList" resultType="com.crizel.common.CrizelVo">

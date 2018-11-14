@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<jsp:include page="/WEB-INF/jsp/header.jsp" />
+<jsp:include page="/WEB-INF/jsp/include/header.jsp" />
 <title>Diary</title>
 <script>
 function dayChange(value){
@@ -18,7 +18,7 @@ function dayChange(value){
 </style>
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
+<%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
 	<input type="hidden" name="month" id="month" value="${cal.month}">
 	<input type="hidden" name="year" id="year" value="${cal.year}">

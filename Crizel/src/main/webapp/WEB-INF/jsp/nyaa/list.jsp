@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<jsp:include page="/WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/include/header.jsp"/>
 <title>Nyaa</title>
 <style type="text/css">
 </style>
@@ -13,7 +13,7 @@
 </script>
 </head>
 <body>
-<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
+<%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
 <div class="search center">
 	<form action="/nyaa.do" method="get">

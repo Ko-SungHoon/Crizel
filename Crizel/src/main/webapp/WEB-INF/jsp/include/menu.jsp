@@ -1,14 +1,6 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
-<%@ page import="java.util.*" %>
-<%
-/* Map<String,Object> crizelMap = new HashMap<String,Object>();
-crizelMap.put("id", "rhzhzh3");
-crizelMap.put("nick", "크리젤");
-request.getSession().setAttribute("login", crizelMap); */
-%>
 <script>
 $(function(){
 	$("#home").click(function(){
@@ -69,12 +61,6 @@ $(function(){
 			<a href="/logout.do">로그아웃</a>
 		</c:if>
 	</span>
-	
-	<!--
-		<div class="drop_btn" style="width: 100%; text-align: center;">
-		<span>메뉴</span>
-		</div> 
-	-->
 </nav>
 
 <style>
@@ -107,53 +93,3 @@ $(function(){
 <span id="remoCon">
 	Going Up 
 </span> 
-
-<!-- The Modal -->
-	<div id="myModal" class="modal">
-		<!-- Modal content -->
-		<div class="modal-content">
-			<table>
-				<tr>
-					<c:if test="${login eq null}">
-						<td colspan="2">로그인</td>
-					</c:if>
-				</tr>
-				<tr>
-					<td>ID</td>
-					<td><input type="text" name="id" id="id"></td>
-				</tr>
-				<tr>
-					<td>PW</td>
-					<td><input type="password" name="pw" id="pw"></td>
-				</tr>
-				<tr>
-					<td colspan="2"><input type="button" value="로그인" id="call">
-						&nbsp; <input class="modalClose" type="button" value="닫기"
-						style="cursor: pointer;"></td>
-				</tr>
-			</table>
-		</div>
-	</div>
-
-
-	<script>
-	
-	$(function(){
-		var modal = document.getElementById('myModal');
-		var btn = document.getElementById("myBtn");
-		var modalClose = document.getElementsByClassName("modalClose")[0];
-		
-		$("#myBtn").click(function(){
-			$("#myModal").css("display", "block");
-		});
-		$("#modalClose").click(function(){
-			$("#myModal").css("display", "none");
-		});
-		window.onclick = function(event) {
-			if (event.target == modal) {
-				modal.style.display = "none";
-			}
-		}
-	});
-		
-	</script>

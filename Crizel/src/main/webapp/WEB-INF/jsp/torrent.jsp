@@ -6,7 +6,7 @@
 <html>
 <head>
 <meta name="referrer" content="no-referrer" />
-<jsp:include page="/WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/include/header.jsp"/>
 <title>
 TORRENT
 </title>
@@ -30,7 +30,7 @@ function allCheck(){
 </script>
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
+<%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
 	<div class="search center">
 		<button type="button" onclick="allNewTap()">전체 다운</button>

@@ -7,7 +7,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<jsp:include page="/WEB-INF/jsp/header.jsp"/>
+<jsp:include page="/WEB-INF/jsp/include/header.jsp"/>
 <title>BOARD</title>
 <script>
 function boardWritePage(){
@@ -22,7 +22,7 @@ function boardWritePage(){
 </script>
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
+	<jsp:include page="/WEB-INF/jsp/include/menu.jsp"/>
 <div class="content">	
 	<div class="search center">
 		<form action="/board.do" method="get">

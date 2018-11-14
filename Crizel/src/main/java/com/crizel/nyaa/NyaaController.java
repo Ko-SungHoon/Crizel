@@ -28,7 +28,7 @@ public class NyaaController {
 		mav.addObject("nyaaList", nyaaList);
 		mav.addObject("type", type);
 		mav.addObject("keyword", keyword);
-		mav.setViewName("/nyaa/main");
+		mav.setViewName("/nyaa/list");
 		return mav;
 	}
 }

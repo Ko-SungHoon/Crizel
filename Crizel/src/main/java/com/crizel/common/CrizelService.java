@@ -23,7 +23,6 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -31,9 +30,6 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.xml.sax.SAXException;
-
-import com.crizel.common.util.Nico;
 
 
 @Service("service")
@@ -149,9 +145,7 @@ public class CrizelService {
 		}		
 		return value;
 	}
-	public List<CrizelVo> json(String keyword) {
-		return dao.json(keyword);
-	}
+	
 	public List<Map<String, Object>> comic(String type, String keyword, String list, String img){
 		List<Map<String,Object>> comicList = new ArrayList<Map<String,Object>>();
         Map<String,Object> comicMap = null;
@@ -485,11 +479,6 @@ public class CrizelService {
         }
 	}
 
-	public Object nico(String keyword, String type, String url) {
-		Nico nico = new Nico();
-		return nico.data(keyword, type, url);
-	}
-
 	public List<Object> comicList() {
 		return dao.comicList();
 	}
@@ -508,14 +497,6 @@ public class CrizelService {
 
 	public List<Map<String, Object>> comicViewList(String addr) {
 		return dao.comicViewList(addr);
-	}
-
-	public String lastTitle(String ani_id) {
-		return dao.lastTitle(ani_id);
-	}
-
-	public void lastTitleInsert(Map<String, Object> map) {
-		dao.lastTitleInsert(map);
 	}
 
 	public CrizelVo aniInfo(String ani_id) {

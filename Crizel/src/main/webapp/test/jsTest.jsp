@@ -30,7 +30,7 @@ $(function(){
 <title>Crizel</title>
 </head>
 <body>
-<%@include file="/WEB-INF/jsp/header.jsp" %>
+<%@include file="/WEB-INF/jsp/include/header.jsp" %>
 
 <span id="jsTest">테스트</span>
 <input type="text" id="inputTest">

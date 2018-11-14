@@ -1,18 +1,14 @@
 package com.crizel.common;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import org.xml.sax.SAXException;
 
 import com.crizel.common.util.Leopard;
 import com.crizel.common.util.Ohys;
@@ -92,10 +88,6 @@ public class CrizelDao {
 		return sqlSession.selectOne("crizel.registerCheck", re_id);
 	}
 
-	public List<CrizelVo> json(String keyword) {
-		return sqlSession.selectList("crizel.json", keyword);
-	}
-
 	public List<Object> comicList() {
 		return sqlSession.selectList("crizel.comicList");
 	}
@@ -115,14 +107,5 @@ public class CrizelDao {
 	public List<Map<String, Object>> comicViewList(String addr) {
 		return sqlSession.selectList("crizel.comicViewList", addr);
 	}
-
-	public String lastTitle(String ani_id) {
-		return sqlSession.selectOne("crizel.lastTitle", ani_id);
-	}
-
-	public void lastTitleInsert(Map<String, Object> map) {
-		sqlSession.update("crizel.lastTitleInsert", map);
-	}
-	
 
 }

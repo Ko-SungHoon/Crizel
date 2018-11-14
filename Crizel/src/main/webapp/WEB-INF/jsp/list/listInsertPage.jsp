@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<jsp:include page="/WEB-INF/jsp/header.jsp" />
+<jsp:include page="/WEB-INF/jsp/include/header.jsp" />
 <title>Insert </title>
 <script>
 function formSubmit(){
@@ -34,7 +34,7 @@ function formSubmit(){
 </script>
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/menu.jsp" />
+<%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <%
 String day = request.getParameter("day")==null?"":request.getParameter("day");
 String dayArr[] = {"월", "화", "수", "목", "금", "토", "일"};

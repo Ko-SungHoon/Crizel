@@ -5,7 +5,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<jsp:include page="/WEB-INF/jsp/header.jsp" />
+<jsp:include page="/WEB-INF/jsp/include/header.jsp" />
 <title>Diary</title>
 <script>
 $(function(){
@@ -39,7 +39,7 @@ $(function(){
 </script>
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/menu.jsp"/>
+<%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
 	<form id="postForm" method="post">
 		<input type="hidden" name="diary_date" id="diary_date" value="${day}">

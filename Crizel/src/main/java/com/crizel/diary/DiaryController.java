@@ -36,7 +36,7 @@ public class DiaryController {
 		
 		mav.addObject("useDay", useDay);
 		mav.addObject("cal", map);
-		mav.setViewName("/diary/main");
+		mav.setViewName("/diary/list");
 		return mav;
 
 	}

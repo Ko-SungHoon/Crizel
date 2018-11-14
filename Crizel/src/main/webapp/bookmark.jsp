@@ -23,7 +23,7 @@
 </head>
 
 <body>
-	<jsp:include page="/WEB-INF/jsp/header.jsp" />
+	<jsp:include page="/WEB-INF/jsp/include/header.jsp" />
 	<div class="content">
 		<ul class="nameList3">
 			<c:if test="${login.id ne null }">

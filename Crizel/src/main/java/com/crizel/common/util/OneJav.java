@@ -67,10 +67,10 @@ public class OneJav {
 				Element link = linkElem!=null && linkElem.size()>i?linkElem.get(i):null;
 				
 				map.put("img", img!=null?img.attr("src"):"");
-				map.put("addr", link!=null?"http://www.onejav.com/" + getView("http://www.onejav.com/" + link.attr("href")):"");
+				map.put("addr", link!=null?"https://www.onejav.com/" + getView("https://www.onejav.com/" + link.attr("href")):"");
 				map.put("title", link!=null?link.text():"");
 				map.put("name", name!=null?name.text():"");
-				map.put("name_link", name!=null?"http://www.onejav.com/" + name.attr("href"):"");
+				map.put("name_link", name!=null?"https://www.onejav.com/" + name.attr("href"):"");
 				
 				list.add(map);
 			}
