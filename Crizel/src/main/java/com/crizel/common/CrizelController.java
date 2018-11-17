@@ -345,8 +345,8 @@ public class CrizelController {
 	
 	@RequestMapping("onejav")
 	public String onejav(@RequestParam(value="addr", defaultValue="") String addr,	
-						 @RequestParam(value="type", defaultValue="list") String type) throws Exception{
-		ModelAndView mav = new ModelAndView();
+						 @RequestParam(value="type", defaultValue="list") String type,
+						 Model model) throws Exception{
 		
 		Calendar cal = Calendar.getInstance();
 		cal.add(Calendar.DATE, -1);		
@@ -360,11 +360,11 @@ public class CrizelController {
 
 		OneJav oj = new OneJav();
 		addr += "?page=";
-		mav.addObject("list", oj.getList(addr, 1, oj.getPageCount(addr)));
-		mav.addObject("addr", addr);
-		mav.addObject("year", year);
-		mav.addObject("month", month);
-		mav.addObject("day", day);
+		model.addAttribute("list", oj.getList(addr, 1, oj.getPageCount(addr)));
+		model.addAttribute("addr", addr);
+		model.addAttribute("year", year);
+		model.addAttribute("month", month);
+		model.addAttribute("day", day);
 		
 		return "onejav";
 	}
