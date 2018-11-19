@@ -40,34 +40,38 @@ if(!"".equals(fromAddr)){
 }
  */
 %>
-<form id="postForm" action="/program/SendMail.jsp" method="post">
+<form id="postForm" action="SendMail.jsp" method="post" enctype="multipart/form-data">
 <table class="tbl_type01">
 	<tbody>
 		<tr>
 			<th>보내는사람 메일주소</th>
-			<td><input type="text" id="fromAddr" name="fromAddr" required></td>
+			<td><input type="text" id="fromAddr" name="fromAddr" required value="ksh@k-sis.com"></td>
 			<th>보내는사람 이름</th>
-			<td><input type="text" id="fromName" name="fromName" required></td>
+			<td><input type="text" id="fromName" name="fromName" required value="고성훈"></td>
 		</tr> 
 		<tr>
 			<th>받는사람 메일주소</th>
-			<td><input type="text" id="toAddr" name="toAddr" required></td>
+			<td><input type="text" id="toAddr" name="toAddr" required value="rhzhzh3@gmail.com"></td>
 			<th>받는사람 이름</th>
-			<td><input type="text" id="toName" name="toName" required></td>
+			<td><input type="text" id="toName" name="toName" required value="고성훈"></td>
 		</tr> 
 		<tr>
 			<th>메일제목</th>
-			<td colspan="3"><input type="text" id="title" name="title" required></td>
+			<td colspan="3"><input type="text" id="title" name="title" required value="메일 테스트"></td>
 		</tr>
 		<tr>
 			<th>메일내용</th>
 			<td colspan="3">
-				<textarea rows="20" id="content" name="content" required></textarea>
+				<textarea rows="20" id="content" name="content" required>테스트</textarea>
 			</td>
 		</tr>
 		<tr>
 			<th>첨부파일</th>
-			<td colspan="3"><input type="file" id="uploadFile" name="uploadFile"></td>
+			<td colspan="3">
+				<input type="file" id="uploadFile" name="uploadFile">
+				<input type="file" id="uploadFile2" name="uploadFile2">
+				<input type="file" id="uploadFile3" name="uploadFile3">
+			</td>
 		</tr>
 	</tbody>
 	<tfoot>

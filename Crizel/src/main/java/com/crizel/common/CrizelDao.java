@@ -8,6 +8,7 @@ import java.util.Map;
 
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
 import com.crizel.common.util.Leopard;
@@ -18,10 +19,12 @@ import com.crizel.nyaa.NyaaUtil;
 public class CrizelDao {
 	@Autowired
 	private SqlSessionTemplate sqlSession;
-
+	
+	@Value( "${type}" )	
+	private String type;
 
 	public List<Object> list(String day) {
-		return sqlSession.selectList("crizel.list", day);
+		return sqlSession.selectList(type + "_crizel.list", day);
 	}
 
 	public List<Map<String,Object>> listDetail(String keyword, String type, String site, String mode) throws Exception {
@@ -57,7 +60,7 @@ public class CrizelDao {
         if(!file.exists()){
             file.mkdirs();
         }
-		sqlSession.insert("crizel.listInsert", vo);
+		sqlSession.insert(type + "_crizel.listInsert", vo);
 	}
 
 	public void listUpdate(CrizelVo vo) {
@@ -65,47 +68,47 @@ public class CrizelDao {
         if(!file.exists()){
             file.mkdirs();
         }
-		sqlSession.update("crizel.listUpdate", vo);
+		sqlSession.update(type + "_crizel.listUpdate", vo);
 	}
 
 	public CrizelVo aniInfo(String ani_id) {
-		return sqlSession.selectOne("crizel.aniInfo", ani_id);
+		return sqlSession.selectOne(type + "_crizel.aniInfo", ani_id);
 	}
 
 	public void aniDelete(CrizelVo vo) {
-		sqlSession.delete("crizel.listDelete", vo);
+		sqlSession.delete(type + "_crizel.listDelete", vo);
 	}
 	public CrizelVo login(CrizelVo vo) {
-		return sqlSession.selectOne("crizel.login", vo);
+		return sqlSession.selectOne(type + "_crizel.login", vo);
 	}
 
 	public void register(CrizelVo vo) {
-		sqlSession.insert("crizel.register", vo);
+		sqlSession.insert(type + "_crizel.register", vo);
 
 	}
 
 	public String registerCheck(String re_id) {
-		return sqlSession.selectOne("crizel.registerCheck", re_id);
+		return sqlSession.selectOne(type + "_crizel.registerCheck", re_id);
 	}
 
 	public List<Object> comicList() {
-		return sqlSession.selectList("crizel.comicList");
+		return sqlSession.selectList(type + "_crizel.comicList");
 	}
 
 	public void comicInsert(CrizelVo vo) {
-		sqlSession.insert("crizel.comicInsert", vo);
+		sqlSession.insert(type + "_crizel.comicInsert", vo);
 	}
 
 	public void comicDelete(CrizelVo vo) {
-		sqlSession.delete("crizel.comicDelete", vo);
+		sqlSession.delete(type + "_crizel.comicDelete", vo);
 	}
 
 	public void comicViewCheck(Map<String, Object> map) {
-		sqlSession.insert("crizel.comicViewCheck", map);
+		sqlSession.insert(type + "_crizel.comicViewCheck", map);
 	}
 
 	public List<Map<String, Object>> comicViewList(String addr) {
-		return sqlSession.selectList("crizel.comicViewList", addr);
+		return sqlSession.selectList(type + "_crizel.comicViewList", addr);
 	}
 
 }
