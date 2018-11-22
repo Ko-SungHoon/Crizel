@@ -31,8 +31,8 @@ public class OneJav {
 		
 	}*/
 	
-	public List<Map<String,Object>> getList(String addr, int page, int pageCount){
-		String URL 						= addr + Integer.toString(page);
+	public List<Map<String,Object>> getList(String addr, int page, int pageCount, String day){
+		String URL 						= addr + "?page=" + Integer.toString(page);
         Document doc 					= null;
         List<Map<String,Object>> list 	= new ArrayList<Map<String,Object>>();
         Map<String,Object> map			= null;
@@ -71,6 +71,7 @@ public class OneJav {
 				map.put("title", link!=null?link.text():"");
 				map.put("name", name!=null?name.text():"");
 				map.put("name_link", name!=null?"https://www.onejav.com/" + name.attr("href"):"");
+				map.put("day", day);
 				
 				list.add(map);
 			}
@@ -79,7 +80,7 @@ public class OneJav {
 			if(pageCount>page){
 				//System.out.println("===다음 페이지로===");
 				//System.out.println("현재 페이지 : " + page);
-				list.addAll(getList(addr, page+1, pageCount));
+				list.addAll(getList(addr, page+1, pageCount, day));
 			}
 			
 		} catch (Exception e) {

@@ -52,7 +52,8 @@ function postFormSubmit(){
 			<select id="month">
 				<%
 				String month = "";
-				String paramMonth = (String)request.getAttribute("month")==null?"":(String)request.getAttribute("month");
+				String paramMonth = (String)request.getAttribute("day")==null?"":(String)request.getAttribute("day");
+				paramMonth = paramMonth.split("\\/")[1];
 				for(int i=1; i<=12; i++){
 					if(i<10){
 						month = "0" + Integer.toString(i);
@@ -69,6 +70,7 @@ function postFormSubmit(){
 				<%
 				String day = "";
 				String paramDay = (String)request.getAttribute("day")==null?"":(String)request.getAttribute("day");
+				paramDay = paramDay.split("\\/")[2];
 				for(int i=1; i<=31; i++){
 					if(i<10){
 						day = "0" + Integer.toString(i);
@@ -98,23 +100,17 @@ function postFormSubmit(){
 		</tr>
 	<c:forEach items="${list}" var="ob" varStatus="status">
 		<tr>
-			<%-- <td>
-				<input type="checkbox" name="select" value="${ob.addr}">
-			</td> --%>
 			<td>
-				<a href="${ob.name_link}">${ob.name}</a>
+				${ob.NAME}
 			</td>
 			<td>
-				<a href="${ob.addr}" target="_blank">
-					<img src="${ob.img}" style="max-width: 100%;"> 
+				<a href="${ob.ADDR}" target="_blank">
+					<img src="${ob.IMG}" style="max-width: 100%;"> 
 				</a> 
 			</td>
 		</tr>
 	</c:forEach>
 	</table>
-	<!-- <div class="search center">
-		<button type="button" onclick="allNewTap()">전체 다운</button>
-	</div> -->
 </div>
 </body>
 </html>

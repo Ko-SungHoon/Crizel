@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
 "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="crizel">
+<mapper namespace="oracle_crizel">
 	<select id="twitter" parameterType="String" resultType="String">
 		select
 		addr from twitter where name=#{name} order by name
@@ -172,4 +172,24 @@
 		WHERE ADDR = #{addr}
 		ORDER BY TITLE
 	</select>
+	
+	<select id="onejav" parameterType="String" resultType="HashMap">
+		SELECT NO
+			, DAY
+			, TITLE
+			, ADDR
+			, IMG
+			, NAME
+		FROM ONEJAV
+		WHERE DAY = #{day}
+	</select>
+	
+	<select id="onejavCnt" parameterType="String" resultType="Integer">
+		SELECT COUNT(*) FROM ONEJAV WHERE DAY = #{day}
+	</select>
+	
+	<insert id="onejavInsert" parameterType="HashMap">
+		INSERT INTO ONEJAV(NO, DAY, TITLE, ADDR, IMG, NAME)
+		VALUES((SELECT NVL(MAX(NO)+1, 1) FROM ONEJAV), #{day}, #{title}, #{addr}, #{img}, #{name})
+	</insert>
 </mapper>

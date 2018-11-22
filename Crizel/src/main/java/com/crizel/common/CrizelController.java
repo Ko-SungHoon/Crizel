@@ -7,10 +7,12 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.SimpleFormatter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -345,29 +347,27 @@ public class CrizelController {
 	}
 	
 	@RequestMapping("onejav")
-	public String onejav(@RequestParam(value="addr", defaultValue="") String addr,	
-						 @RequestParam(value="type", defaultValue="list") String type,
-						 Model model) throws Exception{
-		
+	public String onejav(	@RequestParam(value="day", defaultValue="") String day,	
+					 		@RequestParam(value="type", defaultValue="list") String type,
+					 		Model model) throws Exception{
 		Calendar cal = Calendar.getInstance();
+		SimpleDateFormat sdft = new SimpleDateFormat("yyyy/MM/dd");
 		cal.add(Calendar.DATE, -1);		
-		String year 	= Integer.toString(cal.get(Calendar.YEAR));
-		String month 	= cal.get(Calendar.MONTH)+1<10 	?"0" + Integer.toString(cal.get(Calendar.MONTH)+1) : Integer.toString(cal.get(Calendar.MONTH)+1);
-		String day		= cal.get(Calendar.DATE)<10		?"0" + Integer.toString(cal.get(Calendar.DATE)) : Integer.toString(cal.get(Calendar.DATE));
+		String addr = "https://www.onejav.com/";
 		
-		if("".equals(addr)){
-			addr = "https://www.onejav.com/" + year + "/" + month + "/" + day;
+		if("".equals(day)){
+			day = sdft.format(cal.getTime());
 		}
-
-		OneJav oj = new OneJav();
-		addr += "?page=";
-		model.addAttribute("list", oj.getList(addr, 1, oj.getPageCount(addr)));
-		model.addAttribute("addr", addr);
-		model.addAttribute("year", year);
-		model.addAttribute("month", month);
-		model.addAttribute("day", day);
+		addr += day;
 		
-		return "onejav";
+		if("list".equals(type)){
+			model.addAttribute("list", service.onejav(day));
+			model.addAttribute("day", day);
+			return "onejav";
+		}else{
+			service.onejavInsert(addr, day);
+			return "redirect:onejav.do?day="+day;
+		}
 	}
 	
 	@RequestMapping("fileUpload.do")

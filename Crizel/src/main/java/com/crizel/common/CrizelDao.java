@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import com.crizel.common.util.Leopard;
 import com.crizel.common.util.Ohys;
+import com.crizel.common.util.OneJav;
 import com.crizel.nyaa.NyaaUtil;
 
 @Repository("dao")
@@ -20,11 +21,11 @@ public class CrizelDao {
 	@Autowired
 	private SqlSessionTemplate sqlSession;
 	
-	@Value( "${type}" )	
-	private String type;
+	@Value( "${db.type}" )	
+	private String dbType;
 
 	public List<Object> list(String day) {
-		return sqlSession.selectList(type + "_crizel.list", day);
+		return sqlSession.selectList(dbType + "_crizel.list", day);
 	}
 
 	public List<Map<String,Object>> listDetail(String keyword, String type, String site, String mode) throws Exception {
@@ -60,7 +61,7 @@ public class CrizelDao {
         if(!file.exists()){
             file.mkdirs();
         }
-		sqlSession.insert(type + "_crizel.listInsert", vo);
+		sqlSession.insert(dbType + "_crizel.listInsert", vo);
 	}
 
 	public void listUpdate(CrizelVo vo) {
@@ -68,47 +69,63 @@ public class CrizelDao {
         if(!file.exists()){
             file.mkdirs();
         }
-		sqlSession.update(type + "_crizel.listUpdate", vo);
+		sqlSession.update(dbType + "_crizel.listUpdate", vo);
 	}
 
 	public CrizelVo aniInfo(String ani_id) {
-		return sqlSession.selectOne(type + "_crizel.aniInfo", ani_id);
+		return sqlSession.selectOne(dbType + "_crizel.aniInfo", ani_id);
 	}
 
 	public void aniDelete(CrizelVo vo) {
-		sqlSession.delete(type + "_crizel.listDelete", vo);
+		sqlSession.delete(dbType + "_crizel.listDelete", vo);
 	}
 	public CrizelVo login(CrizelVo vo) {
-		return sqlSession.selectOne(type + "_crizel.login", vo);
+		return sqlSession.selectOne(dbType + "_crizel.login", vo);
 	}
 
 	public void register(CrizelVo vo) {
-		sqlSession.insert(type + "_crizel.register", vo);
+		sqlSession.insert(dbType + "_crizel.register", vo);
 
 	}
 
 	public String registerCheck(String re_id) {
-		return sqlSession.selectOne(type + "_crizel.registerCheck", re_id);
+		return sqlSession.selectOne(dbType + "_crizel.registerCheck", re_id);
 	}
 
 	public List<Object> comicList() {
-		return sqlSession.selectList(type + "_crizel.comicList");
+		return sqlSession.selectList(dbType + "_crizel.comicList");
 	}
 
 	public void comicInsert(CrizelVo vo) {
-		sqlSession.insert(type + "_crizel.comicInsert", vo);
+		sqlSession.insert(dbType + "_crizel.comicInsert", vo);
 	}
 
 	public void comicDelete(CrizelVo vo) {
-		sqlSession.delete(type + "_crizel.comicDelete", vo);
+		sqlSession.delete(dbType + "_crizel.comicDelete", vo);
 	}
 
 	public void comicViewCheck(Map<String, Object> map) {
-		sqlSession.insert(type + "_crizel.comicViewCheck", map);
+		sqlSession.insert(dbType + "_crizel.comicViewCheck", map);
 	}
 
 	public List<Map<String, Object>> comicViewList(String addr) {
-		return sqlSession.selectList(type + "_crizel.comicViewList", addr);
+		return sqlSession.selectList(dbType + "_crizel.comicViewList", addr);
 	}
 
+	public List<Map<String, Object>> onejav(String day) {
+		return sqlSession.selectList(dbType + "_crizel.onejav", day);
+	}
+
+	public void onejavInsert(String addr, String day) {
+		OneJav oj = new OneJav();
+		List<Map<String,Object>> list = oj.getList(addr, 1, oj.getPageCount(addr), day);
+		if(list!=null && list.size()>0){
+			int cnt = sqlSession.selectOne(dbType + "_crizel.onejavCnt", day);
+			if(cnt<=0){
+				for(Map<String,Object> ob : list){
+					sqlSession.insert(dbType + "_crizel.onejavInsert", ob);
+				}
+			}
+		}
+	}
 }

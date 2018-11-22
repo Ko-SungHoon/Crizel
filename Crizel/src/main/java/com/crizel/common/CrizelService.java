@@ -507,4 +507,12 @@ public class CrizelService {
 		dao.listUpdate(vo);
 	}
 
+	public List<Map<String, Object>> onejav(String day) {
+		return dao.onejav(day);
+	}
+
+	public void onejavInsert(String addr, String day) {
+		dao.onejavInsert(addr, day);
+	}
+
 }

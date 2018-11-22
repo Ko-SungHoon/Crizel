@@ -70,9 +70,8 @@ request.setCharacterEncoding("UTF-8");
 	conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);  
    	String name="";
    	sql = new String();
-   	sql += "SELECT * FROM ANI WHERE INSTR(?, ','||ANI_ID||',') > 0";
+   	sql += "SELECT * FROM ANI ORDER BY ANI_ID";
    	pstmt = conn.prepareStatement(sql);
-   	pstmt.setString(1, "1,2,3,4,5");
    	rs = pstmt.executeQuery();
    	dataList = getList(rs);
    	
@@ -94,6 +93,32 @@ request.setCharacterEncoding("UTF-8");
    	if(conn!=null){conn.close();}
    	if(pstmt!=null){pstmt.close();}
    	
+   	DB_URL = "jdbc:mysql://localhost:3306/crizel";
+    DB_USER = "edu";
+    DB_PASSWORD = "1234";
+    Class.forName("com.mysql.jdbc.Driver");
+    conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD); 
+    
+    sql = new String();
+   	sql += "INSERT INTO ANI VALUES(?, ?, ?, ?, ?, ?, ?, ?)";
+   	pstmt = conn.prepareStatement(sql);
+   	for(int i=0; i<dataList.size(); i++){
+   		key = 0;
+   		Map<String,Object> ob = dataList.get(i);
+   		for(int j=0; j<column.length; j++){
+   			pstmt.setString(++key, getString(ob, column[j]));
+   		}
+   		pstmt.addBatch();	
+   	}
+   	int[] useCnt 	=   pstmt.executeBatch();
+   	result = useCnt.length;
+   	
+   	out.println("결과 : " + result);
+	
+   	
+   	if(conn!=null){conn.close();}
+   	if(pstmt!=null){pstmt.close();}
+   	
    
   } catch (Exception e) {
    	out.println(e.toString());
@@ -103,12 +128,5 @@ request.setCharacterEncoding("UTF-8");
   }
   
 %>
-<script>
-alert(document.test.html());
-</script>
-
-<textarea name="test">
-abc
-</textarea>
 </body>
 </html>
