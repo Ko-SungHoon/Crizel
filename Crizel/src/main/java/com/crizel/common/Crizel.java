@@ -34,15 +34,22 @@ public class Crizel extends Thread{
 
 		OneJav oj = new OneJav();
 		List<Map<String,Object>> list = null;
-		
-		list = oj.getList(addr, 1, oj.getPageCount(addr), day);
-		if(list!=null && list.size()>0){
-			int cnt = sqlSession.selectOne(dbType + "_crizel.onejavCnt", day);
-			if(cnt<=0){
-				for(Map<String,Object> ob : list){
-					sqlSession.insert(dbType + "_crizel.onejavInsert", ob);
+		try{
+			list = oj.getList(addr, 1, oj.getPageCount(addr), day);
+			if(list!=null && list.size()>0){
+				int cnt = sqlSession.selectOne(dbType + "_crizel.onejavCnt", day);
+				System.out.println("cnt : " + cnt);
+				if(cnt<=0){
+					for(Map<String,Object> ob : list){
+						sqlSession.insert(dbType + "_crizel.onejavInsert", ob);
+					}
 				}
 			}
+		}catch(Exception e){
+			System.out.println("ERR : " + e.toString());
+			interrupt();
+		}finally{
+			interrupt();
 		}
 	}
 }

@@ -52,7 +52,7 @@ public class OneJav {
 					.header("Connection", "keep-alive")
 					.header("Host", "onejav.com")
 					.header("Upgrade-Insecure-Requests", "1")
-            		.timeout(1000 * 60 * 60)
+            		.timeout(1000 * 60 * 60 * 5)
 					.get();
 			//System.out.println(doc);
 			
@@ -84,7 +84,7 @@ public class OneJav {
 			}
 			
 		} catch (Exception e) {
-			System.out.println(e);
+			System.out.println("ERR : " + e.toString());
 			list = null;
 		}
         return list;
@@ -105,11 +105,11 @@ public class OneJav {
 					.header("Connection", "keep-alive")
 					.header("Host", "onejav.com")
 					.header("Upgrade-Insecure-Requests", "1")
-            		.timeout(1000 * 60 * 60)
+            		.timeout(1000 * 60 * 60 * 5)
 					.get();
 			//System.out.println(doc);
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} catch (IOException e) {
+			System.out.println("ERR : " + e.toString());
 		}
         
         linkElem = doc.select(".button.is-primary.is-fullwidth");
@@ -143,7 +143,7 @@ public class OneJav {
 			pagingElem = doc.select(".pagination-list li");
 			
 		}catch(Exception e){
-			System.out.println(e.toString());
+			System.out.println("ERR : " + e.toString());
 		}
 		
 		return pagingElem!=null?pagingElem.size():0;
