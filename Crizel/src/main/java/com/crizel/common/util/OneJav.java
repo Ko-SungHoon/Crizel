@@ -52,7 +52,7 @@ public class OneJav {
 					.header("Connection", "keep-alive")
 					.header("Host", "onejav.com")
 					.header("Upgrade-Insecure-Requests", "1")
-            		.timeout(1000 * 60 * 60 * 5)
+            		.timeout(1000 * 60 * 60)
 					.get();
 			//System.out.println(doc);
 			
@@ -105,7 +105,7 @@ public class OneJav {
 					.header("Connection", "keep-alive")
 					.header("Host", "onejav.com")
 					.header("Upgrade-Insecure-Requests", "1")
-            		.timeout(1000 * 60 * 60 * 5)
+            		.timeout(1000 * 60 * 60)
 					.get();
 			//System.out.println(doc);
 		} catch (IOException e) {

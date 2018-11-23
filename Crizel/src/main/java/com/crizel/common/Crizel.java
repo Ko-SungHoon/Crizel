@@ -62,6 +62,8 @@ public class Crizel extends Thread{
 		}
 		addr += day;
 		
+		System.out.println(addr);
+		
 		try{
 			Class.forName(driverClass);
 			conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -83,14 +85,21 @@ public class Crizel extends Thread{
 		   		if(list!=null && list.size()>0){
 		   			for(Map<String,Object> ob : list){
 					   	sql = new String();
-					   	sql += "INSERT INTO ONEJAV(NO, DAY, TITLE, ADDR, IMG, NAME)						\n";
+					   	//sql += "INSERT INTO ONEJAV(NO, DAY, TITLE, ADDR, IMG, NAME)						\n";
+					   	//sql += "VALUES((SELECT NVL(MAX(NO)+1,1) AS NO FROM ONEJAV), ?, ?, ?, ?, ?)		\n";
+					   	sql += "MERGE INTO ONEJAV 														\n";
+					   	sql += "USING DUAL 																\n";
+					   	sql += "ON (TITLE = ?)															\n";
+					   	sql += "WHEN NOT MATCHED														\n";
+					   	sql += "INSERT (NO, DAY, TITLE, ADDR, IMG, NAME)								\n";
 					   	sql += "VALUES((SELECT NVL(MAX(NO)+1,1) AS NO FROM ONEJAV), ?, ?, ?, ?, ?)		\n";
 					   	pstmt = conn.prepareStatement(sql);
-		   				pstmt.setString(1, day);
-		   				pstmt.setString(2, ob.get("title").toString());
-		   				pstmt.setString(3, ob.get("addr").toString());
-		   				pstmt.setString(4, ob.get("img").toString());
-		   				pstmt.setString(5, ob.get("name").toString());
+		   				pstmt.setString(1, ob.get("title").toString());
+		   				pstmt.setString(2, day);
+		   				pstmt.setString(3, ob.get("title").toString());
+		   				pstmt.setString(4, ob.get("addr").toString());
+		   				pstmt.setString(5, ob.get("img").toString());
+		   				pstmt.setString(6, ob.get("name").toString());
 		   				pstmt.executeUpdate();
 		   				if(pstmt!=null){pstmt.close();}
 					   	if(rs!=null){rs.close();}
