@@ -36,9 +36,15 @@ function clipboardCopy(index){
 function postFormSubmit(){
 	var year = $("#year").val();
 	var month = $("#month").val();
-	var day = $("#day").val();
-	var addr = "http://www.onejav.com/" + year + "/" + month + "/" + day;
-	$("#addr").val(addr);
+	var date = $("#date").val();
+	var day = year + "/" + month + "/" + date;
+	$("#day").val(day);
+	$("#type").val("list");
+	$("#postForm").submit();
+}
+function onejavInsert(){
+	$("#type").val("insert");
+	$("#postForm").submit();
 }
 </script>
 </head>
@@ -46,14 +52,18 @@ function postFormSubmit(){
 <%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
 	<div class="search center">
-		<form id="postForm" action="/onejav.do" method="get" onsubmit="postFormSubmit()">
-			<input type="hidden" id="year" value="${year}">
-			<input type="hidden" id="addr" name="addr" value="">
-			<select id="month">
+		<form id="postForm" action="/onejav.do" method="get" >
+			<input type="hidden" id="day" name="day" value="${day}">
+			<input type="hidden" id="type" name="type" value="">
+			<%
+			String paramDay = (String)request.getAttribute("day")==null?"":(String)request.getAttribute("day");
+			String paramYear = paramDay.split("\\/")[0];
+			String month = "";
+			String paramMonth = paramDay.split("\\/")[1];
+			%>
+			<input type="hidden" id="year" name="year" value="<%=paramYear%>">
+			<select id="month" onchange="postFormSubmit();">
 				<%
-				String month = "";
-				String paramMonth = (String)request.getAttribute("day")==null?"":(String)request.getAttribute("day");
-				paramMonth = paramMonth.split("\\/")[1];
 				for(int i=1; i<=12; i++){
 					if(i<10){
 						month = "0" + Integer.toString(i);
@@ -66,11 +76,10 @@ function postFormSubmit(){
 				}
 				%>
 			</select>
-			<select id="day">
+			<select id="date" onchange="postFormSubmit();">
 				<%
 				String day = "";
-				String paramDay = (String)request.getAttribute("day")==null?"":(String)request.getAttribute("day");
-				paramDay = paramDay.split("\\/")[2];
+				String paramDate = paramDay.split("\\/")[2];
 				for(int i=1; i<=31; i++){
 					if(i<10){
 						day = "0" + Integer.toString(i);
@@ -78,14 +87,12 @@ function postFormSubmit(){
 						day = Integer.toString(i);
 					}
 				%>
-					<option value="<%=day%>" <%if(day.equals(paramDay)){out.println("selected");}%>><%=day%>일</option>
+					<option value="<%=day%>" <%if(day.equals(paramDate)){out.println("selected");}%>><%=day%>일</option>
 				<%
 				}
 				%>
 			</select>
-			<%-- <input type="text" id="addr" name="addr" value="${addr}" placeholder="http://www.onejav.com/"> --%>
-			<button>검색</button>
-			<!-- <button type="button" onclick="allNewTap()">전체 다운</button> -->
+			<button type="button" onclick="onejavInsert();">추가</button>
 		</form>
 	</div>
 	<table class="tbl_type01">

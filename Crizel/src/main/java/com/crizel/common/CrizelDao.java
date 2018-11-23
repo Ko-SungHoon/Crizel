@@ -118,10 +118,10 @@ public class CrizelDao {
 
 	public void onejavInsert(String addr, String day) {
 		OneJav oj = new OneJav();
-		List<Map<String,Object>> list = oj.getList(addr, 1, oj.getPageCount(addr), day);
-		if(list!=null && list.size()>0){
-			int cnt = sqlSession.selectOne(dbType + "_crizel.onejavCnt", day);
-			if(cnt<=0){
+		int cnt = sqlSession.selectOne(dbType + "_crizel.onejavCnt", day);
+		if(cnt<=0){
+			List<Map<String,Object>> list = oj.getList(addr, 1, oj.getPageCount(addr), day);
+			if(list!=null && list.size()>0){
 				for(Map<String,Object> ob : list){
 					sqlSession.insert(dbType + "_crizel.onejavInsert", ob);
 				}

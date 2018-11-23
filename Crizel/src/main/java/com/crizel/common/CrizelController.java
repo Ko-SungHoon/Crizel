@@ -365,7 +365,9 @@ public class CrizelController {
 			model.addAttribute("day", day);
 			return "onejav";
 		}else{
-			service.onejavInsert(addr, day);
+			@SuppressWarnings("unused")
+			Crizel crizel = new Crizel(day);
+			//service.onejavInsert(addr, day);
 			return "redirect:onejav.do?day="+day;
 		}
 	}
