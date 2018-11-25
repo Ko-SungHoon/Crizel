@@ -90,7 +90,7 @@ public class Crizel extends Thread{
 					   	sql += "MERGE INTO ONEJAV 														\n";
 					   	sql += "USING DUAL 																\n";
 					   	sql += "ON (TITLE = ?)															\n";
-					   	sql += "WHEN NOT MATCHED														\n";
+					   	sql += "WHEN NOT MATCHED THEN													\n";
 					   	sql += "INSERT (NO, DAY, TITLE, ADDR, IMG, NAME)								\n";
 					   	sql += "VALUES((SELECT NVL(MAX(NO)+1,1) AS NO FROM ONEJAV), ?, ?, ?, ?, ?)		\n";
 					   	pstmt = conn.prepareStatement(sql);
