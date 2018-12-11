@@ -33,7 +33,7 @@ function imageView(addr){
 	</c:if>
 	
 	<c:if test="${type eq 'image'}">
-		<ul class="ul_type03">
+		<ul class="ul_type01">
 		<c:choose>
 			<c:when test="${imgList eq null}">
 				<li>

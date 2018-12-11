@@ -6,3 +6,13 @@ function goLink(){
 		window.open(array[i], "_blank");
 		}
 }
+
+$(function(){
+	$(window).scroll(function() {
+		console.log($(this).scrollTop());
+		var $el = $('.menu');
+	  
+		if($(this).scrollTop() <= 0) $el.css('position', 'static');
+		else $el.css('position', 'fixed');
+	});
+});

@@ -57,12 +57,12 @@ function allLink(){
 <%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
 	<input type="hidden" value="${day}" id="dayCheck">
-	<div class="search center">
+	<div class="btnArea">
 		<!-- <form action="/listDetail.do" method="get"> -->
 		<form action="https://nyaa.si/?f=0&c=1_4&q=" method="get">
 			<input type="text" name="keyword" id="keyword" value="${keyword}">
-			<button>검색</button>
-			<button type="button" onclick="allLink();">전체 링크</button>
+			<button class="btn_gray">검색</button>
+			<button class="btn_gray" type="button" onclick="allLink();">전체 링크</button>
 		</form>
 	</div>
 	<table class="tbl_type01">
@@ -77,18 +77,18 @@ function allLink(){
 		</colgroup>
 		<thead>
 		<tr>
-			<th scope="col" ><a href="/list.do?day=월&mode=${mode}" class="mon">월</a></th>
-			<th scope="col" ><a href="/list.do?day=화&mode=${mode}" class="tue">화</a></th>
-			<th scope="col" ><a href="/list.do?day=수&mode=${mode}" class="wed">수</a></th>
-			<th scope="col" ><a href="/list.do?day=목&mode=${mode}" class="thu">목</a></th>
-			<th scope="col" ><a href="/list.do?day=금&mode=${mode}" class="fri">금</a></th>
-			<th scope="col" ><a href="/list.do?day=토&mode=${mode}" class="sat">토</a></th>
-			<th scope="col" ><a href="/list.do?day=일&mode=${mode}" class="sun">일</a></th>
+			<th><a href="/list.do?day=월&mode=${mode}" class="mon block">월</a></th>
+			<th><a href="/list.do?day=화&mode=${mode}" class="tue block">화</a></th>
+			<th><a href="/list.do?day=수&mode=${mode}" class="wed block">수</a></th>
+			<th><a href="/list.do?day=목&mode=${mode}" class="thu block">목</a></th>
+			<th><a href="/list.do?day=금&mode=${mode}" class="fri block">금</a></th>
+			<th><a href="/list.do?day=토&mode=${mode}" class="sat block">토</a></th>
+			<th><a href="/list.do?day=일&mode=${mode}" class="sun block">일</a></th>
 		</tr>
 		</thead>
 		<c:if test="${list ne null}">
 			<c:forEach items="${list}" var="ob">
-				<tr>
+				<tr class="textCenter">
 					<td>
 						<a href="/listInsertPage.do?mode=update&ani_id=${ob.ani_id}">${ob.ani_time}</a>
 					</td>

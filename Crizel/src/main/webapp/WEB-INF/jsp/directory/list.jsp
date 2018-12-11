@@ -24,11 +24,6 @@ function viewPage(path, name, type){
 	location.href="/videoViewPage.do?fileValue=" + fileValue + "&type=" + type;
 }
 
-function AllViewPage(path){
-	var path = encodeURIComponent(path + "/");
-	location.href="/videoViewPage.do?path="+path+"&type=image";
-}
-
 function selectDown(){
 	var url;
 	var directory = $("#uploadForm input[name=path]").val();
@@ -61,7 +56,7 @@ function fileDelete(path, name){
 <body>
 <%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
-	<div class="search">
+	<div class="btnArea">
 		<form action="/directory.do" method="get" id="postForm">
 			<select id="path" name="path" onchange="$('#postForm').submit();">
 				<option value="C:/" <c:if test="${path2 eq 'C'}">selected</c:if>>C:/</option>
@@ -70,22 +65,21 @@ function fileDelete(path, name){
 				<option value="F:/" <c:if test="${path2 eq 'F'}">selected</c:if>>F:/</option>
 			</select>
 			<input type="checkbox" id="allCheck" onclick="allCheck()"><label for="allCheck">파일 전체 선택</label> 
-			<button type="button" onclick="AllViewPage('${path}')">이미지 전체 보기</button>
-			<button type="button" onclick="selectDown()">선택 다운로드</button>
+			<button type="button" class="btn_gray" onclick="selectDown()">선택 다운로드</button>
 		</form>
 		<form action="/directoryUpload.do" method="post" enctype="multipart/form-data" id="uploadForm">
 			<input type="hidden" name="path" value="${path}">
-			<input type="file" name="file">
-			<input type="submit" value="업로드">
+			<input type="file" name="file" required>
+			<input type="submit" class="btn_gray" value="업로드">
 		</form>
 		<form action="/directoryDelete.do" method="post" name="deleteForm">
 			<input type="hidden" name="path">
 			<input type="hidden" name="name">
 		</form>
 	</div>
-	<div class="directory" style="width: 100%;">
 	
-		<div class="directory_location" style="margin: 10px 0 10px 0; text-align: center;">
+	<div class="directory">
+		<div class="directory_location">
 			<c:set var="addPath" value="" />
 			<c:forEach items="${pathArray}" var="ob" varStatus="status">
 				<c:choose>
@@ -119,12 +113,12 @@ function fileDelete(path, name){
 					<img src="/img/${ob.type}.png" style="width:120px; display: block;">
 					<span style="display:block; overflow:hidden; text-overflow:ellipsis; white-space: nowrap; width:120px;">${ob.name}</span>
 				</a>
-				<button type="button" onclick="fileDelete('${path}','${ob.name}');">삭제</button>
+				<button type="button" class="btn_gray" onclick="fileDelete('${path}','${ob.name}');">삭제</button>
 				<c:if test="${ob.type eq 'video'}">	
-					<button type="button" onclick="viewPage('${path}','${ob.name}', 'video');">보기</button>
+					<button type="button" class="btn_gray" onclick="viewPage('${path}','${ob.name}', 'video');">보기</button>
 				</c:if>
 				<c:if test="${ob.type eq 'img'}">
-					<button type="button" onclick="viewPage('${path}','${ob.name}', 'image');">보기</button>
+					<button type="button" class="btn_gray" onclick="viewPage('${path}','${ob.name}', 'image');">보기</button>
 				</c:if>
 			</li>
 			</c:forEach>	

@@ -28,7 +28,7 @@
 			<th>내용</th>
 			<td>
 				<c:if test="${imgList ne null }">
-				<ul>
+				<ul class="ul_type01">
 				<c:forEach items="${imgList}" var="ob">
 					<li><img src="/videoView.do?fileValue=${ob.directory}${ob.save_name }&type=image" style="width: 80%;"></li>
 				</c:forEach>
@@ -40,7 +40,7 @@
 		<tr>
 			<th>첨부파일</th>
 			<td>
-				<ul>
+				<ul class="ul_type01">
 					<c:forEach items="${fileList }" var="ob">
 					<li><a href="javascript:fileDown('${ob.f_no}')">${ob.real_name }</a></li>	
 					</c:forEach>
@@ -48,12 +48,12 @@
 			</td>
 		</tr>
 	</table>
-	<div class="search">
+	<div class="btnArea">
 		<c:if test="${login.id eq boardInfo.user_id}">
-			<button type="button" onclick="boardUpdate('${boardInfo.b_no}');">수정</button>
-			<button type="button" onclick="boardDelete('${boardInfo.b_no}');">삭제</button>
+			<button type="button" class="btn_gray" onclick="boardUpdate('${boardInfo.b_no}');">수정</button>
+			<button type="button" class="btn_gray" onclick="boardDelete('${boardInfo.b_no}');">삭제</button>
 		</c:if>
-		<button type="button" onclick="location.href='${listUrl}'">목록</button>
+		<button type="button" class="btn_gray" onclick="location.href='${listUrl}'">목록</button>
 	</div>
 </div>
 <script>

@@ -39,7 +39,14 @@ public class Crizel extends Thread{
 	
 	@Override
 	public void run() {
-		System.out.println(" === Thread Start === ");
+		int a = 0;
+		while(a<=0){
+			a = oneJavInsert();
+		}
+	}
+	
+	public int oneJavInsert(){
+		int result = 0;
 		String DB_URL = url;
 		String DB_USER = username;
 		String DB_PASSWORD = password;
@@ -62,8 +69,6 @@ public class Crizel extends Thread{
 		}
 		addr += day;
 		
-		System.out.println(addr);
-		
 		try{
 			Class.forName(driverClass);
 			conn = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
@@ -85,8 +90,6 @@ public class Crizel extends Thread{
 		   		if(list!=null && list.size()>0){
 		   			for(Map<String,Object> ob : list){
 					   	sql = new String();
-					   	//sql += "INSERT INTO ONEJAV(NO, DAY, TITLE, ADDR, IMG, NAME)						\n";
-					   	//sql += "VALUES((SELECT NVL(MAX(NO)+1,1) AS NO FROM ONEJAV), ?, ?, ?, ?, ?)		\n";
 					   	sql += "MERGE INTO ONEJAV 														\n";
 					   	sql += "USING DUAL 																\n";
 					   	sql += "ON (TITLE = ?)															\n";
@@ -106,52 +109,51 @@ public class Crizel extends Thread{
 		   			}
 		   		}
 		   	}
-		}catch(Exception e){
-			System.out.println(e.toString());
-			System.out.println(" === Thread End === ");
-			if(pstmt!=null){try {pstmt.close();} catch (SQLException e1) {e1.printStackTrace();}}
-		   	if(rs!=null){try {rs.close();} catch (SQLException e1) {e1.printStackTrace();}}
-		   	if(conn!=null){try {conn.close();} catch (SQLException e1) {e1.printStackTrace();}}
-		   	interrupt();
-		}finally{
-			System.out.println(" === Thread End === ");
-			if(pstmt!=null){try {pstmt.close();} catch (SQLException e1) {e1.printStackTrace();}}
-		   	if(rs!=null){try {rs.close();} catch (SQLException e1) {e1.printStackTrace();}}
-		   	if(conn!=null){try {conn.close();} catch (SQLException e1) {e1.printStackTrace();}}
-		   	interrupt();
-		}
-		
-		
-		/*
-		System.out.println(" === Thread Start === ");
-		Calendar cal = Calendar.getInstance();
-		SimpleDateFormat sdft = new SimpleDateFormat("yyyy/MM/dd");
-		cal.add(Calendar.DATE, -1);		
-		String addr = "https://www.onejav.com/";
-		String day = sdft.format(cal.getTime());
-		addr += day;
+		   	
+		   	
+		   	/*
+			System.out.println(" === Thread Start === ");
+			Calendar cal = Calendar.getInstance();
+			SimpleDateFormat sdft = new SimpleDateFormat("yyyy/MM/dd");
+			cal.add(Calendar.DATE, -1);		
+			String addr = "https://www.onejav.com/";
+			String day = sdft.format(cal.getTime());
+			addr += day;
 
-		OneJav oj = new OneJav();
-		List<Map<String,Object>> list = null;
-		try{
-			list = oj.getList(addr, 1, oj.getPageCount(addr), day);
-			if(list!=null && list.size()>0){
-				int cnt = sqlSession.selectOne(dbType + "_crizel.onejavCnt", day);
-				System.out.println("cnt : " + cnt);
-				if(cnt<=0){
-					for(Map<String,Object> ob : list){
-						sqlSession.insert(dbType + "_crizel.onejavInsert", ob);
+			OneJav oj = new OneJav();
+			List<Map<String,Object>> list = null;
+			try{
+				list = oj.getList(addr, 1, oj.getPageCount(addr), day);
+				if(list!=null && list.size()>0){
+					int cnt = sqlSession.selectOne(dbType + "_crizel.onejavCnt", day);
+					System.out.println("cnt : " + cnt);
+					if(cnt<=0){
+						for(Map<String,Object> ob : list){
+							sqlSession.insert(dbType + "_crizel.onejavInsert", ob);
+						}
 					}
 				}
+			}catch(Exception e){
+				System.out.println("ERR : " + e.toString());
+				System.out.println(" === Thread End === ");
+				interrupt();
+			}finally{
+				System.out.println(" === Thread End === ");
+				interrupt();
 			}
+			*/
+		   	result = 1;
 		}catch(Exception e){
-			System.out.println("ERR : " + e.toString());
-			System.out.println(" === Thread End === ");
-			interrupt();
+			System.out.println(e.toString());
+			if(pstmt!=null){try {pstmt.close();} catch (SQLException e1) {e1.printStackTrace();}}
+		   	if(rs!=null){try {rs.close();} catch (SQLException e1) {e1.printStackTrace();}}
+		   	if(conn!=null){try {conn.close();} catch (SQLException e1) {e1.printStackTrace();}}
+		   	result = 0;
 		}finally{
-			System.out.println(" === Thread End === ");
-			interrupt();
+			if(pstmt!=null){try {pstmt.close();} catch (SQLException e1) {e1.printStackTrace();}}
+		   	if(rs!=null){try {rs.close();} catch (SQLException e1) {e1.printStackTrace();}}
+		   	if(conn!=null){try {conn.close();} catch (SQLException e1) {e1.printStackTrace();}}
 		}
-		*/
+		return result;
 	}
 }

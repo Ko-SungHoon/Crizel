@@ -15,11 +15,8 @@
 		${name}
 	</c:otherwise>
 </c:choose>
-
 </title>
 <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-<style type="text/css">
-</style>
 <script>
 function girlsDownload(url, name, name2){
 	if(name ==  ""){
@@ -40,7 +37,8 @@ function allNewTap(){
 }
 </script>
 	<c:if test="${girlsList eq null}">
-		<table class="tbl_type01">
+	<div class="board">
+		<table class="tbl_type01 textCenter">
 			<tr>
 				<td>
 					<a href="javascript:allNewTap()">모두 새 탭</a>
@@ -54,15 +52,16 @@ function allNewTap(){
 			</tr>
 		</c:forEach>
 		</table>
+		</div>
 	</c:if>
 	
 	<c:if test="${girlsList ne null}">
-		<div style="text-align: center;">	
+		<ul class="ul_type01">
 			<c:forEach items="${girlsInfo}" var="ob">
-				<a href="${ob.addr}" target="blank">[${ob.type}] ${ob.name}</a> <br>
+				<li><a href="${ob.addr}" target="blank">[${ob.type}] ${ob.name}</a></li>
 			</c:forEach>
-		</div>
-		<ul class="ul_type03">
+		</ul>
+		<ul class="ul_type01">
 		<c:forEach items="${girlsList}" var="ob">
 			<li>
 				<img src="${ob}" onclick="girlsDownload('${ob}', '${name}', '${nameList[0].name}')">

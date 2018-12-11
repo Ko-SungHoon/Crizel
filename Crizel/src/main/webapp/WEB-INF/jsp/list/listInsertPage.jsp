@@ -39,13 +39,14 @@ function formSubmit(){
 String day = request.getParameter("day")==null?"":request.getParameter("day");
 String dayArr[] = {"월", "화", "수", "목", "금", "토", "일"};
 %>
-	<div class="content">
+<div class="content">
+	<div class="board">
 		<form id="postForm" action="/listInsert.do" method="post" onsubmit="return formSubmit();">	
 			<input type="hidden" id="mode" name="mode" value="${mode}">
 			<c:if test="${mode eq 'update'}">
 				<input type="hidden" id="ani_id" name="ani_id" value="${ani_info.ani_id}">
 			</c:if>
-			<table class="tbl_type02">
+			<table class="tbl_type01">
 				<tr>
 					<th>경로</th>
 					<td>
@@ -102,21 +103,22 @@ String dayArr[] = {"월", "화", "수", "목", "금", "토", "일"};
 					<td><input type="text" name="keyword" id="keyword" required value="${ani_info.keyword}"></td>
 				</tr>
 			</table>
-			<div class="btn">
+			<div class="btnArea">
 				<c:choose>
 					<c:when test="${mode eq 'insert'}">
-						<button>추가</button>
+						<button class="btn_gray">추가</button>
 					</c:when>
 					<c:otherwise>
-						<button>수정</button>
+						<button class="btn_gray">수정</button>
 					</c:otherwise>
 				</c:choose>
 			</div>
 		</form>
-		<iframe src="http://www.anissia.net/anitime/" style="width: 100%; height: 200px;"></iframe>
-		<iframe src="https://nyaa.si/?f=0&c=1_4&q=" style="width: 100%; height: 200px;"></iframe>
 	</div>
-
+	
+	<iframe src="http://www.anissia.net/anitime/" style="width: 100%; height: 200px;"></iframe>
+	<iframe src="https://nyaa.si/?f=0&c=1_4&q=" style="width: 100%; height: 200px;"></iframe>
+</div>
 
 </body>
 </html>

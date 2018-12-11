@@ -11,12 +11,13 @@
 </script>
 </head>
 <body>
-	<jsp:include page="/WEB-INF/jsp/include/menu.jsp" />
+<jsp:include page="/WEB-INF/jsp/include/menu.jsp" />
 
-	<div class="content">
+<div class="content">
+	<div class="board">
 		<form action="/login.do" method="post">
 			<input type="hidden" id="referer" name="referer" value="<%=request.getHeader("referer")%>">
-			<table class="tbl_type02">
+			<table class="tbl_type01">
 				<tr>
 					<td>아이디</td>
 					<td><input type="text" name="id" id="id" autoComplete="off" required></td>
@@ -26,13 +27,11 @@
 					<td><input type="password" name="pw" id="pw" autocomplete="new-password" required></td>
 				</tr>
 			</table>
-			<div class="btn">
-				<button>로그인</button>
+			<div class="btnArea">
+				<button class="btn_gray">로그인</button>
 			</div>
 		</form>
 	</div>
-
-
-
+</div>
 </body>
 </html>

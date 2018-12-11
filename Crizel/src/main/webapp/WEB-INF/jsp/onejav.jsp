@@ -51,7 +51,7 @@ function onejavInsert(){
 <body>
 <%@include file="/WEB-INF/jsp/include/menu.jsp" %>
 <div class="content">
-	<div class="search center">
+	<div class="btnArea">
 		<form id="postForm" action="/onejav.do" method="get" >
 			<input type="hidden" id="day" name="day" value="${day}">
 			<input type="hidden" id="type" name="type" value="">
@@ -92,10 +92,10 @@ function onejavInsert(){
 				}
 				%>
 			</select>
-			<button type="button" onclick="onejavInsert();">추가</button>
+			<button type="button" class="btn_gray" onclick="onejavInsert();">추가</button>
 		</form>
 	</div>
-	<table class="tbl_type01">
+	<table class="tbl_type01 textCenter">
 	<colgroup>
 		<col width="20%">
 		<col width="80%">

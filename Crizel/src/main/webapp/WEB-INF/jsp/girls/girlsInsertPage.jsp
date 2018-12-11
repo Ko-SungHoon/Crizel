@@ -25,9 +25,10 @@ function formSubmit(){
 </head>
 <body>
 <%@include file="/WEB-INF/jsp/include/menu.jsp" %>
-	<div class="content">
-		<form action="/girlsInsert.do" method="post" onsubmit="return formSubmit();">
-			<table class="tbl_type02">
+<div class="content">
+<div class="board">
+	<form action="/girlsInsert.do" method="post" onsubmit="return formSubmit();">
+			<table class="tbl_type01">
 				<tr>
 					<th>타입</th>
 					<td>
@@ -54,12 +55,11 @@ function formSubmit(){
 					<th>태그2</th>
 					<td><input type="text" name="tag2" id="tag2"></td>
 				</tr>
-				<tr>
-					<td colspan="2"><input type="submit" value="추가"></td>
-				</tr>
 			</table>
-			
-			<table class="tbl_type01">
+			<div class="btnArea">
+				<input type="submit" class="btn_gray" value="추가">
+			</div>
+			<table class="tbl_type01 textCenter">
 				<colgroup>
 					<col width="80%" />
 					<col width="20%" />
@@ -77,9 +77,7 @@ function formSubmit(){
 				
 			</table>
 		</form>
-	</div>
-
-
-
+</div>
+</div>
 </body>
 </html>

@@ -16,7 +16,7 @@
 		<input type="hidden" id="parent_b_no" name="parent_b_no" value="${boardInfo.parent_b_no}">
 		<input type="hidden" id="b_level" name="b_level" value="${boardInfo.b_level}">
 		<input type="hidden" id="user_id" name="user_id" value="${boardInfo.user_id}">
-		<table class="tbl_type01">
+		<table class="tbl_type01 textCenter">
 			<colgroup>
 				<col width="30%">
 				<col>
@@ -38,7 +38,7 @@
 			<tr>
 				<th>첨부파일</th>
 				<td>
-					<ul>
+					<ul class="ul_type01">
 						<c:forEach items="${fileList }" var="ob">
 						<li><a href="javascript:fileDown('${ob.f_no}')">${ob.real_name }</a><a href="javascript:fileDelete('${ob.f_no }')">[삭제]</a></li>	
 						</c:forEach>
@@ -49,8 +49,8 @@
 				</td>
 			</tr>
 		</table>
-		<div class="search">
-			<button>확인</button><button type="button" onclick="history.go(-1)">취소</button>
+		<div class="btnArea">
+			<button class="btn_gray">확인</button><button type="button" class="btn_gray" onclick="history.go(-1)">취소</button>
 		</div>
 	</form>
 </div>
