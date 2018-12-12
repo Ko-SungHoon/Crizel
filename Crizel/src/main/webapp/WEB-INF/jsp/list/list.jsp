@@ -88,7 +88,7 @@ function allLink(){
 		</thead>
 		<c:if test="${list ne null}">
 			<c:forEach items="${list}" var="ob">
-				<tr class="textCenter">
+				<tr>
 					<td>
 						<a href="/listInsertPage.do?mode=update&ani_id=${ob.ani_id}">${ob.ani_time}</a>
 					</td>

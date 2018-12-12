@@ -17,7 +17,6 @@
 		<li><a href="/directory.do">파일</a></li>
 		<li><a href="#">링크</a>
 			<ul>
-				<li><a href="/comic.do">만화</a></li>
 				<li><a href="/nyaa.do">Nyaa</a></li>
 				<li><a href="/torrent.do">TORRENT</a></li>
 				<li><a href="/onejav.do">ONEJAV</a></li>

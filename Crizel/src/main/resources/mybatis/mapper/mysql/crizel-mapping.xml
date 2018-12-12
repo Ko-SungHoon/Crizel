@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="crizel">
+	<select id="twitter" parameterType="String" resultType="String">
+		select
+		addr from twitter where name=#{name} order by name
+	</select>
+
+	<select id="twitterProc" resultType="com.crizel.common.CrizelVo">
+		select * from twitter order
+		by name
+	</select>
+	
+	<select id="twitterName" resultType="String">
+		select name from twitter order
+		by name
+	</select>
+
+	<select id="twitterAll" resultType="String">
+		select addr from twitter
+		order by name
+	</select>
+
+	<select id="twitterCount" resultType="int" parameterType="String">
+		select
+		count(addr) from twitter
+	</select>
+
+	<insert id="twitterInsert" parameterType="com.crizel.common.CrizelVo">
+		insert into twitter
+		values(#{name}, #{addr})
+	</insert>
+
+	<delete id="twitterDelete" parameterType="com.crizel.common.CrizelVo">
+		delete from twitter
+		where name=#{name}
+	</delete>
+	
+	<select id="insta" parameterType="String" resultType="String">
+		select
+		addr from insta where name=#{name} order by name
+	</select>
+
+	<select id="instaProc" resultType="com.crizel.common.CrizelVo">
+		select * from insta order
+		by name
+	</select>
+	
+	<select id="instaNmae" resultType="String">
+		select name from insta order
+		by name
+	</select>
+
+	<select id="instaAll" resultType="String">
+		select addr from insta
+		order by name
+	</select>
+
+	<select id="instaCount" resultType="int" parameterType="String">
+		select
+		count(addr) from insta
+	</select>
+
+	<insert id="instaInsert" parameterType="com.crizel.common.CrizelVo">
+		insert into insta
+		values(#{name}, #{addr})
+	</insert>
+
+	<delete id="instaDelete" parameterType="com.crizel.common.CrizelVo">
+		delete from insta
+		where name=#{name}
+	</delete>
+
+	<select id="list" resultType="com.crizel.common.CrizelVo" parameterType="String">
+		select * 
+		from ani 
+		where day=#{day} 
+		order by ani_time
+	</select>
+
+	<insert id="listInsert" parameterType="com.crizel.common.CrizelVo">
+		insert into ani(ani_id, title, ani_time, day, keyword, site, directory)
+		values((select ani_id from (select ifnull(max(ani_id)+1,1) as ani_id from ani) ani), #{title}, #{ani_time}, #{day},
+		#{keyword}, #{site}, #{directory})
+	</insert>
+	
+	<select id="listInsertDetail" resultType="com.crizel.common.CrizelVo">
+		select * from ani;
+	</select>
+	
+	<select id="aniInfo" parameterType="String" resultType="com.crizel.common.CrizelVo">
+		SELECT *
+		FROM ANI
+		WHERE ANI_ID = #{ani_id}
+	</select>
+	
+	<update id="listUpdate" parameterType="com.crizel.common.CrizelVo">
+		UPDATE ANI SET
+			TITLE = #{title}
+			, ANI_TIME = #{ani_time}
+			, DAY = #{day}
+			, KEYWORD = #{keyword}
+			, SITE = #{site}
+			, DIRECTORY = #{directory}
+		WHERE ANI_ID = #{ani_id}
+	</update>
+	
+
+	<delete id="listDelete" parameterType="com.crizel.common.CrizelVo">
+		delete from ani where
+		ani_id=#{ani_id}
+	</delete>
+
+	<select id="login" parameterType="com.crizel.common.CrizelVo" resultType="com.crizel.common.CrizelVo">
+		select * from login where id=#{id} and pw=#{pw}
+	</select>
+
+	<insert id="register" parameterType="com.crizel.common.CrizelVo">
+		insert into login
+		values(#{id}, #{pw}, #{name}, #{email}, #{phone}, #{nick},
+		DATE_FORMAT(now(),'%Y-%m-%d'))
+	</insert>
+
+	<select id="registerCheck" parameterType="String" resultType="String">
+		select id from login where id=#{re_id}
+	</select>
+	
+	<select id="onejav" parameterType="String" resultType="HashMap">
+		SELECT NO
+			, DAY
+			, TITLE
+			, ADDR
+			, IMG
+			, NAME
+		FROM ONEJAV
+		WHERE DAY = #{day}
+	</select>
+</mapper>

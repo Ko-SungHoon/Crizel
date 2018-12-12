@@ -95,7 +95,7 @@ function onejavInsert(){
 			<button type="button" class="btn_gray" onclick="onejavInsert();">추가</button>
 		</form>
 	</div>
-	<table class="tbl_type01 textCenter">
+	<table class="tbl_type01">
 	<colgroup>
 		<col width="20%">
 		<col width="80%">

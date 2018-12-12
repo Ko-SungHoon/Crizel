@@ -57,9 +57,9 @@ function boardWritePage(){
 			<c:choose>
 				<c:when test="${fn:length(boardMap.boardList) > 0}">
 				<c:forEach items="${boardMap.boardList}" var="ob">
-				<tr class="textCenter">
+				<tr>
 					<td>${ob.rnum }</td>
-					<td class="textLeft"><a href="/boardRead.do?b_no=${ob.b_no}">${ob.title }</a></td>
+					<td><a href="/boardRead.do?b_no=${ob.b_no}">${ob.title }</a></td>
 					<td>${ob.user_nick }</td>
 					<td>${ob.register_date }</td>
 					<td>${ob.view_count }</td>

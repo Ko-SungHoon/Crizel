@@ -35,7 +35,7 @@ function selectDown(){
 	});
 }
 
-function allCheck(){
+function allCheckFn(){
 	if($("#allCheck").is(":checked")){
 		$("input:checkbox[name=select]").prop("checked", "true");
 	}else{
@@ -64,7 +64,7 @@ function fileDelete(path, name){
 				<option value="E:/" <c:if test="${path2 eq 'E'}">selected</c:if>>E:/</option>
 				<option value="F:/" <c:if test="${path2 eq 'F'}">selected</c:if>>F:/</option>
 			</select>
-			<input type="checkbox" id="allCheck" onclick="allCheck()"><label for="allCheck">파일 전체 선택</label> 
+			<input type="checkbox" id="allCheck" onclick="allCheckFn()"><label for="allCheck">파일 전체 선택</label> 
 			<button type="button" class="btn_gray" onclick="selectDown()">선택 다운로드</button>
 		</form>
 		<form action="/directoryUpload.do" method="post" enctype="multipart/form-data" id="uploadForm">
@@ -77,7 +77,6 @@ function fileDelete(path, name){
 			<input type="hidden" name="name">
 		</form>
 	</div>
-	
 	<div class="directory">
 		<div class="directory_location">
 			<c:set var="addPath" value="" />

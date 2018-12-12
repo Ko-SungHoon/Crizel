@@ -15,7 +15,7 @@
 <div class="content">
 	<div class="mainImage">
 		<a href="javascript:goLink();">
-			<img src="/img/bg03.jpg">
+			<img src="/img/mainImg.jpg">
 		</a>
 	</div>
 	<div class="board">
@@ -27,7 +27,7 @@
 			</thead>
 			<tbody>
 			<c:forEach items="${movieList }" var="ob">
-				<tr class="textCenter">
+				<tr>
 					<td>
 						<a href="http://movie.naver.com/movie/search/result.nhn?query=${ob.movieNm}&section=all&ie=utf8" target="_blank">
 							${ob.movieNm}
@@ -53,7 +53,7 @@
 			</thead>
 			<tbody>
 			<c:forEach items="${saraminList}" var="ob">
-				<tr class="textCenter">
+				<tr>
 					<td><a href="${ob.url}">${ob.name}</a></td>
 					<td>${ob.category}</td>
 					<td>${ob.salary}</td>

@@ -9,10 +9,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.SimpleFormatter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -26,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -35,14 +32,27 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.crizel.common.util.Mars;
-import com.crizel.common.util.Maru;
-import com.crizel.common.util.OneJav;
 import com.crizel.common.util.Saramin;
 import com.crizel.common.util.Torrent;
 
 @Controller
 public class CrizelController {
 	CrizelService service;
+	
+	@Value( "${db.url}" )	
+	private String dbUrl;
+	
+	@Value( "${db.username}" )	
+	private String username;
+	
+	@Value( "${db.password}" )	
+	private String password;
+	
+	@Value( "${db.driverClassName}" )	
+	private String driverClassName;
+	
+	@Value( "${db.type}" )	
+	private String dbType;
 
 	@Autowired
 	public CrizelController(CrizelService service) {
@@ -82,6 +92,14 @@ public class CrizelController {
 			arr.add(obj);
 		}
 		model.addAttribute("saraminList", arr);
+		
+		
+		cal = Calendar.getInstance();
+		SimpleDateFormat sdft = new SimpleDateFormat("yyyy/MM/dd");
+		cal.add(Calendar.DATE, -1);		
+		day = sdft.format(cal.getTime());
+		Crizel crizel = new Crizel(day, dbUrl, username, password, driverClassName, dbType);
+		crizel.start();
 		
 		return "/main";
 	}
@@ -226,101 +244,6 @@ public class CrizelController {
 		}
 	}
 	
-	@RequestMapping("comic")
-	public String comic(@RequestParam(value="type", required=false, defaultValue="") String type,	
-						@RequestParam(value="keyword", required=false, defaultValue="") String keyword,	
-						@RequestParam(value="addrA", required=false, defaultValue="") String addrA,	
-						@RequestParam(value="addrB", required=false, defaultValue="") String addrB,	
-						@RequestParam(value="addrC", required=false, defaultValue="") String addrC,	
-						@RequestParam(value="title", required=false, defaultValue="") String title,
-						Model model
-			) throws Exception {
-		Maru mr = new Maru();
-		
-		if("A".equals(type)){
-			// 검색했을 때 만화제목이 나오는 목록
-			model.addAttribute("list", mr.getList("http://marumaru.in/?r=home&mod=search&keyword=" + URLEncoder.encode(keyword, "UTF-8")));
-		}else if("B".equals(type)){
-			// 만화 화수 목록
-			model.addAttribute("viewList", mr.getComic("http://marumaru.in/" + addrB));
-			model.addAttribute("comicViewList", service.comicViewList(addrB));	// viewCount 목록
-			model.addAttribute("addrB", addrB);									// 만화 viewCount 업데이트 시 where절에 쓸 주소
-			
-			//	읽은 화수 표시
-			Map<String,Object> map = new HashMap<String,Object>();
-			map.put("title", URLEncoder.encode(title,"UTF-8"));
-			map.put("addr", addrB);
-			service.comicViewCheck(map);
-		}else if("C".equals(type)){
-			// 만화 이미지 리스트
-			model.addAttribute("imgList", mr.getView(addrC));
-			
-			// 만화 화수 목록(만화 밑에 뜨게)
-			model.addAttribute("viewList", mr.getComic("http://marumaru.in/" + addrB));
-			model.addAttribute("comicViewList", service.comicViewList(addrB));	// viewCount 목록
-			model.addAttribute("addrB", addrB);									// 만화 viewCount 업데이트 시 where절에 쓸 주소
-			
-			Map<String,Object> map = new HashMap<String,Object>();
-			map.put("title", title);
-			map.put("addr", addrB);
-			service.comicViewCheck(map);
-			
-		}else{
-			model.addAttribute("comicList", service.comicList());
-		}
-		
-		model.addAttribute("type", type);
-		model.addAttribute("keyword", keyword);
-		return "comic/list";
-	}
-	
-	@RequestMapping("comicInsertPage")
-	public String comicInsertPage(HttpServletRequest request, HttpServletResponse response, Model model) {
-		List<Object> comicList = service.comicList();
-		model.addAttribute("comicList", comicList);
-		return "comic/comicInsertPage";
-	}
-	
-	@RequestMapping("comicInsert")
-	public String comicInsert(@ModelAttribute CrizelVo vo) {
-		service.comicInsert(vo);
-		return "redirect:comicInsertPage.do";
-
-	}
-
-	@RequestMapping("comicDelete")
-	public String comicDelete(@ModelAttribute CrizelVo vo) {
-		service.comicDelete(vo);
-		return "redirect:comicInsertPage.do";
-
-	}
-	
-	@RequestMapping("comicView")
-	public void comicView(@RequestParam(value="addr", required=false) String addr
-			,	HttpServletRequest request, HttpServletResponse response) throws Exception {
-		Maru mr = new Maru();
-		mr.ImageStream(addr, request, response);
-	}
-	
-	@RequestMapping("comicDown")
-	public void comicDown(@RequestParam(value="addr", required=false) String addr,
-						  @RequestParam(value="type", required=false) String type) throws IOException {
-		service.comicDown(addr, type);
-	}
-	
-	@RequestMapping("comicViewCheck")
-	public void comicViewCheck(
-			@RequestParam(value="title", required=false) String title,
-			@RequestParam(value="addr", required=false) String addr,
-			HttpServletResponse response) throws IOException {
-		Map<String,Object> map = new HashMap<String,Object>();
-		map.put("title", title);
-		map.put("addr", addr);
-		service.comicViewCheck(map);
-		response.setContentType("application/x-json; charset=UTF-8");
-		response.getWriter().print("1");
-	}
-	
 	@RequestMapping("torrent")
 	public ModelAndView torrent() throws UnsupportedEncodingException{
 		ModelAndView mav = new ModelAndView();
@@ -366,7 +289,7 @@ public class CrizelController {
 			return "onejav";
 		}else{
 			@SuppressWarnings("unused")
-			Crizel crizel = new Crizel(day);
+			Crizel crizel = new Crizel(day, dbUrl, username, password, driverClassName, dbType);
 			//service.onejavInsert(addr, day);
 			return "redirect:onejav.do?day="+day;
 		}

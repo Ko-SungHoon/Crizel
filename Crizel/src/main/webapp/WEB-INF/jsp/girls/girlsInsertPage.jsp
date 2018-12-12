@@ -59,7 +59,7 @@ function formSubmit(){
 			<div class="btnArea">
 				<input type="submit" class="btn_gray" value="추가">
 			</div>
-			<table class="tbl_type01 textCenter">
+			<table class="tbl_type01">
 				<colgroup>
 					<col width="80%" />
 					<col width="20%" />

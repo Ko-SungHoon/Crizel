@@ -38,7 +38,7 @@ function allNewTap(){
 </script>
 	<c:if test="${girlsList eq null}">
 	<div class="board">
-		<table class="tbl_type01 textCenter">
+		<table class="tbl_type01">
 			<tr>
 				<td>
 					<a href="javascript:allNewTap()">모두 새 탭</a>

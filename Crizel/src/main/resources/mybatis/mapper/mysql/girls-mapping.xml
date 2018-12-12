@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="girls">
+	<select id="girlsGetName" resultType="String">
+		select min(name) name from girls
+	</select>
+	
+	<select id="nameList" resultType="com.crizel.girls.GirlsVO">
+		select name from girls group by name order by name
+	</select>
+	
+	<insert id="girlsInsert" parameterType="com.crizel.girls.GirlsVO">	
+		<!-- <selectKey order="BEFORE" keyProperty="g_id">select ifnull(max(g_id)+1, 1) as g_id from girls</selectKey> -->
+		insert into girls(g_id, name, addr, type, tag1, tag2) 
+		values((select g_id from (select ifnull(max(g_id)+1, 1) as g_id from girls) girls), #{name}, #{addr}, #{type}, #{tag1}, #{tag2})
+	</insert>
+	
+	<delete id="girlsDelete" parameterType="com.crizel.girls.GirlsVO">
+		delete from girls where g_id = #{g_id}
+	</delete>
+	
+	<select id="girlsImg" parameterType="String" resultType="com.crizel.girls.GirlsVO">
+		select * from girls where name = #{name}
+	</select>
+	
+	<select id="girlsList" resultType="com.crizel.girls.GirlsVO">
+		select * from girls order by name
+	</select>
+	
+	<select id="girlsInfo" resultType="com.crizel.girls.GirlsVO" parameterType="String">
+		select * from girls where name = #{name}
+	</select>
+</mapper>

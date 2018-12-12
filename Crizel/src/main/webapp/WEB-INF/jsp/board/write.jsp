@@ -16,7 +16,7 @@
 		<input type="hidden" id="parent_b_no" name="parent_b_no" value="${boardInfo.parent_b_no}">
 		<input type="hidden" id="b_level" name="b_level" value="${boardInfo.b_level}">
 		<input type="hidden" id="user_id" name="user_id" value="${boardInfo.user_id}">
-		<table class="tbl_type01 textCenter">
+		<table class="tbl_type01">
 			<colgroup>
 				<col width="30%">
 				<col>
