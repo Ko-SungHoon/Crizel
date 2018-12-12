@@ -71,7 +71,7 @@ public class CrizelController {
 		
 		URL url = new URL("http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchWeeklyBoxOfficeList.json?key="+key+"&targetDt="+day);
 		HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-		InputStreamReader isr = new InputStreamReader(conn.getInputStream());
+		InputStreamReader isr = new InputStreamReader(conn.getInputStream(), "UTF-8");
 		JSONObject object = (JSONObject) JSONValue.parse(isr);
 		JSONObject boxOfficeResult = (JSONObject) object.get("boxOfficeResult");
 		JSONArray weeklyBoxOfficeList = (JSONArray) boxOfficeResult.get("weeklyBoxOfficeList");
