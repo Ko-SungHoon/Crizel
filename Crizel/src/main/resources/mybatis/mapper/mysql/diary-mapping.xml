@@ -4,23 +4,23 @@
 
 <mapper namespace="diary">
 	<select id="content" parameterType="String" resultType="com.crizel.diary.DiaryVO">
-		select diary_id, to_char(diary_date, 'yyyy-MM-dd') diary_date, content 
-		from diary 
-		where diary_date = #{day} and delete_status = 'N'
+		SELECT DIARY_ID, DATE_FORMAT(DIARY_DATE,'%Y-%m-%d') DIARY_DATE, CONTENT 
+		FROM DIARY 
+		WHERE DIARY_DATE = #{day} AND DELETE_STATUS = 'N'
 	</select>
 	<insert id="diaryInsert" parameterType="com.crizel.diary.DiaryVO">
 		INSERT INTO DIARY(DIARY_ID, DIARY_DATE, CONTENT, DELETE_STATUS)
-		VALUES((select diary_id from(select ifnull(max(diary_id)+1,1) as diary_id from diary) diary), #{diary_date}, #{content}, 'N')
+		VALUES((SELECT DIARY_ID FROM(SELECT IFNULL(MAX(DIARY_ID)+1,1) AS DIARY_ID FROM DIARY) DIARY), #{diary_date}, #{content}, 'N')
 	</insert>
 	<update id="diaryDelete" parameterType="com.crizel.diary.DiaryVO">
-		update diary set delete_status = 'D' where diary_id = #{diary_id}
+		UPDATE DIARY SET DELETE_STATUS = 'D' WHERE DIARY_ID = #{diary_id}
 	</update>
 	<update id="diaryUpdate" parameterType="com.crizel.diary.DiaryVO">
-		update diary set content = #{content} where diary_id = #{diary_id}
+		UPDATE DIARY SET CONTENT = #{content} WHERE DIARY_ID = #{diary_id}
 	</update>
 	
 	<select id="useDay" parameterType="String" resultType="String">
-		select to_char(diary_date, 'yyyy-mm-dd') diary_date from diary where diary_date like '%'||#{day}||'%' and delete_status = 'N'
+		SELECT DATE_FORMAT(DIARY_DATE,'%Y-%m-%d') DIARY_DATE FROM DIARY WHERE DIARY_DATE LIKE '%'||#{day}||'%' AND DELETE_STATUS = 'N'
 	</select>
 	
 	

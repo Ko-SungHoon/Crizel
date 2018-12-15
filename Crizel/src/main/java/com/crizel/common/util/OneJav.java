@@ -15,7 +15,7 @@ public class OneJav {
 	/*public static void main(String[] args) throws Exception {
 		OneJav oj = new OneJav();
 		//String addr			= "/torrent/mudr032";
-		String addr 		= "http://www.onejav.com/2018/08/28?page=";
+		String addr 		= "http://onejav.com/2018/08/28?page=";
 		
 		List<Map<String,Object>> list = oj.getList(addr, 1, oj.getPageCount(addr));
 		
@@ -27,7 +27,7 @@ public class OneJav {
 			System.out.println("name_link : " + ob.get("name_link") + "\n");
 		}
 		
-		//oj.test("http://www.onejav.com/2018/08/28?page=1");
+		//oj.test("http://onejav.com/2018/08/28?page=1");
 		
 	}*/
 	
@@ -67,10 +67,10 @@ public class OneJav {
 				Element link = linkElem!=null && linkElem.size()>i?linkElem.get(i):null;
 				
 				map.put("img", img!=null?img.attr("src"):"");
-				map.put("addr", link!=null?"https://www.onejav.com/" + getView("https://www.onejav.com/" + link.attr("href")):"");
+				map.put("addr", link!=null?"https://onejav.com/" + getView("https://onejav.com/" + link.attr("href")):"");
 				map.put("title", link!=null?link.text():"");
 				map.put("name", name!=null?name.text():"");
-				map.put("name_link", name!=null?"https://www.onejav.com/" + name.attr("href"):"");
+				map.put("name_link", name!=null?"https://onejav.com/" + name.attr("href"):"");
 				map.put("day", day);
 				
 				list.add(map);

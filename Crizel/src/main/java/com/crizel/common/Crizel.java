@@ -55,6 +55,11 @@ public class Crizel extends Thread{
 				break;
 			}
 		}
+		if(a>0){
+			System.out.println("SUCCESS");
+		}else{
+			System.out.println("FAILED");
+		}
 	}
 	
 	public int oneJavInsert(){
@@ -72,7 +77,7 @@ public class Crizel extends Thread{
 		Calendar cal = Calendar.getInstance();
 		SimpleDateFormat sdft = new SimpleDateFormat("yyyy/MM/dd");
 		cal.add(Calendar.DATE, -1);		
-		String addr = "https://www.onejav.com/";
+		String addr = "https://onejav.com/";
 		String day = "";
 		if(!"".equals(paramDay)){
 			day = paramDay;
@@ -116,7 +121,7 @@ public class Crizel extends Thread{
 		   				pstmt.setString(4, ob.get("img").toString());
 		   				pstmt.setString(5, ob.get("name").toString());
 		   				pstmt.setString(6, ob.get("title").toString());
-		   				pstmt.executeUpdate();
+		   				result = pstmt.executeUpdate();
 		   				if(pstmt!=null){pstmt.close();}
 					   	if(rs!=null){rs.close();}
 		   			}
@@ -129,7 +134,7 @@ public class Crizel extends Thread{
 			Calendar cal = Calendar.getInstance();
 			SimpleDateFormat sdft = new SimpleDateFormat("yyyy/MM/dd");
 			cal.add(Calendar.DATE, -1);		
-			String addr = "https://www.onejav.com/";
+			String addr = "https://onejav.com/";
 			String day = sdft.format(cal.getTime());
 			addr += day;
 
@@ -165,7 +170,6 @@ public class Crizel extends Thread{
 			if(pstmt!=null){try {pstmt.close();} catch (SQLException e1) {e1.printStackTrace();}}
 		   	if(rs!=null){try {rs.close();} catch (SQLException e1) {e1.printStackTrace();}}
 		   	if(conn!=null){try {conn.close();} catch (SQLException e1) {e1.printStackTrace();}}
-		   	result = 1;
 		}
 		return result;
 	}
