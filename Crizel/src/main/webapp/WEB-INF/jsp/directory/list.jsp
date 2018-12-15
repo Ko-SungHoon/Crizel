@@ -80,6 +80,7 @@ function fileDelete(path, name){
 	<div class="directory">
 		<div class="directory_location">
 			<c:set var="addPath" value="" />
+			<a href="javascript:changeDirectory('/')">/</a>
 			<c:forEach items="${pathArray}" var="ob" varStatus="status">
 				<c:choose>
 					<c:when test="${status.index eq 0 }">
