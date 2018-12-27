@@ -1,6 +1,11 @@
 package com.crizel.girls;
+import java.awt.image.BufferedImage;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -59,5 +64,4 @@ public class Instagram {
 		
 		return imgList;
 	}
-
 }

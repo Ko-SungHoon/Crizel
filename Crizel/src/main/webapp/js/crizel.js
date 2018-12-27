@@ -8,11 +8,25 @@ function goLink(){
 }
 
 $(function(){
+	var width = window.innerWidth;
 	$(window).scroll(function() {
 		console.log($(this).scrollTop());
 		var $el = $('.menu');
+	  if(width>1024){
+		  var $el = $('.menu');
+	  }else{
+		  var $el = $('.menu_icon');
+	  }
 	  
-		if($(this).scrollTop() <= 0) $el.css('position', 'static');
-		else $el.css('position', 'fixed');
+	  if($(this).scrollTop() <= 0) $el.css('position', 'static');
+	  else $el.css('position', 'fixed');
+	});
+	
+	$(".menu_icon").click(function(){
+		if($(".menu").css("display") == "none"){
+			$(".menu").css("display", "block");
+		}else{
+			$(".menu").css("display", "none");
+		}
 	});
 });

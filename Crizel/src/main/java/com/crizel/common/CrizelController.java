@@ -290,6 +290,7 @@ public class CrizelController {
 		}else{
 			@SuppressWarnings("unused")
 			Crizel crizel = new Crizel(day, dbUrl, username, password, driverClassName, dbType);
+			crizel.start();
 			//service.onejavInsert(addr, day);
 			return "redirect:onejav.do?day="+day;
 		}

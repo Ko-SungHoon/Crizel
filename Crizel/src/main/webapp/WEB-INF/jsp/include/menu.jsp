@@ -1,6 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<img class="menu_icon" src="/img/mob_menubtn.png"/>
 <div class="menu">
 	<ul>
 		<li><a href="/index.jsp">홈</a></li>
@@ -17,7 +18,7 @@
 		<li><a href="/directory.do">파일</a></li>
 		<li><a href="#">링크</a>
 			<ul>
-				<li><a href="/nyaa.do">Nyaa</a></li>
+				<li><a href="/nyaa.do">NYAA</a></li>
 				<li><a href="/torrent.do">TORRENT</a></li>
 				<li><a href="/onejav.do">ONEJAV</a></li>
 				<li><a href="/diary.do">일기</a></li>

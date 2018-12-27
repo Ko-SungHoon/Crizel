@@ -13,6 +13,8 @@ boad a {font-family: 'Noto Sans KR', sans-serif;}
 .btnArea .btn_gray {border:none; padding:10px 20px 10px 20px; background: #4F4F4F; color:white; cursor:pointer}
 .btnArea .btn_gray:hover {background: #191919;}
 
+@media all and (min-width:768px) { 
+.menu_icon{display:none;}
 .menu{text-align: center; width: 100%; margin-bottom:30px; padding: 0px; background: #191919; position: static;}
 .menu a{text-decoration: none; color: white; display: block; line-height: 60px; font-size: 18px;}
 .menu a:hover{background: #4F4F4F;}
@@ -22,6 +24,19 @@ boad a {font-family: 'Noto Sans KR', sans-serif;}
 .menu ul li:hover > ul li{background: #3D3D3D;}
 .menu ul li ul{width:100%; margin: 0; padding: 0; position: absolute; display: none;}
 .menu ul li ul li{width:100%;}
+}
+
+@media all and (max-width:768px) { 
+.menu_icon{display:block; position: static; }
+.menu{text-align: center; width: 100%; margin-bottom:30px; padding: 0px; background: #191919; display: none;}
+.menu a{text-decoration: none; color: white; display: block; line-height: 60px; font-size: 18px;}
+.menu a:hover{background: #4F4F4F;}
+.menu ul{list-style: none; display: block; width: 60%; margin: 0 auto; padding: 0;}
+.menu ul li{width: 100%; position: relative; margin:0; padding:0;}
+.menu ul li:hover > ul li{background: #3D3D3D;}
+.menu ul li ul{width:100%; margin: 0; padding: 0; display: block;}
+.menu ul li ul li{width:100%;}
+}
 
 .content{width:100%;}
 .mainImage{width:100%; margin: auto; margin-bottom:30px;}
@@ -38,9 +53,10 @@ boad a {font-family: 'Noto Sans KR', sans-serif;}
 .tbl_type01 .on{background: #4F4F4F;}
 .tbl_type01 input,select {line-height: 20px; width:70%; background: #4F4F4F; font-size: 15px; color:white;}
 
-.ul_type01{list-style: none; margin: auto; margin-bottom:30px; padding: 0;}
+.ul_type01{list-style: none; margin: auto; margin-bottom:30px; padding: 0; width:100%;}
 .ul_type01 li{width:100%; text-align: center; }
 .ul_type01 li a{text-decoration: none; color:white;}
+.ul_type01 li img{width:100%;}
 
 .directory{width: 100%; color:white;}
 .directory a{color:white; text-decoration: none;}
@@ -48,7 +64,3 @@ boad a {font-family: 'Noto Sans KR', sans-serif;}
 
 .paging{width: 50%; margin: 0 auto; padding: 0; text-align: center; color:white;}
 .paging a{color: white; text-decoration: none;}
-
-@media all and (max-width:768px) {
-	
-}

@@ -54,7 +54,7 @@
 			<tbody>
 			<c:forEach items="${saraminList}" var="ob">
 				<tr>
-					<td><a href="${ob.url}">${ob.name}</a></td>
+					<td><a href="${ob.url}" target="_blank">${ob.name}</a></td>
 					<td>${ob.category}</td>
 					<td>${ob.salary}</td>
 				</tr>

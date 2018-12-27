@@ -1,8 +1,14 @@
 package com.crizel.girls;
 
+import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.jsoup.Jsoup;
 import org.jsoup.select.Elements;
@@ -54,12 +60,15 @@ public class GirlsDao {
 					}
 					String URL = list.get(i).getAddr();
 			        doc = Jsoup.connect(URL).get();
-			        Elements elem = doc.select(list.get(i).getTag1());
+			        Elements elem = doc.select("img");
 			        for (org.jsoup.nodes.Element e : elem) {
-						String img = e.attr(list.get(i).getTag2());
-						imgList.add(img);
+			        	String img = e.attr("src");
+			        	if(getCurrentImage(img)){
+			        		imgList.add(img);
+			        	}					
 					}
 				} catch (Exception e) {
+					
 					System.out.println(e.toString());
 				}
 			}
@@ -74,6 +83,22 @@ public class GirlsDao {
 
 	public List<GirlsVO> girlsInfo(String name) {
 		return sqlSession.selectList("girls.girlsInfo", name);
+	}
+	
+	public static boolean getCurrentImage(String addr) {
+		boolean a = false;
+		try {
+			URL url = new URL(addr);
+			InputStream is = url.openStream();
+			BufferedImage bi = ImageIO.read(is);
+			if (bi.getWidth() >= 200) {
+				a = true;
+			}
+		} catch (Exception e) {
+			System.out.println("ERR : " + e.toString());
+			a = false;
+		}
+		return a;
 	}
 
 }
