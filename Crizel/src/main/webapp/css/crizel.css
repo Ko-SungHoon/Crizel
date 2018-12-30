@@ -56,7 +56,7 @@ boad a {font-family: 'Noto Sans KR', sans-serif;}
 .ul_type01{list-style: none; margin: auto; margin-bottom:30px; padding: 0; width:100%;}
 .ul_type01 li{width:100%; text-align: center; }
 .ul_type01 li a{text-decoration: none; color:white;}
-.ul_type01 li img{width:100%;}
+.ul_type01 li img{max-width:100%;}
 
 .directory{width: 100%; color:white;}
 .directory a{color:white; text-decoration: none;}
