@@ -168,7 +168,6 @@ public class CrizelController {
 	@RequestMapping("listInsert.do")
 	public String listInsert(@ModelAttribute CrizelVo vo, 
 			 				 @RequestParam(value="mode", defaultValue="") String mode) throws Exception {
-		vo.setDirectory(vo.getDirectory() + vo.getTitle());
 		service.listInsert(vo);
 		return "redirect:listInsertPage.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8")+"&mode="+mode;
 	}
@@ -176,7 +175,6 @@ public class CrizelController {
 	@RequestMapping("listUpdate.do")
 	public String listUpdate(@ModelAttribute CrizelVo vo, 
 							 @RequestParam(value="mode", defaultValue="") String mode) throws Exception {
-		vo.setDirectory(vo.getDirectory().substring(0, vo.getDirectory().lastIndexOf("/")+1) + vo.getTitle());
 		service.listUpdate(vo);
 		return "redirect:list.do?day="+URLEncoder.encode(vo.getDay(), "UTF-8")+"&mode=nyaa";
 	}

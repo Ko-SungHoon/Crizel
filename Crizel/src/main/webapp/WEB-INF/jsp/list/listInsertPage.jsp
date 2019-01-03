@@ -48,12 +48,6 @@ String dayArr[] = {"월", "화", "수", "목", "금", "토", "일"};
 			</c:if>
 			<table class="tbl_type01">
 				<tr>
-					<th>경로</th>
-					<td>
-						<input type="text" name="directory" value="${ani_info.directory}">
-					</td>
-				</tr>
-				<tr>
 					<th>사이트</th>
 					<td>
 						<select name="site" required>

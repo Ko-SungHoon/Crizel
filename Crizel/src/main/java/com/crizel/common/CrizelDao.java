@@ -54,18 +54,10 @@ public class CrizelDao {
 	}
 
 	public void listInsert(CrizelVo vo) {
-		File file = new File(vo.getDirectory());
-        if(!file.exists()){
-            file.mkdirs();
-        }
 		sqlSession.insert("crizel.listInsert", vo);
 	}
 
 	public void listUpdate(CrizelVo vo) {
-		File file = new File(vo.getDirectory());
-        if(!file.exists()){
-            file.mkdirs();
-        }
 		sqlSession.update("crizel.listUpdate", vo);
 	}
 
