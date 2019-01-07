@@ -1,5 +1,11 @@
 package com.crizel.common.util;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -27,5 +33,39 @@ public class UtilClass {
 			value = "";
 		}		
 		return value;
+	}
+	
+	public void downImage(String addr, String name) throws Exception{
+		URL url = new URL(addr);
+	    InputStream in = new BufferedInputStream(url.openStream());
+	    ByteArrayOutputStream out = new ByteArrayOutputStream();
+	    byte[] buf = new byte[1024];
+	    int n = 0;
+	    while (-1 != (n = in.read(buf))) {
+	        out.write(buf, 0, n);
+	    }
+	    out.close();
+	    in.close();
+	    byte[] response = out.toByteArray();
+		
+		File file = new File("/tomcat/images");
+	    if(!file.exists()){
+	    	file.mkdirs();
+	    }
+	    
+	    boolean fileCheck = true;
+	    int fileNo = 0;
+	    FileOutputStream fos = null;
+	    while(fileCheck){
+	    	fileNo++;
+	    	file = new File("/tomcat/images/" + name + fileNo + ".jpg");	
+	    	System.out.println(file.exists());
+	    	if(!file.exists()){
+	    		fos = new FileOutputStream("/tomcat/images/" + name + + fileNo + ".jpg");
+	    		fos.write(response);
+	    	    fos.close();
+	    		fileCheck = false;
+	    	}
+	    }
 	}
 }

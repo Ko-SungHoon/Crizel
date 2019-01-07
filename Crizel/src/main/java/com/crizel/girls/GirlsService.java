@@ -43,7 +43,7 @@ public class GirlsService {
 		dao.girlsDelete(vo);
 	}
 
-	public List<Object> girlsImg(String name) {
+	public List<Object> girlsImg(String name) throws Exception {
 		if("".equals(name)){
 			name = parseNull(dao.girlsGetName());
 		}

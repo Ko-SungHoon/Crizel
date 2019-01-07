@@ -1,7 +1,10 @@
 package com.crizel.girls;
 
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -15,6 +18,8 @@ import org.jsoup.select.Elements;
 import org.mybatis.spring.SqlSessionTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
+import com.crizel.common.util.UtilClass;
 
 @Repository("girlsDao")
 public class GirlsDao {
@@ -37,7 +42,7 @@ public class GirlsDao {
 		sqlSession.delete("girls.girlsDelete", vo);
 	}
 
-	public List<Object> girlsImg(String name) {
+	public List<Object> girlsImg(String name) throws Exception {
 		List<Object> imgList = new ArrayList<Object>();
 		List<GirlsVO> list = null;
 		Instagram ins = new Instagram();
@@ -47,9 +52,9 @@ public class GirlsDao {
 		
 		for(int i=0; i<list.size(); i++){
 			if("twitter".equals(list.get(i).getType())){						//트위터
-				imgList.addAll(twitter.getList(list.get(i).getAddr()));
+				imgList.addAll(twitter.getList(list.get(i).getAddr(), list.get(i).getName()));
 			}else if("insta".equals(list.get(i).getType())){					//인스타
-				imgList.addAll(ins.getList(list.get(i).getAddr()));
+				imgList.addAll(ins.getList(list.get(i).getAddr(), list.get(i).getName()));
 			}else if("blog".equals(list.get(i).getType())){					//블로그
 				try {
 					org.jsoup.nodes.Document doc = null;
@@ -65,10 +70,11 @@ public class GirlsDao {
 			        	String img = e.attr("src");
 			        	if(getCurrentImage(img)){
 			        		imgList.add(img);
+			        		UtilClass util = new UtilClass();
+			        		util.downImage(img, list.get(i).getName());
 			        	}					
 					}
 				} catch (Exception e) {
-					
 					System.out.println(e.toString());
 				}
 			}
@@ -100,5 +106,4 @@ public class GirlsDao {
 		}
 		return a;
 	}
-
 }

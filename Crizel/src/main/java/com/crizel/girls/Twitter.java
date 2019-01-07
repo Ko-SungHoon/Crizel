@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.imageio.ImageIO;
 
@@ -15,14 +13,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.crizel.common.util.UtilClass;
+
 public class Twitter {
-	public static void main(String[] args) {
-		Twitter t1 = new Twitter();
-		//t1.getList("https://twitter.com/uesaka_official");
-		t1.getList("https://twitter.com/sunflower930316");
-	}
 	
-	public List<Object> getList(String addr){
+	public List<Object> getList(String addr, String name) throws Exception{
 		String URL 			= addr;
         Document doc 		= null;
         Elements elem		= null;
@@ -37,6 +32,8 @@ public class Twitter {
         for (Element e : elem) {
         	if(getCurrentImage(e.attr("src"))){
         		list.add(e.attr("src"));
+        		UtilClass util = new UtilClass();
+        		util.downImage(e.attr("src"), name);
         	}
 		}
 		return list;
@@ -57,4 +54,6 @@ public class Twitter {
 		}
 		return a;
 	}
+	
+	
 }

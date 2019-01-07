@@ -20,7 +20,7 @@ public class GirlsController {
 	@RequestMapping("girls.do")
 	public ModelAndView girls(
 			@RequestParam(value="name", required=false, defaultValue="") String name,
-			HttpServletRequest request, HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response) throws Exception {
 		ModelAndView mav = new ModelAndView();	
 		List<Object> nameList = service.nameList();
 		List<Object> girlsList = null;

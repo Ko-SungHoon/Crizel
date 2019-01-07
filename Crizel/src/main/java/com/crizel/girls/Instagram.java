@@ -1,11 +1,12 @@
 package com.crizel.girls;
-import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.imageio.ImageIO;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -15,13 +16,10 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.crizel.common.util.UtilClass;
+
 public class Instagram {
-	public static void main(String[] args) {
-		Instagram in = new Instagram();
-		in.getList("https://www.instagram.com/ayoungshinn/");
-	}
-	
-	public List<Object> getList(String addr){		
+	public List<Object> getList(String addr, String name){		
 		List<Object> imgList 	= new ArrayList<Object>();
 		String URL 				= null;
         Document doc 			= null;
@@ -57,6 +55,8 @@ public class Instagram {
 				JSONObject node = (JSONObject)((JSONObject)edges.get(i)).get("node");
 				//System.out.println(node.get("display_url").toString());
 				imgList.add(node.get("display_url").toString());
+				UtilClass util = new UtilClass();
+				util.downImage(node.get("display_url").toString(), name);
 			}
 		}catch(Exception e){
 			System.out.println(e.toString());
@@ -64,4 +64,5 @@ public class Instagram {
 		
 		return imgList;
 	}
+	
 }
