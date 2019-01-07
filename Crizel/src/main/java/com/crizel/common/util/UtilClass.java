@@ -48,7 +48,7 @@ public class UtilClass {
 	    in.close();
 	    byte[] response = out.toByteArray();
 		
-		File file = new File("/tomcat/images");
+		File file = new File("/tomcat/images/" + name);
 	    if(!file.exists()){
 	    	file.mkdirs();
 	    }
@@ -58,10 +58,9 @@ public class UtilClass {
 	    FileOutputStream fos = null;
 	    while(fileCheck){
 	    	fileNo++;
-	    	file = new File("/tomcat/images/" + name + fileNo + ".jpg");	
-	    	System.out.println(file.exists());
+	    	file = new File("/tomcat/images/" + name + "/" + addr.replaceAll("/", "") + ".jpg");	
 	    	if(!file.exists()){
-	    		fos = new FileOutputStream("/tomcat/images/" + name + + fileNo + ".jpg");
+	    		fos = new FileOutputStream("/tomcat/images/" + name + "/" + addr.replaceAll("/", "") + ".jpg");
 	    		fos.write(response);
 	    	    fos.close();
 	    		fileCheck = false;
