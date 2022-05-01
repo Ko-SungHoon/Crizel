@@ -1,0 +1,90 @@
+@charset "utf-8";
+
+html {font-family: 'notokr', "SCDream", sans-serif;color:#333;font-weight:normal;font-size:16px;letter-spacing:0;}
+
+.cursor.circle { position: absolute;  width: 40px;  height: 40px;  top: 50%; left: 50%;  margin: -50px 0 0 -50px;  background: rgba(255,193,16,0.6); border-radius: 80%; backface-visibility: hidden; z-index: 999;}
+
+/*========= reset style ==========*/
+/* reset */
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var,
+b, u, i, center, dl, dt, dd, ol, ul, li, fieldset, form, label, legend, table, tbody, tfoot, thead, tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer, header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio, video 
+{ margin: 0; padding: 0; border: 0; font-size: 100%; }
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, footer, header, hgroup, main, summary, menu, nav, section {display: block;}
+ul,ol,li,dl,dt,dd {list-style:none;}
+blockquote, q {quotes:none;}
+blockquote:before, blockquote:after, q:before, q:after {content:''; content: none;}
+table {border-collapse:collapse; border-spacing:0;}
+
+html {-ms-text-size-adjust: 100%; -webkit-text-size-adjust: 100%; } /*ios와 IE에서 기기회전시 글씨 재조정 예방*/
+body {position:relative;line-height:1.6em;color:#505050;font-family: "notokr", "SCDream", Dotum, sans-serif;}
+audio, canvas, progress, video {display:inline-block; vertical-align:baseline;} /*IE8,9에서 inline-block으로 지정 ; chrom, firefox, opera에서 progress 세로정렬 표준화 */
+
+/*모든 브라우저에서 line-height에 미치는 영향 예방*/
+sup,sub {position:relative; font-size:60%; line-height:0; vertical-align:baseline;}
+sub {bottom: -0.5em;}
+sup {top: -0.5em;}
+#snb a{color:#666;}
+
+img {border:0; max-width:100%; vertical-align:top; font-size:0; line-height:0;}
+b, strong {font-weight:700;}
+em, dfn, cite, address, i{font-style: normal;}
+mark {background-color:#ff0; color:#000;} /*IE8/9 존재하지 않는 스타일 부여*/
+small, .small {font-size:80%;} /*브라우저 글꼴 통일*/
+pre {overflow:auto;} /*모든브라우저에서 값 통일*/
+del {text-decoration: line-through; }
+hr {visibility:hidden; overflow:hidden; position:absolute; height:0; width:0; font-size:0;}
+label {cursor:default;}
+
+a {background-color:transparent;} /*IE10에서 active 링크의 회색배경 제거 */
+a {color:inherit; text-decoration: none;cursor: pointer;}
+a:link,a:visited { text-decoration: none; }
+a:hover,a:active,a:focus { text-decoration:none;}
+
+/* form */
+/*color,font 상속되지 않는 것 수정; 마진 통일*/
+/*button, input, optgroup, select, textarea {color:inherit; font:inherit; margin:0;} 
+input {font:inherit; color:inherit; vertical-align:middle}*/
+
+
+button {overflow:visible;} /*IE8/9/10/11 hidden 속성 수정*/
+button:focus {outline:none;}
+
+input[type="file"]{padding-left:0;border:none}
+input[type="submit"]{-webkit-appearance:none;}
+input[type="radio"],input[type="checkbox"]{/*box-sizing:border-box;*/ padding:0;} /*IE8/9/10 속성값 변경*/
+button {text-transform:none; vertical-align:middle; outline:none;margin:0; padding:0; border:0; background:0;}
+button,[type="button"],[type="reset"],[type="submit"] {cursor:pointer; -webkit-border-radius:0; -webkit-appearance:none; }
+button::-moz-focus-inner, input::-moz-focus-inner {border:0; padding:0;} /*firefox4+ 속성값 변경*/
+textarea {overflow:auto; padding: 5px;}
+input[disabled="disabled"]{background:#ebebeb;color:#959595}
+select[disabled="disabled"]{background:#ebebeb;color:#959595}
+input,label { vertical-align: middle;}
+
+input[type="radio"],
+input[type="checkbox"],
+label[for],
+button {cursor: pointer;}
+input {margin:0; }
+
+legend, caption {width:0; height:0; font-size:0; line-height:0; visibility:hidden; overflow:hidden;}
+
+* {box-sizing:border-box;}
+i {font-style:normal;}
+
+
+/*=========== 추가 ============*/
+blockquote, q { quotes: none; }
+blockquote:before, blockquote:after, q:before, q:after { content:''; content:none; }
+
+table { /* border-collapse: collapse; border-spacing:0; */ }
+
+/* ellipsis */
+.ellipsis {text-overflow:ellipsis; overflow:hidden; white-space:nowrap; -moz-binding:url(/assets/css/ellipsis.xml#ellipsis);}
+
+
+.w100 {width:100% !important;}
+.w90 {width:90% !important;}
+.w80 {width:80% !important;}
+.w70 {width:70% !important;}

@@ -1,0 +1,93 @@
+@CHARSET "UTF-8";
+@import url(http://fonts.googleapis.com/earlyaccess/hanna.css);
+@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+body{background: #FF2424; margin:0; padding:0; font-family: 'Noto Sans KR', sans-serif; ::-webkit-scrollbar {display: block !important;}}
+a {font-family: 'Noto Sans KR', sans-serif; color:white;}
+
+.a_txt{color:white;}
+
+.mainImage .btnArea {width:100%; display: block;}
+#mImg:hover img{filter: brightness(1.3);}
+#mImg a:hover img{filter: brightness(1.3);}
+
+.float_l{float: left; margin-left:20px;}
+.float_r{float: right; margin-right:20px;}
+
+.block{display: block;}
+.block:hover{background: #FFFFD2;}
+.btn_gray{border:none; padding:10px 20px 10px 20px; background: #FFFFD2; color:white; cursor:pointer}
+.btn_gray:hover{background: #191919;}
+
+.btnArea {width:70%; margin: auto;margin-bottom:30px; text-align: center; color: white;}
+.btnArea .btn_gray {border:none; padding:10px 20px 10px 20px; background: #FFFFD2; color:white; cursor:pointer}
+.btnArea .btn_gray:hover {background: #191919;}
+
+@media all and (min-width:768px) { 
+.menu_icon{display:none;}
+.menu{text-align: center; width: 100%; margin-bottom:30px; padding: 0px; background: #191919; position: static;}
+.menu a{text-decoration: none; color: white; display: block; line-height: 60px; font-size: 18px;}
+.menu a:hover{background: #FFFFD2;}
+.menu ul{list-style: none; display: block; width: 60%; margin: 0 auto; padding: 0;}
+.menu ul li{width: 15%; display: inline-block; position: relative; margin:0; padding:0;}
+.menu ul li:hover > ul{display: block;}
+.menu ul li:hover > ul li{background: #FFFF8F;}
+.menu ul li ul{width:100%; margin: 0; padding: 0; position: absolute; display: none;}
+.menu ul li ul li{width:100%;}
+
+.mainImage{width:100%; margin: auto; margin-bottom:30px;}
+.mainImage div{width:100%;  display:block; margin:auto; text-align:center; vertical-align: top;}
+.mainImage img{max-width: 100%; height:600px; display:block; margin:auto;}
+
+.tbl_type01{width:100%; word-wrap:break-word; word-break:break-all;}
+}
+
+.login{text-align: right; background: #191919;}
+.login a{text-decoration:none; color:white;}
+
+@media all and (max-width:768px) { 
+.menu_icon{display:block; position: static; }
+.menu{text-align: center; width: 100%; margin-bottom:30px; padding: 0px; background: #191919; display: none;}
+.menu a{text-decoration: none; color: white; display: block; line-height: 60px; font-size: 18px;}
+.menu a:hover{background: #FFFFD2;}
+.menu ul{list-style: none; display: block; width: 60%; margin: 0 auto; padding: 0;}
+.menu ul li{width: 100%; position: relative; margin:0; padding:0;}
+.menu ul li:hover > ul li{background: #FFFF8F;}
+.menu ul li ul{width:100%; margin: 0; padding: 0; display: block;}
+.menu ul li ul li{width:100%;}
+
+.tbl_type01{width:100%; word-wrap:break-word; word-break:break-all;}
+}
+
+.content{width:100%;}
+
+
+.board{width:100%;}
+.tbl_type01{background: #FFFFD2; margin: auto; margin-bottom:30px; table-layout: fixed;
+			border-collapse: collapse; border-spacing: 0;  color: white; text-align: center; word-wrap:break-word; word-break:break-all;}
+.tbl_type01 a{text-decoration: none; color: white;}
+.tbl_type01 a:hover{color: black;}
+.tbl_type01, .tbl_type01 th, .tbl_type01 td{border: 1px solid black;}
+.tbl_type01 th, .tbl_type01 td{line-height: 50px; white-space : normal; word-break: break-all; word-wrap:break-word; word-break:break-all;}
+.tbl_type01 th span, .tbl_type01 th a, .tbl_type01 td span, .tbl_type01 td a{word-break: break-all}
+.tbl_type01 th{font-size: 18px; background: #FFFF8F;}
+.tbl_type01 .on{background: #FFFF8F;}
+.tbl_type01 .on2{background: #FFFFD2;}
+.tbl_type01 input,select {line-height: 20px; width:70%; background: #FFFFD2; font-size: 15px; color:white;}
+.tbl_type01 img {max-width: 100%;}
+
+
+.ul_type01{list-style: none; margin: auto; margin-bottom:30px; padding: 0; width:100%;}
+.ul_type01 li{width:100%; text-align: center; }
+.ul_type01 li a{text-decoration: none; color:white;}
+.ul_type01 li img{max-width:100%;}
+
+.directory{width: 100%; color:white;}
+.directory a{color:white; text-decoration: none;}
+.directory .directory_location{text-align: center;}
+
+.paging{width: 50%; margin: 0 auto; padding: 0; text-align: center; color:white;}
+.paging a{color: white; text-decoration: none;}
+
+.text_left{text-align: left;}
+.text_right{text-align: right;}
+.text_center{text-align: center;}

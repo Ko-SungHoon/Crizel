@@ -1,0 +1,150 @@
+@CHARSET "UTF-8";
+@import url(http://fonts.googleapis.com/earlyaccess/hanna.css);
+@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+@FONT-FACE{
+	font-family : 'bitroCore';	
+	src:url("/css/font/bitroCore.ttf");
+}
+@FONT-FACE{
+	font-family : 'wimef';	
+	src:url("/css/font/wimef.otf");
+}
+
+
+body{margin:0; padding:0; background:white; color:#111; font-family : wimef;
+/* font-family: 'Noto Sans KR', sans-serif; */ 
+/* font-family: 'Raleway', sans-serif; */
+font-family: "SF Pro KR","SF Pro Text","Yoon Gothic","Myriad Set Pro","SF Pro Icons","Apple Gothic","HY Gulim","MalgunGothic","HY Dotum","Lexi Gulim","Helvetica Neue","Helvetica","Arial",sans-ser;
+
+::-webkit-scrollbar {display: block !important;}}
+
+/*모달창*/
+.modalWrap{position:fixed;width:100%;height: 100%;background: rgba(0, 0, 0, 0.6);display:block;margin:0px;padding:0px;top:0px;left:0px;z-index:99999;}
+.modalWrap .modal{position:relative;width: 100%;padding:0px 10px 0px 10px;height:700px;display: block;margin:auto;background: white;top:100px;vertical-align: middle;border-radius: 15px;}
+.modalWrap .modal .modalBar{width:100%;height: 64px;text-align: right;vertical-align:middle;margin:0px;padding:0px;padding-top: 10px;}
+.modalWrap .modal .ContWrap{height: 90%;margin:0px;padding:0px;border:0px;overflow-y: scroll;margin-top: 5px;}
+.modalWrap .modal .ContWrap caption{display:none;}
+.modalWrap .modal .table_c{word-break:break-all;}
+.modalWrap .modal .mo_scroll{display:none;}
+
+.ul_type01{list-style: none;}
+
+.w_100{width:100% !important;}
+.w_90{width:90% !important;}
+.w_80{width:80% !important;}
+.w_70{width:70% !important;}
+.w_60{width:60% !important;}
+.w_50{width:50% !important;}
+.w_40{width:40% !important;}
+.w_30{width:30% !important;}
+.w_20{width:20% !important;}
+.w_10{width:10% !important;}
+.tc{text-align: center;}
+.tr{float:right;}
+.tl{float:left;}
+.tc a,input,button{text-align: center;}
+.tr a,input,button{text-align: center;}
+.tl a,input,button{text-align: center;}
+.on {background: #fbf288 !important; color:#111;}
+.btn_area .on{background: #254e78 !important;}
+.title{display:block; width:100%; height: 100%;}
+.today a{border: 3px solid green;}
+.videoView{display:block; margin:auto;}
+
+.b_cancel{background: #d03636 !important;}
+.b_cancel:hover{background: #8a0a0a !important;}
+ 
+.content{width:80%; padding:0px; margin:auto;}
+.btn_area{width:100%; padding:0px; margin:0px; line-height: 50px;}
+
+.btn_area a,button, .btn_type01{width:25%; display: inline-block; background: #4d9ff3; color: white; padding:0px; margin:0px; line-height: 50px; text-decoration: none;
+border: 3px solid #c7c7c7; border-radius:30px;
+}
+.btn_area a:hover,button:hover {background: #2d75bf; text-decoration: none;}
+
+.btn_area_s{width:100%; padding:0px; margin:0px; line-height: 30px;}
+.tc{text-align: center;}
+.tr{text-align: right;}
+.tl{text-align: left;}
+.btn_area_s a,button{width:20%; display: inline-block; color: white; padding:0px; margin:0px; line-height: 30px; text-decoration: none;}
+.btn_area_s a:hover,button:hover {background: #828282; text-decoration: none;}
+
+.menu_icon{display:none;}
+.menu{text-align: center;width: 100%;margin-bottom:30px;padding: 0px;/* background: #fffbcb; */position: static;}
+.menu a{text-decoration: none; color: #111; font-weight:bold; display: block; line-height: 60px; font-size: 18px;}
+.menu a:hover{background: #fbf288;}
+.menu ul{list-style: none; display: block; width: 60%; margin: 0 auto; padding: 0;}
+.menu ul li{width: 14%; display: inline-block; position: relative; margin:0; padding:0;}
+.menu ul li:hover > ul{display: block;}
+.menu ul li:hover > ul li{/* background: #fffbcb; */ background: white;}
+.menu ul li ul{width:100%; margin: 0; padding: 0; position: absolute; display: none;}
+.menu ul li ul li{width:100%;}
+
+#mImg{width:100%;}
+#mImg img{width: auto; height: 600px;}
+
+
+.tbl_type01{
+			width:100%;
+			margin: 20px 0 0 0;
+			margin-bottom:30px;
+			table-layout: fixed;
+			/* background : #fffbcb; */
+			border-collapse: collapse;
+			border-spacing: 0;
+			text-align: center;
+			word-wrap:break-word;
+			word-break:break-all;
+			}
+.tbl_type01 th{color:#111;}
+.tbl_type01 th a{color:#111; text-decoration: none; width:100%; display:block;}						
+.tbl_type01, .tbl_type01 th, .tbl_type01 td{border: 3px solid #c7c7c7;}
+.tbl_type01 th, .tbl_type01 td{line-height: 50px; white-space : normal; word-break: break-all; word-wrap:break-word; word-break:break-all;}
+.tbl_type01 th span, .tbl_type01 th a, .tbl_type01 td span, .tbl_type01 td a{word-break: break-all}
+.tbl_type01 th, td a{font-size: 18px; color:#111; text-decoration: none;}
+.tbl_type01 th img, td img{max-width:100%;}
+
+
+
+
+
+
+
+
+
+
+
+
+@media all and (max-width:768px) { 
+.content{width:100%; padding:0px; margin:auto;}
+.btn_area{width:100%; padding:0px; margin:0px; line-height: 50px;}
+
+.btn_area a,button{
+	width:25%; display: inline-block; padding:0px; margin:0px; line-height: 50px; text-decoration: none;
+	border: 3px solid #c7c7c7
+}
+.menu_icon{display:block; position: static; }
+.menu{text-align: center; width: 100%; margin-bottom:30px; padding: 0px; display: none;}
+.menu a{text-decoration: none; display: block; line-height: 60px; font-size: 18px;}
+.menu ul{list-style: none; display: block; width: 60%; margin: 0 auto; padding: 0;}
+.menu ul li{width: 100%; position: relative; margin:0; padding:0;  text-align: left;}
+.menu ul li.depth1{border-bottom: 3px solid #c7c7c7}
+.menu ul li.depth1 a{font-size: 30px; color:#0fbb40; padding-left: 10px;}
+.menu ul li ul{width:100%; margin: 0; padding: 0; display: block; position:inherit;}
+.menu ul li ul li{width:100%; text-align: left;}
+.menu ul li ul li a{font-size: 20px !important; color:black !important;}
+
+#mImg{width:100%;}
+#mImg img{width: auto; height: 350px;}
+
+
+.tbl_type01{width:100%; margin: 20px 0 0 0; margin-bottom:30px; table-layout: fixed;border-collapse: collapse; border-spacing: 0; text-align: center; word-wrap:break-word; word-break:break-all;}
+.tbl_type01 th a{text-decoration: none; width:100%; display:block;}						
+.tbl_type01, .tbl_type01 th, .tbl_type01 td{border: 3px solid #c7c7c7}
+.tbl_type01 th, .tbl_type01 td{line-height: 50px; white-space : normal; word-break: break-all; word-wrap:break-word; word-break:break-all;}
+.tbl_type01 th span, .tbl_type01 th a, .tbl_type01 td span, .tbl_type01 td a{word-break: break-all}
+.tbl_type01 th, td a{font-size: 18px; text-decoration: none;}
+.tbl_type01 th img, td img{max-width:100%;}
+
+}
+
