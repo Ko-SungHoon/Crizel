@@ -182,8 +182,8 @@ Vue.component('movie-comp', {
 				, success : function(data){
 					ref.movieList = data.boxOfficeResult.weeklyBoxOfficeList
 				}
-				, error : function(){
-					alert('movie Err');
+				, error : function(err){
+					alert('movie Err : ' + err);
 				}
 			});
 		}
