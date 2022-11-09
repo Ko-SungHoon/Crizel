@@ -1,1 +1,0 @@
-function testzz(){alert('test')}
