@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/Crizel/static/css/main.1e64f1ee.css",
+    "main.js": "/Crizel/static/js/main.77b2efa1.js",
+    "static/js/787.3bc9b426.chunk.js": "/Crizel/static/js/787.3bc9b426.chunk.js",
+    "static/media/logo.svg": "/Crizel/static/media/logo.6ce24c58023cc2f8fd88fe9d219db6c6.svg",
+    "index.html": "/Crizel/index.html",
+    "main.1e64f1ee.css.map": "/Crizel/static/css/main.1e64f1ee.css.map",
+    "main.77b2efa1.js.map": "/Crizel/static/js/main.77b2efa1.js.map",
+    "787.3bc9b426.chunk.js.map": "/Crizel/static/js/787.3bc9b426.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1e64f1ee.css",
+    "static/js/main.77b2efa1.js"
+  ]
+}
